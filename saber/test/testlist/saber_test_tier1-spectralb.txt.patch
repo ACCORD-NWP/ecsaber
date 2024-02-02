@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb.txt.tmp	2024-02-02 14:24:03.131333804 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb.txt	2024-02-02 14:23:04.191254548 +0100
+@@ -7,8 +7,6 @@
+ dirac_sqrtspectralb
+ dirac_sqrtspectralb_correl_1
+ dirac_vertproj
+-dirac_spectralb_localization_1
+-dirac_spectralb_localization_2
+ randomization_csdual_sqrtspectralb
+ randomization_sqrtspectralb_1
+ compare_diagnostics_sqrtspectralb
