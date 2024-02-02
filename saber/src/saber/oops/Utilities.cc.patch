@@ -1,0 +1,25 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.cc.tmp.bak	2024-01-25 15:54:43.858474629 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.cc	2024-01-25 15:59:18.314888147 +0100
+@@ -63,6 +63,22 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
++void setMember(eckit::LocalConfiguration & conf,
++               const int & member) {
++  oops::Log::trace() << "setMember starting" << std::endl;
++
++  if (conf.has("member pattern")) {
++    std::string memberPattern = conf.getString("member pattern");
++    util::seekAndReplace(conf, memberPattern, std::to_string(member));
++  } else {
++    conf.set("member", member);
++  }
++
++  oops::Log::trace() << "setMember done" << std::endl;
++}
++
++// -----------------------------------------------------------------------------
++
+ void setMPI(eckit::LocalConfiguration & conf,
+             const int & mpi) {
+   oops::Log::trace() << "setMPI starting" << std::endl;

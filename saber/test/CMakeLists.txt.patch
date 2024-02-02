@@ -1,0 +1,92 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-02-02 14:42:13.381303168 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-02-02 14:41:44.477113648 +0100
+@@ -7,9 +7,6 @@
+ # Tests activated
+ message( STATUS "SABER tests activated:" )
+ 
+-# Use find_branch function in jedi-cmake
+-include( git_functions )
+-
+ # Default SABER_TEST_TIER
+ set( SABER_TEST_TIER 1 )
+ 
+@@ -147,9 +144,10 @@
+     file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
+ 
+     # Link to yaml file
+-    execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+-                     ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
+-                     ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
++    execute_process(COMMAND ${Python3_EXECUTABLE}
++                    ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_yaml_update.py
++                    ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
++                    ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
+ 
+     # Link to reference file
+     if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
+@@ -157,6 +155,13 @@
+                          ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref
+                          ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref )
+     endif()
++
++    # Link to tolerance file
++    if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref.tol )
++        execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
++                         ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref.tol
++                         ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref.tol )
++    endif()
+ endforeach()
+ foreach( data ${saber_data} )
+     # Link to input data file
+@@ -239,14 +244,44 @@
+                         endif()
+                     endif()
+ 
++                    # Special check for interpolation
++                    string( FIND ${test} "interpolation_2" interpolation_2_result )
++                    string( FIND ${test} "interpolation_3" interpolation_3_result )
++                    if( interpolation_2_result EQUAL -1 AND interpolation_3_result EQUAL -1 )
++                        set( interpCheck true CACHE BOOL "" FORCE )
++                    else()
++                        set( interpCheck false CACHE BOOL "" FORCE )
++                    endif()
++
++                    # Special check for VADER
++                    string( FIND ${test} "gauss_vader" gauss_vader_result )
++                    if( gauss_vader_result EQUAL -1 )
++                        set( vaderCheck true CACHE BOOL "" FORCE )
++                    else()
++                        set( vaderCheck false CACHE BOOL "" FORCE )
++                    endif()
++
++                    # Special check to avoid 4D tests
++                    string( FIND ${test} "_4d" fourd_result )
++                    string( FIND ${test} "_seq4d" seqfourd_result )
++                    if( fourd_result EQUAL -1 AND seqfourd_result EQUAL -1 )
++                        set( no4dCheck true CACHE BOOL "" FORCE )
++                    else()
++                        set( no4dCheck false CACHE BOOL "" FORCE )
++                    endif()
++
+                     # Add test
+-                    ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
+-                                      MPI ${mpi}
+-                                      OMP ${omp}
+-                                      COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x
+-                                      ARGS testinput/${test}.yaml
+-                                      DEPENDS saber_quench_${exename}.x
+-                                      TEST_DEPENDS ${deps_list} )
++                    if( interpCheck AND vaderCheck AND no4dCheck )
++                        ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
++                                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
++                                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
++                                               ${mpi}
++                                               ${omp}
++                                               "${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x testinput/${test}.yaml"
++                                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref"
++                                          DEPENDS saber_quench_${exename}.x
++                                          TEST_DEPENDS ${deps_list} )
++                    endif()
+                 endif()
+             endif()
+         endforeach()
