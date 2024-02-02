@@ -64,5 +64,5 @@ ecbuild_bundle_finalize()
 6) Test: `ctest`
 
 ## Contact
-Benjamin Menetrier, Meteorological Institutt, Norway.<br>
+Benjamin Menetrier, Meteorologisk Institutt, Norway.<br>
 benjamin.menetrier -at- met.no
