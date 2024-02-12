@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb.txt.tmp	2024-02-02 14:24:03.131333804 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb.txt	2024-02-02 14:23:04.191254548 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb.txt.tmp.bak	2024-02-12 11:07:56.954828793 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb.txt	2024-02-12 11:18:32.732864345 +0100
 @@ -7,8 +7,6 @@
  dirac_sqrtspectralb
  dirac_sqrtspectralb_correl_1

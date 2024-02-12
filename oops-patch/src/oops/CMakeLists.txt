@@ -19,10 +19,6 @@ base/WriteParametersBase.h
 generic/gc99.cc
 generic/gc99.h
 interface/ModelData.h
-external/stripack/stripack.cc
-external/stripack/stripack.h
-external/stripack/stripack.f90
-external/stripack/stripack_interface.f90
 mpi/mpi.cc
 mpi/mpi.h
 runs/ConvertState.h

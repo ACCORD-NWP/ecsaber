@@ -1,18 +1,33 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-02-02 13:43:54.828094859 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-02-02 13:42:49.268044450 +0100
-@@ -19,15 +19,14 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-02-12 13:41:29.876253776 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-02-12 13:41:07.096233993 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * (C) Crown Copyright 2023-2024 Met Office
++ * (C) Crown Copyright 2023 Met Office
+  *
+  * This software is licensed under the terms of the Apache Licence Version 2.0
+  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+@@ -7,6 +7,8 @@
+ 
+ #pragma once
+ 
++#include <omp.h>
++
+ #include <memory>
+ #include <sstream>
+ #include <string>
+@@ -17,12 +19,14 @@
  #include "eckit/exception/Exceptions.h"
  
  #include "oops/base/FieldSets.h"
 -#include "oops/base/Geometry.h"
 -#include "oops/base/Increment.h"
- #include "oops/base/Increment4D.h"
 -#include "oops/base/instantiateCovarFactory.h"
 -#include "oops/base/ModelSpaceCovarianceBase.h"
 -#include "oops/base/State.h"
- #include "oops/base/State4D.h"
--#include "oops/base/StateEnsemble.h"
 -#include "oops/base/Variables.h"
++#include "oops/base/Increment4D.h"
++#include "oops/base/State4D.h"
 +#include "oops/interface/Geometry.h"
 +#include "oops/interface/Increment.h"
 +#include "oops/interface/Model.h"
@@ -22,38 +37,47 @@
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
  #include "oops/util/ConfigFunctions.h"
-@@ -44,6 +43,9 @@
- #include "saber/blocks/SaberOuterBlockChain.h"
- #include "saber/blocks/SaberParametricBlockChain.h"
+@@ -34,6 +38,9 @@
+ #include "oops/util/parameters/RequiredParameter.h"
  
+ #include "saber/blocks/SaberParametricBlockChain.h"
 +#include "saber/oops/instantiateCovarFactory.h"
-+#include "saber/oops/instantiateLocalizationFactory.h"
++
 +#include "saber/oops/ECUtilities.h"
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -51,87 +53,107 @@
- // -----------------------------------------------------------------------------
+@@ -73,14 +80,12 @@
+   OOPS_CONCRETE_PARAMETERS(ModelOrGenericWriteParameters, oops::Parameters)
+ 
+  public:
+-  typedef typename oops::Increment<MODEL>::WriteParameters_  IncrementWriteParameters_;
+-
+   /// Write parameters using generic oops::util::writeFieldSet writer
+   oops::OptionalParameter<eckit::LocalConfiguration>
+     genericWrite{"generic write", this};
+ 
+   /// Write parameters using model increment writer
+-  oops::OptionalParameter<IncrementWriteParameters_>
++  oops::OptionalParameter<eckit::LocalConfiguration>
+     modelWrite{"model write", this};
+ };
+ 
+@@ -89,25 +94,20 @@
  
  /// \brief Top-level options taken by the ProcessPerts application.
--template <typename MODEL> class ProcessPertsParameters :
+ template <typename MODEL> class ProcessPertsParameters :
 -  public oops::ApplicationParameters {
 -  OOPS_CONCRETE_PARAMETERS(ProcessPertsParameters, oops::ApplicationParameters)
-+class ProcessPertsParameters :
 +  public oops::Parameters {
 +  OOPS_CONCRETE_PARAMETERS(ProcessPertsParameters, oops::Parameters)
  
   public:
 -  typedef oops::ModelSpaceCovarianceParametersWrapper<MODEL> CovarianceParameters_;
 -
--  typedef typename oops::Geometry<MODEL>::Parameters_        GeometryParameters_;
--  typedef oops::State<MODEL>                                 State_;
--  typedef oops::IncrementMemberTemplateParameters<MODEL>     IncrementMemberTemplateParameters_;
--  typedef oops::StateEnsembleParameters<MODEL>               StateEnsembleParameters_;
--  typedef typename oops::Increment<MODEL>::ReadParameters_   IncrementReadParameters_;
--  typedef typename oops::Increment<MODEL>::WriteParameters_  IncrementWriterParameters_;
--  typedef ErrorCovarianceParameters<MODEL>                   ErrorCovarianceParameters_;
--
+-  typedef typename oops::Geometry<MODEL>::Parameters_     GeometryParameters_;
+-  typedef ErrorCovarianceParameters<MODEL>                ErrorCovarianceParameters_;
+   typedef ModelOrGenericWriteParameters<MODEL>            ModelOrGenericWriteParameters_;
    /// Geometry parameters.
 -  oops::RequiredParameter<GeometryParameters_> geometry{"geometry", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> geometry{"resolution", this};
@@ -62,61 +86,41 @@
 -  oops::RequiredParameter<eckit::LocalConfiguration> background{"background", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> background{"Background", this};
  
-   oops::RequiredParameter<util::DateTime> date{"date", this};
 -  oops::RequiredParameter<oops::patch::Variables> inputVariables{"input variables", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> inputVariables{"input variables", this};
  
--  oops::RequiredParameter<ErrorCovarianceParameters_>
--    saberFilterCovarianceParams{"saber filter blocks", this};
-+  /// Background error covariance model.
-+  oops::RequiredParameter<eckit::LocalConfiguration> filterCovarianceBlockConf{"saber filter blocks", this};
+-  oops::RequiredParameter<std::vector<ErrorCovarianceParameters_>>
+-   saberFilterCovarianceParams{"saber filter blocks", this};
++  oops::RequiredParameter<eckit::LocalConfiguration> saberFilterCovarianceParams{"saber filter blocks", this};
  
    /// Where to read input ensemble: From states or perturbations
    oops::OptionalParameter<eckit::LocalConfiguration> ensemble{"ensemble", this};
-   oops::OptionalParameter<eckit::LocalConfiguration> ensemblePert{"ensemble pert", this};
- 
-   /// Where to write low-pass filtered perturbations
--  oops::OptionalParameter<IncrementWriterParameters_>
-+  oops::OptionalParameter<eckit::LocalConfiguration>
-     lowpassPerturbations{"low pass perturbations", this};
- 
-   /// Where to write high-pass filtered perturbations
--  oops::RequiredParameter<IncrementWriterParameters_>
-+  oops::RequiredParameter<eckit::LocalConfiguration>
-     outputPerturbations{"output perturbations", this};
- };
+@@ -123,45 +123,68 @@
  
  // -----------------------------------------------------------------------------
  
 -template <typename MODEL> class ProcessPerts : public oops::Application {
--  typedef oops::ModelSpaceCovarianceBase<MODEL>           CovarianceBase_;
--  typedef oops::CovarianceFactory<MODEL>                  CovarianceFactory_;
--  typedef oops::ModelSpaceCovarianceParametersBase<MODEL> CovarianceParametersBase_;
--  typedef oops::Geometry<MODEL>                           Geometry_;
--  typedef oops::Increment<MODEL>                          Increment_;
--  typedef oops::Increment4D<MODEL>                        Increment4D_;
--  typedef oops::State<MODEL>                              State_;
--  typedef oops::State4D<MODEL>                            State4D_;
--  typedef typename Increment_::WriteParameters_           IncrementWriteParameters_;
--  typedef ProcessPertsParameters<MODEL>                   ProcessPertsParameters_;
-+/*! @brief Error covariance training application
-+
-+ * Use input fields and ensemble data to perform the calibration of
-+ * a background error covariance matrix
-+ */
-+
+-  typedef oops::ModelSpaceCovarianceBase<MODEL>             CovarianceBase_;
+-  typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
+-  typedef oops::ModelSpaceCovarianceParametersBase<MODEL>   CovarianceParametersBase_;
+-  typedef oops::Geometry<MODEL>                             Geometry_;
+-  typedef oops::Increment<MODEL>                            Increment_;
+-  typedef oops::State<MODEL>                                State_;
+-  typedef oops::State4D<MODEL>                              State4D_;
+-  typedef typename oops::Increment<MODEL>::WriteParameters_ IncrementWriteParameters_;
+-  typedef ProcessPertsParameters<MODEL>                     ProcessPertsParameters_;
 +template <typename MODEL>
 +class ProcessPerts : public oops::Application {
++  using CovarianceBase_ = oops::ModelSpaceCovarianceBase<MODEL>;
 +  using CovarianceFactory_ = oops::CovarianceFactory<MODEL>;
 +  using Geometry_ = oops::Geometry<MODEL>;
 +  using Increment_ = oops::Increment<MODEL>;
 +  using Increment4D_ = oops::Increment4D<MODEL>;
-+  using Localization_ = oops::Localization<MODEL>;
 +  using Model_ = oops::Model<MODEL>;
-+  using CovarianceBase_ = oops::ModelSpaceCovarianceBase<MODEL>;
 +  using State_ = oops::State<MODEL>;
 +  using State4D_ = oops::State4D<MODEL>;
 +  using Variables_ = oops::Variables<MODEL>;
++  using ProcessPertsParameters_ = ProcessPertsParameters<MODEL>;
  
   public:
  // -----------------------------------------------------------------------------
@@ -125,17 +129,16 @@
 -    oops::instantiateCovarFactory<MODEL>();
 +  ProcessPerts() {
 +    instantiateCovarFactory<MODEL>();
-+    instantiateLocalizationFactory<MODEL>();
    }
  // -----------------------------------------------------------------------------
    virtual ~ProcessPerts() {}
  // -----------------------------------------------------------------------------
+-
 -  int execute(const eckit::Configuration & fullConfig, bool validate) const override {
 +  int execute(const eckit::Configuration & fullConfig) const {
      // Deserialize parameters
--    ProcessPertsParameters_ params;
+     ProcessPertsParameters_ params;
 -    if (validate) params.validate(fullConfig);
-+    ProcessPertsParameters params;
 +    params.validate(fullConfig);
      params.deserialize(fullConfig);
  
@@ -184,14 +187,9 @@
      oops::FieldSet4D fsetXb(xx);
      oops::FieldSet4D fsetFg(xx);
  
-@@ -143,21 +165,22 @@
- 
-     // List of output increments
-     const auto & lowpassPerturbations = params.lowpassPerturbations.value();
--    const IncrementWriteParameters_ & incrementsWriteParams =
--      params.outputPerturbations;
-+    const auto & incrementsWriteParams =
-+      params.outputPerturbations.value();
+@@ -171,18 +194,19 @@
+     std::vector<eckit::LocalConfiguration> filterCovarianceBlockConfs
+       = fullConfig.getSubConfigurations("saber filter blocks");
  
 -    oops::patch::Variables incVars = params.inputVariables;
 +    const Variables_ incVarsT(params.inputVariables);
@@ -214,51 +212,61 @@
      eckit::LocalConfiguration covarConf;
      covarConf.set("iterative ensemble loading", false);
      covarConf.set("inverse test", false);
-@@ -199,9 +222,10 @@
-     for (int jm = 0; jm < nincrements; ++jm) {
-       //  Read ensemble member perturbation
-       oops::FieldSet3D fsetI(fsetEnsI[jm]);
--      Increment_ dxI(geom, incVars, time);
-+      Increment_ dxI(geom, incVarsT, time);
-       dxI.zero();
--      dxI.fromFieldSet(fsetI.fieldSet());
-+      dxI.increment().fieldSet() = util::copyFieldSet(fsetI.fieldSet());
-+      dxI.increment().synchronizeFields();
+@@ -275,19 +299,21 @@
+           eckit::LocalConfiguration conf = localOutputPert.genericWrite.value().value();
+           util::setMember(conf, jm+1);
+           setGridId(conf, getGridId(fullConfig));
+-          util::writeFieldSet(geom.getComm(), conf, fset4dDx[0].fieldSet());
++          util::writeFieldSet(*commSpace, conf, fset4dDx[0].fieldSet());
+         }
  
-       //  Copy perturbation
-       oops::FieldSet3D fset(fsetI);
-@@ -216,12 +240,13 @@
-       saberFilterBlocks->filter(fset4dDx);
+         if (localOutputPert.modelWrite.value() != boost::none) {
+           // Should be on the model geometry!
++          const Variables_ pertVarsT(templatedVarsConf(fset4dDx[0].variables()));
+           auto pert = Increment_(geom,
+-                                 fset4dDx[0].variables(),
++                                 pertVarsT,
+                                  time);
+           pert.zero();
+-          pert.fromFieldSet(fset4dDx[0].fieldSet());
++          pert.increment().fieldSet() = util::copyFieldSet(fset4dDx[0].fieldSet());
++          pert.increment().synchronizeFields();
  
-       if (lowpassPerturbations != boost::none) {
--        Increment_ dxLowPass(geom, incVars, time);
-+        Increment_ dxLowPass(geom, incVarsT, time);
-         dxLowPass.zero();
--        dxLowPass.fromFieldSet(fset4dDx[0].fieldSet());
-+        dxLowPass.increment().fieldSet() = util::copyFieldSet(fset4dDx[0].fieldSet());
-+        dxLowPass.increment().synchronizeFields();
+-          IncrementWriteParameters_ writeParams = localOutputPert.modelWrite.value().value();
+-          writeParams.setMember(jm+1);
++          eckit::LocalConfiguration writeParams = *localOutputPert.modelWrite.value();
++          util::setMember(writeParams, jm+1);
+           pert.write(writeParams);
+         }
  
-         auto lowpassPerturbationsUpdated(*lowpassPerturbations);
--        lowpassPerturbationsUpdated.setMember(jm+1);
-+        setMember(lowpassPerturbationsUpdated,jm+1);
-         dxLowPass.write(lowpassPerturbationsUpdated);
-         oops::Log::test() << "Norm of low pass perturbation : member  " << jm+1
-                           << ": " << dxLowPass.norm() << std::endl;
-@@ -232,10 +257,11 @@
-       fset4dDxI += fset4dDx;
+@@ -308,19 +334,21 @@
+           auto conf = localOutputPert.genericWrite.value().value();
+           util::setMember(conf, jm+1);
+           setGridId(conf, getGridId(fullConfig));
+-          util::writeFieldSet(geom.getComm(), conf, fset4dDxI[0].fieldSet());
++          util::writeFieldSet(*commSpace, conf, fset4dDxI[0].fieldSet());
+         }
  
-       // Write high pass
--      dxI.fromFieldSet(fset4dDxI[0].fieldSet());
-+      dxI.increment().fieldSet() = util::copyFieldSet(fset4dDxI[0].fieldSet());
-+      dxI.increment().synchronizeFields();
+         if (localOutputPert.modelWrite.value() != boost::none) {
+           // Should be on the model geometry!
++          const Variables_ pertVarsT(templatedVarsConf(fset4dDxI[0].variables()));
+           auto pert = Increment_(geom,
+-                                 fset4dDxI[0].variables(),
++                                 pertVarsT,
+                                  time);
+           pert.zero();
+-          pert.fromFieldSet(fset4dDxI[0].fieldSet());
++          pert.increment().fieldSet() = util::copyFieldSet(fset4dDxI[0].fieldSet());
++          pert.increment().synchronizeFields();
  
-       auto incrementsWriteParamsUpdated(incrementsWriteParams);
--      incrementsWriteParamsUpdated.setMember(jm+1);
-+      setMember(incrementsWriteParamsUpdated,jm+1);
-       dxI.write(incrementsWriteParamsUpdated);
+-          auto writeParams = localOutputPert.modelWrite.value().value();
+-          writeParams.setMember(jm+1);
++          auto writeParams = *localOutputPert.modelWrite.value();
++          util::setMember(writeParams, jm+1);
+           pert.write(writeParams);
+         }
  
-       oops::Log::test() << "Norm of high pass perturbation : member  " << jm+1
-@@ -245,16 +271,6 @@
+@@ -333,16 +361,6 @@
      return 0;
    }
  // -----------------------------------------------------------------------------

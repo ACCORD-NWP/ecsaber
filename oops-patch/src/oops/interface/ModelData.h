@@ -12,6 +12,8 @@
 #include <string>
 
 #include "oops/interface/Geometry.h"
+#include "oops/interface/Variables.h"
+
 #include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
@@ -25,10 +27,11 @@ namespace oops {
 template <typename MODEL>
 class ModelData : public  util::Printable,
                   private util::ObjectCounter<ModelData<MODEL> >  {
-  typedef Geometry<MODEL> Geometry_;
+  typedef Geometry<MODEL>           Geometry_;
 
  public:
   static const std::string classname() {return "oops::ModelData";}
+  static const patch::Variables defaultVariables() {return patch::Variables();}
 
   explicit ModelData(const Geometry_ &);
   virtual ~ModelData();
