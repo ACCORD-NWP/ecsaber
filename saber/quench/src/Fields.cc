@@ -606,10 +606,26 @@ void Fields::diff(const Fields & x1, const Fields & x2) {
   oops::Log::trace() << "Fields::diff done" << std::endl;
 }
 // -----------------------------------------------------------------------------
-void Fields::synchronizeFields() {
-  oops::Log::trace() << "Fields::synchronizeFields starting" << std::endl;
+void Fields::toFieldSet(atlas::FieldSet & fset) const {
+  oops::Log::trace() << "Fields::toFieldSet starting" << std::endl;
+  // Share internal fieldset
+  fset.clear();
+  fset = util::shareFields(fset_);
+  for (auto field_external : fset) {
+    field_external.metadata().set("interp_type", "default");
+  }
+  oops::Log::trace() << "Fields::toFieldSet done" << std::endl;
+}
+// -----------------------------------------------------------------------------
+void Fields::fromFieldSet(const atlas::FieldSet & fset) {
+  oops::Log::trace() << "Fields::fromFieldSet starting" << std::endl;
+
+  // Reset internal fieldset
+  fset_.clear();
+  fset_ = util::shareFields(fset);
+
   if (geom_->gridType() == "regular_lonlat") {
-    // Copy poles points
+    // Reset poles points
     for (auto field_internal : fset_) {
       atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
       atlas::StructuredGrid grid = fs.grid();
@@ -652,6 +668,57 @@ void Fields::synchronizeFields() {
       }
     }
   }
+  oops::Log::trace() << "Fields::fromFieldSet done" << std::endl;
+}
+// -----------------------------------------------------------------------------
+void Fields::synchronizeFields() {
+  oops::Log::trace() << "Fields::synchronizeFields starting" << std::endl;
+
+  if (geom_->gridType() == "regular_lonlat") {
+    // Reset poles points
+    for (auto field_internal : fset_) {
+      atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
+      atlas::StructuredGrid grid = fs.grid();
+      auto view = atlas::array::make_view<double, 2>(field_internal);
+      auto view_i = atlas::array::make_view<int, 1>(fs.index_i());
+      auto view_j = atlas::array::make_view<int, 1>(fs.index_j());
+      std::vector<double> north(field_internal.shape(1), 0.0);
+      std::vector<double> south(field_internal.shape(1), 0.0);
+      for (atlas::idx_t j = fs.j_begin(); j < fs.j_end(); ++j) {
+        for (atlas::idx_t i = fs.i_begin(j); i < fs.i_end(j); ++i) {
+          atlas::idx_t jnode = fs.index(i, j);
+          if ((view_j(jnode) == 1)  && (view_i(jnode) == 1)) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              north[jlevel] = view(jnode, jlevel);
+            }
+          }
+          if ((view_j(jnode) == grid.ny())  && (view_i(jnode) == 1)) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              south[jlevel] = view(jnode, jlevel);
+            }
+          }
+        }
+      }
+      geom_->getComm().allReduceInPlace(north.begin(), north.end(), eckit::mpi::sum());
+      geom_->getComm().allReduceInPlace(south.begin(), south.end(), eckit::mpi::sum());
+      for (atlas::idx_t j = fs.j_begin_halo(); j < fs.j_end_halo(); ++j) {
+        for (atlas::idx_t i = fs.i_begin_halo(j); i < fs.i_end_halo(j); ++i) {
+          atlas::idx_t jnode = fs.index(i, j);
+          if (view_j(jnode) == 1) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              view(jnode, jlevel) = north[jlevel];
+            }
+          }
+          if (view_j(jnode) == grid.ny()) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              view(jnode, jlevel) = south[jlevel];
+            }
+          }
+        }
+      }
+    }
+  }
+
   oops::Log::trace() << "Fields::synchronizeFields done" << std::endl;
 }
 // -----------------------------------------------------------------------------
@@ -682,7 +749,6 @@ void Fields::write(const eckit::Configuration & config) const {
   eckit::LocalConfiguration conf(config);
 
   // Write fieldset
-  std::cout << "WRITE: " << fset_.field_names() << std::endl;
   util::writeFieldSet(geom_->getComm(), conf, fset_);
 
   if (geom_->mesh().generated()) {

@@ -80,19 +80,21 @@ class State : public util::Printable,
     return fields_->geometry();
   }
 
+
+/// ATLAS FieldSet accessor
+  void toFieldSet(atlas::FieldSet &) const;
+  void fromFieldSet(const atlas::FieldSet &);
+  const atlas::FieldSet & fieldSet() const {return fields_->fieldSet();}
+  atlas::FieldSet & fieldSet() {return fields_->fieldSet();}
+  void synchronizeFields() {fields_->synchronizeFields();}
+
 /// Other
   void activateModel()
     {ABORT("not implemented yet");}
   void deactivateModel()
     {ABORT("not implemented yet");}
-
   void zero();
   void accumul(const double &, const State &);
-
-/// ATLAS FieldSet accessor
-  const atlas::FieldSet & fieldSet() const {return fields_->fieldSet();}
-  atlas::FieldSet & fieldSet() {return fields_->fieldSet();}
-  void synchronizeFields() {fields_->synchronizeFields();}
 
  private:
   std::unique_ptr<Fields> fields_;

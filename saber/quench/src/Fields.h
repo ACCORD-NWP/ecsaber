@@ -54,12 +54,12 @@ class Fields : public util::Printable,
   void random();
   void diff(const Fields &, const Fields &);
 
-// Serialization
-  size_t serialSize() const;
-  void serialize(std::vector<double> &) const;
-  void deserialize(const std::vector<double> &, size_t &);
-  friend eckit::Stream & operator<<(eckit::Stream &, const Fields &);
-  friend eckit::Stream & operator>>(eckit::Stream &, Fields &);
+// ATLAS FieldSet
+  void toFieldSet(atlas::FieldSet &) const;
+  void fromFieldSet(const atlas::FieldSet &);
+  const atlas::FieldSet & fieldSet() const {return fset_;}
+  atlas::FieldSet & fieldSet() {return fset_;}
+  void synchronizeFields();
 
 // Utilities
   void read(const eckit::Configuration &);
@@ -72,10 +72,12 @@ class Fields : public util::Printable,
   const util::DateTime & time() const {return time_;}
   util::DateTime & time() {return time_;}
 
-/// ATLAS FieldSet
-  const atlas::FieldSet & fieldSet() const {return fset_;}
-  atlas::FieldSet & fieldSet() {return fset_;}
-  void synchronizeFields();
+/// Serialization
+  size_t serialSize() const;
+  void serialize(std::vector<double> &) const;
+  void deserialize(const std::vector<double> &, size_t &);
+  friend eckit::Stream & operator<<(eckit::Stream &, const Fields &);
+  friend eckit::Stream & operator>>(eckit::Stream &, Fields &);
 
  private:
   void print(std::ostream &) const;

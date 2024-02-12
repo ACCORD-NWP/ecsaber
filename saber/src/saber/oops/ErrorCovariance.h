@@ -395,8 +395,7 @@ void ErrorCovariance4D<MODEL>::randomize(Increment4D_ & dx) const {
 
   // ATLAS fieldset to Increment_
   for (int jtime = dx.first(); jtime <= dx.last(); ++jtime) {
-    dx[jtime].increment().fieldSet() = util::copyFieldSet(fset4dSum[jtime].fieldSet());
-    dx[jtime].increment().synchronizeFields();
+    dx[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
   }
 
   oops::Log::trace() << "ErrorCovariance4D<MODEL>::randomize done" << std::endl;
@@ -458,8 +457,7 @@ void ErrorCovariance4D<MODEL>::advectedMultiply(const Increment4D_ &dxi,
 
   // ATLAS fieldset to Increment4D_
   for (int jtime = dxo.first(); jtime <= dxo.last(); ++jtime) {
-    dxo[jtime].increment().fieldSet() = util::copyFieldSet(fset4dSum[jtime].fieldSet());
-    dxo[jtime].increment().synchronizeFields();
+    dxo[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
   }
 
   oops::Log::trace() << "ErrorCovariance4D<MODEL>::advectedMultiply done" << std::endl;
@@ -523,8 +521,7 @@ void ErrorCovariance4D<MODEL>::advectedMultiplySqrt(const IncrCtlVec_ &dv,
 
   // ATLAS fieldset to Increment4D_
   for (int jtime = dx.first(); jtime <= dx.last(); ++jtime) {
-    dx[jtime].increment().fieldSet() = util::copyFieldSet(fset4dSum[jtime].fieldSet());
-    dx[jtime].increment().synchronizeFields();
+    dx[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
   }
 
   oops::Log::trace() << "ErrorCovariance4D<MODEL>::advectedMultiplySqrt done" << std::endl;

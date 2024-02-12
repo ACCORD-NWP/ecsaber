@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-02-02 13:43:54.876094898 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-02-02 13:43:14.532063428 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-02-12 15:52:29.187562172 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-02-12 15:42:57.990873909 +0100
 @@ -13,20 +13,18 @@
  
  #include "atlas/field.h"
@@ -270,15 +270,14 @@
      hybridBlockChain_[jj]->randomize(fset4dCmp);
  
      // Weight square-root multiplication
-@@ -354,20 +394,21 @@
+@@ -354,20 +394,20 @@
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
    // ATLAS fieldset to Increment_
 -  for (size_t jtime = 0; jtime < dx.size(); ++jtime) {
 -    dx[jtime].fromFieldSet(fset4dSum[jtime].fieldSet());
 +  for (int jtime = dx.first(); jtime <= dx.last(); ++jtime) {
-+    dx[jtime].increment().fieldSet() = util::copyFieldSet(fset4dSum[jtime].fieldSet());
-+    dx[jtime].increment().synchronizeFields();
++    dx[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
    }
  
 -  oops::Log::trace() << "ErrorCovariance<MODEL>::doRandomize done" << std::endl;
@@ -300,7 +299,7 @@
  
    // Copy input
    dxo = dxi;
-@@ -415,27 +456,308 @@
+@@ -415,27 +455,306 @@
    // Apply outer blocks forward
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
@@ -309,8 +308,7 @@
 -    dxo[jtime].fromFieldSet(fset4dSum[jtime].fieldSet());
 +  // ATLAS fieldset to Increment4D_
 +  for (int jtime = dxo.first(); jtime <= dxo.last(); ++jtime) {
-+    dxo[jtime].increment().fieldSet() = util::copyFieldSet(fset4dSum[jtime].fieldSet());
-+    dxo[jtime].increment().synchronizeFields();
++    dxo[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
    }
  
 -  oops::Log::trace() << "ErrorCovariance<MODEL>::doMultiply done" << std::endl;
@@ -380,8 +378,7 @@
 +
 +  // ATLAS fieldset to Increment4D_
 +  for (int jtime = dx.first(); jtime <= dx.last(); ++jtime) {
-+    dx[jtime].increment().fieldSet() = util::copyFieldSet(fset4dSum[jtime].fieldSet());
-+    dx[jtime].increment().synchronizeFields();
++    dx[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
 +  }
 +
 +  oops::Log::trace() << "ErrorCovariance4D<MODEL>::advectedMultiplySqrt done" << std::endl;

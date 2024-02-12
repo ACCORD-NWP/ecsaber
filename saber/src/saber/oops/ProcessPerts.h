@@ -309,8 +309,7 @@ class ProcessPerts : public oops::Application {
                                  pertVarsT,
                                  time);
           pert.zero();
-          pert.increment().fieldSet() = util::copyFieldSet(fset4dDx[0].fieldSet());
-          pert.increment().synchronizeFields();
+          pert.increment().fromFieldSet(fset4dDx[0].fieldSet());
 
           eckit::LocalConfiguration writeParams = *localOutputPert.modelWrite.value();
           util::setMember(writeParams, jm+1);
@@ -344,8 +343,7 @@ class ProcessPerts : public oops::Application {
                                  pertVarsT,
                                  time);
           pert.zero();
-          pert.increment().fieldSet() = util::copyFieldSet(fset4dDxI[0].fieldSet());
-          pert.increment().synchronizeFields();
+          pert.increment().fromFieldSet(fset4dDxI[0].fieldSet());
 
           auto writeParams = *localOutputPert.modelWrite.value();
           util::setMember(writeParams, jm+1);
