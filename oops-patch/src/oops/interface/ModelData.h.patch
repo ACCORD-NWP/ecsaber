@@ -1,26 +1,31 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/interface/ModelData.h.tmp.bak	2023-12-19 10:46:53.557094346 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/interface/ModelData.h	2023-12-19 10:42:21.073432022 +0100
-@@ -11,8 +11,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/interface/ModelData.h.tmp.bak	2024-02-12 13:35:25.260041805 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/interface/ModelData.h	2024-02-12 12:09:05.681834966 +0100
+@@ -11,8 +11,8 @@
  #include <memory>
  #include <string>
  
 -#include "oops/base/Geometry.h"
--
+-#include "oops/base/Variables.h"
 +#include "oops/interface/Geometry.h"
++#include "oops/interface/Variables.h"
+ 
  #include "oops/util/Logger.h"
  #include "oops/util/ObjectCounter.h"
- #include "oops/util/Printable.h"
-@@ -26,8 +25,7 @@
+@@ -27,12 +27,11 @@
  template <typename MODEL>
  class ModelData : public  util::Printable,
                    private util::ObjectCounter<ModelData<MODEL> >  {
 -  typedef typename MODEL::ModelData ModelData_;
--  typedef Geometry<MODEL>           Geometry_;
-+  typedef Geometry<MODEL> Geometry_;
+   typedef Geometry<MODEL>           Geometry_;
  
   public:
    static const std::string classname() {return "oops::ModelData";}
-@@ -43,8 +41,6 @@
+-  static const patch::Variables defaultVariables() {return ModelData_::defaultVariables();}
++  static const patch::Variables defaultVariables() {return patch::Variables();}
+ 
+   explicit ModelData(const Geometry_ &);
+   virtual ~ModelData();
+@@ -45,8 +44,6 @@
  
   private:
    void print(std::ostream &) const override;
@@ -29,7 +34,7 @@
  };
  
  // -----------------------------------------------------------------------------
-@@ -54,7 +50,6 @@
+@@ -56,7 +53,6 @@
  {
    Log::trace() << "ModelData<MODEL>::ModelData starting" << std::endl;
    util::Timer timer(classname(), "ModelData");
@@ -37,7 +42,7 @@
    Log::trace() << "ModelData<MODEL>::ModelData done" << std::endl;
  }
  
-@@ -64,7 +59,6 @@
+@@ -66,7 +62,6 @@
  ModelData<MODEL>::~ModelData() {
    Log::trace() << "ModelData<MODEL>::~ModelData starting" << std::endl;
    util::Timer timer(classname(), "~ModelData");
@@ -45,7 +50,7 @@
    Log::trace() << "ModelData<MODEL>::~ModelData done" << std::endl;
  }
  
-@@ -74,8 +68,11 @@
+@@ -76,8 +71,11 @@
  const eckit::LocalConfiguration ModelData<MODEL>::modelData() const {
    Log::trace() << "ModelData<MODEL>::modelData starting" << std::endl;
    util::Timer timer(classname(), "modelData");
@@ -58,7 +63,7 @@
  }
  
  // -----------------------------------------------------------------------------
-@@ -84,7 +81,6 @@
+@@ -86,7 +84,6 @@
  void ModelData<MODEL>::print(std::ostream & os) const {
    Log::trace() << "ModelData<MODEL>::print starting" << std::endl;
    util::Timer timer(classname(), "print");

@@ -682,6 +682,7 @@ void Fields::write(const eckit::Configuration & config) const {
   eckit::LocalConfiguration conf(config);
 
   // Write fieldset
+  std::cout << "WRITE: " << fset_.field_names() << std::endl;
   util::writeFieldSet(geom_->getComm(), conf, fset_);
 
   if (geom_->mesh().generated()) {
