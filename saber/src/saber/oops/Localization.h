@@ -122,25 +122,6 @@ Localization<MODEL>::~Localization() {
 // -----------------------------------------------------------------------------
 
 template<typename MODEL>
-void Localization<MODEL>::multiply(Increment_ & dx) const {
-  oops::Log::trace() << "Localization:multiply starting" << std::endl;
-
-  // SABER block chain multiplication
-  oops::FieldSet3D fset3d(dx.validTime(), eckit::mpi::comm());
-  fset3d.deepCopy(dx.increment().fieldSet());
-  oops::FieldSet4D fset4d(fset3d);
-  loc_->multiply(fset4d);
-
-  // ATLAS fieldset to Increment_
-  dx.increment().fieldSet() = util::copyFieldSet(fset4d[0].fieldSet());
-  dx.increment().synchronizeFields();
-
-  oops::Log::trace() << "Localization:multiply done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
-template<typename MODEL>
 void Localization<MODEL>::multiplySqrt(const GenericCtlVec_ & dv,
                                        Increment_ & dx) const {
   oops::Log::trace() << "Localization:multiplySqrt starting" << std::endl;
@@ -151,8 +132,7 @@ void Localization<MODEL>::multiplySqrt(const GenericCtlVec_ & dv,
   loc_->multiplySqrt(dv.data(), fset4d, 0);
 
   // ATLAS fieldset to Increment_
-  dx.increment().fieldSet() = util::copyFieldSet(fset4d[0].fieldSet());
-  dx.increment().synchronizeFields();
+  dx.increment().fromFieldSet(fset4d[0].fieldSet());
 
   oops::Log::trace() << "Localization:multiplySqrt done" << std::endl;
 }
@@ -171,6 +151,23 @@ void Localization<MODEL>::multiplySqrtTrans(const Increment_ & dx,
   loc_->multiplySqrtAD(fset4d, dv.data(), 0);
 
   oops::Log::trace() << "Localization:multiplySqrtTrans done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+void Localization<MODEL>::multiply(Increment_ & dx) const {
+  oops::Log::trace() << "Localization:multiply starting" << std::endl;
+
+  // SABER block chain multiplication
+  oops::FieldSet4D fset4d({dx.validTime(), eckit::mpi::comm()});
+  fset4d[0].shallowCopy(dx.increment().fieldSet());
+  loc_->multiply(fset4d);
+
+  // ATLAS fieldset to Increment_
+  dx.increment().synchronizeFields();
+
+  oops::Log::trace() << "Localization:multiply done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

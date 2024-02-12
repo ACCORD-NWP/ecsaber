@@ -116,6 +116,16 @@ void Increment::dirac(const eckit::Configuration & config) {
   fields_->dirac(config);
 }
 // -----------------------------------------------------------------------------
+/// ATLAS FieldSet accessor
+// -----------------------------------------------------------------------------
+void Increment::toFieldSet(atlas::FieldSet & fset) const {
+  fields_->toFieldSet(fset);
+}
+// -----------------------------------------------------------------------------
+void Increment::fromFieldSet(const atlas::FieldSet & fset) {
+  fields_->fromFieldSet(fset);
+}
+// -----------------------------------------------------------------------------
 /// I/O and diagnostics
 // -----------------------------------------------------------------------------
 void Increment::read(const eckit::Configuration & files) {

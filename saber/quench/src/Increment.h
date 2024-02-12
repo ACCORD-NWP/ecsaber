@@ -89,6 +89,13 @@ class Increment : public oops::GeneralizedDepartures,
   util::DateTime & validTime() {return fields_->time();}
   void updateTime(const util::Duration & dt) {fields_->time() += dt;}
 
+/// ATLAS FieldSet accessor
+  void toFieldSet(atlas::FieldSet &) const;
+  void fromFieldSet(const atlas::FieldSet &);
+  const atlas::FieldSet & fieldSet() const {return fields_->fieldSet();}
+  atlas::FieldSet & fieldSet() {return fields_->fieldSet();}
+  void synchronizeFields() {fields_->synchronizeFields();}
+
 /// Access to fields
   Fields & fields() {return *fields_;}
   const Fields & fields() const {return *fields_;}
@@ -96,24 +103,18 @@ class Increment : public oops::GeneralizedDepartures,
     return fields_->geometry();
   }
 
-/// Serialization
-  friend eckit::Stream & operator<<(eckit::Stream & s, const Increment & dx)
-    {s << dx.fields(); return s;}
-  friend eckit::Stream & operator>>(eckit::Stream & s, Increment & dx)
-    {s >> dx.fields(); return s;}
-
 /// Other
   void activateModel()
     {ABORT("not implemented yet");}
   void deactivateModel()
     {ABORT("not implemented yet");}
-
   void accumul(const double &, const State &);
 
-/// ATLAS FieldSet accessor
-  const atlas::FieldSet & fieldSet() const {return fields_->fieldSet();}
-  atlas::FieldSet & fieldSet() {return fields_->fieldSet();}
-  void synchronizeFields() {fields_->synchronizeFields();}
+/// Serialization
+  friend eckit::Stream & operator<<(eckit::Stream & s, const Increment & dx)
+    {s << dx.fields(); return s;}
+  friend eckit::Stream & operator>>(eckit::Stream & s, Increment & dx)
+    {s >> dx.fields(); return s;}
 
 /// Data
  private:

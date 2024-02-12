@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-02-12 13:41:29.876253776 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-02-12 13:41:07.096233993 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-02-12 15:52:29.139562132 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-02-12 15:47:35.539274690 +0100
 @@ -1,5 +1,5 @@
  /*
 - * (C) Crown Copyright 2023-2024 Met Office
@@ -212,7 +212,7 @@
      eckit::LocalConfiguration covarConf;
      covarConf.set("iterative ensemble loading", false);
      covarConf.set("inverse test", false);
-@@ -275,19 +299,21 @@
+@@ -275,19 +299,20 @@
            eckit::LocalConfiguration conf = localOutputPert.genericWrite.value().value();
            util::setMember(conf, jm+1);
            setGridId(conf, getGridId(fullConfig));
@@ -229,8 +229,7 @@
                                   time);
            pert.zero();
 -          pert.fromFieldSet(fset4dDx[0].fieldSet());
-+          pert.increment().fieldSet() = util::copyFieldSet(fset4dDx[0].fieldSet());
-+          pert.increment().synchronizeFields();
++          pert.increment().fromFieldSet(fset4dDx[0].fieldSet());
  
 -          IncrementWriteParameters_ writeParams = localOutputPert.modelWrite.value().value();
 -          writeParams.setMember(jm+1);
@@ -239,7 +238,7 @@
            pert.write(writeParams);
          }
  
-@@ -308,19 +334,21 @@
+@@ -308,19 +333,20 @@
            auto conf = localOutputPert.genericWrite.value().value();
            util::setMember(conf, jm+1);
            setGridId(conf, getGridId(fullConfig));
@@ -256,8 +255,7 @@
                                   time);
            pert.zero();
 -          pert.fromFieldSet(fset4dDxI[0].fieldSet());
-+          pert.increment().fieldSet() = util::copyFieldSet(fset4dDxI[0].fieldSet());
-+          pert.increment().synchronizeFields();
++          pert.increment().fromFieldSet(fset4dDxI[0].fieldSet());
  
 -          auto writeParams = localOutputPert.modelWrite.value().value();
 -          writeParams.setMember(jm+1);
@@ -266,7 +264,7 @@
            pert.write(writeParams);
          }
  
-@@ -333,16 +361,6 @@
+@@ -333,16 +359,6 @@
      return 0;
    }
  // -----------------------------------------------------------------------------
