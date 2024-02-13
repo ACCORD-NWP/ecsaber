@@ -11,6 +11,7 @@
 #include "src/Traits.h"
 
 namespace quench {
+
 // -----------------------------------------------------------------------------
 
 void instantiateQuenchMatrices() {
@@ -18,4 +19,5 @@ void instantiateQuenchMatrices() {
 }
 
 // -----------------------------------------------------------------------------
+
 }  // namespace quench

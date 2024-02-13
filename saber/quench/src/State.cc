@@ -7,8 +7,6 @@
 
 #include <vector>
 
-#include "eckit/exception/Exceptions.h"
-
 #include "util/Logger.h"
 
 #include "src/Fields.h"
@@ -17,11 +15,12 @@
 namespace quench {
 
 // -----------------------------------------------------------------------------
-/// Constructor, destructor
-// -----------------------------------------------------------------------------
-State::State(const Geometry & resol, const eckit::Configuration & file)
-  : fields_()
-{
+
+State::State(const Geometry & resol,
+             const eckit::Configuration & file)
+  : fields_() {
+  oops::Log::trace() << "State::State starting" << std::endl;
+
   const Variables vars(file);
   fields_.reset(new Fields(resol, vars, util::DateTime()));
   if (file.has("filepath")) {
@@ -39,90 +38,102 @@ State::State(const Geometry & resol, const eckit::Configuration & file)
   }
   const util::DateTime vt(file.getString("date"));
   fields_->time() = vt;
-  oops::Log::trace() << "State::State created." << std::endl;
+
+  oops::Log::trace() << "State::State done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-State::State(const Geometry & resol, const Model &,
+
+State::State(const Geometry & resol,
+             const Model &,
              const eckit::Configuration & conf)
-  : State(resol, conf) {}
-// -----------------------------------------------------------------------------
-State::State(const Geometry & resol, const Tlm &,
-             const eckit::Configuration & conf)
-  : State(resol, conf) {}
-// -----------------------------------------------------------------------------
-State::State(const Geometry & resol, const State & other)
-  : fields_(new Fields(*other.fields_, resol))
-{
-  ASSERT(fields_);
-  oops::Log::trace() << "State::State created by interpolation." << std::endl;
+  : State(resol, conf) {
+  oops::Log::trace() << "State::State done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-State::State(const Geometry & resol, const Model &,
+
+State::State(const Geometry & resol,
+             const Tlm &,
+             const eckit::Configuration & conf)
+  : State(resol, conf) {
+  oops::Log::trace() << "State::State done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+State::State(const Geometry & resol,
              const State & other)
-  : State(resol, other) {}
-// -----------------------------------------------------------------------------
-State::State(const Geometry & resol, const Model & model,
-             const State & other, const eckit::Configuration & conf)
-  : State(resol, other) {}
-// -----------------------------------------------------------------------------
-State::State(const State & other)
-  : fields_(new Fields(*other.fields_))
-{
-  oops::Log::trace() << "State::State copied." << std::endl;
+  : fields_(new Fields(*other.fields_, resol)) {
+  oops::Log::trace() << "State::State starting" << std::endl;
+
+  ASSERT(fields_);
+
+  oops::Log::trace() << "State::State done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-/// Basic operators
+
+State::State(const Geometry & resol,
+             const Model &,
+             const State & other)
+  : State(resol, other) {
+  oops::Log::trace() << "State::State done" << std::endl;
+}
+
 // -----------------------------------------------------------------------------
+
+State::State(const Geometry & resol,
+             const Model & model,
+             const State & other,
+             const eckit::Configuration & conf)
+  : State(resol, other) {
+  oops::Log::trace() << "State::State done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+State::State(const State & other)
+  : fields_(new Fields(*other.fields_)) {
+  oops::Log::trace() << "State::State done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
 State & State::operator=(const State & rhs) {
+  oops::Log::trace() << "State::operator= starting" << std::endl;
+
   ASSERT(fields_);
   *fields_ = *rhs.fields_;
   return *this;
+
+  oops::Log::trace() << "State::operator= done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-/// Interactions with Increments
-// -----------------------------------------------------------------------------
+
 State & State::operator+=(const Increment & dx) {
+  oops::Log::trace() << "State::operator+= starting" << std::endl;
+
   ASSERT(this->validTime() == dx.validTime());
   ASSERT(fields_);
   *fields_+=dx.fields();
+
+  oops::Log::trace() << "State::operator+= done" << std::endl;
   return *this;
 }
+
 // -----------------------------------------------------------------------------
-/// I/O and diagnostics
-// -----------------------------------------------------------------------------
-void State::read(const eckit::Configuration & files) {
-  fields_->read(files);
-  fields_->fieldSet().haloExchange();
-}
-// -----------------------------------------------------------------------------
-void State::write(const eckit::Configuration & files) const {
-  fields_->write(files);
-}
-// -----------------------------------------------------------------------------
+
 void State::print(std::ostream & os) const {
-  os << std::endl << "  Valid time: " << this->validTime();
+  oops::Log::trace() << "State::print starting" << std::endl;
+
+  os << std::endl << "Valid time:" << this->validTime();
   os << *fields_;
+
+  oops::Log::trace() << "State::print done" << std::endl;
 }
-// -----------------------------------------------------------------------------
-/// ATLAS FieldSet accessor
-// -----------------------------------------------------------------------------
-void State::toFieldSet(atlas::FieldSet & fset) const {
-  fields_->toFieldSet(fset);
-}
-// -----------------------------------------------------------------------------
-void State::fromFieldSet(const atlas::FieldSet & fset) {
-  fields_->fromFieldSet(fset);
-}
-// -----------------------------------------------------------------------------
-/// For accumulator
-// -----------------------------------------------------------------------------
-void State::zero() {
-  fields_->zero();
-}
-// -----------------------------------------------------------------------------
-void State::accumul(const double & zz, const State & xx) {
-  fields_->axpy(zz, *xx.fields_);
-}
+
 // -----------------------------------------------------------------------------
 
 }  // namespace quench

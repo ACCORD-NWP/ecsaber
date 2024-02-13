@@ -18,43 +18,45 @@
 #include "atlas/util/KDTree.h"
 #include "atlas/util/Point.h"
 
+#include "eckit/exception/Exceptions.h"
 #include "eckit/mpi/Comm.h"
 
 #include "src/Variables.h"
 
 #include "oops/generic/gc99.h"
 #include "oops/util/FunctionSpaceHelpers.h"
-#include "util/abor1_cpp.h"
 #include "util/Logger.h"
 
-#define ERR(e) {ABORT(nc_strerror(e));}
+#define ERR(e) {throw eckit::Exception(nc_strerror(e), Here());}
+
+namespace quench {
 
 // -----------------------------------------------------------------------------
-namespace quench {
-// -----------------------------------------------------------------------------
-Geometry::Geometry(const eckit::Configuration & conf)
-  : comm_(eckit::mpi::comm()), groups_()
-{
+
+Geometry::Geometry(const eckit::Configuration & config)
+  : comm_(eckit::mpi::comm()), groups_() {
+  oops::Log::trace() << "Geometry::Geometry starting" << std::endl;
+
   // Initialize eckit communicator for ATLAS
   eckit::mpi::setCommDefault(comm_.name().c_str());
 
   // Setup atlas geometric data structures
   atlas::FieldSet fieldsetOwnedMask;
-  util::setupFunctionSpace(comm_, conf, grid_, partitioner_, mesh_,
-                           functionSpace_, fieldsetOwnedMask);
+  util::setupFunctionSpace(comm_, config, grid_, partitioner_, mesh_, functionSpace_,
+    fieldsetOwnedMask);
 
-  halo_ = conf.getInt("halo", 0);
-  const eckit::LocalConfiguration gridParams(conf, "grid");
+  halo_ = config.getInt("halo", 0);
+  const eckit::LocalConfiguration gridParams(config, "grid");
   gridType_ = gridParams.getString("type", "no_type");
   regionalGrid_ = (gridType_ == "regional");  // grid.type() does not report if grid is regional
 
   // Groups
   size_t groupIndex = 0;
-  for (const auto & groupParams : conf.getSubConfigurations("groups")) {
+  for (const auto & groupParams : config.getSubConfigurations("groups")) {
     // Use this group index for all the group variables
     for (const auto & var : groupParams.getStringVector("variables")) {
       if (groupIndex_.find(var) != groupIndex_.end()) {
-        ABORT("Same variable present in distinct groups");
+        throw eckit::UserError("Same variable present in distinct groups", Here());
       } else {
         groupIndex_[var] = groupIndex;
       }
@@ -73,7 +75,8 @@ Geometry::Geometry(const eckit::Configuration & conf)
     if (groupParams.has("vert_coord")) {
       std::vector<double> vert_coordParams = groupParams.getDoubleVector("vert_coord");
       if (vert_coordParams.size() != group.levels_) {
-        ABORT("Wrong number of levels in the user-specified vertical coordinate");
+        throw eckit::UserError("Wrong number of levels in the user-specified vertical coordinate",
+          Here());
       }
       for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
         group.vert_coord_.push_back(vert_coordParams[jlevel]);
@@ -99,7 +102,7 @@ Geometry::Geometry(const eckit::Configuration & conf)
       readSeaMask(groupParams.getString("mask path", "../quench/data/landsea.nc"),
         group.levels_, group.lev2d_, gmask);
     } else {
-      ABORT("Wrong mask type");
+      throw eckit::UserError("Wrong mask type", Here());
     }
 
     // Fill geometry fields
@@ -218,11 +221,18 @@ Geometry::Geometry(const eckit::Configuration & conf)
 
   // Print summary
   this->print(oops::Log::info());
+
+  oops::Log::trace() << "Geometry::Geometry done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-Geometry::Geometry(const Geometry & other) : comm_(other.comm_), halo_(other.halo_),
-  grid_(other.grid_), gridType_(other.gridType_), regionalGrid_(other.regionalGrid_),
-  partitioner_(other.partitioner_), mesh_(other.mesh_), groupIndex_(other.groupIndex_)  {
+
+Geometry::Geometry(const Geometry & other)
+  : comm_(other.comm_), halo_(other.halo_), grid_(other.grid_), gridType_(other.gridType_),
+  regionalGrid_(other.regionalGrid_), partitioner_(other.partitioner_), mesh_(other.mesh_),
+  groupIndex_(other.groupIndex_)  {
+  oops::Log::trace() << "Geometry::Geometry starting" << std::endl;
+
   // Copy function space
   if (other.functionSpace_.type() == "StructuredColumns") {
     // StructuredColumns
@@ -237,9 +247,11 @@ Geometry::Geometry(const Geometry & other) : comm_(other.comm_), halo_(other.hal
       functionSpace_ = atlas::functionspace::NodeColumns(other.functionSpace_);
     }
   } else if (other.functionSpace_.type() == "PointCloud") {
-    ABORT(other.functionSpace_.type() + " function space not supported");
+    throw eckit::NotImplemented(other.functionSpace_.type() + " function space not supported",
+      Here());
   } else {
-    ABORT(other.functionSpace_.type() + " function space not supported yet");
+    throw eckit::NotImplemented(other.functionSpace_.type() + " function space not supported yet",
+      Here());
   }
 
   // Copy groups
@@ -270,32 +282,57 @@ Geometry::Geometry(const Geometry & other) : comm_(other.comm_), halo_(other.hal
     // Save group
     groups_.push_back(group);
   }
+
+  oops::Log::trace() << "Geometry::Geometry done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 size_t Geometry::levels(const std::string & var) const {
+  oops::Log::trace() << "Geometry::levels starting" << std::endl;
+
   if (groupIndex_.count(var) == 0) {
-    ABORT("Variable " + var + " not found in groupIndex_");
+    throw eckit::Exception("Variable " + var + " not found in groupIndex_", Here());
   }
+
+  oops::Log::trace() << "Geometry::levels done" << std::endl;
   return groups_[groupIndex_.at(var)].levels_;
 }
+
 // -----------------------------------------------------------------------------
+
 size_t Geometry::groupIndex(const std::string & var) const {
+  oops::Log::trace() << "Geometry::groupIndex starting" << std::endl;
+
   if (groupIndex_.count(var) == 0) {
-    ABORT("Variable " + var + " not found in groupIndex_");
+    throw eckit::Exception("Variable " + var + " not found in groupIndex_", Here());
   }
+
+  oops::Log::trace() << "Geometry::groupIndex done" << std::endl;
   return groupIndex_.at(var);
 }
+
 // -----------------------------------------------------------------------------
+
 std::vector<size_t> Geometry::variableSizes(const Variables & vars) const {
+  oops::Log::trace() << "Geometry::variableSizes starting" << std::endl;
+
   std::vector<size_t> sizes;
   for (const auto & var : vars.variablesList()) {
     sizes.push_back(levels(var));
   }
+
+  oops::Log::trace() << "Geometry::variableSizes done" << std::endl;
   return sizes;
 }
+
 // -----------------------------------------------------------------------------
-void Geometry::latlon(std::vector<double> & lats, std::vector<double> & lons,
+
+void Geometry::latlon(std::vector<double> & lats,
+                      std::vector<double> & lons,
                       const bool includeHaloForRealLife) const {
+  oops::Log::trace() << "Geometry::latlon starting" << std::endl;
+
   const auto lonlat = atlas::array::make_view<double, 2>(functionSpace_.lonlat());
   const auto ghost = atlas::array::make_view<int, 1>(functionSpace_.ghost());
 
@@ -338,9 +375,15 @@ void Geometry::latlon(std::vector<double> & lats, std::vector<double> & lons,
     }
   }
   ASSERT(count == nptsReturned);
+
+  oops::Log::trace() << "Geometry::latlon done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Geometry::print(std::ostream & os) const {
+  oops::Log::trace() << "Geometry::print starting" << std::endl;
+
   std::string prefix;
   if (os.rdbuf() == oops::Log::info().rdbuf()) {
     prefix = "Info     : ";
@@ -367,12 +410,18 @@ void Geometry::print(std::ostream & os) const {
     os << prefix << "  Mask size: " << static_cast<int>(groups_[groupIndex].gmaskSize_*100.0)
        << "%" << std::endl;
   }
+
+  oops::Log::trace() << "Geometry::print done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Geometry::readSeaMask(const std::string & maskPath,
                            const size_t & levels,
                            const std::string & lev2d,
                            atlas::Field & gmask) const {
+  oops::Log::trace() << "Geometry::readSeaMask starting" << std::endl;
+
   // Lon/lat sizes
   size_t nlon = 0;
   size_t nlat = 0;
@@ -489,8 +538,13 @@ void Geometry::readSeaMask(const std::string & maskPath,
       }
     }
   } else {
-    ABORT("Sea mask not supported for " + functionSpace_.type() + " yet");
+    throw eckit::NotImplemented("Sea mask not supported for " + functionSpace_.type() + " yet",
+      Here());
   }
+
+  oops::Log::trace() << "Geometry::readSeaMask done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 }  // namespace quench

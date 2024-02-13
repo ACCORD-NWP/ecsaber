@@ -26,37 +26,44 @@ namespace eckit {
 namespace quench {
   class LocalizationMatrix;
 
-  /// IncrEnsCtlVec Class
-  /*!
-   *  Augmented part of the control vector
-   */
-
 // -----------------------------------------------------------------------------
+/// IncrEnsCtlVec class
 
 class IncrEnsCtlVec : public util::Printable,
                       private util::ObjectCounter<IncrEnsCtlVec> {
  public:
-  static const std::string classname() {return "quench::IncrEnsCtlVec";}
+  static const std::string classname()
+    {return "quench::IncrEnsCtlVec";}
 
 /// Constructor, destructor
   IncrEnsCtlVec()
     {throw eckit::Exception("no IncrEnsCtlVec with quench", Here());}
-  IncrEnsCtlVec(const Geometry &, const LocalizationMatrix &)
+  IncrEnsCtlVec(const Geometry &,
+                const LocalizationMatrix &)
     {throw eckit::Exception("no IncrEnsCtlVec with quench", Here());}
-  IncrEnsCtlVec(const Geometry &, const LocalizationMatrix &, const IncrEnsCtlVec &)
+  IncrEnsCtlVec(const Geometry &,
+                const LocalizationMatrix &, const IncrEnsCtlVec &)
     {throw eckit::Exception("no IncrEnsCtlVec with quench", Here());}
-  IncrEnsCtlVec(const IncrEnsCtlVec &, const bool)
+  IncrEnsCtlVec(const IncrEnsCtlVec &,
+                const bool)
     {throw eckit::Exception("no IncrEnsCtlVec with quench", Here());}
-  virtual ~IncrEnsCtlVec() {}
+  virtual ~IncrEnsCtlVec()
+    {}
 
 /// Basic operators
   void zero()
     {throw eckit::Exception("no IncrEnsCtlVec with quench", Here());}
-  IncrEnsCtlVec & operator =(const IncrEnsCtlVec &) {return *this;}
-  IncrEnsCtlVec & operator+=(const IncrEnsCtlVec &) {return *this;}
-  IncrEnsCtlVec & operator-=(const IncrEnsCtlVec &) {return *this;}
-  IncrEnsCtlVec & operator*=(const double &) {return *this;}
-  void axpy(const double &, const IncrEnsCtlVec &, const bool check = true)
+  IncrEnsCtlVec & operator =(const IncrEnsCtlVec &)
+    {return *this;}
+  IncrEnsCtlVec & operator+=(const IncrEnsCtlVec &)
+    {return *this;}
+  IncrEnsCtlVec & operator-=(const IncrEnsCtlVec &)
+    {return *this;}
+  IncrEnsCtlVec & operator*=(const double &)
+    {return *this;}
+  void axpy(const double &,
+            const IncrEnsCtlVec &,
+            const bool check = true)
     {throw eckit::Exception("no IncrEnsCtlVec with quench", Here());}
   double dot_product_with(const IncrEnsCtlVec &) const
     {throw eckit::Exception("no IncrEnsCtlVec with quench", Here()); return 0.0;}

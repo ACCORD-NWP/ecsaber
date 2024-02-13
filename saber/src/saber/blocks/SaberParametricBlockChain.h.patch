@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2023-12-21 09:51:27.005717249 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2023-12-21 09:42:12.257543545 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2024-02-13 15:28:46.829121987 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2024-02-13 14:06:18.938872162 +0100
 @@ -75,6 +75,8 @@
    size_t size4D_;
    oops::patch::Variables centralVars_;
@@ -102,21 +102,16 @@
          readEnsembleMember(geom, activeVars, ensembleConf, ie, fset);
  
          // Remove mean
-@@ -299,14 +307,14 @@
+@@ -299,10 +307,10 @@
          if (outerBlockChain_) outerBlockChain_->leftInverseMultiply(fset);
  
-         // Copy fieldSet
--        dx.fieldSet().deepCopy(fset);
-+        dx.increment().fieldSet() = fset.fieldSet();
+         // ATLAS fieldset to Increment_
+-        dx.fromFieldSet(fset.fieldSet());
++        dx.increment().fromFieldSet(fset.fieldSet());
        } else {
-         // Copy member
--        dx.fieldSet().deepCopy(fsetEns[ie]);
-+        dx.increment().fieldSet() = fsetEns[ie].fieldSet();
+         // ATLAS fieldset to Increment_
+-        dx.fromFieldSet(fsetEns[ie].fieldSet());
++        dx.increment().fromFieldSet(fsetEns[ie].fieldSet());
        }
  
-       // ATLAS fieldset to Increment_
--      dx.synchronizeFields();
-+      dx.increment().synchronizeFields();
- 
        if (useModelWriter) {
-         // Use model writer

@@ -10,11 +10,11 @@
 #include <ostream>
 #include <string>
 
+#include "eckit/exception/Exceptions.h"
 #include "eckit/serialisation/Stream.h"
 
 #include "oops/base/GeneralizedDepartures.h"
 
-#include "util/abor1_cpp.h"
 #include "util/DateTime.h"
 #include "util/dot_product.h"
 #include "util/Duration.h"
@@ -23,103 +23,126 @@
 
 #include "src/Fields.h"
 #include "src/Geometry.h"
+#include "src/State.h"
 
 namespace eckit {
   class Configuration;
 }
 
 namespace quench {
-  class Gom;
+  class GeoVals;
   class Locations;
-  class ModelBiasIncrement;
-  class State;
+  class ModelAuxIncrement;
   class Variables;
 
-/// Increment Class: Difference between two states
-/*!
- *  Some fields that are present in a State may not be present in
- *  an Increment. The Increment contains everything that is needed by
- *  the tangent-linear and adjoint models.
- */
-
 // -----------------------------------------------------------------------------
+/// Increment class
 
 class Increment : public oops::GeneralizedDepartures,
                   public util::Printable,
                   private util::ObjectCounter<Increment> {
  public:
-  static const std::string classname() {return "quench::Increment";}
+  static const std::string classname()
+    {return "quench::Increment";}
 
 /// Constructor, destructor
-  Increment(const Geometry &, const Variables &, const util::DateTime &);
-  Increment(const Geometry &, const Variables &, const util::DateTime &,
+  Increment(const Geometry &,
+            const Variables &,
             const util::DateTime &);
-  Increment(const Geometry &, const Increment &);
-  Increment(const Increment &, const bool);
-  Increment(const Increment &) {}
-  virtual ~Increment() {}
+  Increment(const Geometry &,
+            const Variables &,
+            const util::DateTime &,
+            const util::DateTime &);
+  Increment(const Geometry &,
+            const Increment &);
+  Increment(const Increment &,
+            const bool);
+  Increment(const Increment &)
+    {}
+  virtual ~Increment()
+    {}
 
 /// Basic operators
-  void diff(const State &, const State &);
-  void zero();
+  void diff(const State &,
+            const State &);
+  void zero()
+    {fields_->zero();}
   void zero(const util::DateTime &);
+  void dirac(const eckit::Configuration & config)
+    {fields_->dirac(config);}
   Increment & operator =(const Increment &);
   Increment & operator+=(const Increment &);
   Increment & operator-=(const Increment &);
   Increment & operator*=(const double &);
-  void axpy(const double &, const Increment &, const bool check = true);
-  double dot_product_with(const Increment &) const;
-  void schur_product_with(const Increment &);
-  void random();
+  void axpy(const double &,
+            const Increment &,
+            const bool check = true);
+  double dot_product_with(const Increment & dx) const
+    {return fields_->dot_product_with(*dx.fields_);}
+  void schur_product_with(const Increment & dx)
+    {fields_->schur_product_with(*dx.fields_);}
+  void random()
+    {fields_->random();}
 
 /// Interpolate to observation location
-  void interpolateTL(const Locations &, Gom &) const
-    {ABORT("not implemented yet");}
-  void interpolateAD(const Locations &, const Gom &)
-    {ABORT("not implemented yet");}
+  void interpolateTL(const Locations &, GeoVals &) const
+    {throw eckit::NotImplemented(Here());}
+  void interpolateAD(const Locations &, const GeoVals &)
+    {throw eckit::NotImplemented(Here());}
 
 /// I/O and diagnostics
-  void read(const eckit::Configuration &);
-  void write(const eckit::Configuration &) const;
-  double norm() const {return fields_->norm();}
+  void read(const eckit::Configuration & config)
+    {fields_->read(config);}
+  void write(const eckit::Configuration & config) const
+    {fields_->write(config);}
+  double norm() const
+    {return fields_->norm();}
   double max(const Variables & var) const {return fields_->max(var);}
   double min(const Variables & var) const {return fields_->min(var);}
-  void dirac(const eckit::Configuration &);
-  const util::DateTime & validTime() const {return fields_->time();}
+  const util::DateTime & validTime() const
+    {return fields_->time();}
   util::DateTime & validTime() {return fields_->time();}
-  void updateTime(const util::Duration & dt) {fields_->time() += dt;}
+  void updateTime(const util::Duration & dt)
+    {fields_->time() += dt;}
 
 /// ATLAS FieldSet accessor
-  void toFieldSet(atlas::FieldSet &) const;
-  void fromFieldSet(const atlas::FieldSet &);
+  void toFieldSet(atlas::FieldSet & fset) const
+    {fields_->toFieldSet(fset);}
+  void fromFieldSet(const atlas::FieldSet & fset)
+    {fields_->fromFieldSet(fset);}
   const atlas::FieldSet & fieldSet() const {return fields_->fieldSet();}
   atlas::FieldSet & fieldSet() {return fields_->fieldSet();}
   void synchronizeFields() {fields_->synchronizeFields();}
 
 /// Access to fields
-  Fields & fields() {return *fields_;}
-  const Fields & fields() const {return *fields_;}
-  std::shared_ptr<const Geometry> geometry() const {
-    return fields_->geometry();
-  }
+  Fields & fields()
+    {return *fields_;}
+  const Fields & fields() const
+    {return *fields_;}
+  std::shared_ptr<const Geometry> geometry() const
+    {return fields_->geometry();}
 
 /// Other
   void activateModel()
-    {ABORT("not implemented yet");}
+    {throw eckit::NotImplemented(Here());}
   void deactivateModel()
-    {ABORT("not implemented yet");}
-  void accumul(const double &, const State &);
+    {throw eckit::NotImplemented(Here());}
+  void accumul(const double & zz,
+               const State & xx)
+    {fields_->axpy(zz, xx.fields());}
 
 /// Serialization
-  friend eckit::Stream & operator<<(eckit::Stream & s, const Increment & dx)
+  friend eckit::Stream & operator<<(eckit::Stream & s,
+                                    const Increment & dx)
     {s << dx.fields(); return s;}
-  friend eckit::Stream & operator>>(eckit::Stream & s, Increment & dx)
+  friend eckit::Stream & operator>>(eckit::Stream & s,
+                                    Increment & dx)
     {s >> dx.fields(); return s;}
 
-/// Data
  private:
-  std::unique_ptr<Fields> fields_;
   void print(std::ostream &) const;
+
+  std::unique_ptr<Fields> fields_;
 };
 // -----------------------------------------------------------------------------
 

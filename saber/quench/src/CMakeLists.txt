@@ -7,14 +7,13 @@ Fields.cc
 Fields.h
 Geometry.cc
 Geometry.h
-Gom.h
+GeoVals.h
 HorizScaleDecomposition.h
 HybridWeight.cc
 HybridWeight.h
 Increment.cc
 Increment.h
 IncrEnsCtlVec.h
-IncrModCtlVec.cc
 IncrModCtlVec.h
 instantiateQuenchMatrices.h
 Interpolator.h
@@ -22,13 +21,11 @@ LocalizationMatrix.h
 Locations.h
 # Logbook.h  # TODO(?): only for latest OOPS versions
 Model.h
-ModelBias.cc
-ModelBias.h
-ModelBiasCovariance.h
-ModelBiasCtlVec.h
-ModelBiasEstimator.h
-ModelBiasIncrement.cc
-ModelBiasIncrement.h
+ModelAuxControl.h
+ModelAuxCovariance.h
+ModelAuxCtlVec.h
+ModelAuxControlEstimator.h
+ModelAuxIncrement.h
 ObsSpace.h
 ObsVec.h
 State.cc
@@ -36,6 +33,7 @@ State.h
 Tlm.h
 Traits.h
 Variables.h
+Variables.cc
 
 )
 

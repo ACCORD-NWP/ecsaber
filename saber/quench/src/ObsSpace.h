@@ -12,7 +12,6 @@
 #include "util/DateTime.h"
 #include "util/Printable.h"
 
-// Forward declarations
 namespace eckit {
   class Configuration;
 }
@@ -23,27 +22,39 @@ namespace quench {
   class ObsVec;
 
 // -----------------------------------------------------------------------------
-/// ObsSpace empty class
+/// ObsSpace class
 
 class ObsSpace : public util::Printable {
  public:
+  static const std::string classname()
+    {return "quench::ObsSpace";}
+
   ObsSpace(const eckit::Configuration &,
-             const Geometry &,
-             const util::DateTime &,
-             const util::DateTime &,
-             const bool lscreend = false) {}
-  ~ObsSpace() {}
+           const Geometry &,
+           const util::DateTime &,
+           const util::DateTime &,
+           const bool lscreend = false)
+    {}
+  ~ObsSpace()
+    {}
 
-  void screenObservations(const ObsVec &, const Gom &) const {}
+  void screenObservations(const ObsVec &,
+                          const Gom &) const
+    {}
 
-  void saveObservations() const {}
+  void saveObservations() const
+    {}
 
-  void generateDistribution(const eckit::Configuration & conf) {}
+  void generateDistribution(const eckit::Configuration & conf)
+    {}
 
-  void printJo(const ObsVec &, const ObsVec &) {}
+  void printJo(const ObsVec &,
+               const ObsVec &)
+    {}
 
  private:
-  void print(std::ostream &) const {}
+  void print(std::ostream &) const
+    {}
 };
 
 }  // namespace quench
