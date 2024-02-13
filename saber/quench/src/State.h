@@ -9,9 +9,10 @@
 #include <ostream>
 #include <string>
 
+#include "eckit/exception/Exceptions.h"
+
 #include "src/Fields.h"
 
-#include "util/abor1_cpp.h"
 #include "util/DateTime.h"
 #include "util/ObjectCounter.h"
 #include "util/Printable.h"
@@ -29,77 +30,102 @@ namespace quench {
   class Tlm;
   class Variables;
 
-///  model state
-/*!
- * A State contains everything that is needed to propagate the state
- * forward in time.
- */
-
 // -----------------------------------------------------------------------------
+/// State class
+
 class State : public util::Printable,
               private util::ObjectCounter<State> {
  public:
-  static const std::string classname() {return "quench::State";}
+  static const std::string classname()
+    {return "quench::State";}
 
 /// Constructor, destructor
-  State(const Geometry &, const eckit::Configuration &);
-  State(const Geometry &, const Model &,
-          const eckit::Configuration &);
-  State(const Geometry &, const Tlm &,
-          const eckit::Configuration &);
-  State(const Geometry &, const State &);
-  State(const Geometry &, const Model &,
-          const State &);
-  State(const Geometry &, const Model &,
-          const State &, const eckit::Configuration &);
+  State(const Geometry &,
+        const eckit::Configuration &);
+  State(const Geometry &,
+        const Model &,
+        const eckit::Configuration &);
+  State(const Geometry &,
+        const Tlm &,
+        const eckit::Configuration &);
+  State(const Geometry &,
+        const State &);
+  State(const Geometry &,
+        const Model &,
+        const State &);
+  State(const Geometry &,
+        const Model &,
+        const State &,
+        const eckit::Configuration &);
   State(const State &);
-  virtual ~State() {}
+  virtual ~State()
+    {}
+
+/// Assignment
   State & operator=(const State &);
 
 /// Interpolate to observation location
-  void interpolate(const Locations &, Gom &) const
-    {ABORT("not implemented yet");}
+  void interpolate(const Locations &,
+                   Gom &) const
+    {throw eckit::NotImplemented(Here());}
 /// Interpolate full fields
-  void forceWith(const State &, const Variables &)
-    {ABORT("not implemented yet");}
+  void forceWith(const State &,
+                 const Variables &)
+    {throw eckit::NotImplemented(Here());}
 
 /// Interactions with Increment
   State & operator+=(const Increment &);
 
 /// I/O and diagnostics
-  void read(const eckit::Configuration &);
-  void write(const eckit::Configuration &) const;
-  double norm() const {return fields_->norm();}
-  const util::DateTime & validTime() const {return fields_->time();}
-  util::DateTime & validTime() {return fields_->time();}
+  void read(const eckit::Configuration & config)
+    {fields_->read(config);}
+  void write(const eckit::Configuration & config) const
+    {fields_->write(config);}
+  double norm() const
+    {return fields_->norm();}
+  const util::DateTime & validTime() const
+    {return fields_->time();}
+  util::DateTime & validTime()
+    {return fields_->time();}
 
 /// Access to fields
-  Fields & fields() {return *fields_;}
-  const Fields & fields() const {return *fields_;}
-  std::shared_ptr<const Geometry> geometry() const {
-    return fields_->geometry();
-  }
+  Fields & fields()
+    {return *fields_;}
+  const Fields & fields() const
+    {return *fields_;}
+  std::shared_ptr<const Geometry> geometry() const
+    {return fields_->geometry();}
 
 
 /// ATLAS FieldSet accessor
-  void toFieldSet(atlas::FieldSet &) const;
-  void fromFieldSet(const atlas::FieldSet &);
-  const atlas::FieldSet & fieldSet() const {return fields_->fieldSet();}
-  atlas::FieldSet & fieldSet() {return fields_->fieldSet();}
-  void synchronizeFields() {fields_->synchronizeFields();}
+  void toFieldSet(atlas::FieldSet & fset) const
+    {fields_->toFieldSet(fset);}
+  void fromFieldSet(const atlas::FieldSet & fset)
+    {fields_->fromFieldSet(fset);}
+  const atlas::FieldSet & fieldSet() const
+    {return fields_->fieldSet();}
+  atlas::FieldSet & fieldSet()
+    {return fields_->fieldSet();}
+  void synchronizeFields()
+    {fields_->synchronizeFields();}
 
 /// Other
   void activateModel()
-    {ABORT("not implemented yet");}
+    {throw eckit::NotImplemented(Here());}
   void deactivateModel()
-    {ABORT("not implemented yet");}
-  void zero();
-  void accumul(const double &, const State &);
+    {throw eckit::NotImplemented(Here());}
+  void zero()
+    {fields_->zero();}
+  void accumul(const double & zz,
+               const State & xx)
+    {fields_->axpy(zz, xx.fields());}
 
  private:
-  std::unique_ptr<Fields> fields_;
   void print(std::ostream &) const;
+
+  std::unique_ptr<Fields> fields_;
 };
+
 // -----------------------------------------------------------------------------
 
 }  // namespace quench

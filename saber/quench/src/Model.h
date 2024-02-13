@@ -17,47 +17,58 @@
 
 #include "src/Geometry.h"
 
-// Forward declarations
 namespace eckit {
   class Configuration;
 }
 
 namespace quench {
-  class ModelBias;
+  class ModelAuxControl;
   class Fields;
   class State;
 
 // -----------------------------------------------------------------------------
-///  model definition.
-/*!
- *   nonlinear model definition and configuration parameters.
- */
+///  Model class
 
 class Model: public util::Printable,
              private eckit::NonCopyable,
              private util::ObjectCounter<Model> {
  public:
-  static const std::string classname() {return "quench::Model";}
+  static const std::string classname()
+    {return "quench::Model";}
 
-  Model(const Geometry &, const eckit::Configuration &) {}
-  Model(const Model &) {}
-  ~Model() {}
+  Model(const Geometry &,
+        const eckit::Configuration &)
+    {}
+  Model(const Model &)
+    {}
+  ~Model()
+    {}
 
 /// Prepare model integration
-  void initialize(State &, const ModelBias &) const {}
+  void initialize(State &,
+                  const ModelAuxControl &) const
+    {}
 
 /// Model integration
-  void step(State &, const ModelBias &) const {}
-  int saveTrajectory(State &, const ModelBias &) const {return 0;}
+  void step(State &,
+            const ModelAuxControl &) const
+    {}
+  int saveTrajectory(State &,
+                     const ModelAuxControl &) const
+    {return 0;}
 
 /// Finish model integration
-  void finalize(State &) const {}
+  void finalize(State &) const
+    {}
 
 /// Utilities
-  const util::Duration & timeResolution() const {return timeResolution_;}
+  const util::Duration & timeResolution() const
+    {return timeResolution_;}
 
  private:
-  void print(std::ostream &) const {}
+  void print(std::ostream &) const
+    {}
+
   const util::Duration timeResolution_;
 };
 // -----------------------------------------------------------------------------

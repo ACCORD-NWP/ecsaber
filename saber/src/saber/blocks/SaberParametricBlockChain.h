@@ -306,15 +306,12 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
         // Apply outer blocks inverse
         if (outerBlockChain_) outerBlockChain_->leftInverseMultiply(fset);
 
-        // Copy fieldSet
-        dx.increment().fieldSet() = fset.fieldSet();
+        // ATLAS fieldset to Increment_
+        dx.increment().fromFieldSet(fset.fieldSet());
       } else {
-        // Copy member
-        dx.increment().fieldSet() = fsetEns[ie].fieldSet();
+        // ATLAS fieldset to Increment_
+        dx.increment().fromFieldSet(fsetEns[ie].fieldSet());
       }
-
-      // ATLAS fieldset to Increment_
-      dx.increment().synchronizeFields();
 
       if (useModelWriter) {
         // Use model writer

@@ -7,11 +7,12 @@
 
 #include <string>
 
+#include "eckit/exception/Exceptions.h"
+
 #include "oops/interface/GenericMatrix.h"
 
 #include "src/Traits.h"
 
-#include "util/abor1_cpp.h"
 #include "util/ObjectCounter.h"
 
 namespace eckit {
@@ -22,31 +23,35 @@ namespace quench {
   class Increment;
   class State;
 
-/// Hybrid weight class: Apply hybrid weight
-
 // -----------------------------------------------------------------------------
+/// Hybrid weight class
 
 class HybridWeight : public oops::GenericMatrix<Traits>,
                      private util::ObjectCounter<HybridWeight> {
  public:
-  static const std::string classname() {return "quench::HybridWeight";}
+  static const std::string classname()
+    {return "quench::HybridWeight";}
 
   explicit HybridWeight(const eckit::Configuration &);
-  ~HybridWeight();
+  ~HybridWeight()
+    {}
 
   void multiply(State &) const
-    {ABORT("not implemented yet");}
-  void multiply(Increment &) const;
+    {throw eckit::NotImplemented(Here());}
+  void multiply(Increment & dx) const
+    {dx *= wgt_;}
   void inverseMultiply(Increment &) const
-    {ABORT("not implemented yet");}
+    {throw eckit::NotImplemented(Here());}
   void transposeInverseMultiply(Increment &) const
-    {ABORT("not implemented yet");}
+    {throw eckit::NotImplemented(Here());}
 
  private:
-  void print(std::ostream &) const;
+  void print(std::ostream & os) const
+    {os << std::endl << "Hybrid weight:" << wgt_;}
 
   double wgt_;
 };
+
 // -----------------------------------------------------------------------------
 
 }  // namespace quench

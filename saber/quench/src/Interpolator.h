@@ -16,44 +16,71 @@
 #include "util/ObjectCounter.h"
 #include "util/Printable.h"
 
-// Forward declarations
 namespace quench {
   class Geometry;
   class State;
   class Increment;
   class Variables;
 
-/// Interpolator matrix for quench model.
-
 // -----------------------------------------------------------------------------
+/// Interpolator class
+
 class Interpolator: public util::Printable,
-                            private eckit::NonCopyable,
-                            private util::ObjectCounter<Interpolator> {
+                    private eckit::NonCopyable,
+                    private util::ObjectCounter<Interpolator> {
  public:
-    Interpolator(const State &, const eckit::Configuration &, const bool) {}
-    Interpolator(const State &, const Geometry &, const eckit::Configuration &, const bool) {}
-    explicit Interpolator(const Interpolator &) {}
-    ~Interpolator() {}
+  static const std::string classname()
+    {return "quench::Interpolator";}
 
-    Interpolator & operator=(const Interpolator &) {return *this;}
-    Interpolator & operator+=(const State &) {return *this;}
-    Interpolator & operator-=(const State &) {return *this;}
+  Interpolator(const State &,
+               const eckit::Configuration &,
+               const bool)
+    {}
+  Interpolator(const State &,
+               const Geometry &,
+               const eckit::Configuration &,
+               const bool)
+    {}
+  explicit Interpolator(const Interpolator &)
+    {}
+  ~Interpolator()
+    {}
 
-    void set(const Geometry &, const Geometry &) {}
-    virtual void set_vector(const eckit::Configuration &) {}
+  Interpolator & operator=(const Interpolator &)
+    {return *this;}
+  Interpolator & operator+=(const State &)
+    {return *this;}
+  Interpolator & operator-=(const State &)
+    {return *this;}
 
-    void interpolate(const Increment &, const Variables &,  Increment &) const {}
-    void interpolate(const State &, const Variables &,  State &) const {}
-    void smooth(Increment &) const {}
-    void save(Increment &) const {}
-    void read(const Increment &) {}
-    void write(const eckit::Configuration &) const {}
+  void set(const Geometry &,
+           const Geometry &)
+    {}
+  virtual void set_vector(const eckit::Configuration &)
+    {}
 
-    static const std::string classname() {return "quench::Interpolator";}
+  void interpolate(const Increment &,
+                   const Variables &,
+                   Increment &) const
+    {}
+  void interpolate(const State &,
+                   const Variables &,
+                   State &) const
+    {}
+  void smooth(Increment &) const
+    {}
+  void save(Increment &) const
+    {}
+  void read(const Increment &)
+    {}
+  void write(const eckit::Configuration &) const
+    {}
 
  private:
-    void print(std::ostream &) const {}
+  void print(std::ostream &) const
+    {}
 };
+
 // -----------------------------------------------------------------------------
 
 }  // namespace quench

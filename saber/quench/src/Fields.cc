@@ -20,31 +20,30 @@
 #include "atlas/output/Gmsh.h"
 #include "atlas/util/Config.h"
 #include "atlas/util/KDTree.h"
+#include "atlas/util/Point.h"
 
 #include "eckit/config/Configuration.h"
+#include "eckit/exception/Exceptions.h"
 #include "eckit/mpi/Comm.h"
 
-#include "util/abor1_cpp.h"
 #include "util/Logger.h"
 
-#include "src/Geometry.h"
-
-#include "saber/interpolation/AtlasInterpWrapper.h"
-
 #include "oops/util/FieldSetHelpers.h"
-#include "oops/util/FieldSetOperations.h"
 #include "oops/util/missingValues.h"
 #include "oops/util/Random.h"
 
-#define ERR(e) {ABORT(nc_strerror(e));}
+#include "saber/interpolation/AtlasInterpWrapper.h"
+
+#define ERR(e) {throw eckit::Exception(nc_strerror(e), Here());}
+
+namespace quench {
 
 // -----------------------------------------------------------------------------
-namespace quench {
-// -----------------------------------------------------------------------------
-Fields::Fields(const Geometry & geom, const Variables & vars,
-               const util::DateTime & time):
-  geom_(new Geometry(geom)), vars_(vars), time_(time)
-{
+
+Fields::Fields(const Geometry & geom,
+               const Variables & vars,
+               const util::DateTime & time)
+  : geom_(new Geometry(geom)), vars_(vars), time_(time) {
   oops::Log::trace() << "Fields::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -63,10 +62,12 @@ Fields::Fields(const Geometry & geom, const Variables & vars,
 
   oops::Log::trace() << "Fields::Fields done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-Fields::Fields(const Fields & other, const Geometry & geom):
-  geom_(new Geometry(geom)), vars_(other.vars_), time_(other.time_)
-{
+
+Fields::Fields(const Fields & other,
+               const Geometry & geom)
+  : geom_(new Geometry(geom)), vars_(other.vars_), time_(other.time_) {
   oops::Log::trace() << "Fields::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -75,7 +76,8 @@ Fields::Fields(const Fields & other, const Geometry & geom):
   // Check number of levels
   for (const auto & var : vars_.variablesList()) {
     if (geom_->levels(var) != geom.levels(var)) {
-      ABORT("different number of levels for variable " + var + ", cannot interpolate");
+      throw eckit::Exception("Different number of levels for variable " + var
+        + ", cannot interpolate", Here());
     }
   }
 
@@ -98,10 +100,12 @@ Fields::Fields(const Fields & other, const Geometry & geom):
 
   oops::Log::trace() << "Fields::Fields done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-Fields::Fields(const Fields & other, const bool copy):
-  geom_(other.geom_), vars_(other.vars_), time_(other.time_)
-{
+
+Fields::Fields(const Fields & other,
+               const bool copy)
+  : geom_(other.geom_), vars_(other.vars_), time_(other.time_) {
   oops::Log::trace() << "Fields::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -133,13 +137,16 @@ Fields::Fields(const Fields & other, const bool copy):
       }
     }
   }
+
   oops::Log::trace() << "Fields::Fields done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-Fields::Fields(const Fields & other):
-  geom_(other.geom_), vars_(other.vars_), time_(other.time_)
-{
-  oops::Log::trace() << "Fields::Fields(const Fields & other) starting" << std::endl;
+
+Fields::Fields(const Fields & other)
+  : geom_(other.geom_), vars_(other.vars_), time_(other.time_) {
+  oops::Log::trace() << "Fields::Fields starting" << std::endl;
+
   // Reset ATLAS fieldset
   fset_ = atlas::FieldSet();
 
@@ -160,9 +167,12 @@ Fields::Fields(const Fields & other):
     }
     fset_.add(field);
   }
-  oops::Log::trace() << "Fields::Fields(const Fields & other) done" << std::endl;
+
+  oops::Log::trace() << "Fields::Fields done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::zero() {
   oops::Log::trace() << "Fields::zero starting" << std::endl;
   for (const auto & var : vars_.variablesList()) {
@@ -178,11 +188,15 @@ void Fields::zero() {
       }
     }
   }
+
   oops::Log::trace() << "Fields::zero end" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::constantValue(const double & value) {
   oops::Log::trace() << "Fields::constantValue starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     const auto gmaskView = atlas::array::make_view<int, 2>(
       geom_->fields(geom_->groupIndex(var)).field("gmask"));
@@ -197,11 +211,15 @@ void Fields::constantValue(const double & value) {
       }
     }
   }
+
   oops::Log::trace() << "Fields::constantValue end" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::constantValue(const eckit::Configuration & config) {
   oops::Log::trace() << "Fields::constantValue starting" << std::endl;
+
   for (const auto & group : config.getSubConfigurations("constant group-specific value")) {
     const std::vector<std::string> vars = group.getStringVector("variables");
     const double value = group.getDouble("constant value");
@@ -222,11 +240,15 @@ void Fields::constantValue(const eckit::Configuration & config) {
       }
     }
   }
+
   oops::Log::trace() << "Fields::constantValue end" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 Fields & Fields::operator=(const Fields & rhs) {
-  oops::Log::trace() << "Fields::operator=(const Fields & rhs) starting" << std::endl;
+  oops::Log::trace() << "Fields::operator= starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     atlas::Field field = fset_[var];
     atlas::Field fieldRhs = rhs.fset_[var];
@@ -241,12 +263,16 @@ Fields & Fields::operator=(const Fields & rhs) {
     }
   }
   time_ = rhs.time_;
-  oops::Log::trace() << "Fields::operator=(const Fields & rhs) end" << std::endl;
+
+  oops::Log::trace() << "Fields::operator= end" << std::endl;
   return *this;
 }
+
 // -----------------------------------------------------------------------------
+
 Fields & Fields::operator+=(const Fields & rhs) {
-  oops::Log::trace() << "Fields::operator+=(const Fields & rhs) starting" << std::endl;
+  oops::Log::trace() << "Fields::operator+= starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     const auto gmaskView = atlas::array::make_view<int, 2>(
       geom_->fields(geom_->groupIndex(var)).field("gmask"));
@@ -264,12 +290,16 @@ Fields & Fields::operator+=(const Fields & rhs) {
       }
     }
   }
-  oops::Log::trace() << "Fields::operator+=(const Fields & rhs) done" << std::endl;
+
+  oops::Log::trace() << "Fields::operator+= done" << std::endl;
   return *this;
 }
+
 // -----------------------------------------------------------------------------
+
 Fields & Fields::operator-=(const Fields & rhs) {
-  oops::Log::trace() << "Fields::operator-=(const Fields & rhs) starting" << std::endl;
+  oops::Log::trace() << "Fields::operator-= starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     const auto gmaskView = atlas::array::make_view<int, 2>(
       geom_->fields(geom_->groupIndex(var)).field("gmask"));
@@ -287,12 +317,16 @@ Fields & Fields::operator-=(const Fields & rhs) {
       }
     }
   }
-  oops::Log::trace() << "Fields::operator-=(const Fields & rhs) done" << std::endl;
+
+  oops::Log::trace() << "Fields::operator-= done" << std::endl;
   return *this;
 }
+
 // -----------------------------------------------------------------------------
+
 Fields & Fields::operator*=(const double & zz) {
-  oops::Log::trace() << "Fields::operator*=(const Fields & rhs) starting" << std::endl;
+  oops::Log::trace() << "Fields::operator*= starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     const auto gmaskView = atlas::array::make_view<int, 2>(
       geom_->fields(geom_->groupIndex(var)).field("gmask"));
@@ -308,12 +342,17 @@ Fields & Fields::operator*=(const double & zz) {
       }
     }
   }
-  oops::Log::trace() << "Fields::operator*=(const Fields & rhs) done" << std::endl;
+
+  oops::Log::trace() << "Fields::operator*= done" << std::endl;
   return *this;
 }
+
 // -----------------------------------------------------------------------------
-void Fields::axpy(const double & zz, const Fields & rhs) {
+
+void Fields::axpy(const double & zz,
+                  const Fields & rhs) {
   oops::Log::trace() << "Fields::axpy starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     const auto gmaskView = atlas::array::make_view<int, 2>(
       geom_->fields(geom_->groupIndex(var)).field("gmask"));
@@ -331,11 +370,15 @@ void Fields::axpy(const double & zz, const Fields & rhs) {
       }
     }
   }
+
   oops::Log::trace() << "Fields::axpy done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 double Fields::dot_product_with(const Fields & fld2) const {
   oops::Log::trace() << "Fields::dot_product_with starting" << std::endl;
+
   double zz = 0;
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
   for (const auto & var : vars_.variablesList()) {
@@ -356,12 +399,16 @@ double Fields::dot_product_with(const Fields & fld2) const {
     }
   }
   geom_->getComm().allReduceInPlace(zz, eckit::mpi::sum());
+
   oops::Log::trace() << "Fields::dot_product_with done" << std::endl;
   return zz;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::schur_product_with(const Fields & dx) {
   oops::Log::trace() << "Fields::schur_product_with starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     const auto gmaskView = atlas::array::make_view<int, 2>(
       geom_->fields(geom_->groupIndex(var)).field("gmask"));
@@ -379,11 +426,15 @@ void Fields::schur_product_with(const Fields & dx) {
       }
     }
   }
+
   oops::Log::trace() << "Fields::schur_product_with done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::random() {
   oops::Log::trace() << "Fields::random starting" << std::endl;
+
   for (size_t groupIndex = 0; groupIndex < geom_->groups(); ++groupIndex) {
     // Total size
     size_t n = 0;
@@ -446,7 +497,8 @@ void Fields::random() {
         fs.gather(localMasks, globalMasks);
       }
     } else {
-      ABORT(geom_->functionSpace().type() + " function space not supported yet");
+      throw eckit::NotImplemented(geom_->functionSpace().type() +
+        " function space not supported yet", Here());
     }
 
     if (geom_->getComm().rank() == 0) {
@@ -502,7 +554,8 @@ void Fields::random() {
         fs.scatter(globalData, localData);
       }
     } else {
-      ABORT(geom_->functionSpace().type() + " function space not supported yet");
+      throw eckit::NotImplemented(geom_->functionSpace().type() +
+        " function space not supported yet", Here());
     }
 
     // Copy data
@@ -512,11 +565,15 @@ void Fields::random() {
       }
     }
   }
+
   oops::Log::trace() << "Fields::random done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::dirac(const eckit::Configuration & config) {
   oops::Log::trace() << "Fields::dirac starting" << std::endl;
+
   // Get dirac specifications
   std::vector<double> lon = config.getDoubleVector("lon");
   std::vector<double> lat = config.getDoubleVector("lat");
@@ -524,9 +581,12 @@ void Fields::dirac(const eckit::Configuration & config) {
   std::vector<std::string> variable = config.getStringVector("variable");
 
   // Check sizes
-  if (lon.size() != lat.size()) ABORT("Inconsistent dirac specification size");
-  if (lon.size() != level.size()) ABORT("Inconsistent dirac specification size");
-  if (lon.size() != variable.size()) ABORT("Inconsistent dirac specification size");
+  if (lon.size() != lat.size()) throw eckit::UserError("Inconsistent dirac specification size",
+    Here());
+  if (lon.size() != level.size()) throw eckit::UserError("Inconsistent dirac specification size",
+    Here());
+  if (lon.size() != variable.size()) throw eckit::UserError("Inconsistent dirac specification size",
+    Here());
 
   // Build KDTree for each MPI task
   atlas::util::IndexKDTree search;
@@ -579,11 +639,16 @@ void Fields::dirac(const eckit::Configuration & config) {
       }
     }
   }
+
   oops::Log::trace() << "Fields::dirac done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-void Fields::diff(const Fields & x1, const Fields & x2) {
+
+void Fields::diff(const Fields & x1,
+                  const Fields & x2) {
   oops::Log::trace() << "Fields::diff starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     const auto gmaskView = atlas::array::make_view<int, 2>(
       geom_->fields(geom_->groupIndex(var)).field("gmask"));
@@ -603,22 +668,33 @@ void Fields::diff(const Fields & x1, const Fields & x2) {
       }
     }
   }
+
   oops::Log::trace() << "Fields::diff done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::toFieldSet(atlas::FieldSet & fset) const {
   oops::Log::trace() << "Fields::toFieldSet starting" << std::endl;
+
   // Share internal fieldset
   fset.clear();
   fset = util::shareFields(fset_);
   for (auto field_external : fset) {
     field_external.metadata().set("interp_type", "default");
   }
+  fset.set_dirty(false);
+
   oops::Log::trace() << "Fields::toFieldSet done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::fromFieldSet(const atlas::FieldSet & fset) {
   oops::Log::trace() << "Fields::fromFieldSet starting" << std::endl;
+
+  // Check input fieldset
+  ASSERT(!fset.empty());
 
   // Reset internal fieldset
   fset_.clear();
@@ -670,9 +746,14 @@ void Fields::fromFieldSet(const atlas::FieldSet & fset) {
   }
   oops::Log::trace() << "Fields::fromFieldSet done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::synchronizeFields() {
   oops::Log::trace() << "Fields::synchronizeFields starting" << std::endl;
+
+  // Check internal fieldset
+  ASSERT(!fset_.empty());
 
   if (geom_->gridType() == "regular_lonlat") {
     // Reset poles points
@@ -721,9 +802,12 @@ void Fields::synchronizeFields() {
 
   oops::Log::trace() << "Fields::synchronizeFields done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::read(const eckit::Configuration & config) {
   oops::Log::trace() << "Fields::read starting" << std::endl;
+
   // Create variableSizes
   std::vector<size_t> variableSizes;
   for (const auto & var : vars_.variablesList()) {
@@ -740,18 +824,19 @@ void Fields::read(const eckit::Configuration & config) {
                      vars_.variablesList(),
                      conf,
                      fset_);
+
   oops::Log::trace() << "Fields::read done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::write(const eckit::Configuration & config) const {
   oops::Log::trace() << "Fields::write starting" << std::endl;
-  // Copy configuration
-  eckit::LocalConfiguration conf(config);
 
   // Write fieldset
-  util::writeFieldSet(geom_->getComm(), conf, fset_);
+  util::writeFieldSet(geom_->getComm(), config, fset_);
 
-  if (geom_->mesh().generated()) {
+  if (geom_->mesh().generated() && config.getBool("write gmsh", false)) {
     // GMSH file path
     std::string gmshfilepath = config.getString("filepath");;
     gmshfilepath.append(".msh");
@@ -767,14 +852,15 @@ void Fields::write(const eckit::Configuration & config) const {
     gmsh.write(geom_->mesh());
     gmsh.write(fset_, fset_[0].functionspace());
   }
+
   oops::Log::trace() << "Fields::write done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-double Fields::norm() const {
-  return util::normFieldSet(fset_, vars_.variablesList(), geom_->getComm());
-}
-// -----------------------------------------------------------------------------
+
 void Fields::print(std::ostream & os) const {
+  oops::Log::trace() << "Fields::print starting" << std::endl;
+
   os.setf(std::ios::scientific);
   os.precision(std::numeric_limits<double>::digits10+1);
   os << std::endl;
@@ -805,9 +891,15 @@ void Fields::print(std::ostream & os) const {
     zz = sqrt(zz);
     os << prefix << "  " << var << ": " << zz;
   }
+
+  oops::Log::trace() << "Fields::print done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
+
 size_t Fields::serialSize() const {
+  oops::Log::trace() << "Fields::serialSize starting" << std::endl;
+
   size_t nn = 0;
   for (const auto & var : vars_.variablesList()) {
     atlas::Field field = fset_[var];
@@ -815,10 +907,16 @@ size_t Fields::serialSize() const {
       nn += field.shape(0)*field.shape(1);
     }
   }
+
+  oops::Log::trace() << "Fields::serialSize done" << std::endl;
   return nn;
 }
+
 // -----------------------------------------------------------------------------
+
 void Fields::serialize(std::vector<double> & vect)  const {
+  oops::Log::trace() << "Fields::serialize starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     const atlas::Field field = fset_[var];
     if (field.rank() == 2) {
@@ -830,9 +928,16 @@ void Fields::serialize(std::vector<double> & vect)  const {
       }
     }
   }
+
+  oops::Log::trace() << "Fields::serialize done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-void Fields::deserialize(const std::vector<double> & vect, size_t & index) {
+
+void Fields::deserialize(const std::vector<double> & vect,
+                         size_t & index) {
+  oops::Log::trace() << "Fields::deserialize starting" << std::endl;
+
   for (const auto & var : vars_.variablesList()) {
     atlas::Field field = fset_[var];
     if (field.rank() == 2) {
@@ -845,18 +950,32 @@ void Fields::deserialize(const std::vector<double> & vect, size_t & index) {
       }
     }
   }
+
+  oops::Log::trace() << "Fields::deserialize done" << std::endl;
 }
+
 // -----------------------------------------------------------------------------
-eckit::Stream & operator<<(eckit::Stream & s, const Fields & rhs) {
+
+eckit::Stream & operator<<(eckit::Stream & s,
+                           const Fields & rhs) {
+  oops::Log::trace() << "operator<< starting" << std::endl;
+
   std::vector<double> vect;
   rhs.serialize(vect);
   for (auto & value : vect) {
     s << value;
   }
+
+  oops::Log::trace() << "operator<< done" << std::endl;
   return s;
 }
+
 // -----------------------------------------------------------------------------
-eckit::Stream & operator>>(eckit::Stream & s, Fields & rhs) {
+
+eckit::Stream & operator>>(eckit::Stream & s,
+                           Fields & rhs) {
+  oops::Log::trace() << "operator>> starting" << std::endl;
+
   std::vector<double> vect;
   vect.resize(rhs.serialSize());
   for (auto & value : vect) {
@@ -864,7 +983,11 @@ eckit::Stream & operator>>(eckit::Stream & s, Fields & rhs) {
   }
   size_t index = 0;
   rhs.deserialize(vect, index);
+
+  oops::Log::trace() << "operator>> done" << std::endl;
   return s;
 }
+
 // -----------------------------------------------------------------------------
+
 }  // namespace quench

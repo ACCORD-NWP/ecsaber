@@ -18,43 +18,59 @@
 
 #include "src/Traits.h"
 
-// Forward declarations
 namespace eckit {
   class Configuration;
 }
 
 namespace quench {
+
 // -----------------------------------------------------------------------------
-///  linear model definition.
-/*!
- *   linear model definition and configuration parameters.
- */
+/// Tlm class
 
 class Tlm: public oops::LinearModelBase<Traits>,
            private util::ObjectCounter<Tlm> {
  public:
-  static const std::string classname() {return "quench::Tlm";}
+  static const std::string classname()
+    {return "quench::Tlm";}
 
-  Tlm(const Geometry &, const eckit::Configuration &) {}
-  ~Tlm() {}
+  Tlm(const Geometry &,
+      const eckit::Configuration &)
+    {}
+  ~Tlm()
+    {}
 
 /// Model trajectory computation
-  void setTrajectory(State &, const Model &, const ModelBias &) override {}
+  void setTrajectory(State &,
+                     const Model &,
+                     const ModelAuxControl &)
+    {}
 
 /// Run TLM and its adjoint
-  void initializeTL(Increment &, const ModelBiasIncrement &) const override {}
-  void stepTL(Increment &, const ModelBiasIncrement &) const override {}
-  void finalizeTL(Increment &) const override {}
+  void initializeTL(Increment &,
+                    const ModelAuxIncrement &) const
+    {}
+  void stepTL(Increment &,
+              const ModelAuxIncrement &) const
+    {}
+  void finalizeTL(Increment &) const
+    {}
 
-  void initializeAD(Increment &, const ModelBiasIncrement &) const override {}
-  void stepAD(Increment &, ModelBiasIncrement &) const override {}
-  void finalizeAD(Increment &) const override {}
+  void initializeAD(Increment &,
+                    const ModelAuxIncrement &) const
+    {}
+  void stepAD(Increment &,
+              ModelAuxIncrement &) const
+    {}
+  void finalizeAD(Increment &) const
+    {}
 
 /// Other utilities
-  const util::Duration & timeResolution() const override {}
+  const util::Duration & timeResolution() const
+    {}
 
  private:
-  void print(std::ostream &) const override {}
+  void print(std::ostream &) const
+    {}
 };
 // -----------------------------------------------------------------------------
 

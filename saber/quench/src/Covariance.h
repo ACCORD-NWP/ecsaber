@@ -17,7 +17,6 @@
 
 #include "src/Geometry.h"
 
-// Forward declarations
 namespace quench {
   class Increment;
   class IncrModCtlVec;
@@ -25,35 +24,46 @@ namespace quench {
   class Variables;
 
 // -----------------------------------------------------------------------------
-/// Background error covariance matrix for quench model.
+/// Background error covariance class
 
 class Covariance : public util::Printable,
                    private eckit::NonCopyable,
                    private util::ObjectCounter<Covariance> {
  public:
-  static const std::string classname() {return "quench::Covariance";}
+  static const std::string classname()
+    {return "quench::Covariance";}
 
-  Covariance(const Geometry &, const Variables &,
-             const eckit::Configuration &, const State &)
+  Covariance(const Geometry &,
+             const Variables &,
+             const eckit::Configuration &,
+             const State &)
     {throw eckit::NotImplemented(Here());}
-  ~Covariance() {}
+  ~Covariance()
+    {}
 
-  void linearize(const State &, const Geometry &)
+  void linearize(const State &,
+                 const Geometry &)
     {throw eckit::NotImplemented(Here());}
-  void multiply(const Increment &, Increment &) const
+  void multiply(const Increment &,
+                Increment &) const
     {throw eckit::NotImplemented(Here());}
-  void inverseMultiply(const Increment &, Increment &) const
+  void inverseMultiply(const Increment &,
+                       Increment &) const
     {throw eckit::NotImplemented(Here());}
-  void multiplySqrt(const IncrModCtlVec &, Increment &) const
+  void multiplySqrt(const IncrModCtlVec &,
+                    Increment &) const
     {throw eckit::NotImplemented(Here());}
-  void multiplySqrtTrans(const Increment &, IncrModCtlVec &) const
+  void multiplySqrtTrans(const Increment &,
+                         IncrModCtlVec &) const
     {throw eckit::NotImplemented(Here());}
   void randomize(Increment &) const
     {throw eckit::NotImplemented(Here());}
 
  private:
-  void print(std::ostream & os) const {os << "Covariance";}
+  void print(std::ostream & os) const
+    {os << "Covariance";}
 };
+
 // -----------------------------------------------------------------------------
 
 }  // namespace quench

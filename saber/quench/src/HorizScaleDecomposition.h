@@ -9,33 +9,43 @@
 #include <ostream>
 #include <string>
 
-#include "eckit/config/Configuration.h"
+#include "eckit/exception/Exceptions.h"
 #include "eckit/memory/NonCopyable.h"
 
 #include "util/DateTime.h"
 #include "util/ObjectCounter.h"
 #include "util/Printable.h"
 
-// Forward declarations
+namespace quench {
+  class Configuration;
+}
+
 namespace quench {
   class Increment;
 
-/// HorizScaleDecomposition matrix for quench model.
-
 // -----------------------------------------------------------------------------
+/// HorizScaleDecomposition class
+
 class HorizScaleDecomposition: public util::Printable,
                                private eckit::NonCopyable,
                                private util::ObjectCounter<HorizScaleDecomposition> {
  public:
-    explicit HorizScaleDecomposition(const eckit::Configuration &) {}
+  static const std::string classname()
+    {return "quench::HorizScaleDecomposition";}
 
-    void collect(const Increment &, const int &) const {}
-    void decompose(const Increment &, const int &) const {}
+  explicit HorizScaleDecomposition(const eckit::Configuration &)
+    {throw eckit::NotImplemented(Here());}
 
-    static const std::string classname() {return "quench::HorizScaleDecomposition";}
+  void collect(const Increment &,
+               const int &) const
+    {throw eckit::NotImplemented(Here());}
+  void decompose(const Increment &,
+                 const int &) const
+    {throw eckit::NotImplemented(Here());}
 
  private:
-    void print(std::ostream & os) const {}
+  void print(std::ostream & os) const
+    {throw eckit::NotImplemented(Here());}
 };
 // -----------------------------------------------------------------------------
 
