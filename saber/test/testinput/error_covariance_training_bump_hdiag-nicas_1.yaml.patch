@@ -1,0 +1,15 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_1.yaml.tmp	2024-02-14 13:20:32.591915814 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_1.yaml	2024-02-13 13:47:12.170180785 +0100
+@@ -66,6 +66,12 @@
+         level: 1
+         variable: stream_function
+       output model files:
++      - parameter: dirac_mom_cov
++        file:
++          filepath: testdata/error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__dirac_mom_cov
++      - parameter: dirac_mom_single_obs
++        file:
++          filepath: testdata/error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__dirac_mom_single_obs
+       - parameter: dirac_mom
+         file:
+           filepath: testdata/error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__dirac_mom

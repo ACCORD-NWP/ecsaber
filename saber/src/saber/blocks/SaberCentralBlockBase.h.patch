@@ -1,4 +1,4 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp.bak	2024-02-13 15:28:46.849122012 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp.bak	2024-02-14 13:20:31.003914930 +0100
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2024-02-13 14:07:25.642911550 +0100
 @@ -30,6 +30,7 @@
  #include "oops/util/Printable.h"
@@ -28,7 +28,7 @@
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -250,12 +256,15 @@
+@@ -250,13 +256,15 @@
    std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> outputs
      = this->fieldsToWrite();
  
@@ -41,7 +41,8 @@
  
    // Write fieldsets as increments
    for (const auto & output : outputs) {
--    dx.fromFieldSet(output.second.fieldSet());
+-    dx.fieldSet().deepCopy(output.second);
+-    dx.synchronizeFields();
 +    dx.increment().fromFieldSet(output.second.fieldSet());
      oops::Log::test() << "Norm of output parameter " << output.second.name()
                        << ": " << dx.norm() << std::endl;
