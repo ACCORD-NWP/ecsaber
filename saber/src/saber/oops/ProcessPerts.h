@@ -144,6 +144,7 @@ class ProcessPerts : public oops::Application {
 // -----------------------------------------------------------------------------
   virtual ~ProcessPerts() {}
 // -----------------------------------------------------------------------------
+
   int execute(const eckit::Configuration & fullConfig) const {
     // Deserialize parameters
     ProcessPertsParameters_ params;

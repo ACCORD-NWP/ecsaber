@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_bump_parameters.cc.tmp	2024-02-14 13:20:32.291915647 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_bump_parameters.cc	2024-02-13 13:47:05.934176387 +0100
+@@ -276,6 +276,8 @@
+   // Fit section
+   FitDef fitDef;
+   eckit::LocalConfiguration fitConf;
++  // Threshold to filter out lower raw values
++  param(fitDef.diag_raw_th, fitConf);
+   // Horizontal filtering suport radius [in meters]
+   param(fitDef.diag_rhflt, fitConf);
+   // Vertical filtering support radius

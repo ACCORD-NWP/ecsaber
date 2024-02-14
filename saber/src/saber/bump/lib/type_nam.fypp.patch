@@ -1,0 +1,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_nam.fypp.tmp	2024-02-14 13:20:32.343915676 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_nam.fypp	2024-02-13 13:47:06.706176931 +0100
+@@ -167,6 +167,7 @@
+    integer :: optimality_ntest                                !< Number of test vectors for optimization
+ 
+    ! Fit section
++   real(kind_real) :: diag_raw_th                             !< Threshold to filter out lower raw values
+    real(kind_real) :: diag_rhflt                              !< Horizontal filtering suport radius [in meters]
+    real(kind_real) :: diag_rvflt                              !< Vertical filtering support radius
+    integer :: fit_dl0                                         !< Number of levels between interpolation levels
+@@ -769,6 +770,7 @@
+ ! Fit section
+ if (conf%get('fit',section)) then
+    if (lverbose) call print_section(mpl,section,'Fit')
++   call nam%get(section,'raw diagnostic lower threshold',nam%diag_raw_th)
+    call nam%get(section,'horizontal filtering length-scale',nam%diag_rhflt)
+    call nam%get(section,'vertical filtering length-scale',nam%diag_rvflt)
+    call nam%get(section,'vertical stride',nam%fit_dl0)
