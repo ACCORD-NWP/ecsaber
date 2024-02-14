@@ -16,7 +16,6 @@ file( REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
 
 # Copy and update source from SABER
 check_diff_recursively( cmake "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( quench/data "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
 check_diff_recursively( src "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
 check_diff_recursively( test "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
 check_diff_recursively( tools "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
@@ -75,6 +74,7 @@ find_package( oops-patch REQUIRED )
 find_package( FFTW 3.3.8 QUIET )
 find_package( gsibec 1.1.3 QUIET )
 find_package( vader 1.6.0 QUIET )
+find_package( quench 0.0.1 QUIET )
 
 # Optional SABER blocks
 if( gsibec_FOUND )
@@ -120,10 +120,14 @@ else()
 endif()
 
 ## Sources
-add_subdirectory( quench )
 add_subdirectory( src/saber )
 add_subdirectory( tools )
-add_subdirectory( test )
+if( quench_FOUND )
+    message( STATUS "SABER tests activated:" )
+    add_subdirectory( test )
+else()
+    message( STATUS "SABER tests not activated" )
+endif()
 if( ENABLE_SABER_DOC )
     message( STATUS "SABER documentation is enabled" )
     add_subdirectory( docs )

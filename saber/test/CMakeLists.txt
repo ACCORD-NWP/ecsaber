@@ -4,9 +4,6 @@
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
-# Tests activated
-message( STATUS "SABER tests activated:" )
-
 # Default SABER_TEST_TIER
 set( SABER_TEST_TIER 1 )
 
@@ -277,9 +274,9 @@ foreach( mpi omp IN ZIP_LISTS mpi_list omp_list )
                                           ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
                                                ${mpi}
                                                ${omp}
-                                               "${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x testinput/${test}.yaml"
+                                               "${CMAKE_BINARY_DIR}/bin/quench_${exename}.x testinput/${test}.yaml"
                                                "${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref"
-                                          DEPENDS saber_quench_${exename}.x
+                                          DEPENDS quench_${exename}.x
                                           TEST_DEPENDS ${deps_list} )
                     endif()
                 endif()
@@ -305,9 +302,9 @@ foreach( mpi omp IN ZIP_LISTS mpi_list omp_list )
             ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
                               MPI ${mpi}
                               OMP ${omp}
-                              COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
+                              COMMAND ${CMAKE_BINARY_DIR}/bin/quench_error_covariance_toolbox.x
                               ARGS testinput/${yaml_prefix}${test}.yaml
-                              DEPENDS saber_quench_error_covariance_toolbox.x
+                              DEPENDS quench_error_covariance_toolbox.x
                               TEST_DEPENDS ${deps_list} )
         endif()
     endforeach()
