@@ -1,16 +1,19 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-02-02 14:42:13.381303168 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-02-02 14:41:44.477113648 +0100
-@@ -7,9 +7,6 @@
- # Tests activated
- message( STATUS "SABER tests activated:" )
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-02-14 08:49:54.988155527 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-02-14 08:49:34.303996517 +0100
+@@ -4,12 +4,6 @@
+ # This software is licensed under the terms of the Apache Licence Version 2.0
+ # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  
+-# Tests activated
+-message( STATUS "SABER tests activated:" )
+-
 -# Use find_branch function in jedi-cmake
 -include( git_functions )
 -
  # Default SABER_TEST_TIER
  set( SABER_TEST_TIER 1 )
  
-@@ -147,9 +144,10 @@
+@@ -147,9 +141,10 @@
      file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
      # Link to yaml file
@@ -24,7 +27,7 @@
  
      # Link to reference file
      if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -157,6 +155,13 @@
+@@ -157,6 +152,13 @@
                           ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref
                           ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref )
      endif()
@@ -38,7 +41,7 @@
  endforeach()
  foreach( data ${saber_data} )
      # Link to input data file
-@@ -239,14 +244,44 @@
+@@ -239,14 +241,44 @@
                          endif()
                      endif()
  
@@ -82,11 +85,23 @@
 +                                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
 +                                               ${mpi}
 +                                               ${omp}
-+                                               "${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x testinput/${test}.yaml"
++                                               "${CMAKE_BINARY_DIR}/bin/quench_${exename}.x testinput/${test}.yaml"
 +                                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref"
-+                                          DEPENDS saber_quench_${exename}.x
++                                          DEPENDS quench_${exename}.x
 +                                          TEST_DEPENDS ${deps_list} )
 +                    endif()
                  endif()
              endif()
          endforeach()
+@@ -270,9 +302,9 @@
+             ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
+                               MPI ${mpi}
+                               OMP ${omp}
+-                              COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
++                              COMMAND ${CMAKE_BINARY_DIR}/bin/quench_error_covariance_toolbox.x
+                               ARGS testinput/${yaml_prefix}${test}.yaml
+-                              DEPENDS saber_quench_error_covariance_toolbox.x
++                              DEPENDS quench_error_covariance_toolbox.x
+                               TEST_DEPENDS ${deps_list} )
+         endif()
+     endforeach()
