@@ -83,7 +83,6 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
   /// TODO(AS): this can be removed once FieldSet4D/FieldSet3D are used.
   const eckit::mpi::Comm & comm_;
   int seed_ = 7;  // For reproducibility
-  const oops::GeometryData geomData_;
 };
 
 // -----------------------------------------------------------------------------
@@ -103,9 +102,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
                        const eckit::LocalConfiguration & covarConf,
                        const eckit::Configuration & conf)
   : outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars),
-    ensemble_(fsetEns), ctlVecSize_(0), comm_(eckit::mpi::comm()),
-    geomData_(geom.geometry().functionSpace(), geom.geometry().fields(),
-    geom.geometry().levelsAreTopDown(), eckit::mpi::comm()) {
+    ensemble_(fsetEns), ctlVecSize_(0), comm_(geom.geometry().getComm()) {
   oops::Log::trace() << "SaberEnsembleBlockChain ctor starting" << std::endl;
 
   // Check that there is an ensemble of at least 2 members.
@@ -130,7 +127,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
   oops::patch::Variables currentOuterVars = outerBlockChain_ ?
                                      outerBlockChain_->innerVars() : outerVars;
   const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
-                                     outerBlockChain_->innerGeometryData() : geomData_;
+    outerBlockChain_->innerGeometryData() : geom.geometry().generic();
 
   // Get parameters:
   SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
@@ -158,7 +155,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
   eckit::LocalConfiguration centralBlockConf = conf.getSubConfiguration("saber central block");
   const double inflationValue = centralBlockConf.getDouble("inflation value", 1);
   oops::Log::info() << "Info     : Read inflation field" << std::endl;
-  oops::FieldSet3D inflationField(fset4dXb[0].validTime(), eckit::mpi::comm());
+  oops::FieldSet3D inflationField(fset4dXb[0].validTime(), geom.geometry().getComm());
   // Read ATLAS inflation file
   if (centralBlockConf.has("inflation field.atlas file")) {
     eckit::LocalConfiguration inflationConf =

@@ -75,8 +75,6 @@ class SaberParametricBlockChain : public SaberBlockChainBase {
   size_t size4D_;
   oops::patch::Variables centralVars_;
   atlas::FunctionSpace centralFunctionSpace_;
-  const oops::GeometryData geomData_;
-  const oops::GeometryData dualResGeomData_;
 };
 
 // -----------------------------------------------------------------------------
@@ -95,11 +93,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
                        const eckit::Configuration & conf)
   : outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars),
   crossTimeCov_(covarConf.getString("time covariance") == "multivariate duplicated"),
-  timeComm_(eckit::mpi::self()), size4D_(fset4dXb.size()),
-  geomData_(geom.geometry().functionSpace(), geom.geometry().fields(),
-  geom.geometry().levelsAreTopDown(), eckit::mpi::comm()),
-  dualResGeomData_(dualResGeom.geometry().functionSpace(), dualResGeom.geometry().fields(),
-  dualResGeom.geometry().levelsAreTopDown(), eckit::mpi::comm()) {
+  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
   oops::Log::trace() << "SaberParametricBlockChain ctor starting" << std::endl;
 
   // If needed create outer block chain
@@ -119,7 +113,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
   const oops::patch::Variables currentOuterVars = outerBlockChain_ ?
                              outerBlockChain_->innerVars() : outerVariables_;
   const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
-                             outerBlockChain_->innerGeometryData() : geomData_;
+                             outerBlockChain_->innerGeometryData() : geom.geometry().generic();
 
   SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
   saberCentralBlockParamsWrapper.deserialize(conf.getSubConfiguration("saber central block"));
@@ -174,7 +168,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
 
       for (size_t ie = 0; ie < nens; ++ie) {
         // Read ensemble member
-        oops::FieldSet3D fset(fset4dXb[0].validTime(), eckit::mpi::comm());
+        oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
         readEnsembleMember(geom, outerVariables_, ensembleConf, ie, fset);
 
         // Apply outer blocks inverse (all of them)
@@ -205,7 +199,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
     oops::Log::info() << "Info     : Dual resolution setup" << std::endl;
 
     // Dual resolution setup
-    centralBlock_->dualResolutionSetup(dualResGeomData_);
+    centralBlock_->dualResolutionSetup(dualResGeom.geometry().generic());
 
     // Ensemble configuration
     eckit::LocalConfiguration dualResEnsembleConf
@@ -223,7 +217,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
 
       for (size_t ie = 0; ie < dualResNens; ++ie) {
         // Read ensemble member
-        oops::FieldSet3D fset(fset4dXb[0].validTime(), eckit::mpi::comm());
+        oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
         readEnsembleMember(dualResGeom, outerVariables_, dualResEnsembleConf, ie, fset);
 
         // Use FieldSet in the central block
@@ -261,11 +255,11 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
     size_t ensembleSize = ensembleConf.getInt("ensemble size");
 
     // Estimate mean
-    oops::FieldSet3D fsetMean(fset4dXb[0].validTime(), eckit::mpi::comm());
+    oops::FieldSet3D fsetMean(fset4dXb[0].validTime(), geom.geometry().getComm());
     if (iterativeEnsembleLoading) {
       for (size_t ie = 0; ie < ensembleSize; ++ie) {
         // Read member
-        oops::FieldSet3D fsetMem(fset4dXb[0].validTime(), eckit::mpi::comm());
+        oops::FieldSet3D fsetMem(fset4dXb[0].validTime(), geom.geometry().getComm());
         readEnsembleMember(geom, activeVars, ensembleConf, ie, fsetMem);
 
         // Update mean
@@ -297,7 +291,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
       // Get ensemble member
       if (iterativeEnsembleLoading) {
         // Read ensemble member
-        oops::FieldSet3D fset(fset4dXb[0].validTime(), eckit::mpi::comm());
+        oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
         readEnsembleMember(geom, activeVars, ensembleConf, ie, fset);
 
         // Remove mean

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2024-02-14 13:20:31.087914978 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2024-02-13 14:07:57.770930844 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2024-02-15 13:02:02.351416285 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2024-02-15 12:07:41.468165965 +0100
 @@ -18,9 +18,9 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -34,13 +34,13 @@
      oops::Log::test() << "Norm of input parameter " << input.first
                        << ": " << dx.norm() << std::endl;
 -    fsetVec.push_back(dx.fieldSet());
-+    oops::FieldSet3D fset(validTime_, eckit::mpi::comm());
++    oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
 +    fset.deepCopy(dx.increment().fieldSet());
 +    fsetVec.push_back(fset);
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -293,13 +299,15 @@
+@@ -293,12 +299,15 @@
    std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> outputs
      = this->fieldsToWrite();
  
@@ -53,8 +53,7 @@
  
    // Loop and write
    for (const auto & output : outputs) {
--    dx.fieldSet().deepCopy(output.second);
--    dx.synchronizeFields();
+-    dx.fromFieldSet(output.second.fieldSet());
 +    dx.increment().fromFieldSet(output.second.fieldSet());
      oops::Log::test() << "Norm of output parameter " << output.second.name()
                        << ": " << dx.norm() << std::endl;

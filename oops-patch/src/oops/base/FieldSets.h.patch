@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSets.h.tmp.bak	2024-02-02 13:36:23.235850037 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSets.h	2024-02-02 13:32:43.891861544 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSets.h.tmp.bak	2024-02-15 12:54:08.526322257 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSets.h	2024-02-15 12:09:58.956246532 +0100
 @@ -11,9 +11,11 @@
  #include <string>
  #include <vector>
@@ -37,11 +37,11 @@
 -                                                inc4dens.geometry().getComm()));
 -    this->dataset()[jj]->shallowCopy(inc4dens[jj].fieldSet());
 +FieldSets::FieldSets(const State4D<MODEL> & xb, const std::vector<int> & ensmems)
-+  : Base_(xb.times(), eckit::mpi::self(), ensmems, eckit::mpi::self()) {
++  : Base_(xb.times(), xb[0].geometry().geometry().timeComm(), ensmems, eckit::mpi::self()) {
 +  for (size_t jj = 0; jj < ensmems.size(); ++jj) {
 +    for (unsigned jsub = 0; jsub < xb.times().size(); ++jsub) {
 +      this->dataset().emplace_back(std::make_unique<FieldSet3D>(xb[jsub].validTime(),
-+                                                  eckit::mpi::comm()));
++                                                  xb[jsub].geometry().geometry().getComm()));
 +    }
 +  }
 +  for (unsigned jsub = 0; jsub < xb.times().size(); ++jsub) {

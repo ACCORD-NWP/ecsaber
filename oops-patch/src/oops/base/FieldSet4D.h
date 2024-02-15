@@ -67,10 +67,10 @@ FieldSet4D copyFieldSet4D(const FieldSet4D & other,
 
 template<typename MODEL>
 FieldSet4D::FieldSet4D(const State4D<MODEL> & state4d)
-  : FieldSets(state4d.times(), eckit::mpi::self(), {0}, eckit::mpi::self()) {
+  : FieldSets(state4d.times(), state4d[0].geometry().geometry().timeComm(), {0}, oops::mpi::myself()) {
   for (size_t jj = 0; jj < state4d.times().size(); ++jj) {
     this->dataset().emplace_back(new FieldSet3D(state4d[jj].validTime(),
-                                                eckit::mpi::comm()));
+                                                state4d[jj].geometry().geometry().getComm()));
     this->dataset()[jj]->shallowCopy(state4d[jj].state().fieldSet());
   }
 }
@@ -79,10 +79,10 @@ FieldSet4D::FieldSet4D(const State4D<MODEL> & state4d)
 
 template<typename MODEL>
 FieldSet4D::FieldSet4D(const Increment4D<MODEL> & inc4d)
-  : FieldSets(inc4d.times(), eckit::mpi::self(), {0}, eckit::mpi::self()) {
+  : FieldSets(inc4d.times(), inc4d[0].geometry().geometry().timeComm(), {0}, oops::mpi::myself()) {
   for (size_t jj = 0; jj < inc4d.times().size(); ++jj) {
     this->dataset().emplace_back(new FieldSet3D(inc4d[jj].validTime(),
-                                                eckit::mpi::comm()));
+                                                inc4d[jj].geometry().geometry().getComm()));
     this->dataset()[jj]->shallowCopy(inc4d[jj].increment().fieldSet());
   }
 }
