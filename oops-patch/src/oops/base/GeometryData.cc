@@ -258,7 +258,6 @@ void GeometryData::setMeshAndTriangulation() {
   } else if (fspace_.type() == "StructuredColumns") {
     const atlas::functionspace::StructuredColumns structuredcolumns(fspace_);
     const atlas::Grid & grid = structuredcolumns.grid();
-    const atlas::StructuredMeshGenerator gen(grid.meshgenerator());
     if (fspace_.distribution() == "custom") {
       // Gather global partition field on root processor
       atlas::Field globalPartition = fspace_.createField<int>(
@@ -281,10 +280,31 @@ void GeometryData::setMeshAndTriangulation() {
       // Create custom distribution
       atlas::grid::Distribution distribution(comm_->size(), grid.size(), &partition[0]);
 
+      // Count number of cells for each MPI task
+      std::vector<size_t> nb_cells(comm_->size(), 0);
+      for (atlas::idx_t jj = 0; jj < grid.size(); ++jj) {
+        ++nb_cells[partition[jj]];
+      }
+
+      // Get number of task with points (effective size) and mapping
+      size_t effectiveSize = 0;
+      std::vector<size_t> mapping(comm_->size());
+      for (size_t jt = 0; jt < comm_->size(); ++jt) {
+        if (nb_cells[jt] > 0) {
+          mapping[jt] = effectiveSize;
+          ++effectiveSize;
+        }
+      }
+
       // Create mesh from distribution
+      atlas::util::Config meshConfig(grid.meshgenerator());
+      meshConfig.set("part", mapping[comm_->rank()]);
+      meshConfig.set("nb_parts", effectiveSize);
+      const atlas::StructuredMeshGenerator gen(meshConfig);
       mesh_ = gen(grid, distribution);
     } else {
-      // Create mesh from partitioner
+      // Create mesh
+      const atlas::StructuredMeshGenerator gen(grid.meshgenerator());
       mesh_ = gen(grid, atlas::grid::Partitioner(fspace_.distribution()));
     }
   } else {

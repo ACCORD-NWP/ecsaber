@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/GeometryData.cc.tmp	2024-02-15 09:15:12.939738292 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/GeometryData.cc	2024-02-14 16:27:51.057450892 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/GeometryData.cc.tmp.bak	2024-02-15 15:42:57.870007382 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/GeometryData.cc	2024-02-15 15:37:14.833847135 +0100
 @@ -9,6 +9,7 @@
  
  #include <algorithm>
@@ -8,10 +8,11 @@
  #include "atlas/grid/Grid.h"
  #include "atlas/grid/Partitioner.h"
  #include "atlas/interpolation/element/Triag3D.h"
-@@ -258,7 +259,34 @@
+@@ -257,8 +258,55 @@
+   } else if (fspace_.type() == "StructuredColumns") {
      const atlas::functionspace::StructuredColumns structuredcolumns(fspace_);
      const atlas::Grid & grid = structuredcolumns.grid();
-     const atlas::StructuredMeshGenerator gen(grid.meshgenerator());
+-    const atlas::StructuredMeshGenerator gen(grid.meshgenerator());
 -    mesh_ = gen(grid, atlas::grid::Partitioner(fspace_.distribution()));
 +    if (fspace_.distribution() == "custom") {
 +      // Gather global partition field on root processor
@@ -35,10 +36,31 @@
 +      // Create custom distribution
 +      atlas::grid::Distribution distribution(comm_->size(), grid.size(), &partition[0]);
 +
++      // Count number of cells for each MPI task
++      std::vector<size_t> nb_cells(comm_->size(), 0);
++      for (atlas::idx_t jj = 0; jj < grid.size(); ++jj) {
++        ++nb_cells[partition[jj]];
++      }
++
++      // Get number of task with points (effective size) and mapping
++      size_t effectiveSize = 0;
++      std::vector<size_t> mapping(comm_->size());
++      for (size_t jt = 0; jt < comm_->size(); ++jt) {
++        if (nb_cells[jt] > 0) {
++          mapping[jt] = effectiveSize;
++          ++effectiveSize;
++        }
++      }
++
 +      // Create mesh from distribution
++      atlas::util::Config meshConfig(grid.meshgenerator());
++      meshConfig.set("part", mapping[comm_->rank()]);
++      meshConfig.set("nb_parts", effectiveSize);
++      const atlas::StructuredMeshGenerator gen(meshConfig);
 +      mesh_ = gen(grid, distribution);
 +    } else {
-+      // Create mesh from partitioner
++      // Create mesh
++      const atlas::StructuredMeshGenerator gen(grid.meshgenerator());
 +      mesh_ = gen(grid, atlas::grid::Partitioner(fspace_.distribution()));
 +    }
    } else {

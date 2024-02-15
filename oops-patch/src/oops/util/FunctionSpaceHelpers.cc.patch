@@ -1,0 +1,69 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FunctionSpaceHelpers.cc.tmp	2024-02-15 15:42:58.098007585 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FunctionSpaceHelpers.cc	2024-02-15 15:38:31.013853182 +0100
+@@ -8,6 +8,7 @@
+ #include "oops/util/FunctionSpaceHelpers.h"
+ 
+ #include <string>
++#include <vector>
+ 
+ #include "atlas/field.h"
+ #include "atlas/functionspace.h"
+@@ -57,8 +58,47 @@
+     ASSERT(gridType != "unstructured");
+ 
+     const size_t halo = config.getUnsigned("halo", 0);
+-    functionSpace = atlas::functionspace::StructuredColumns(grid, partitioner,
+-                                                            atlas::option::halo(halo));
++    if (noPointOnLastTask && (comm.size() > 1)) {
++      // Create distribution from partitioner
++      std::vector<int>partition(grid.size());
++      partitioner.partition(grid, &partition[0]);
++
++      // Create custom distribution
++      atlas::grid::Distribution distribution(comm.size(), grid.size(), &partition[0]);
++
++      // Create functionspace from distribution
++      functionSpace = atlas::functionspace::StructuredColumns(grid, distribution,
++                                                              atlas::option::halo(halo));
++
++      // Count number of cells for each MPI task
++      std::vector<size_t> nb_cells(comm.size(), 0);
++      for (atlas::idx_t jj = 0; jj < grid.size(); ++jj) {
++        ++nb_cells[partition[jj]];
++      }
++
++      // Get number of task with points (effective size) and mapping
++      size_t effectiveSize = 0;
++      std::vector<size_t> mapping(comm.size());
++      for (size_t jt = 0; jt < comm.size(); ++jt) {
++        if (nb_cells[jt] > 0) {
++          mapping[jt] = effectiveSize;
++          ++effectiveSize;
++        }
++      }
++
++      // Create mesh from distribution
++      atlas::util::Config meshConfig(grid.meshgenerator());
++      meshConfig.set("part", mapping[comm.rank()]);
++      meshConfig.set("nb_parts", effectiveSize);
++      const atlas::StructuredMeshGenerator gen(meshConfig);
++      mesh = gen(grid, distribution);
++    } else {
++      // Create functionspace from partitioner
++      functionSpace = atlas::functionspace::StructuredColumns(grid, partitioner,
++                                                              atlas::option::halo(halo));
++      // Create mesh from partitioner
++      mesh = atlas::MeshGenerator("structured").generate(grid, partitioner);
++    }
+ 
+     // Bugfix for regional grids
+     // It seems that the content of lonlat for a regional function space is actually the xy
+@@ -77,8 +117,6 @@
+         lonlat(jj, 1) = lonlatPoint[1];
+       }
+     }
+-
+-    mesh = atlas::MeshGenerator("structured").generate(grid, partitioner);
+   } else if (functionSpaceName == "NodeColumns") {
+     if (grid.name().compare(0, 2, std::string{"CS"}) == 0) {
+       // NodeColumns from a CubedSphere grid/mesh
