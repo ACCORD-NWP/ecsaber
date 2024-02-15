@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp.bak	2024-02-14 13:20:31.003914930 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2024-02-13 14:07:25.642911550 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp.bak	2024-02-15 13:02:02.267413402 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2024-02-15 13:00:42.488723304 +0100
 @@ -30,6 +30,7 @@
  #include "oops/util/Printable.h"
  
@@ -8,7 +8,7 @@
  
  // Forward declaration
  namespace oops {
-@@ -226,12 +227,17 @@
+@@ -226,13 +227,18 @@
    // Read fieldsets as increments
    std::vector<oops::FieldSet3D> fsetVec;
    for (const auto & input : this->getReadConfs()) {
@@ -22,13 +22,15 @@
      oops::Log::test() << "Norm of input parameter " << input.first
                        << ": " << dx.norm() << std::endl;
 -    fsetVec.push_back(dx.fieldSet());
-+    oops::FieldSet3D fset(validTime_, eckit::mpi::comm());
+-    fsetVec.back().name() = input.first;
++    oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
 +    fset.deepCopy(dx.increment().fieldSet());
 +    fsetVec.push_back(fset);
-     fsetVec.back().name() = input.first;
++    fsetVec.back().name() = input.first; 
    }
    this->setReadFields(fsetVec);
-@@ -250,13 +256,15 @@
+ 
+@@ -250,12 +256,15 @@
    std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> outputs
      = this->fieldsToWrite();
  
@@ -41,8 +43,7 @@
  
    // Write fieldsets as increments
    for (const auto & output : outputs) {
--    dx.fieldSet().deepCopy(output.second);
--    dx.synchronizeFields();
+-    dx.fromFieldSet(output.second.fieldSet());
 +    dx.increment().fromFieldSet(output.second.fieldSet());
      oops::Log::test() << "Norm of output parameter " << output.second.name()
                        << ": " << dx.norm() << std::endl;

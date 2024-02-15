@@ -278,7 +278,7 @@ void SaberOuterBlockBase::read(const oops::Geometry<MODEL> & geom,
     dx.read(input.second);
     oops::Log::test() << "Norm of input parameter " << input.first
                       << ": " << dx.norm() << std::endl;
-    oops::FieldSet3D fset(validTime_, eckit::mpi::comm());
+    oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
     fset.deepCopy(dx.increment().fieldSet());
     fsetVec.push_back(fset);
     fsetVec.back().name() = input.first;

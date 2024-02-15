@@ -1,67 +1,51 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2024-02-14 13:20:30.987914922 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2024-02-13 14:06:18.938872162 +0100
-@@ -75,6 +75,8 @@
-   size_t size4D_;
-   oops::patch::Variables centralVars_;
-   atlas::FunctionSpace centralFunctionSpace_;
-+  const oops::GeometryData geomData_;
-+  const oops::GeometryData dualResGeomData_;
- };
- 
- // -----------------------------------------------------------------------------
-@@ -91,9 +93,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2024-02-15 13:02:02.247412715 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2024-02-15 13:02:42.548806879 +0100
+@@ -91,7 +91,7 @@
                         oops::FieldSets & fsetDualResEns,
                         const eckit::LocalConfiguration & covarConf,
                         const eckit::Configuration & conf)
 -  : outerFunctionSpace_(geom.functionSpace()), outerVariables_(outerVars),
 +  : outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars),
    crossTimeCov_(covarConf.getString("time covariance") == "multivariate duplicated"),
--  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
-+  timeComm_(eckit::mpi::self()), size4D_(fset4dXb.size()),
-+  geomData_(geom.geometry().functionSpace(), geom.geometry().fields(),
-+  geom.geometry().levelsAreTopDown(), eckit::mpi::comm()),
-+  dualResGeomData_(dualResGeom.geometry().functionSpace(), dualResGeom.geometry().fields(),
-+  dualResGeom.geometry().levelsAreTopDown(), eckit::mpi::comm()) {
+   timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
    oops::Log::trace() << "SaberParametricBlockChain ctor starting" << std::endl;
- 
-   // If needed create outer block chain
-@@ -113,7 +119,7 @@
+@@ -113,7 +113,7 @@
    const oops::patch::Variables currentOuterVars = outerBlockChain_ ?
                               outerBlockChain_->innerVars() : outerVariables_;
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
 -                             outerBlockChain_->innerGeometryData() : geom.generic();
-+                             outerBlockChain_->innerGeometryData() : geomData_;
++                             outerBlockChain_->innerGeometryData() : geom.geometry().generic();
  
    SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
    saberCentralBlockParamsWrapper.deserialize(conf.getSubConfiguration("saber central block"));
-@@ -168,7 +174,7 @@
+@@ -168,7 +168,7 @@
  
        for (size_t ie = 0; ie < nens; ++ie) {
          // Read ensemble member
 -        oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.getComm());
-+        oops::FieldSet3D fset(fset4dXb[0].validTime(), eckit::mpi::comm());
++        oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
          readEnsembleMember(geom, outerVariables_, ensembleConf, ie, fset);
  
          // Apply outer blocks inverse (all of them)
-@@ -199,7 +205,7 @@
+@@ -199,7 +199,7 @@
      oops::Log::info() << "Info     : Dual resolution setup" << std::endl;
  
      // Dual resolution setup
 -    centralBlock_->dualResolutionSetup(dualResGeom.generic());
-+    centralBlock_->dualResolutionSetup(dualResGeomData_);
++    centralBlock_->dualResolutionSetup(dualResGeom.geometry().generic());
  
      // Ensemble configuration
      eckit::LocalConfiguration dualResEnsembleConf
-@@ -217,7 +223,7 @@
+@@ -217,7 +217,7 @@
  
        for (size_t ie = 0; ie < dualResNens; ++ie) {
          // Read ensemble member
 -        oops::FieldSet3D fset(fset4dXb[0].validTime(), dualResGeom.getComm());
-+        oops::FieldSet3D fset(fset4dXb[0].validTime(), eckit::mpi::comm());
++        oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
          readEnsembleMember(dualResGeom, outerVariables_, dualResEnsembleConf, ie, fset);
  
          // Use FieldSet in the central block
-@@ -248,18 +254,18 @@
+@@ -248,18 +248,18 @@
      const eckit::LocalConfiguration outputEnsembleConf(covarConf, "output ensemble");
  
      // Check whether geometry grid is similar to the last outer block inner geometry
@@ -74,16 +58,16 @@
  
      // Estimate mean
 -    oops::FieldSet3D fsetMean(fset4dXb[0].validTime(), geom.getComm());
-+    oops::FieldSet3D fsetMean(fset4dXb[0].validTime(), eckit::mpi::comm());
++    oops::FieldSet3D fsetMean(fset4dXb[0].validTime(), geom.geometry().getComm());
      if (iterativeEnsembleLoading) {
        for (size_t ie = 0; ie < ensembleSize; ++ie) {
          // Read member
 -        oops::FieldSet3D fsetMem(fset4dXb[0].validTime(), geom.getComm());
-+        oops::FieldSet3D fsetMem(fset4dXb[0].validTime(), eckit::mpi::comm());
++        oops::FieldSet3D fsetMem(fset4dXb[0].validTime(), geom.geometry().getComm());
          readEnsembleMember(geom, activeVars, ensembleConf, ie, fsetMem);
  
          // Update mean
-@@ -282,14 +288,16 @@
+@@ -282,14 +282,16 @@
  
      for (size_t ie = 0; ie < ensembleSize; ++ie) {
        oops::Log::info() << "Info     : Write member " << ie << std::endl;
@@ -98,28 +82,20 @@
        if (iterativeEnsembleLoading) {
          // Read ensemble member
 -        oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.getComm());
-+        oops::FieldSet3D fset(fset4dXb[0].validTime(), eckit::mpi::comm());
++        oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
          readEnsembleMember(geom, activeVars, ensembleConf, ie, fset);
  
          // Remove mean
-@@ -298,16 +306,13 @@
-         // Apply outer blocks inverse
+@@ -299,10 +301,10 @@
          if (outerBlockChain_) outerBlockChain_->leftInverseMultiply(fset);
  
--        // Copy fieldSet
--        dx.fieldSet().deepCopy(fset);
-+        // ATLAS fieldset to Increment_
+         // ATLAS fieldset to Increment_
+-        dx.fromFieldSet(fset.fieldSet());
 +        dx.increment().fromFieldSet(fset.fieldSet());
        } else {
--        // Copy member
--        dx.fieldSet().deepCopy(fsetEns[ie]);
-+        // ATLAS fieldset to Increment_
+         // ATLAS fieldset to Increment_
+-        dx.fromFieldSet(fsetEns[ie].fieldSet());
 +        dx.increment().fromFieldSet(fsetEns[ie].fieldSet());
        }
  
--      // ATLAS fieldset to Increment_
--      dx.synchronizeFields();
--
        if (useModelWriter) {
-         // Use model writer
- 

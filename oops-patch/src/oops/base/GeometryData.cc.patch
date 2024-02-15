@@ -1,0 +1,46 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/GeometryData.cc.tmp	2024-02-15 09:15:12.939738292 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/GeometryData.cc	2024-02-14 16:27:51.057450892 +0100
+@@ -9,6 +9,7 @@
+ 
+ #include <algorithm>
+ 
++#include "atlas/grid/Distribution.h"
+ #include "atlas/grid/Grid.h"
+ #include "atlas/grid/Partitioner.h"
+ #include "atlas/interpolation/element/Triag3D.h"
+@@ -258,7 +259,34 @@
+     const atlas::functionspace::StructuredColumns structuredcolumns(fspace_);
+     const atlas::Grid & grid = structuredcolumns.grid();
+     const atlas::StructuredMeshGenerator gen(grid.meshgenerator());
+-    mesh_ = gen(grid, atlas::grid::Partitioner(fspace_.distribution()));
++    if (fspace_.distribution() == "custom") {
++      // Gather global partition field on root processor
++      atlas::Field globalPartition = fspace_.createField<int>(
++        atlas::option::name("partition") | atlas::option::global());
++      fspace_.gather(fspace_.partition(), globalPartition);
++
++      // Transform to a global partition vector
++      std::vector<int> partition(grid.size());
++      if (comm_->rank() == 0) {
++        ASSERT(grid.size() == static_cast<int>(globalPartition.size()));
++        const auto globalPartitionView = atlas::array::make_view<int, 1>(globalPartition);
++        for (atlas::idx_t jj = 0; jj < grid.size(); ++jj) {
++          partition[jj] = globalPartitionView(jj);
++        }
++      }
++
++      // Broadcast global partition vector
++      comm_->broadcast(partition, 0);
++
++      // Create custom distribution
++      atlas::grid::Distribution distribution(comm_->size(), grid.size(), &partition[0]);
++
++      // Create mesh from distribution
++      mesh_ = gen(grid, distribution);
++    } else {
++      // Create mesh from partitioner
++      mesh_ = gen(grid, atlas::grid::Partitioner(fspace_.distribution()));
++    }
+   } else {
+     ABORT(fspace_.type() + " function space not supported yet");
+   }
