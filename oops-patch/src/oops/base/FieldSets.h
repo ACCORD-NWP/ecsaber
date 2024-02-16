@@ -43,11 +43,11 @@ class FieldSets : public DataSetBase<FieldSet3D, atlas::FunctionSpace> {
 
 template<typename MODEL>
 FieldSets::FieldSets(const State4D<MODEL> & xb, const std::vector<int> & ensmems)
-  : Base_(xb.times(), xb[0].geometry().geometry().timeComm(), ensmems, eckit::mpi::self()) {
+  : Base_(xb.times(), xb[0].state().geometry()->timeComm(), ensmems, eckit::mpi::self()) {
   for (size_t jj = 0; jj < ensmems.size(); ++jj) {
     for (unsigned jsub = 0; jsub < xb.times().size(); ++jsub) {
       this->dataset().emplace_back(std::make_unique<FieldSet3D>(xb[jsub].validTime(),
-                                                  xb[jsub].geometry().geometry().getComm()));
+                                                  xb[jsub].state().geometry()->getComm()));
     }
   }
   for (unsigned jsub = 0; jsub < xb.times().size(); ++jsub) {

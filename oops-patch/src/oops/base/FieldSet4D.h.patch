@@ -1,17 +1,17 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSet4D.h.tmp.bak	2024-02-15 12:54:08.510322011 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSet4D.h	2024-02-15 12:56:29.041213606 +0100
+--- /perm/sbbm/hm_lib/saber/bundle/ecsaber/oops-patch/src/oops/base/FieldSet4D.h.tmp.bak	2024-02-16 13:09:09.264062478 +0000
++++ /perm/sbbm/hm_lib/saber/bundle/ecsaber/oops-patch/src/oops/base/FieldSet4D.h	2024-02-16 13:07:16.211719172 +0000
 @@ -67,11 +67,11 @@
  
  template<typename MODEL>
  FieldSet4D::FieldSet4D(const State4D<MODEL> & state4d)
 -  : FieldSets(state4d.times(), state4d.commTime(), {0}, oops::mpi::myself()) {
 -  for (size_t jj = 0; jj < state4d.size(); ++jj) {
-+  : FieldSets(state4d.times(), state4d[0].geometry().geometry().timeComm(), {0}, oops::mpi::myself()) {
++  : FieldSets(state4d.times(), state4d[0].state().geometry()->timeComm(), {0}, oops::mpi::myself()) {
 +  for (size_t jj = 0; jj < state4d.times().size(); ++jj) {
      this->dataset().emplace_back(new FieldSet3D(state4d[jj].validTime(),
 -                                                state4d.geometry().getComm()));
 -    this->dataset()[jj]->shallowCopy(state4d[jj].fieldSet());
-+                                                state4d[jj].geometry().geometry().getComm()));
++                                                state4d[jj].state().geometry()->getComm()));
 +    this->dataset()[jj]->shallowCopy(state4d[jj].state().fieldSet());
    }
  }
@@ -22,12 +22,12 @@
  FieldSet4D::FieldSet4D(const Increment4D<MODEL> & inc4d)
 -  : FieldSets(inc4d.times(), inc4d.commTime(), {0}, oops::mpi::myself()) {
 -  for (size_t jj = 0; jj < inc4d.size(); ++jj) {
-+  : FieldSets(inc4d.times(), inc4d[0].geometry().geometry().timeComm(), {0}, oops::mpi::myself()) {
++  : FieldSets(inc4d.times(), inc4d[0].increment().geometry()->timeComm(), {0}, oops::mpi::myself()) {
 +  for (size_t jj = 0; jj < inc4d.times().size(); ++jj) {
      this->dataset().emplace_back(new FieldSet3D(inc4d[jj].validTime(),
 -                                                inc4d.geometry().getComm()));
 -    this->dataset()[jj]->shallowCopy(inc4d[jj].fieldSet());
-+                                                inc4d[jj].geometry().geometry().getComm()));
++                                                inc4d[jj].increment().geometry()->getComm()));
 +    this->dataset()[jj]->shallowCopy(inc4d[jj].increment().fieldSet());
    }
  }
