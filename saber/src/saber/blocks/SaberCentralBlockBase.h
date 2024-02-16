@@ -238,7 +238,7 @@ void SaberCentralBlockBase::read(const oops::Geometry<MODEL> & geom,
     oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
     fset.deepCopy(dx.increment().fieldSet());
     fsetVec.push_back(fset);
-    fsetVec.back().name() = input.first; 
+    fsetVec.back().name() = input.first;
   }
   this->setReadFields(fsetVec);
 
