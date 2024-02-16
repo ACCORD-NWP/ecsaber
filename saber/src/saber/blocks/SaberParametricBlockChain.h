@@ -75,6 +75,8 @@ class SaberParametricBlockChain : public SaberBlockChainBase {
   size_t size4D_;
   oops::patch::Variables centralVars_;
   atlas::FunctionSpace centralFunctionSpace_;
+  const oops::GeometryData geomData_;
+  const oops::GeometryData dualResGeomData_;
 };
 
 // -----------------------------------------------------------------------------
@@ -93,7 +95,11 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
                        const eckit::Configuration & conf)
   : outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars),
   crossTimeCov_(covarConf.getString("time covariance") == "multivariate duplicated"),
-  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
+  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()),
+  geomData_(geom.geometry().functionSpace(), geom.geometry().fields(),
+  geom.geometry().levelsAreTopDown(), geom.geometry().getComm()),
+  dualResGeomData_(dualResGeom.geometry().functionSpace(), dualResGeom.geometry().fields(),
+  dualResGeom.geometry().levelsAreTopDown(), geom.geometry().getComm()) {
   oops::Log::trace() << "SaberParametricBlockChain ctor starting" << std::endl;
 
   // If needed create outer block chain
@@ -113,7 +119,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
   const oops::patch::Variables currentOuterVars = outerBlockChain_ ?
                              outerBlockChain_->innerVars() : outerVariables_;
   const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
-                             outerBlockChain_->innerGeometryData() : geom.geometry().generic();
+                             outerBlockChain_->innerGeometryData() : geomData_;
 
   SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
   saberCentralBlockParamsWrapper.deserialize(conf.getSubConfiguration("saber central block"));
@@ -199,7 +205,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
     oops::Log::info() << "Info     : Dual resolution setup" << std::endl;
 
     // Dual resolution setup
-    centralBlock_->dualResolutionSetup(dualResGeom.geometry().generic());
+    centralBlock_->dualResolutionSetup(dualResGeomData_);
 
     // Ensemble configuration
     eckit::LocalConfiguration dualResEnsembleConf
