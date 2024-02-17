@@ -75,7 +75,6 @@ class HpToHexner : public SaberOuterBlockBase {
   const oops::GeometryData & innerGeometryData_;
   oops::patch::Variables innerVars_;
   oops::patch::Variables activeVars_;
-  atlas::FieldSet covFieldSet_;
   atlas::FieldSet augmentedStateFieldSet_;
 };
 
