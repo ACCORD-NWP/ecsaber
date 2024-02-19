@@ -20,7 +20,7 @@
 
 #include "util/Logger.h"
 
-namespace saber {
+namespace oops {
 
 /*! @brief ConvertState application
 
@@ -90,4 +90,4 @@ class ConvertState : public oops::Application {
   // -----------------------------------------------------------------------------
 };
 
-}  // namespace saber
+}  // namespace oops

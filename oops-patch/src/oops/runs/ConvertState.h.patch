@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/runs/ConvertState.h.tmp	2023-11-10 16:12:20.520297426 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/runs/ConvertState.h	2023-11-07 15:34:43.597507332 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/runs/ConvertState.h.tmp.bak	2024-02-19 10:56:04.924551483 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/runs/ConvertState.h	2024-02-19 10:30:51.526640914 +0100
 @@ -1,178 +1,93 @@
  /*
 - * (C) Copyright 2018-2021 UCAR
@@ -25,11 +25,7 @@
 -#include "oops/base/State.h"
 -#include "oops/interface/VariableChange.h"
 -#include "oops/mpi/mpi.h"
-+
-+#include "oops/interface/Geometry.h"
-+#include "oops/interface/Model.h"
-+#include "oops/interface/State.h"
- #include "oops/runs/Application.h"
+-#include "oops/runs/Application.h"
 -#include "oops/util/Logger.h"
 -#include "oops/util/parameters/OptionalParameter.h"
 -#include "oops/util/parameters/Parameter.h"
@@ -37,25 +33,29 @@
 -#include "oops/util/parameters/RequiredParameter.h"
 -
 -namespace oops {
--
+ 
 -// -------------------------------------------------------------------------------------------------
 -// -------------------------------------------------------------------------------------------------
--
++#include "oops/interface/Geometry.h"
++#include "oops/interface/Model.h"
++#include "oops/interface/State.h"
++#include "oops/runs/Application.h"
+ 
 -template <typename MODEL> class ConvertStateStatesParameters : public Parameters {
 -  OOPS_CONCRETE_PARAMETERS(ConvertStateStatesParameters, Parameters)
 -  typedef State<MODEL> State_;
++#include "util/Logger.h"
  
 - public:
 -  RequiredParameter<eckit::LocalConfiguration> input{"input", this};
 -  RequiredParameter<eckit::LocalConfiguration> output{"output", this};
 -};
-+#include "util/Logger.h"
- 
+-
 -/// Options controlling variable change in the ConvertState application.
 -template <typename MODEL> class VarChangeParameters : public Parameters {
 -  OOPS_CONCRETE_PARAMETERS(VarChangeParameters, Parameters)
 -  typedef typename VariableChange<MODEL>::Parameters_ VariableChangeParameters_;
-+namespace saber {
++namespace oops {
  
 - public:
 -  // parameters for variable change.
@@ -86,15 +86,15 @@
 -
 -  /// Input Geometry parameters.
 -  RequiredParameter<GeometryParameters_> inputGeometry{"input geometry", this};
--
++  /// Construct a ConvertState application
++  ConvertState() {}
+ 
 -  /// Output Geometry parameters.
 -  RequiredParameter<GeometryParameters_> outputGeometry{"output geometry", this};
 -
 -  /// Variable change parameters (and option to do inverse).
 -  OptionalParameter<VarChangeParameters<MODEL>> varChange{"variable change", this};
-+  /// Construct a ConvertState application
-+  ConvertState() {}
- 
+-
 -  /// States to be converted
 -  RequiredParameter<std::vector<ConvertStateStatesParameters<MODEL>>> states{"states", this};
 -};
@@ -235,6 +235,5 @@
 +  // -----------------------------------------------------------------------------
  };
  
--}  // namespace oops
+ }  // namespace oops
 -#endif  // OOPS_RUNS_CONVERTSTATE_H_
-+}  // namespace saber
