@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-02-02 13:43:54.888094907 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-02-02 13:42:33.760033106 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-02-19 14:00:32.318776059 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-02-19 13:47:18.322104803 +0100
 @@ -1,38 +1,30 @@
  /*
 - * (C) Copyright 2021-2023 UCAR
@@ -46,13 +46,12 @@
  #include "oops/util/DateTime.h"
  #include "oops/util/FieldSetHelpers.h"
  #include "oops/util/Logger.h"
-@@ -41,35 +33,34 @@
+@@ -41,35 +33,33 @@
  #include "oops/util/parameters/Parameters.h"
  #include "oops/util/parameters/RequiredParameter.h"
  
 -#include "saber/oops/Utilities.h"
 +#include "saber/oops/instantiateCovarFactory.h"
-+#include "saber/oops/instantiateLocalizationFactory.h"
 +#include "saber/oops/ECUtilities.h"
  
  namespace saber {
@@ -92,7 +91,7 @@
  
    /// Dirac location/variables parameters.
    oops::OptionalParameter<eckit::LocalConfiguration> dirac{"dirac", this};
-@@ -93,72 +84,36 @@
+@@ -93,72 +83,35 @@
  
  // -----------------------------------------------------------------------------
  
@@ -127,7 +126,6 @@
 -    oops::instantiateCovarFactory<MODEL>();
 +  ErrorCovarianceToolbox() {
 +    instantiateCovarFactory<MODEL>();
-+    instantiateLocalizationFactory<MODEL>();
    }
  // -----------------------------------------------------------------------------
    virtual ~ErrorCovarianceToolbox() {}
@@ -184,7 +182,7 @@
  
      // Get number of MPI tasks and OpenMP threads
      size_t ntasks = commSpace->size();
-@@ -176,38 +131,51 @@
+@@ -176,38 +129,51 @@
      util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
      params.deserialize(fullConfigUpdated);
  
@@ -250,7 +248,7 @@
        oops::Log::test() << "Input Dirac increment:" << dxi << std::endl;
  
        // Test configuration
-@@ -222,39 +190,49 @@
+@@ -222,39 +188,49 @@
          testConf.set("diagnostic points", *diagnostic);
        }
  
@@ -319,7 +317,7 @@
   private:
    std::string appname() const override {
      return "oops::ErrorCovarianceToolbox<" + MODEL::name() + ">";
-@@ -268,15 +246,15 @@
+@@ -268,15 +244,15 @@
  
      // Create diagnostic field
      Increment4D_ diagPoints(data);
@@ -342,7 +340,7 @@
      }
  
      oops::Log::trace() << appname() << "::print_value_at_position done" << std::endl;
-@@ -287,15 +265,29 @@
+@@ -287,15 +263,29 @@
               const eckit::LocalConfiguration & testConf,
               std::string & id,
               const Geometry_ & geom,
@@ -375,7 +373,7 @@
  
      // Multiply
      Bmat->multiply(dxi, dxo);
-@@ -327,17 +319,13 @@
+@@ -327,17 +317,13 @@
      oops::Log::test() << "Covariance(" << id << ") * Increment:" << dxo << std::endl;
  
      // Look for hybrid or ensemble covariance models
@@ -399,7 +397,7 @@
      }
      if (covarianceModel == "SABER") {
        const std::string saberCentralBlockName =
-@@ -351,7 +339,7 @@
+@@ -351,7 +337,7 @@
            for (const auto & conf : confs) {
              std::string idC(id + std::to_string(componentIndex));
              eckit::LocalConfiguration componentConfig(conf, "covariance");
@@ -408,7 +406,7 @@
              if (covarConf.has("adjoint test")) {
                componentConfig.set("adjoint test", covarConf.getBool("adjoint test"));
              }
-@@ -379,7 +367,15 @@
+@@ -379,7 +365,15 @@
        Localization_ Lmat(geom, vars, locConfig);
  
        // Apply localization
@@ -425,7 +423,7 @@
  
        // Update ID
        std::string idL(id);
-@@ -406,11 +402,11 @@
+@@ -406,11 +400,11 @@
      }
    }
  // -----------------------------------------------------------------------------
@@ -440,7 +438,7 @@
                       const size_t & ntasks) const {
      if (Bmat->randomizationSize() > 0) {
        oops::Log::info() << "Info     : " << std::endl;
-@@ -418,9 +414,9 @@
+@@ -418,9 +412,9 @@
        oops::Log::info() << "Info     : -----------------------" << std::endl;
  
        // Create increments
@@ -453,7 +451,7 @@
  
        // Initialize variance
        variance.zero();
-@@ -445,7 +441,9 @@
+@@ -445,7 +439,9 @@
  
          // Square perturbation
          dxsq = dx;
@@ -464,7 +462,7 @@
  
          // Update variance
          variance += dxsq;
-@@ -461,8 +459,8 @@
+@@ -461,8 +457,8 @@
  
            if (outputPerturbations != boost::none) {
              // Update config
@@ -475,7 +473,7 @@
              setMPI(outputPerturbationsUpdated, ntasks);
  
              // Write perturbation
-@@ -471,8 +469,8 @@
+@@ -471,8 +467,8 @@
  
            if (outputStates != boost::none) {
              // Update config

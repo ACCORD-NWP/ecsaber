@@ -16,8 +16,17 @@ base/ParameterTraitsVariables.h
 base/Variables.cc
 base/Variables.h
 base/WriteParametersBase.h
+generic/AtlasInterpolator.cc
+generic/AtlasInterpolator.h
 generic/gc99.cc
 generic/gc99.h
+generic/GlobalInterpolator.cc
+generic/GlobalInterpolator.h
+generic/GlobalTemplatedInterpolator.h
+generic/LocalInterpolatorBase.cc
+generic/LocalInterpolatorBase.h
+generic/UnstructuredInterpolator.cc
+generic/UnstructuredInterpolator.h
 interface/ModelData.h
 mpi/mpi.cc
 mpi/mpi.h

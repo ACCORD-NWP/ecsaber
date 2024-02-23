@@ -29,12 +29,12 @@ namespace bump {
 // Elemental parameters (without default value)
 // -----------------------------------------------------------------------------
 
-// patch::Variables value or profile elemental parameters
+// Variables value or profile elemental parameters
 class VarsValueOrProfileParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(VarsValueOrProfileParameters, oops::Parameters)
 
  public:
-  // patch::Variables
+  // Variables
   oops::RequiredParameter<std::vector<std::string>> variables{"variables", this};
   // Value
   oops::OptionalParameter<double> value{"value", this};
@@ -64,7 +64,7 @@ class GroupsValueParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(GroupsValueParameters, oops::Parameters)
 
  public:
-  // patch::Variables
+  // Variables
   oops::RequiredParameter<std::vector<std::string>> groups{"groups", this};
   // Value
   oops::RequiredParameter<int> value{"value", this};
@@ -182,8 +182,8 @@ class GeneralSection : public oops::Parameters {
   oops::Parameter<bool> color_log = param(def.color_log, this);
   // Stream test messages into a dedicated channel
   oops::Parameter<bool> testing = param(def.testing, this);
-  // Default seed for random numbers
-  oops::Parameter<bool> default_seed = param(def.default_seed, this);
+  // Default seed for random numbers (0 for time-dependent seed)
+  oops::Parameter<int> default_seed = param(def.default_seed, this);
   // Inter-compilers reproducibility
   oops::Parameter<bool> repro_ops = param(def.repro_ops, this);
   // Reproducibility threshold
@@ -357,7 +357,7 @@ class ModelSection : public oops::Parameters {
  public:
   // Level for 2D variables ('first' or 'last')
   oops::Parameter<std::string> lev2d = param(def.lev2d, this);
-  // patch::Variables names
+  // Variables names
   oops::Parameter<std::vector<std::string>> variables{"variables", {}, this};
   // 2D variables names
   oops::Parameter<std::vector<std::string>> var2d{"2d variables", {}, this};

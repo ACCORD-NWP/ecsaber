@@ -1,0 +1,29 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_geom.fypp.tmp	2024-02-20 08:01:58.106709016 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_geom.fypp	2024-02-20 08:00:06.721399683 +0100
+@@ -427,7 +427,7 @@
+ end do
+ 
+ ! Reset random seed if necessary
+-if (nam%default_seed) call rng%reseed(mpl)
++call rng%reseed(mpl)
+ 
+ ! Probe out
+ @:probe_out()
+@@ -878,7 +878,7 @@
+ end do
+ 
+ ! Reset random seed if necessary
+-if (nam%default_seed) call rng%reseed(mpl)
++call rng%reseed(mpl)
+ 
+ ! Communicate data from halo A to universe on subset Sc0
+ write(mpl%info,'(a10,a)') '','Communicate data from halo A to universe on subset Sc0'
+@@ -2560,7 +2560,7 @@
+ call rng%desync(mpl)
+ 
+ ! Reset random seed if necessary
+-if (nam%default_seed) call rng%reseed(mpl)
++call rng%reseed(mpl)
+ 
+ ! Probe out
+ @:probe_out()
