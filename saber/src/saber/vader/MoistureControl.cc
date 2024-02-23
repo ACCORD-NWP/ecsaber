@@ -48,7 +48,7 @@ static SaberOuterBlockMaker<MoistureControl> makerMoistureControlBlock_("mo_mois
 // -----------------------------------------------------------------------------
 
 MoistureControl::MoistureControl(const oops::GeometryData & outerGeometryData,
-                                 const oops::patch::Variables & outerVars,
+                                 const oops::Variables & outerVars,
                                  const eckit::Configuration & covarConf,
                                  const Parameters_ & params,
                                  const oops::FieldSet3D & xb,
@@ -63,7 +63,8 @@ MoistureControl::MoistureControl(const oops::GeometryData & outerGeometryData,
   oops::Log::trace() << classname() << "::MoistureControl starting" << std::endl;
 
   // Covariance FieldSet
-  covFieldSet_ = createMuStats(outerGeometryData.fieldSet(),
+  covFieldSet_ = createMuStats(xb["air_temperature"].levels(),
+                               outerGeometryData.fieldSet(),
                                params.moistureControlParams.value());
 
   std::vector<std::string> requiredStateVariables{
@@ -189,7 +190,8 @@ void MoistureControl::print(std::ostream & os) const {
 
 // -----------------------------------------------------------------------------
 
-atlas::FieldSet createMuStats(const atlas::FieldSet & fields,
+atlas::FieldSet createMuStats(const size_t & modelLevelsDefault,
+                              const atlas::FieldSet & fields,
                               const MoistureControlCovarianceParameters & params) {
   // Get necessary parameters
   // path to covariance file with gp covariance parameters.
@@ -199,7 +201,7 @@ atlas::FieldSet createMuStats(const atlas::FieldSet & fields,
   if (fields.has("height")) {
     modelLevels = fields["height"].shape(1);
   } else {
-    modelLevels = fields["vert_coord"].shape(1);
+    modelLevels = modelLevelsDefault;
   }
 
   // geostrophic pressure vertical regression statistics are grouped

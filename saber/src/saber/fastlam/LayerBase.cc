@@ -83,7 +83,12 @@ void LayerBase::setupVerticalCoord(const atlas::Field & rvField,
       if (ghostView(jnode0) == 0) {
         for (size_t k0 = 0; k0 < nz0_; ++k0) {
           double VC = static_cast<double>(k0+1);
-          if (gdata_.fieldSet().has("vert_coord")) {
+          const std::string vert_coord_nz0 = "vert_coord_" + std::to_string(nz0_);
+          if (gdata_.fieldSet().has(vert_coord_nz0)) {
+            const atlas::Field vertCoordField = gdata_.fieldSet()[vert_coord_nz0];
+            const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoordField);
+            VC = vertCoordView(jnode0, k0);
+          } else if (gdata_.fieldSet().has("vert_coord")) {
             const atlas::Field vertCoordField = gdata_.fieldSet()["vert_coord"];
             const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoordField);
             VC = vertCoordView(jnode0, k0);
