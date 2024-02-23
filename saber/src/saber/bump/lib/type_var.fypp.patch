@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_var.fypp.tmp	2024-02-20 08:01:58.142702213 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_var.fypp	2024-02-20 08:00:06.721399683 +0100
+@@ -322,7 +322,7 @@
+ end if
+ 
+ ! Reset random seed if necessary
+-if (nam%default_seed) call rng%reseed(mpl)
++call rng%reseed(mpl)
+ 
+ ! Probe out
+ @:probe_out()
+@@ -435,7 +435,7 @@
+ end if
+ 
+ ! Reset random seed if necessary
+-if (nam%default_seed) call rng%reseed(mpl)
++call rng%reseed(mpl)
+ 
+ ! Probe out
+ @:probe_out()

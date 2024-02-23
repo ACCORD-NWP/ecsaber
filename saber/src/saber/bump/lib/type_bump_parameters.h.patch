@@ -1,0 +1,15 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_bump_parameters.h.tmp	2024-02-20 08:01:58.010727158 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_bump_parameters.h	2024-02-20 08:00:06.721399683 +0100
+@@ -29,9 +29,9 @@
+   std::pair<const char *, bool> testing =
+     std::make_pair("testing", false);
+ 
+-  // Default seed for random numbers
+-  std::pair<const char *, bool> default_seed =
+-    std::make_pair("default seed", true);
++  // Default seed for random numbers (0 for time-dependent seed)
++  std::pair<const char *, int> default_seed =
++    std::make_pair("default seed", 140587);
+ 
+   // Inter-compilers reproducibility
+   std::pair<const char *, bool> repro_ops =
