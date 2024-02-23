@@ -427,7 +427,7 @@ do iproc=1,mpl%nproc
 end do
 
 ! Reset random seed if necessary
-call rng%reseed(mpl)
+if (nam%default_seed) call rng%reseed(mpl)
 
 ! Probe out
 @:probe_out()
@@ -457,6 +457,8 @@ type(atlas_functionspace_nodecolumns) :: afunctionspace_nc
 type(atlas_functionspace_pointcloud) :: afunctionspace_pc
 type(atlas_functionspace_structuredcolumns) :: afunctionspace_sc
 type(atlas_mesh_nodes) :: anodes
+character(len=4) :: nl0char
+character(len=1024) :: varname
 
 ! Set name
 @:set_name(geom_from_atlas)
@@ -489,6 +491,8 @@ end do
 geom%gmask_mga = .true.
 
 if (present(fieldset)) then
+   write(nl0char,'(i4)') geom%nl0
+
    ! Get owned vs halo/BC field
    if (fieldset%has_field('owned')) then
       afield = fieldset%field('owned')
@@ -509,14 +513,24 @@ if (present(fieldset)) then
    end if
 
    ! Get vertical coordinate
-   if (fieldset%has_field('vert_coord')) then
+   varname = 'vert_coord_'//adjustl(trim(nl0char))
+   if (fieldset%has_field(varname)) then
+      afield = fieldset%field(varname)
+      call field_to_array(afield,mpl,geom%vert_coord_mga)
+      call afield%final()
+   elseif (fieldset%has_field('vert_coord')) then
       afield = fieldset%field('vert_coord')
       call field_to_array(afield,mpl,geom%vert_coord_mga)
       call afield%final()
    end if
 
    ! Get geometry mask
-   if (fieldset%has_field('gmask')) then
+   varname = 'gmask_'//adjustl(trim(nl0char))
+   if (fieldset%has_field(varname)) then
+      afield = fieldset%field(varname)
+      call field_to_array(afield,mpl,geom%gmask_mga)
+      call afield%final()
+   elseif (fieldset%has_field('gmask')) then
       afield = fieldset%field('gmask')
       call field_to_array(afield,mpl,geom%gmask_mga)
       call afield%final()
@@ -878,7 +892,7 @@ do iproc=1,mpl%nproc
 end do
 
 ! Reset random seed if necessary
-call rng%reseed(mpl)
+if (nam%default_seed) call rng%reseed(mpl)
 
 ! Communicate data from halo A to universe on subset Sc0
 write(mpl%info,'(a10,a)') '','Communicate data from halo A to universe on subset Sc0'
@@ -2560,7 +2574,7 @@ end do
 call rng%desync(mpl)
 
 ! Reset random seed if necessary
-call rng%reseed(mpl)
+if (nam%default_seed) call rng%reseed(mpl)
 
 ! Probe out
 @:probe_out()
