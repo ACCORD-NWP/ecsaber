@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/subr_list.fypp.tmp	2024-02-26 11:26:09.623353814 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/subr_list.fypp	2024-02-26 11:17:36.250629246 +0100
+@@ -834,6 +834,7 @@
+ #:set subr_list = subr_list + ["fieldset_to_array_all"]
+ #:set subr_list = subr_list + ["fieldset_from_array_single"]
+ #:set subr_list = subr_list + ["fieldset_from_array_all"]
++#:set subr_list = subr_list + ["fieldset_select_associated_field"]
+ #:set subr_list = subr_list + ["mpl_init"]
+ #:set subr_list = subr_list + ["mpl_final"]
+ #:set subr_list = subr_list + ["mpl_flush"]

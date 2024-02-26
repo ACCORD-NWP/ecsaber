@@ -99,6 +99,9 @@ void readFieldSet(const eckit::mpi::Comm &,
                   const eckit::Configuration &,
                   atlas::FieldSet &);
 
+atlas::Field selectAssociatedField(const atlas::FieldSet &,
+                                   const std::string &,
+                                   const std::vector<std::string> &);
 
 // -----------------------------------------------------------------------------
 

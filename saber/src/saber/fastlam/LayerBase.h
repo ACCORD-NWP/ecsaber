@@ -36,7 +36,8 @@ class LayerBase : public util::Printable,
   // Constructor
   LayerBase(const FastLAMParametersBase & params,
             const oops::GeometryData & gdata,
-            const std::string & myVar,
+            const std::string & myGroup,
+            const std::vector<std::string> & myVars,
             const size_t & nx0,
             const size_t & ny0,
             const size_t & nz0) :
@@ -44,7 +45,8 @@ class LayerBase : public util::Printable,
     gdata_(gdata),
     comm_(gdata_.comm()),
     myrank_(comm_.rank()),
-    myVar_(myVar),
+    myGroup_(myGroup),
+    myVars_(myVars),
     nx0_(nx0),
     ny0_(ny0),
     mSize_(gdata_.functionSpace().ghost().shape(0)),
@@ -108,8 +110,9 @@ class LayerBase : public util::Printable,
   const eckit::mpi::Comm & comm_;
   size_t myrank_;
 
-  // Variable
-  std::string myVar_;
+  // Group and variables
+  std::string myGroup_;
+  std::vector<std::string> myVars_;
 
   // Model grid
   size_t nx0_;
@@ -183,6 +186,7 @@ class LayerFactory {
   static std::unique_ptr<LayerBase> create(const FastLAMParametersBase &,
                                            const oops::GeometryData &,
                                            const std::string &,
+                                           const std::vector<std::string> &,
                                            const size_t &,
                                            const size_t &,
                                            const size_t &);
@@ -196,6 +200,7 @@ class LayerFactory {
   virtual std::unique_ptr<LayerBase> make(const FastLAMParametersBase &,
                                           const oops::GeometryData &,
                                           const std::string &,
+                                          const std::vector<std::string> &,
                                           const size_t &,
                                           const size_t &,
                                           const size_t &) = 0;
@@ -212,11 +217,12 @@ template<class T>
 class LayerMaker : public LayerFactory {
   std::unique_ptr<LayerBase> make(const FastLAMParametersBase & params,
                                   const oops::GeometryData & gdata,
-                                  const std::string & myVar,
+                                  const std::string & myGroup,
+                                  const std::vector<std::string> & myVars,
                                   const size_t & nx0,
                                   const size_t & ny0,
                                   const size_t & nz0) override {
-    return std::make_unique<T>(params, gdata, myVar, nx0, ny0, nz0);
+    return std::make_unique<T>(params, gdata, myGroup, myVars, nx0, ny0, nz0);
   }
 
  public:

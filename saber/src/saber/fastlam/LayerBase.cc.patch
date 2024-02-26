@@ -1,0 +1,45 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc.tmp	2024-02-26 11:26:09.011352959 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc	2024-02-26 11:18:33.482711123 +0100
+@@ -14,6 +14,7 @@
+ 
+ #include "atlas/array.h"
+ 
++#include "oops/util/FieldSetHelpers.h"
+ #include "oops/util/Logger.h"
+ #include "oops/util/missingValues.h"
+ #include "oops/util/Random.h"
+@@ -40,7 +41,8 @@
+ std::unique_ptr<LayerBase> LayerFactory::create(
+   const FastLAMParametersBase & params,
+   const oops::GeometryData & gdata,
+-  const std::string & myVar,
++  const std::string & myGroup,
++  const std::vector<std::string> & myVars,
+   const size_t & nx0,
+   const size_t & ny0,
+   const size_t & nz0) {
+@@ -52,7 +54,7 @@
+     throw eckit::UserError("Element does not exist in saber::LayerFactory.", Here());
+   }
+   std::unique_ptr<LayerBase> ptr =
+-    jsb->second->make(params, gdata, myVar, nx0, ny0, nz0);
++    jsb->second->make(params, gdata, myGroup, myVars, nx0, ny0, nz0);
+   oops::Log::trace() << "LayerBase::create done" << std::endl;
+   return ptr;
+ }
+@@ -83,11 +85,10 @@
+       if (ghostView(jnode0) == 0) {
+         for (size_t k0 = 0; k0 < nz0_; ++k0) {
+           double VC = static_cast<double>(k0+1);
+-          if (gdata_.fieldSet().has("vert_coord")) {
+-            const atlas::Field vertCoordField = gdata_.fieldSet()["vert_coord"];
+-            const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoordField);
+-            VC = vertCoordView(jnode0, k0);
+-          }
++          const atlas::Field vertCoordField = util::selectAssociatedField(gdata_.fieldSet(),
++            "vert_coord", myVars_);
++          const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoordField);
++          VC = vertCoordView(jnode0, k0);
+           vertCoord[k0] += VC*wgtView(jnode0, k0);
+           rv[k0] += rvView(jnode0, k0)*wgtView(jnode0, k0);
+           wgt[k0] += wgtView(jnode0, k0);

@@ -1,0 +1,12 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FieldSetHelpers.h.tmp	2024-02-26 14:05:48.969856650 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FieldSetHelpers.h	2024-02-26 12:46:30.547267681 +0100
+@@ -99,6 +99,9 @@
+                   const eckit::Configuration &,
+                   atlas::FieldSet &);
+ 
++atlas::Field selectAssociatedField(const atlas::FieldSet &,
++                                   const std::string &,
++                                   const std::vector<std::string> &);
+ 
+ // -----------------------------------------------------------------------------
+ 

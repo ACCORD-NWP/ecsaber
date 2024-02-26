@@ -314,7 +314,7 @@ void LayerHalo::setupNormalization() {
 
   // Full normalization
   atlas::Field normField = gdata_.functionSpace().createField<double>(
-    atlas::option::name(myVar_) | atlas::option::levels(nz0_));
+    atlas::option::name(myGroup_) | atlas::option::levels(nz0_));
   auto normView = atlas::array::make_view<double, 2>(normField);
   norm_.add(normField);
 
@@ -545,7 +545,7 @@ void LayerHalo::setupNormalization() {
     // Compute normalization accuracy
     oops::Log::info() << "Info     :     Compute exact normalization" << std::endl;
     atlas::Field normAccField = gdata_.functionSpace().createField<double>(
-      atlas::option::name(myVar_) | atlas::option::levels(nz0_));
+      atlas::option::name(myGroup_) | atlas::option::levels(nz0_));
     auto normAccView = atlas::array::make_view<double, 2>(normAccField);
     normAccView.assign(util::missingValue<double>());
     double normAccMax = 0.0;;
