@@ -683,11 +683,12 @@ void FastLAM::setReadFields(const std::vector<oops::FieldSet3D> & fsetVec) {
       // Group properties
       const std::string groupName = std::get<0>(groups_[jg]);
       const size_t groupNz0 = std::get<1>(groups_[jg]);
+      const std::vector<std::string> groupVars = std::get<3>(groups_[jg]);
 
       // Create layers
       for (size_t jBin = 0; jBin < nLayers; ++jBin) {
-        data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groupName, nx0_, ny0_,
-          groupNz0));
+        data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groupName, groupVars, nx0_,
+          ny0_, groupNz0));
       }
     }
 
@@ -825,11 +826,12 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
     // Group properties
     const std::string groupName = std::get<0>(groups_[jg]);
     const size_t groupNz0 = std::get<1>(groups_[jg]);
+    const std::vector<std::string> groupVars = std::get<3>(groups_[jg]);
 
     // Create layers
     std::vector<std::unique_ptr<LayerBase>> layers;
     for (size_t jBin = 0; jBin < nLayers; ++jBin) {
-      data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groupName, nx0_, ny0_,
+      data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groupName, groupVars, nx0_, ny0_,
         groupNz0));
     }
   }

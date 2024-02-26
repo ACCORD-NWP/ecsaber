@@ -1,0 +1,17 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerHalo.h.tmp	2024-02-26 11:26:08.911352820 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerHalo.h	2024-02-26 11:18:41.166722082 +0100
+@@ -33,11 +33,12 @@
+   // Constructor
+   LayerHalo(const FastLAMParametersBase & params,
+             const oops::GeometryData & gdata,
+-            const std::string & myVar,
++            const std::string & myGroup,
++            const std::vector<std::string> & myVars,
+             const size_t & nx0,
+             const size_t & ny0,
+             const size_t & nz0) :
+-    LayerBase(params, gdata, myVar, nx0, ny0, nz0) {}
++    LayerBase(params, gdata, myGroup, myVars, nx0, ny0, nz0) {}
+   ~LayerHalo() = default;
+ 
+   // Setups

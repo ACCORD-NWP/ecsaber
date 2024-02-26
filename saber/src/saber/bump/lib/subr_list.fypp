@@ -834,6 +834,7 @@
 #:set subr_list = subr_list + ["fieldset_to_array_all"]
 #:set subr_list = subr_list + ["fieldset_from_array_single"]
 #:set subr_list = subr_list + ["fieldset_from_array_all"]
+#:set subr_list = subr_list + ["fieldset_select_associated_field"]
 #:set subr_list = subr_list + ["mpl_init"]
 #:set subr_list = subr_list + ["mpl_final"]
 #:set subr_list = subr_list + ["mpl_flush"]

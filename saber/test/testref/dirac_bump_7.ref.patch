@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_7.ref.tmp	2024-02-26 11:26:11.595356565 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_7.ref	2024-02-23 17:31:50.815639048 +0100
+@@ -60,7 +60,7 @@
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+-             Level   1 ~> -0.100E+01 vert. coord.
++             Level   1 ~>  0.100E+01 vert. coord.
+ Adjoint test for block BUMP_NICAS passed
+ Square-root test for block BUMP_NICAS passed
+ Covariance(SABER) * Increment:

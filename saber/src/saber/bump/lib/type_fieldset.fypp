@@ -9,7 +9,7 @@
 
 module type_fieldset
 
-use atlas_module, only: atlas_fieldset,atlas_field,atlas_functionspace,atlas_real
+use atlas_module, only: atlas_fieldset,atlas_field,atlas_functionspace,atlas_real,atlas_metadata
 use fckit_mpi_module, only: fckit_mpi_sum
 use tools_atlas, only: field_to_array,field_from_array,get_atlas_field_size
 use tools_const, only: zero,one
@@ -51,6 +51,7 @@ contains
    procedure :: fieldset_from_array_single
    procedure :: fieldset_from_array_all
    generic :: from_array => fieldset_from_array_single,fieldset_from_array_all
+   procedure :: select_associated_field => fieldset_select_associated_field
 end type
 
 private
@@ -1115,5 +1116,97 @@ end do
 @:probe_out()
 
 end subroutine fieldset_from_array_all
+
+!----------------------------------------------------------------------
+! Subroutine: fieldset_select_associated_field
+!> Select associated field
+!----------------------------------------------------------------------
+subroutine fieldset_select_associated_field(fieldset,mpl,nv,variables,var2d,fieldname,afield)
+
+implicit none
+
+! Passed variables
+class(fieldset_type),intent(in) :: fieldset  !< Fieldset
+type(mpl_type),intent(inout) :: mpl          !< MPI data
+integer,intent(in) :: nv                     !< Number of variables to check
+character(len=*),intent(in) :: variables(nv) !< Variables to check
+logical,intent(in) :: var2d(nv)              !< Shape of the variables to check
+character(len=*),intent(in) :: fieldname     !< Associated field name
+type(atlas_field),intent(inout) :: afield    !< Associated field
+
+! Local variables
+integer :: iv,ifield,jfield,nfield,nv_check,nv_found
+type(atlas_metadata) :: ametadata
+
+! Set name
+@:set_name(fieldset_select_associated_field)
+
+! Probe in
+@:probe_in()
+
+! Initialization
+nfield = 0
+
+! Check if there are several fields with the same name
+do ifield=1,fieldset%size()
+  ! Get field
+  afield = fieldset%field(ifield)
+
+  ! Check field name
+  if (afield%name() == fieldname) nfield = nfield+1
+end do
+
+if (nfield == 0) then
+   ! Missing field
+   call mpl%abort('${subr}$','cannot find field in fieldset')
+else if (nfield == 1) then
+   ! Only one field with the correct name, return field
+   afield = fieldset%field(fieldname)
+else
+   ! Several fields with the correct name, check associated metadata
+   jfield = 0
+   do ifield=1,fieldset%size()
+      ! Get field
+      afield = fieldset%field(ifield)
+
+      if (afield%name() == fieldname) then
+         ! Get metadata
+         ametadata = afield%metadata()
+
+         ! Check if all relevant variables are present in metadata
+         if (all(var2d)) then
+           nv_check = nv
+           nv_found = 0
+           do iv=1,nv
+              if (ametadata%has(variables(iv))) nv_found = nv_found+1
+           end do
+         else
+           nv_check = count(.not.var2d)
+           nv_found = 0
+           do iv=1,nv
+              if (.not.var2d(iv)) then
+                 if (ametadata%has(variables(iv))) nv_found = nv_found+1
+              end if
+           end do
+         end if
+         if (nv_found == nv_check) then
+            ! Check if a valid field has already been found
+            if (jfield > 0) call mpl%abort('${subr}$','several fields present with the correct associated variables')
+            jfield = ifield
+         end if
+      end if
+   end do
+
+   ! Check if a valid field has been found
+   if (jfield == 0) call mpl%abort('${subr}$','cannot find field with the correct associated variables')
+
+   ! Return field
+   afield = fieldset%field(jfield)
+end if
+
+! Probe out
+@:probe_out()
+
+end subroutine fieldset_select_associated_field
 
 end module type_fieldset

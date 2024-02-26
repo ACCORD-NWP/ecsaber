@@ -1,0 +1,31 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.cc.tmp	2024-02-26 11:26:08.987352925 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.cc	2024-02-26 11:20:19.926862445 +0100
+@@ -683,11 +683,12 @@
+       // Group properties
+       const std::string groupName = std::get<0>(groups_[jg]);
+       const size_t groupNz0 = std::get<1>(groups_[jg]);
++      const std::vector<std::string> groupVars = std::get<3>(groups_[jg]);
+ 
+       // Create layers
+       for (size_t jBin = 0; jBin < nLayers; ++jBin) {
+-        data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groupName, nx0_, ny0_,
+-          groupNz0));
++        data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groupName, groupVars, nx0_,
++          ny0_, groupNz0));
+       }
+     }
+ 
+@@ -825,11 +826,12 @@
+     // Group properties
+     const std::string groupName = std::get<0>(groups_[jg]);
+     const size_t groupNz0 = std::get<1>(groups_[jg]);
++    const std::vector<std::string> groupVars = std::get<3>(groups_[jg]);
+ 
+     // Create layers
+     std::vector<std::unique_ptr<LayerBase>> layers;
+     for (size_t jBin = 0; jBin < nLayers; ++jBin) {
+-      data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groupName, nx0_, ny0_,
++      data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groupName, groupVars, nx0_, ny0_,
+         groupNz0));
+     }
+   }
