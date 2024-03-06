@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_fieldset.fypp.tmp	2024-02-26 11:26:10.003354344 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_fieldset.fypp	2024-02-26 11:17:43.734639976 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_fieldset.fypp.tmp.bak	2024-03-01 10:18:50.729759291 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/lib/type_fieldset.fypp	2024-02-29 15:57:52.334799649 +0100
 @@ -9,7 +9,7 @@
  
  module type_fieldset
@@ -17,7 +17,15 @@
  end type
  
  private
-@@ -1116,4 +1117,96 @@
+@@ -316,6 +317,7 @@
+ ! Allocation
+ if (.not.allocated(fieldset%mask3d)) allocate(fieldset%mask3d(fieldset%nmga,fieldset%nl0))
+ if (.not.allocated(fieldset%variables)) allocate(fieldset%variables(fieldset%nv))
++if (.not.allocated(fieldset%var2d)) allocate(fieldset%var2d(fieldset%nv))
+ 
+ ! Copy mask and variables
+ fieldset%mask3d = gmask
+@@ -1116,4 +1118,96 @@
  
  end subroutine fieldset_from_array_all
  
