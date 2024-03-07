@@ -34,6 +34,17 @@ oops::patch::Variables createInnerVars(const oops::patch::Variables & outerVars)
   const int modelLevels(outerVars.getLevels("eastward_wind"));
   innerVars.addMetaData("stream_function", "levels", modelLevels);
   innerVars.addMetaData("velocity_potential", "levels", modelLevels);
+  if (outerVars.hasMetaData("eastward_wind", "vert_coord")) {
+    const std::string vert_coordName = outerVars.getMetaData<std::string>("eastward_wind",
+      "vert_coord");
+    innerVars.addMetaData("stream_function", "vert_coord", vert_coordName);
+    innerVars.addMetaData("velocity_potential", "vert_coord", vert_coordName);
+  }
+  if (outerVars.hasMetaData("eastward_wind", "gmask")) {
+    const std::string gmaskName = outerVars.getMetaData<std::string>("eastward_wind", "gmask");
+    innerVars.addMetaData("stream_function", "gmask", gmaskName);
+    innerVars.addMetaData("velocity_potential", "gmask", gmaskName);
+  }
   return innerVars;
 }
 
@@ -52,8 +63,7 @@ PsiChiToUV::PsiChiToUV(const oops::GeometryData & outerGeometryData,
     innerVars_(createInnerVars(outerVars)),
     outerVars_(outerVars),
     bumpParams_(),
-    bump_()
-{
+    bump_() {
   oops::Log::trace() << classname() << "::PsiChiToUV starting" << std::endl;
 
   // Get BUMP parameters
@@ -73,15 +83,11 @@ PsiChiToUV::PsiChiToUV(const oops::GeometryData & outerGeometryData,
   activeVars.intersection(oops::patch::Variables(activeStrings));
 
   // Initialize BUMP
-  bump_.reset(new bump_lib::BUMP(outerGeometryData.comm(),
-                                 oops::LibOOPS::instance().infoChannel(),
-                                 oops::LibOOPS::instance().testChannel(),
-                                 outerGeometryData.functionSpace(),
-                                 outerGeometryData.fieldSet(),
-                                 activeVars,
-                                 xb.validTime(),
-                                 covarConf,
-                                 bumpParams_.toConfiguration()));
+  bump_.reset(new BUMP(outerGeometryData,
+                       activeVars,
+                       covarConf,
+                       bumpParams_,
+                       xb));
 
   oops::Log::trace() << classname() << "::PsiChiToUV done" << std::endl;
 }
@@ -99,6 +105,16 @@ PsiChiToUV::~PsiChiToUV() {
 void PsiChiToUV::multiply(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::multiply starting" << std::endl;
   bump_->multiplyPsiChiToUV(fset);
+  if (fset[innerVars_[0]].metadata().has("vert_coord")) {
+    const std::string vert_coordName = fset[innerVars_[0]].metadata().getString("vert_coord");
+    fset[outerVars_[0]].metadata().set("vert_coord", vert_coordName);
+    fset[outerVars_[1]].metadata().set("vert_coord", vert_coordName);
+  }
+  if (fset[innerVars_[0]].metadata().has("gmask")) {
+    const std::string gmaskName = fset[innerVars_[0]].metadata().getString("gmask");
+    fset[outerVars_[0]].metadata().set("gmask", gmaskName);
+    fset[outerVars_[1]].metadata().set("gmask", gmaskName);
+  }
   fset.removeFields(innerVars_);
   oops::Log::trace() << classname() << "::multiply done" << std::endl;
 }
@@ -108,6 +124,16 @@ void PsiChiToUV::multiply(oops::FieldSet3D & fset) const {
 void PsiChiToUV::multiplyAD(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::multiplyAD starting" << std::endl;
   bump_->multiplyPsiChiToUVAd(fset);
+  if (fset[outerVars_[0]].metadata().has("vert_coord")) {
+    const std::string vert_coordName = fset[outerVars_[0]].metadata().getString("vert_coord");
+    fset[outerVars_[0]].metadata().set("vert_coord", vert_coordName);
+    fset[outerVars_[1]].metadata().set("vert_coord", vert_coordName);
+  }
+  if (fset[outerVars_[0]].metadata().has("gmask")) {
+    const std::string gmaskName = fset[outerVars_[0]].metadata().getString("gmask");
+    fset[innerVars_[0]].metadata().set("gmask", gmaskName);
+    fset[innerVars_[1]].metadata().set("gmask", gmaskName);
+  }
   fset.removeFields(outerVars_);
   oops::Log::trace() << classname() << "::multiplyAD done" << std::endl;
 }

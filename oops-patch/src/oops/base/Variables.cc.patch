@@ -1,6 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/Variables.cc.tmp.bak	2023-12-03 13:01:41.920127643 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/Variables.cc	2023-12-03 12:06:38.581726890 +0100
-@@ -27,16 +27,17 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/Variables.cc.tmp.bak	2024-03-07 12:39:56.552680472 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/Variables.cc	2024-03-07 12:29:57.072212152 +0100
+@@ -17,7 +17,6 @@
+ 
+ #include "eckit/config/Configuration.h"
+ #include "eckit/config/LocalConfiguration.h"
+-#include "eckit/exception/Exceptions.h"
+ 
+ #include "eckit/types/Types.h"
+ #include "eckit/utils/Hash.h"
+@@ -27,16 +26,17 @@
  
  // -----------------------------------------------------------------------------
  namespace oops {
@@ -20,7 +28,7 @@
    : convention_(""), vars_(0), channels_(0), varMetaData_() {
    Log::trace() << "Variables::Variables start " << conf << std::endl;
    std::vector<std::string> vars;
-@@ -62,7 +63,7 @@
+@@ -62,7 +62,7 @@
  }
  
  // -----------------------------------------------------------------------------
@@ -29,7 +37,7 @@
    : convention_(conv), vars_(vars), varMetaData_() {
    Log::trace() << "Variables::Variables start " << vars << std::endl;
    Log::trace() << "Variables::Variables done" << std::endl;
-@@ -70,7 +71,7 @@
+@@ -70,7 +70,7 @@
  
  // -----------------------------------------------------------------------------
  
@@ -38,7 +46,7 @@
    : convention_(""), vars_(0), channels_(channels), varMetaData_() {
    Log::trace() << "Variables::Variables start " << vars << " @ " << channels << std::endl;
    if (channels.empty()) {
-@@ -87,7 +88,7 @@
+@@ -87,7 +87,7 @@
  
  // -----------------------------------------------------------------------------
  
@@ -47,7 +55,7 @@
    : convention_(""), vars_(vars), varMetaData_(conf)
  {
    Log::trace() << "Variables::Variables start " << vars << " @ " << conf << std::endl;
-@@ -96,14 +97,14 @@
+@@ -96,14 +96,14 @@
  
  // -----------------------------------------------------------------------------
  
@@ -64,11 +72,18 @@
    ASSERT(convention_ == rhs.convention_);
    vars_.insert(vars_.end(), rhs.vars_.begin(), rhs.vars_.end());
    // revisit late, should we add channels this way ?
-@@ -127,12 +128,13 @@
-       setVariableSubKeyValue(var, key, value, varMetaData_);
-     }
+@@ -121,18 +121,15 @@
+   // this operation adds and updates the metadata in the object from the
+   // rhs object.
+   for (const std::string & var : rhs.varMetaData_.keys()) {
+-    for (const std::string & key : rhs.varMetaData_.getSubConfiguration(var).keys()) {
+-      int value(-1);
+-      getVariableSubKeyValue(var, key, rhs.varMetaData_, value);
+-      setVariableSubKeyValue(var, key, value, varMetaData_);
+-    }
++    eckit::LocalConfiguration varConf = rhs.varMetaData_.getSubConfiguration(var);
++    varMetaData_.set(var, varConf);
    }
-+
    return *this;
  }
  
@@ -79,7 +94,7 @@
    ASSERT(convention_ == rhs.convention_);
    if (!rhs.channels().empty()) {
      throw eckit::NotImplemented(
-@@ -146,14 +148,14 @@
+@@ -146,14 +143,14 @@
  
  // -----------------------------------------------------------------------------
  
@@ -96,7 +111,7 @@
    if ((convention_  != rhs.convention_) ||
        (channels_    != rhs.channels_)   ||
        (vars_.size() != rhs.vars_.size())) {
-@@ -186,13 +188,13 @@
+@@ -186,13 +183,13 @@
  
  // -----------------------------------------------------------------------------
  
@@ -112,25 +127,24 @@
    ASSERT(convention_ == rhs.convention_);
    ASSERT(channels_.empty());
    bool is_in_rhs = true;
-@@ -203,7 +205,7 @@
+@@ -203,15 +200,8 @@
  }
  
  // -----------------------------------------------------------------------------
 -void patch::Variables::addMetaData(const std::string & varname,
-+void Variables::addMetaData(const std::string & varname,
-                             const std::string & keyname,
-                             const int & keyvalue) {
-   setVariableSubKeyValue(varname, keyname, keyvalue, varMetaData_);
-@@ -211,7 +213,7 @@
+-                            const std::string & keyname,
+-                            const int & keyvalue) {
+-  setVariableSubKeyValue(varname, keyname, keyvalue, varMetaData_);
+-}
  
- // -----------------------------------------------------------------------------
- 
+-// -----------------------------------------------------------------------------
+-
 -void patch::Variables::intersection(const patch::Variables & rhs) {
 +void Variables::intersection(const Variables & rhs) {
    ASSERT(convention_ == rhs.convention_);
    if (this->size() * rhs.size() > 0) ASSERT(channels_.empty() == rhs.channels_.empty());
  
-@@ -239,7 +241,7 @@
+@@ -239,7 +229,7 @@
  
  // -----------------------------------------------------------------------------
  
@@ -139,7 +153,7 @@
    bool found = false;
    for (size_t jj = 0; jj < vars_.size(); ++jj) {
      found = found || vars_[jj] == var;
-@@ -249,7 +251,7 @@
+@@ -249,7 +239,7 @@
  
  // -----------------------------------------------------------------------------
  
@@ -148,7 +162,7 @@
    size_t ii = vars_.size();
    for (size_t jj = 0; jj < vars_.size(); ++jj) {
      if (vars_[jj] == var) ii = jj;
-@@ -263,20 +265,20 @@
+@@ -263,20 +253,20 @@
  
  // -----------------------------------------------------------------------------
  
@@ -172,7 +186,7 @@
    std::vector<std::string> vars(vars_);
    std::sort(vars.begin(), vars.end());
    return vars;
-@@ -284,7 +286,7 @@
+@@ -284,7 +274,7 @@
  
  // -----------------------------------------------------------------------------
  
@@ -181,36 +195,55 @@
    os << vars_.size() << " variables: ";
    for (size_t jj = 0; jj < vars_.size(); ++jj) {
      if (jj > 0) os << ", ";
-@@ -297,7 +299,7 @@
+@@ -297,35 +287,26 @@
  
  // -----------------------------------------------------------------------------
  
 -int patch::Variables::getLevels(const std::string & fieldname) const {
-+int Variables::getLevels(const std::string & fieldname) const {
-   int levels(-1);
-   getVariableSubKeyValue(fieldname, "levels",
-                          varMetaData_, levels);
-@@ -306,7 +308,7 @@
+-  int levels(-1);
+-  getVariableSubKeyValue(fieldname, "levels",
+-                         varMetaData_, levels);
+-  return levels;
++bool Variables::hasMetaData(const std::string & varname,
++                            const std::string & keyname) const {
++  bool has = false;
++  if (!varMetaData_.empty()) {
++    if (varMetaData_.has(varname)) {
++      has = varMetaData_.getSubConfiguration(varname).has(keyname);
++    }
++  }
++  return has;
+ }
  
- // -----------------------------------------------------------------------------
- 
+-// -----------------------------------------------------------------------------
+-
 -void patch::Variables::getVariableSubKeyValue(const std::string & varname,
-+void Variables::getVariableSubKeyValue(const std::string & varname,
-                                        const std::string & keyname,
-                                        const eckit::Configuration & variablesconf,
-                                        int & intvalue) const {
-@@ -318,7 +320,7 @@
+-                                       const std::string & keyname,
+-                                       const eckit::Configuration & variablesconf,
+-                                       int & intvalue) const {
+-  ASSERT(!variablesconf.empty());
+-  ASSERT(variablesconf.has(varname));
+-  ASSERT(variablesconf.getSubConfiguration(varname).has(keyname));
+-  variablesconf.getSubConfiguration(varname).get(keyname, intvalue);
+-}
  
  // -----------------------------------------------------------------------------
  
 -void patch::Variables::setVariableSubKeyValue(const std::string & varname,
-+void Variables::setVariableSubKeyValue(const std::string & varname,
-                                        const std::string & keyname,
-                                        const int & keyvalue,
-                                        eckit::LocalConfiguration & variableslconf) {
-@@ -328,4 +330,5 @@
-   variablelconf.set(keyname, keyvalue);
-   variableslconf.set(varname, variablelconf);
+-                                       const std::string & keyname,
+-                                       const int & keyvalue,
+-                                       eckit::LocalConfiguration & variableslconf) {
+-  eckit::LocalConfiguration variablelconf =
+-    variableslconf.has(varname) ? variableslconf.getSubConfiguration(varname) :
+-                                  eckit::LocalConfiguration();
+-  variablelconf.set(keyname, keyvalue);
+-  variableslconf.set(varname, variablelconf);
++int Variables::getLevels(const std::string & fieldname) const {
++  int levels(-1);
++  getVariableSubKeyValue(fieldname, "levels",
++                         varMetaData_, levels);
++  return levels;
  }
++
 +}  // namespace patch
  }  // namespace oops

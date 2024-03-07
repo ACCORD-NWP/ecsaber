@@ -24,9 +24,13 @@ namespace vader
 
 // Static attribute initialization
 const char AirTemperature_A::Name[] = "AirTemperature_A";
+// CCPP Names for (hopefully near) future:
+// const char AT[] = "air_temperature_at_interface";
+// const char APT[] = "air_potential_temperature_at_interface";
+// const char DEF[] = "dimensionless_exner_function_at_interface";
 const char AT[] = "air_temperature";
-const char APT[] = "air_potential_temperature";
-const char DEF[] = "dimensionless_exner_function";
+const char APT[] = "potential_temperature";
+const char DEF[] = "exner";
 const std::vector<std::string> AirTemperature_A::Ingredients = {APT, DEF};
 
 // Register the maker
@@ -45,6 +49,8 @@ std::string AirTemperature_A::name() const
 std::string AirTemperature_A::product() const
 {
     return "air_temperature";
+    // CCPP Names for (hopefully near) future:
+    // return "air_temperature_at_interface"
 }
 
 std::vector<std::string> AirTemperature_A::ingredients() const

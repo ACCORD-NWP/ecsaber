@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerHalo.h.tmp	2024-02-26 11:26:08.911352820 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerHalo.h	2024-02-26 11:18:41.166722082 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerHalo.h.tmp	2024-03-07 12:22:36.583915278 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerHalo.h	2024-03-07 11:36:54.473904631 +0100
 @@ -33,11 +33,12 @@
    // Constructor
    LayerHalo(const FastLAMParametersBase & params,

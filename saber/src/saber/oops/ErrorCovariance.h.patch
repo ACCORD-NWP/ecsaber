@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-02-27 14:29:43.235264181 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-02-27 11:11:10.222350344 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-03-07 14:56:02.564891414 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-03-07 12:50:45.309189458 +0100
 @@ -13,20 +13,18 @@
  
  #include "atlas/field.h"
@@ -109,7 +109,7 @@
  
    /// Chain of outer blocks applied to all components of hybrid covariances.
    /// Not initialized for non-hybrid covariances.
-@@ -89,242 +103,298 @@
+@@ -89,242 +103,303 @@
    /// Vector of field weights for hybrid B components (one element, empty
    /// fieldset for non-hybrid case).
    std::vector<oops::FieldSet3D> hybridFieldWeightSqrt_;
@@ -325,14 +325,19 @@
 +    oops::FieldSet4D fset4dXb = oops::copyFieldSet4D(fset4dXbTmp);
 +    oops::FieldSet4D fset4dFg = oops::copyFieldSet4D(fset4dFgTmp);
 +
-+    // Extend background and first guess with geometry fields
-+    // TODO(Benjamin, Marek, Mayeul, ?)
-+
 +    // Initialize outer variables
 +    const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
 +    oops::patch::Variables outerVars(incVars_.variables().variablesList());
 +    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
 +      outerVars.addMetaData(outerVars[i], "levels", vlevs[i]);
++    }
++    for (const auto & var : outerVars.variables()) {
++      if (fset4dXb[0][var].metadata().has("vert_coord")) {
++        outerVars.addMetaData(var, "vert_coord", fset4dXb[0][var].metadata().getString("vert_coord"));
++      }
++      if (fset4dXb[0][var].metadata().has("gmask")) {
++        outerVars.addMetaData(var, "gmask", fset4dXb[0][var].metadata().getString("gmask"));
++      }
 +    }
 +
 +    // Create covariance configuration
@@ -369,8 +374,7 @@
 +      if (dualResGeomConf != boost::none) {
 +        // Create dualRes geometry
 +        dualResGeom = new Geometry_(*dualResGeomConf);
-       }
--      hybridFieldWeightSqrt_.push_back(fsetWeight);
++      }
 +      // Background and first guess at dual resolution geometry
 +      const State4D_ xbDualRes(*dualResGeom, xb);
 +      const State4D_ fgDualRes(*dualResGeom, fg);
@@ -392,9 +396,7 @@
 +      fsetDualResEns = std::make_unique<oops::FieldSets>(dates,
 +                                        eckit::mpi::self(), ensmems, eckit::mpi::comm());
 +    }
- 
--      // Set covariance
--      eckit::LocalConfiguration cmpConf = cmp.getSubConfiguration("covariance");
++
 +    // Add ensemble output
 +    const auto & outputEnsemble = params_.outputEnsemble.value();
 +    if (outputEnsemble != boost::none) {
@@ -416,7 +418,13 @@
 +                        covarConf,
 +                        *saberOuterBlocksParams);
 +        outerVars = outerBlockChain_->innerVars();
-+      }
+       }
+-      hybridFieldWeightSqrt_.push_back(fsetWeight);
+ 
+-      // Set covariance
+-      eckit::LocalConfiguration cmpConf = cmp.getSubConfiguration("covariance");
++      // Hybrid central block
++      eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
  
 -      // Read ensemble
 -      eckit::LocalConfiguration cmpEnsembleConf;
@@ -445,15 +453,12 @@
 -      cmpCentralBlockParamsWrapper.deserialize(cmpConf.getSubConfiguration("saber central block"));
 -      const auto & centralBlockParams =
 -                   cmpCentralBlockParamsWrapper.saberCentralBlockParameters.value();
-+      // Hybrid central block
-+      eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
- 
 +      // Create block geometry (needed for ensemble reading)
 +      const Geometry_ * hybridGeom = &geom;
 +      if (hybridConf.has("geometry")) {
 +        hybridGeom = new Geometry_(hybridConf.getSubConfiguration("geometry"));
 +      }
-+
+ 
 +      // Loop over components
 +      for (const auto & cmp : hybridConf.getSubConfigurations("components")) {
 +        // Initialize component outer variables
@@ -611,7 +616,7 @@
    for (size_t jtime = 0; jtime < fset4dSum.size(); ++jtime) {
      fset4dSum[jtime].init(hybridBlockChain_[0]->outerFunctionSpace(),
                            hybridBlockChain_[0]->outerVariables(),
-@@ -334,7 +404,7 @@
+@@ -334,7 +409,7 @@
    // Loop over components for the central block
    for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
      // Randomize covariance
@@ -620,7 +625,7 @@
      hybridBlockChain_[jj]->randomize(fset4dCmp);
  
      // Weight square-root multiplication
-@@ -354,20 +424,20 @@
+@@ -354,20 +429,20 @@
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
    // ATLAS fieldset to Increment_
@@ -649,7 +654,7 @@
  
    // Copy input
    dxo = dxi;
-@@ -415,27 +485,314 @@
+@@ -415,27 +490,314 @@
    // Apply outer blocks forward
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  

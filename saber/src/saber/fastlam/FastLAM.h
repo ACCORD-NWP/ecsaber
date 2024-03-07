@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2023 Meteorlogisk Institutt
+ * (C) Copyright 2024 Meteorlogisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -98,7 +98,14 @@ class FastLAM : public SaberCentralBlockBase {
   oops::patch::Variables active2dVars_;
 
   // Groups of variables
-  std::vector<std::tuple<std::string, size_t, std::string, std::vector<std::string>>> groups_;
+  struct Group {
+    std::string name_;
+    size_t nz0_;
+    std::string varInModelFile_;
+    std::vector<std::string> variables_;
+    std::string vert_coordName_;
+  };
+  std::vector<Group> groups_;
 
   // Parameters
   FastLAMParametersBase params_;

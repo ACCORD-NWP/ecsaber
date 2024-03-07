@@ -1,0 +1,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h.tmp.bak	2024-03-07 12:40:35.488712103 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h	2024-03-07 12:37:07.032544011 +0100
+@@ -98,7 +98,14 @@
+   oops::patch::Variables active2dVars_;
+ 
+   // Groups of variables
+-  std::vector<std::tuple<std::string, size_t, std::string, std::vector<std::string>>> groups_;
++  struct Group {
++    std::string name_;
++    size_t nz0_;
++    std::string varInModelFile_;
++    std::vector<std::string> variables_;
++    std::string vert_coordName_;
++  };
++  std::vector<Group> groups_;
+ 
+   // Parameters
+   FastLAMParametersBase params_;

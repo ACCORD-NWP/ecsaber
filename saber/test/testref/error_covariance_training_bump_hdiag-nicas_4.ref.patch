@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag-nicas_4.ref.tmp	2024-02-26 11:26:12.171357369 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag-nicas_4.ref	2024-02-23 17:31:50.815639048 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag-nicas_4.ref.tmp	2024-03-07 12:22:38.535916431 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag-nicas_4.ref	2024-03-07 11:38:19.722001236 +0100
 @@ -17,7 +17,7 @@
            Min. / max. latitudes:   -90.0 /    90.0
            Domain area (% of Earth area): 0.100E+03%

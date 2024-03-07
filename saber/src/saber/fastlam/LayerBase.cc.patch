@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc.tmp	2024-02-26 11:26:09.011352959 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc	2024-02-26 11:18:33.482711123 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc.tmp	2024-03-07 12:22:36.651915318 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc	2024-03-07 11:36:54.473904631 +0100
 @@ -14,6 +14,7 @@
  
  #include "atlas/array.h"
@@ -18,7 +18,7 @@
    const size_t & nx0,
    const size_t & ny0,
    const size_t & nz0) {
-@@ -52,7 +54,7 @@
+@@ -52,17 +54,22 @@
      throw eckit::UserError("Element does not exist in saber::LayerFactory.", Here());
    }
    std::unique_ptr<LayerBase> ptr =
@@ -27,7 +27,23 @@
    oops::Log::trace() << "LayerBase::create done" << std::endl;
    return ptr;
  }
-@@ -83,11 +85,10 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-void LayerBase::setupVerticalCoord(const atlas::Field & rvField,
++void LayerBase::setupVerticalCoord(const std::string & vert_coordName,
++                                   const atlas::Field & rvField,
+                                    const atlas::Field & wgtField) {
+   oops::Log::trace() << classname() << "::setupVerticalCoord starting" << std::endl;
+ 
++  // Vertical coordinate
++  const atlas::Field vertCoordField = gdata_.fieldSet()[vert_coordName];
++  const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoordField);
++
+   if (nz0_ == 1) {
+     // Compute normalized vertical coordinate
+     normVertCoord_.resize(nz0_, 0.0);
+@@ -83,11 +90,7 @@
        if (ghostView(jnode0) == 0) {
          for (size_t k0 = 0; k0 < nz0_; ++k0) {
            double VC = static_cast<double>(k0+1);
@@ -36,10 +52,25 @@
 -            const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoordField);
 -            VC = vertCoordView(jnode0, k0);
 -          }
-+          const atlas::Field vertCoordField = util::selectAssociatedField(gdata_.fieldSet(),
-+            "vert_coord", myVars_);
-+          const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoordField);
 +          VC = vertCoordView(jnode0, k0);
            vertCoord[k0] += VC*wgtView(jnode0, k0);
            rv[k0] += rvView(jnode0, k0)*wgtView(jnode0, k0);
            wgt[k0] += wgtView(jnode0, k0);
+@@ -759,7 +762,7 @@
+ 
+   // Full normalization
+   atlas::Field normField = gdata_.functionSpace().createField<double>(
+-    atlas::option::name(myVar_) | atlas::option::levels(nz0_));
++    atlas::option::name(myGroup_) | atlas::option::levels(nz0_));
+   auto normView = atlas::array::make_view<double, 2>(normField);
+   norm_.add(normField);
+ 
+@@ -902,7 +905,7 @@
+     // Compute normalization accuracy
+     oops::Log::info() << "Info     :     Compute exact normalization" << std::endl;
+     atlas::Field normAccField = gdata_.functionSpace().createField<double>(
+-      atlas::option::name(myVar_) | atlas::option::levels(nz0_));
++      atlas::option::name(myGroup_) | atlas::option::levels(nz0_));
+     auto normAccView = atlas::array::make_view<double, 2>(normAccField);
+     normAccView.assign(util::missingValue<double>());
+     double normAccMax = 0.0;;

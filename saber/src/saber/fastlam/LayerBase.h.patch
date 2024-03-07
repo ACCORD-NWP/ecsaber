@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h.tmp	2024-02-26 11:26:08.963352892 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h	2024-02-26 11:18:36.338715196 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h.tmp	2024-03-07 12:22:36.603915290 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h	2024-03-07 11:36:54.473904631 +0100
 @@ -36,7 +36,8 @@
    // Constructor
    LayerBase(const FastLAMParametersBase & params,
@@ -20,7 +20,18 @@
      nx0_(nx0),
      ny0_(ny0),
      mSize_(gdata_.functionSpace().ghost().shape(0)),
-@@ -108,8 +110,9 @@
+@@ -71,7 +73,9 @@
+   // Non-virtual methods
+ 
+   // Setups
+-  void setupVerticalCoord(const atlas::Field &, const atlas::Field &);
++  void setupVerticalCoord(const std::string &,
++                          const atlas::Field &,
++                          const atlas::Field &);
+   void setupInterpolation();
+   void setupKernels();
+   void setupNormalization();
+@@ -112,8 +116,9 @@
    const eckit::mpi::Comm & comm_;
    size_t myrank_;
  
@@ -32,7 +43,7 @@
  
    // Model grid
    size_t nx0_;
-@@ -183,6 +186,7 @@
+@@ -187,6 +192,7 @@
    static std::unique_ptr<LayerBase> create(const FastLAMParametersBase &,
                                             const oops::GeometryData &,
                                             const std::string &,
@@ -40,7 +51,7 @@
                                             const size_t &,
                                             const size_t &,
                                             const size_t &);
-@@ -196,6 +200,7 @@
+@@ -200,6 +206,7 @@
    virtual std::unique_ptr<LayerBase> make(const FastLAMParametersBase &,
                                            const oops::GeometryData &,
                                            const std::string &,
@@ -48,7 +59,7 @@
                                            const size_t &,
                                            const size_t &,
                                            const size_t &) = 0;
-@@ -212,11 +217,12 @@
+@@ -216,11 +223,12 @@
  class LayerMaker : public LayerFactory {
    std::unique_ptr<LayerBase> make(const FastLAMParametersBase & params,
                                    const oops::GeometryData & gdata,

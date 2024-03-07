@@ -178,14 +178,19 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
     oops::FieldSet4D fset4dXb = oops::copyFieldSet4D(fset4dXbTmp);
     oops::FieldSet4D fset4dFg = oops::copyFieldSet4D(fset4dFgTmp);
 
-    // Extend background and first guess with geometry fields
-    // TODO(Benjamin, Marek, Mayeul, ?)
-
     // Initialize outer variables
     const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
     oops::patch::Variables outerVars(incVars_.variables().variablesList());
     for (std::size_t i = 0; i < vlevs.size() ; ++i) {
       outerVars.addMetaData(outerVars[i], "levels", vlevs[i]);
+    }
+    for (const auto & var : outerVars.variables()) {
+      if (fset4dXb[0][var].metadata().has("vert_coord")) {
+        outerVars.addMetaData(var, "vert_coord", fset4dXb[0][var].metadata().getString("vert_coord"));
+      }
+      if (fset4dXb[0][var].metadata().has("gmask")) {
+        outerVars.addMetaData(var, "gmask", fset4dXb[0][var].metadata().getString("gmask"));
+      }
     }
 
     // Create covariance configuration

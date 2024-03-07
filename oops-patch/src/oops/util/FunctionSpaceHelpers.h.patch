@@ -1,0 +1,27 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FunctionSpaceHelpers.h.tmp	2024-03-07 11:39:32.382082706 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FunctionSpaceHelpers.h	2024-03-07 11:31:51.493560112 +0100
+@@ -7,7 +7,10 @@
+ 
+ #pragma once
+ 
++#include <vector>
++
+ namespace atlas {
++namespace grid { class Distribution; }
+ namespace grid { class Partitioner; }
+ class Grid;
+ class Mesh;
+@@ -35,4 +38,13 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
++// Define a distribution and a mesh from a custom partition
++void setupStructuredMeshWithCustomPartition(const eckit::mpi::Comm &,
++    const atlas::Grid &,
++    const std::vector<int> &,
++    atlas::grid::Distribution &,
++    atlas::Mesh &);
++
++// -----------------------------------------------------------------------------
++
+ }  // namespace util

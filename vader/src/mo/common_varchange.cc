@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2022 Met Office
+ * (C) Crown Copyright 2022-2024 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -15,6 +15,7 @@
 #include "atlas/array/MakeView.h"
 #include "atlas/field/Field.h"
 #include "atlas/field/FieldSet.h"
+#include "atlas/field/for_each.h"
 #include "atlas/functionspace.h"
 
 #include "eckit/config/Configuration.h"
@@ -24,6 +25,7 @@
 #include "mo/common_varchange.h"
 #include "mo/constants.h"
 #include "mo/functions.h"
+#include "mo/lookups.h"
 
 #include "oops/base/Variables.h"
 #include "oops/util/Logger.h"
@@ -87,10 +89,6 @@ bool evalSatVaporPressure(atlas::FieldSet & fields)
     return false;
   }
   const auto tView  = make_view<const double, 2>(fields["air_temperature"]);
-  const std::vector<std::string> vars{"svp", "dlsvp", "svpW", "dlsvpW"};
-  oops::patch::Variables lookUpVars(vars);
-  auto lookUpData = functions::getLookUps(constants::commonVarChangeFilePath, lookUpVars,
-                               constants::svpLookUpLength);
 
   const std::vector<std::string> fnames {"svp", "dlsvpdT"};
   int ival = 0;  // set ival = 2 to get svp wrt water
@@ -102,12 +100,12 @@ bool evalSatVaporPressure(atlas::FieldSet & fields)
                   atlas::util::Config("include_halo", true);
 
       // check this recipe to calculate svp is correct
-      const std::vector<double> Lookup = lookUpData[ival];
+      const auto& lookup = lookups::allSvpLookupTable[ival];
       ++ival;
       auto evaluateSVP = [&] (atlas::idx_t i, atlas::idx_t j) {
       indx = index(normalisedT(tView(i, j)));
       w = weight(normalisedT(tView(i, j)));
-      svpView(i, j) = interp(w, Lookup.at(indx), Lookup.at(indx+1)); };
+      svpView(i, j) = interp(w, lookup.at(indx), lookup.at(indx+1)); };
 
       auto fspace = fields[ef].functionspace();
 
@@ -122,47 +120,41 @@ bool evalSatVaporPressure(atlas::FieldSet & fields)
 
 bool evalSatSpecificHumidity(atlas::FieldSet & fields)
 {
-  oops::Log::trace() << "[getQsat()] starting ..." << std::endl;
+  oops::Log::trace() << "[evalSatSpecificHumidity()] starting ..." << std::endl;
 
-  const auto pbarView = make_view<const double, 2>(fields["air_pressure"]);
-  const auto svpView = make_view<const double, 2>(fields["svp"]);
-  const auto tView = make_view<const double, 2>(fields["air_temperature"]);
-  auto qsatView = make_view<double, 2>(fields["qsat"]);
-
-  auto conf = atlas::util::Config("levels", fields["qsat"].shape(1)) |
-              atlas::util::Config("include_halo", true);
-
-  double fsubw;
-  double svp_times_fsubw;
-  auto evaluateQsat = [&] (atlas::idx_t i, atlas::idx_t j) {
+  atlas::field::for_each_value(atlas::execution::par_unseq,
+                               fields["air_pressure"],
+                               fields["svp"],
+                               fields["air_temperature"],
+                               fields["qsat"],
+                               [&](const double pBar,
+                                   const double svp,
+                                   const double T,
+                                   double& qsat) {
     // Compute the factor that converts from sat vapour pressure in a
     // pure water system to sat vapour pressure in air, FSUBW. This formula
     // is taken from equation A4.7 of Adrian Gill's book: Atmosphere-Ocean
     // Dynamics. Note that his formula works in terms of pressure in mb and
     // temperature in Celsius, so conversion of units leads to the slightly
     // different equation used here.
-    fsubw = 1.0 + 1.0E-8 * pbarView(i, j) * (4.5 +
-            6.0e-4 * (tView(i, j) - constants::zerodegc) *
-                     (tView(i, j) - constants::zerodegc));
+    const double fsubw = 1.0 + 1.0E-8 * pBar * (4.5 + 6.0e-4
+                          * (T - constants::zerodegc)
+                          * (T - constants::zerodegc));
 
     // Multiply by FSUBW to convert to saturated vapour pressure in air
     // (equation A4.6 of Adrian Gill's book)
-    svp_times_fsubw = fsubw * svpView(i, j);
+    const double svp_times_fsubw = fsubw * svp;
 
     // Now form the accurate expression for QS, which is a rearranged
     // version of equation A4.3 of Gill's book.
     // Note that at very low pressures we apply a fix, to prevent a
     // singularity (Qsat tends to 1.0 kg/kg).
-    qsatView(i, j) = constants::rd_over_rv * svp_times_fsubw /
-          (std::max(pbarView(i, j), svp_times_fsubw) -
+    qsat = constants::rd_over_rv * svp_times_fsubw /
+          (std::max(pBar, svp_times_fsubw) -
           (1.0 - constants::rd_over_rv) * svp_times_fsubw);
-  };
+  });
 
-  auto fspace = fields["qsat"].functionspace();
-
-  functions::parallelFor(fspace, evaluateQsat, conf);
-
-  oops::Log::trace() << "[getQsat()] ... exit" << std::endl;
+  oops::Log::trace() << "[evalSatSpecificHumidity()] ... exit" << std::endl;
 
   return true;
 }
