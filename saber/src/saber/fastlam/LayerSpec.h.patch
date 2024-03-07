@@ -1,0 +1,17 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerSpec.h.tmp	2024-03-07 12:22:36.619915299 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerSpec.h	2024-03-07 11:36:54.473904631 +0100
+@@ -34,11 +34,12 @@
+   // Constructor
+   LayerSpec(const FastLAMParametersBase & params,
+             const oops::GeometryData & gdata,
+-            const std::string & myVar,
++            const std::string & myGroup,
++            const std::vector<std::string> & myVars,
+             const size_t & nx0,
+             const size_t & ny0,
+             const size_t & nz0) :
+-    LayerBase(params, gdata, myVar, nx0, ny0, nz0) {}
++    LayerBase(params, gdata, myGroup, myVars, nx0, ny0, nz0) {}
+     ~LayerSpec() = default;
+ 
+   // Setups

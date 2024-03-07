@@ -40,8 +40,8 @@ void eval_surface_temperature_tl(atlas::FieldSet & incFlds) {
   oops::Log::trace() << "[eval_surface_temperature_tl()] ... done" << std::endl;
 }
 
-void eval_surface_temperature_adj(atlas::FieldSet & HatFlds) {
-  oops::Log::trace() << "[eval_surface_temperature_adj()] starting ..." << std::endl;
+void eval_surface_temperature_ad(atlas::FieldSet & HatFlds) {
+  oops::Log::trace() << "[eval_surface_temperature_ad()] starting ..." << std::endl;
   auto temperHatView = make_view<double, 2>(HatFlds["air_temperature"]);
   auto surfTemperHatView = make_view<double, 2>(HatFlds["surface_temperature"]);
 
@@ -49,7 +49,7 @@ void eval_surface_temperature_adj(atlas::FieldSet & HatFlds) {
     temperHatView(jn, 0) += surfTemperHatView(jn, 0);
     surfTemperHatView(jn, 0) = 0.0;
   }
-  oops::Log::trace() << "[eval_surface_temperature_adj()] ... done" << std::endl;
+  oops::Log::trace() << "[eval_surface_temperature_ad()] ... done" << std::endl;
 }
 
 }  // namespace mo

@@ -26,9 +26,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  namespace patch {class Variables;}
 }
 
 namespace saber {

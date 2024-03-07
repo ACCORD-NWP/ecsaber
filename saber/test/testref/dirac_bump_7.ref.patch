@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_7.ref.tmp	2024-02-26 11:26:11.595356565 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_7.ref	2024-02-23 17:31:50.815639048 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_7.ref.tmp	2024-03-07 12:22:38.143916200 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_7.ref	2024-03-07 11:38:01.697980901 +0100
 @@ -60,7 +60,7 @@
            Min. / max. latitudes:   -90.0 /    90.0
            Domain area (% of Earth area): 0.100E+03%

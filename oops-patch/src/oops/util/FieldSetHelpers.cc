@@ -1541,47 +1541,4 @@ void readFieldSet(const eckit::mpi::Comm & comm,
 
 // -----------------------------------------------------------------------------
 
-atlas::Field selectAssociatedField(const atlas::FieldSet & fset,
-                                   const std::string & fieldName,
-                                   const std::vector<std::string> & varNames) {
-  // Check if there are several fields with the same name
-  size_t nf = 0;
-  for (const auto & field : fset) {
-    if (field.name() == fieldName) {
-      ++nf;
-    }
-  }
-
-  if (nf == 0) {
-    throw eckit::Exception("missing field in fieldset", Here());
-  } else if (nf == 1) {
-    return fset[fieldName];
-  } else {
-    // Several fields with the correct name, check associated metadata
-    int validField = -1;
-    for (int jj = 0; jj < fset.size(); ++jj) {
-      if (fset[jj].name() == fieldName) {
-        // Check what variables are present in metadata
-        size_t nvFound = 0;
-        for (const auto & varName : varNames) {
-          if (fset[jj].metadata().has(varName)) {
-            nvFound += 1;
-          }
-        }
-
-        // If some variables are found, check that all are found
-        if (nvFound > 0) {
-          ASSERT(nvFound == varNames.size());
-          ASSERT(validField == -1);
-          validField = jj;
-        }
-      }
-    }
-    ASSERT(validField > -1);
-    return fset[validField];
-  }
-}
-
-// -----------------------------------------------------------------------------
-
 }  // namespace util

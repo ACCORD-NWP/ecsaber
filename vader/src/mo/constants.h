@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2022 Met Office
+ * (C) Crown Copyright 2022-2024 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -37,7 +37,7 @@ namespace constants {
   static constexpr std::double_t TolMonotonicity = 1.0;
   static constexpr std::double_t effectiveRNegative = 5.0;
 
-  // tolerance for avoiding division by zero in getMIOFields
+  // tolerance for avoiding division by zero in eval_mio_fields_nl
   static constexpr std::double_t tol = 1.0e-5;
 
   static constexpr double p_zero = 1.0e5;
@@ -117,7 +117,5 @@ namespace constants {
   static constexpr double icao_pressure_l   = 226.32;    // Assumed pressure at 11,000 gpm [hPa]
   static constexpr double icao_pressure_u   = 54.7487;   // Assumed pressure at 20,000 gpm [hPa]
 
-  static const std::string commonVarChangeFilePath = "Data/parameters/svp_dlsvp_svpW_dlsvpW.nc";
-  static const std::string mioCoefficientsFilePath = "Data/parameters/MIO_coefficients.nc";
 }  // namespace constants
 }  // namespace mo

@@ -22,4 +22,4 @@ namespace mo {
 ///
 void eval_sat_vapour_pressure_nl(const std::string & svp_file, atlas::FieldSet & fields);
 
-}
+}  // namespace mo

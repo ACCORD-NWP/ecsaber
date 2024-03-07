@@ -25,6 +25,10 @@
 #include "saber/blocks/SaberBlockParametersBase.h"
 #include "saber/blocks/SaberOuterBlockBase.h"
 
+namespace oops {
+  namespace patch {class Variables;}
+}
+
 namespace saber {
 namespace vader {
 

@@ -1,0 +1,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/HydroBal.h.tmp.bak	2024-03-07 14:56:01.880890814 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/HydroBal.h	2024-03-07 12:46:13.468972879 +0100
+@@ -23,9 +23,7 @@
+ #include "saber/blocks/SaberOuterBlockBase.h"
+ 
+ namespace oops {
+-  namespace patch{
+-class Variables;
+-}
++  namespace patch {class Variables;}
+ }
+ 
+ namespace saber {
