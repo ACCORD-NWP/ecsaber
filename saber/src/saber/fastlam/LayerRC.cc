@@ -503,7 +503,7 @@ void LayerRC::redToRows(const atlas::Field & redField,
   const auto redView = atlas::array::make_view<double, 2>(redField);
   for (size_t jnode = 0; jnode < rSize_; ++jnode) {
     for (size_t k = 0; k < nz_; ++k) {
-      size_t jv = rRecvDispls3D[xTask_[jnode]] + xOffset_[jnode]*nz_ + k;
+      const size_t jv = rRecvDispls3D[xTask_[jnode]] + xOffset_[jnode]*nz_ + k;
       rRecvVec[jv] = redView(jnode, k);
     }
   }
@@ -516,10 +516,10 @@ void LayerRC::redToRows(const atlas::Field & redField,
   // Deserialize
   auto rowsView = atlas::array::make_view<double, 3>(rowsField);
   for (size_t jx = 0; jx < xSendSize_; ++jx) {
-    size_t i = xIndex_i_[jx];
-    size_t j = xIndex_j_[jx]-nyStart_[myrank_];
+    const size_t i = xIndex_i_[jx];
+    const size_t j = xIndex_j_[jx]-nyStart_[myrank_];
     for (size_t k = 0; k < nz_; ++k) {
-      size_t jv = jx*nz_ + k;
+      const size_t jv = jx*nz_ + k;
       rowsView(i, j, k) = xSendVec[jv];
     }
   }
@@ -549,10 +549,10 @@ void LayerRC::rowsToRed(const atlas::Field & rowsField,
   const auto rowsView = atlas::array::make_view<double, 3>(rowsField);
   std::vector<double> xSendVec(xSendSize_*nz_);
   for (size_t jx = 0; jx < xSendSize_; ++jx) {
-    size_t i = xIndex_i_[jx];
-    size_t j = xIndex_j_[jx]-nyStart_[myrank_];
+    const size_t i = xIndex_i_[jx];
+    const size_t j = xIndex_j_[jx]-nyStart_[myrank_];
     for (size_t k = 0; k < nz_; ++k) {
-      size_t jv = jx*nz_ + k;
+      const size_t jv = jx*nz_ + k;
       xSendVec[jv] = rowsView(i, j, k);
     }
   }
@@ -566,7 +566,7 @@ void LayerRC::rowsToRed(const atlas::Field & rowsField,
   auto redView = atlas::array::make_view<double, 2>(redField);
   for (size_t jnode = 0; jnode < rSize_; ++jnode) {
     for (size_t k = 0; k < nz_; ++k) {
-      size_t jv = rRecvDispls3D[xTask_[jnode]] + xOffset_[jnode]*nz_ + k;
+      const size_t jv = rRecvDispls3D[xTask_[jnode]] + xOffset_[jnode]*nz_ + k;
       redView(jnode, k) = rRecvVec[jv];
     }
   }
@@ -589,12 +589,15 @@ void LayerRC::rowsConvolution(atlas::Field & field) const {
   for (size_t j = 0; j < nyPerTask_[myrank_]; ++j) {
     for (size_t i = 0; i < nx_; ++i) {
       for (size_t jk = 0; jk < xKernelSize_; ++jk) {
-        size_t ii = i-jk+(xKernelSize_-1)/2;
+        const size_t ii = i-jk+(xKernelSize_-1)/2;
         if (ii >= 0 && ii < nx_) {
-          for (size_t k = 0; k < nz_; ++k) {
+          for (size_t k = 0; k < nz_-idz_; ++k) {
             view(i, j, k) += copyView(ii, j, k)*xKernel_[jk];
           }
         }
+      }
+      if (idz_ == 1) {
+        view(i, j, nz_-1) = copyView(i, j, nz_-1);
       }
     }
   }
@@ -645,7 +648,7 @@ void LayerRC::rowsToCols(const atlas::Field & rowsField,
   for (size_t i = 0; i < nx_; ++i) {
     for (size_t j = 0; j < nyPerTask_[myrank_]; ++j) {
       for (size_t k = 0; k < nz_; ++k) {
-        size_t jv = xRecvDispls3D[yTask_[j][i]] + yOffset_[j][i]*nz_ + k;
+        const size_t jv = xRecvDispls3D[yTask_[j][i]] + yOffset_[j][i]*nz_ + k;
         xRecvVec[jv] = rowsView(i, j, k);
       }
     }
@@ -659,10 +662,10 @@ void LayerRC::rowsToCols(const atlas::Field & rowsField,
   // Deserialize
   auto colsView = atlas::array::make_view<double, 3>(colsField);
   for (size_t jy = 0; jy < ySendSize_; ++jy) {
-    size_t i = yIndex_i_[jy]-nxStart_[myrank_];
-    size_t j = yIndex_j_[jy];
+    const size_t i = yIndex_i_[jy]-nxStart_[myrank_];
+    const size_t j = yIndex_j_[jy];
     for (size_t k = 0; k < nz_; ++k) {
-      size_t jv = jy*nz_ + k;
+      const size_t jv = jy*nz_ + k;
       colsView(i, j, k) = ySendVec[jv];
     }
   }
@@ -695,7 +698,7 @@ void LayerRC::colsToRows(const atlas::Field & colsField,
     size_t i = yIndex_i_[jy]-nxStart_[myrank_];
     size_t j = yIndex_j_[jy];
     for (size_t k = 0; k < nz_; ++k) {
-      size_t jv = jy*nz_ + k;
+      const size_t jv = jy*nz_ + k;
       ySendVec[jv] = colsView(i, j, k);
     }
   }
@@ -710,7 +713,7 @@ void LayerRC::colsToRows(const atlas::Field & colsField,
   for (size_t i = 0; i < nx_; ++i) {
     for (size_t j = 0; j < nyPerTask_[myrank_]; ++j) {
       for (size_t k = 0; k < nz_; ++k) {
-        size_t jv = xRecvDispls3D[yTask_[j][i]] + yOffset_[j][i]*nz_ + k;
+        const size_t jv = xRecvDispls3D[yTask_[j][i]] + yOffset_[j][i]*nz_ + k;
         rowsView(i, j, k) = xRecvVec[jv];
       }
     }
@@ -734,12 +737,15 @@ void LayerRC::colsConvolution(atlas::Field & field) const {
   for (size_t i = 0; i < nxPerTask_[myrank_]; ++i) {
     for (size_t j = 0; j < ny_; ++j) {
       for (size_t jk = 0; jk < yKernelSize_; ++jk) {
-        size_t jj = j-jk+(yKernelSize_-1)/2;
+        const size_t jj = j-jk+(yKernelSize_-1)/2;
         if (jj >= 0 && jj < ny_) {
-          for (size_t k = 0; k < nz_; ++k) {
+          for (size_t k = 0; k < nz_-idz_; ++k) {
             view(i, j, k) += copyView(i, jj, k)*yKernel_[jk];
           }
         }
+      }
+      if (idz_ == 1) {
+        view(i, j, nz_-1) = copyView(i, j, nz_-1);
       }
     }
   }
@@ -780,13 +786,16 @@ void LayerRC::vertConvolution(atlas::Field & field) const {
   view.assign(0.0);
   for (size_t i = 0; i < nxPerTask_[myrank_]; ++i) {
     for (size_t j = 0; j < ny_; ++j) {
-      for (size_t k = 0; k < nz_; ++k) {
+      for (size_t k = 0; k < nz_-idz_; ++k) {
         for (size_t jk = 0; jk < zKernelSize_; ++jk) {
-          size_t kk = k-jk+(zKernelSize_-1)/2;
-          if (kk >= 0 && kk < nz_) {
+          const size_t kk = k-jk+(zKernelSize_-1)/2;
+          if (kk >= 0 && kk < nz_-idz_) {
             view(i, j, k) += copyView(i, j, kk)*zKernel_[jk];
           }
         }
+      }
+      if (idz_ == 1) {
+        view(i, j, nz_-1) = copyView(i, j, nz_-1);
       }
     }
   }

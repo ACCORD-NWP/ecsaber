@@ -817,6 +817,9 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
   // Setup weight
   setupWeight();
 
+  // Setup fake levels
+  setupFakeLevels();
+
   // Setup vertical coordinate
   setupVerticalCoord();
 
@@ -852,7 +855,7 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
       oops::Log::info() << data_[jg][jBin]->normVertCoord()[groups_[jg].nz0_-1] << std::endl;
 
       // Setup interpolation
-      data_[jg][jBin]->setupInterpolation();
+      data_[jg][jBin]->setupInterpolation(groups_[jg].vert_coordName_);
 
       // Setup kernels
       data_[jg][jBin]->setupKernels();
@@ -878,6 +881,9 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
 
 void FastLAM::read() {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
+
+  // Setup fake levels
+  setupFakeLevels();
 
   if (comm_.rank() == 0) {
     ASSERT(params_.dataFile.value() != boost::none);
@@ -944,7 +950,7 @@ void FastLAM::read() {
       oops::Log::info() << data_[jg][jBin]->normVertCoord()[groups_[jg].nz0_-1] << std::endl;
 
       // Setup interpolation
-      data_[jg][jBin]->setupInterpolation();
+      data_[jg][jBin]->setupInterpolation(groups_[jg].vert_coordName_);
 
       // Setup parallelization
       data_[jg][jBin]->setupParallelization();
@@ -1441,24 +1447,20 @@ void FastLAM::setupWeight() {
           for (size_t k0 = 0; k0 < groups_[jg].nz0_; ++k0) {
             // Raw weight (difference-based)
             std::vector<double> weight(weight_.size());
+            double wgtSum = 0.0;
             for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
               atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
               auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
-              double diff = std::abs(rhView(jnode0, k0)-data_[jg][jBin]->rh())/(maxRh-minRh);
+              const double diff = std::abs(rhView(jnode0, k0)-data_[jg][jBin]->rh())/(maxRh-minRh);
               wgtView(jnode0, k0) = std::exp(-4.6*diff);  // Factor 4.6 => minimum weight ~0.01
+              wgtSum += wgtView(jnode0, k0);
             }
 
-            // Normalized weight
-            double weightSum = 0.0;
-            for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
-              atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
-              const auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
-              weightSum += wgtView(jnode0, k0);
-            }
+            // Normalize weight
             for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
               atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
               auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
-              wgtView(jnode0, k0) = wgtView(jnode0, k0)/weightSum;
+              wgtView(jnode0, k0) /= wgtSum;
             }
           }
         }
@@ -1537,6 +1539,46 @@ void FastLAM::setupReductionFactors() {
   }
 
   oops::Log::trace() << classname() << "::setupReductionFactors done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void FastLAM::setupFakeLevels() {
+  oops::Log::trace() << classname() << "::setupFakeLevels starting" << std::endl;
+
+  // Define fake levels
+  if (params_.fakeLevels.value() != boost::none) {
+    for (size_t jg = 0; jg < groups_.size(); ++jg) {
+      // Get yaml profile
+      for (const auto & vParams : *params_.fakeLevels.value()) {
+        const std::string vGroupName = vParams.group.value();
+        if (vParams.value.value() != boost::none) {
+          throw eckit::UserError("profile required for fake levels, not value", Here());
+        }
+        if (vParams.profile.value() == boost::none) {
+          throw eckit::UserError("profile required for fake levels", Here());
+        }
+        if (vGroupName == groups_[jg].name_) {
+          if (groups_[jg].nz0_ > 1) {
+            throw eckit::UserError("fake levels available for groups with one level only", Here());
+          }
+          for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
+            if (data_[jg][jBin]->fakeLevels().size() > 0) {
+              throw eckit::UserError("group" + groups_[jg].name_ + " present more that once",
+                Here());
+            }
+            data_[jg][jBin]->fakeLevels().resize(vParams.profile.value()->size());
+            data_[jg][jBin]->fakeLevels() = *vParams.profile.value();
+            for (size_t k = 0; k < data_[jg][jBin]->fakeLevels().size()-1; ++k) {
+              ASSERT(data_[jg][jBin]->fakeLevels()[k+1] > data_[jg][jBin]->fakeLevels()[k]);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  oops::Log::trace() << classname() << "::setupFakeLevels done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

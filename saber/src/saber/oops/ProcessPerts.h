@@ -9,6 +9,7 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -45,30 +46,39 @@
 
 namespace saber {
 
-std::string getGridId(const eckit::Configuration & fullConfig) {
-  eckit::LocalConfiguration geomconf = fullConfig.getSubConfiguration("geometry");
-  eckit::LocalConfiguration gridconf = geomconf.getSubConfiguration("grid");
-  std::string gridtype;
-  std::string N;
-  std::string gridid;
-  if (gridconf.has("name")) {
-    gridconf.get("name", gridid);
-  } else if (gridconf.has("type") && gridconf.has("N")) {
-    gridconf.get("type", gridtype);
-    gridconf.get("N", N);
-    gridid = gridtype.append(N);
-  } else {
-    gridid = "_";
+/// \brief 1) It first uses a vector of strings to successively dive into
+///           the appropriate subconfiguration from a top level configuration
+///           object.
+///        2) It then takes this subconfiguration and reorders the keys
+///           into a fixed order.
+///        3) It then takes the values of each of the sorted keys and
+///           concatenates them into a single string
+///        4) All instances of the string "stringPattern" within the LocalConfiguration
+///           conf are replaced by the concatenated string. The value "stringPattern"
+///           is extracted from the configuration using the "patternNameKey".
+void setConcatenatedString(const eckit::Configuration & fullConf,
+                           const std::vector<std::string> & keyTags,
+                           const std::string & patternNameKey,
+                           eckit::LocalConfiguration & conf) {
+  eckit::LocalConfiguration subconf(fullConf);
+  for (const std::string& s : keyTags) {
+    subconf = subconf.getSubConfiguration(s);
   }
-  return gridid;
-}
 
-void setGridId(eckit::LocalConfiguration & conf, const std::string & gridid) {
-  if (conf.has("grid id pattern")) {
-    const std::string gridIdPattern = conf.getString("grid id pattern");
-    util::seekAndReplace(conf, gridIdPattern, gridid);
-  } else {
-    conf.set("grid id pattern", gridid);
+  std::string vals("");
+  std::vector<std::string> sortedKeys(subconf.keys());
+  std::sort(sortedKeys.begin(), sortedKeys.end(),
+            [](const std::string a, const std::string b) {return a > b; });
+
+  for (const std::string& s : sortedKeys) {
+    std::string val;
+    subconf.get(s, val);
+    vals.append(val);
+  }
+
+  if (conf.has(patternNameKey)) {
+    const std::string stringPattern = conf.getString(patternNameKey);
+    util::seekAndReplace(conf, stringPattern, vals);
   }
 }
 
@@ -205,9 +215,9 @@ class ProcessPerts : public oops::Application {
 
     std::vector<util::DateTime> dates;
     std::vector<int> ensmems;
-    oops::FieldSets fsetEns(dates, oops::mpi::myself(), ensmems, eckit::mpi::self());
-    oops::FieldSets dualResFsetEns(dates, eckit::mpi::self(),
-                                            ensmems, eckit::mpi::self());
+    oops::FieldSets fsetEns(dates, oops::mpi::myself(), ensmems, oops::mpi::myself());
+    oops::FieldSets dualResFsetEns(dates, oops::mpi::myself(),
+                                            ensmems, oops::mpi::myself());
     eckit::LocalConfiguration covarConf;
     covarConf.set("iterative ensemble loading", false);
     covarConf.set("inverse test", false);
@@ -299,8 +309,11 @@ class ProcessPerts : public oops::Application {
         if (localOutputPert.genericWrite.value() != boost::none) {
           eckit::LocalConfiguration conf = localOutputPert.genericWrite.value().value();
           util::setMember(conf, jm+1);
-          setGridId(conf, getGridId(fullConfig));
-          util::writeFieldSet(*commSpace, conf, fset4dDx[0].fieldSet());
+          setConcatenatedString(fullConfig,
+                                std::vector<std::string>{"geometry", "grid"},
+                                "grid pattern",
+                                conf);
+          util::writeFieldSet(geom.geometry().getComm(), conf, fset4dDx[0].fieldSet());
         }
 
         if (localOutputPert.modelWrite.value() != boost::none) {
@@ -333,8 +346,11 @@ class ProcessPerts : public oops::Application {
         if (localOutputPert.genericWrite.value() != boost::none) {
           auto conf = localOutputPert.genericWrite.value().value();
           util::setMember(conf, jm+1);
-          setGridId(conf, getGridId(fullConfig));
-          util::writeFieldSet(*commSpace, conf, fset4dDxI[0].fieldSet());
+          setConcatenatedString(fullConfig,
+                                std::vector<std::string>{"geometry", "grid"},
+                                "grid pattern",
+                                conf);
+          util::writeFieldSet(geom.geometry().getComm(), conf, fset4dDxI[0].fieldSet());
         }
 
         if (localOutputPert.modelWrite.value() != boost::none) {

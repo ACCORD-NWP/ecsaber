@@ -1,0 +1,49 @@
+Input Dirac increment:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 0
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 1
+  - vert_coord: [0.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 1.0000000000000000e+00
+    FastLAM interpolation accuracy test passed
+    FastLAM interpolation adjoint test passed
+    FastLAM redToRows test passed
+    FastLAM rowsToCols test passed
+Norm of output parameter : 2.5411233736282857e+03
+Norm of output parameter : 1.9036199725785607e+03
+Norm of output parameter : 2.4537767122660887e+04
+Norm of output parameter : 6.1343296292260007e+01
+Norm of output parameter : 1.9559644028681942e+02
+Adjoint test for block FastLAM passed
+Square-root test for block FastLAM passed
+Covariance(SABER) * Increment:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 0
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 1
+  - vert_coord: [0.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 8.1831329680725879e+00

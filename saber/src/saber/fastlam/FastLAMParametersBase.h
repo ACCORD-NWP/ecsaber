@@ -83,6 +83,10 @@ class FastLAMParametersBase : public oops::Parameters {
   oops::OptionalParameter<std::vector<ValueOrProfileParameters>>
     rvFromYaml{"vertical length-scale", this};
 
+  // Fake levels
+  oops::OptionalParameter<std::vector<ValueOrProfileParameters>>
+    fakeLevels{"fake levels", this};
+
   // Number of layers
   oops::OptionalParameter<size_t> nLayers{"number of layers", this};
 
