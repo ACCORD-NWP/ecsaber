@@ -79,10 +79,9 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
   /// @brief patch::Variables used in the ensemble covariance.
   /// TODO(AS): check whether this is needed or can be inferred from ensemble.
   oops::patch::Variables vars_;
-  /// @brief Geometry communicator.
-  /// TODO(AS): this can be removed once FieldSet4D/FieldSet3D are used.
-  const eckit::mpi::Comm & comm_;
   int seed_ = 7;  // For reproducibility
+  /// @brief Geometry communicator.
+  const eckit::mpi::Comm & comm_;
   const oops::GeometryData geomData_;
 };
 
@@ -387,7 +386,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
     bool sqrtComparison = true;
     for (size_t jtime = 0; jtime < fset4d.size(); ++jtime) {
       sqrtComparison = sqrtComparison && fset4d[jtime].compare_with(fset4dSave[jtime],
-        localSqrtTolerance, false);
+        localSqrtTolerance, util::ToleranceType::relative);
     }
     if (sqrtComparison) {
       oops::Log::info() << "Info     : Square-root test passed: U U^t x == B x" << std::endl;

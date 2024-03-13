@@ -130,6 +130,9 @@ class FastLAM : public SaberCentralBlockBase {
   // Setup weight
   void setupWeight();
 
+  // Setup fake levels
+  void setupFakeLevels();
+
   // Setup vertical coordinate
   void setupVerticalCoord();
 

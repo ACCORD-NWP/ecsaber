@@ -76,7 +76,7 @@ class LayerBase : public util::Printable,
   void setupVerticalCoord(const std::string &,
                           const atlas::Field &,
                           const atlas::Field &);
-  void setupInterpolation();
+  void setupInterpolation(const std::string &);
   void setupKernels();
   void setupNormalization();
 
@@ -97,6 +97,8 @@ class LayerBase : public util::Printable,
   const double & rfh() const {return rfh_;}
   double & rfv() {return rfv_;}
   const double & rfv() const {return rfv_;}
+  std::vector<double> & fakeLevels() {return fakeLevels_;}
+  const std::vector<double> & fakeLevels() const {return fakeLevels_;}
   const std::vector<double> & normVertCoord() const {return normVertCoord_;}
   const atlas::FieldSet & norm() const {return norm_;}
   const atlas::FieldSet & normAcc() const {return normAcc_;}
@@ -131,6 +133,10 @@ class LayerBase : public util::Printable,
   double rfh_;
   double rfv_;
 
+  // Fake levels
+  std::vector<double> fakeLevels_;
+  size_t idz_;
+
   // Convolution
   double rh_;
   double rv_;
@@ -164,7 +170,7 @@ class LayerBase : public util::Printable,
   atlas::FunctionSpace fspace_;
   atlas::FieldSet fset_;
 
-  // Reduced grid <=> model grid (interpolation)
+  // Reduced grid <=> model grid (interpolation / extension)
   size_t rSendSize_;
   size_t mRecvSize_;
   std::vector<int> rSendCounts_;
@@ -174,11 +180,16 @@ class LayerBase : public util::Printable,
   std::vector<size_t> rSendMapping_;
   std::vector<InterpElement> horInterp_;
   std::vector<InterpElement> verInterp_;
+  std::vector<InterpElement> verExt_;
 
  private:
   // Parallelization mode
   std::string parallelization_;
   virtual void print(std::ostream &) const = 0;
+  void binarySearch(const std::vector<int> &,
+                    const std::vector<size_t> &,
+                    const size_t &,
+                    int &);
 };
 
 // -----------------------------------------------------------------------------
