@@ -44,7 +44,7 @@ if(@_is_build_dir_export@)
 else()
     set_and_check(@PROJECT_NAME@_BINDIR "@PACKAGE_BINDIR_INSTALL_EXPORT@")
 endif()
-set(@PROJECT_NAME@_LIBRARIES oops-patch) #TODO: Change to oops-patch::oops-patch with namespace upgrade
+set(@PROJECT_NAME@_LIBRARIES saber) #TODO: Change to saber::saber with namespace upgrade
 ########### ADDED TO DEFAULT ECBUILD ############
 
 ### include the <project>-import.cmake file if there is one
@@ -72,9 +72,9 @@ if(NOT @PROJECT_NAME@_BINARY_DIR)
   endif()
 endif()
 
-### JSON schema file generation function "oops-patch_output_json_schema"
-if(EXISTS "${@PROJECT_NAME@_CMAKE_DIR}/oops-patch_output_json_schema.cmake")
-  include("${@PROJECT_NAME@_CMAKE_DIR}/oops-patch_output_json_schema.cmake")
+### JSON schema file generation function "saber_output_json_schema"
+if(EXISTS "${@PROJECT_NAME@_CMAKE_DIR}/saber_output_json_schema.cmake")
+  include("${@PROJECT_NAME@_CMAKE_DIR}/saber_output_json_schema.cmake")
 endif()
 
 ### publish this file as imported
