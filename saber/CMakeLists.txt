@@ -55,7 +55,7 @@ find_package( MPI REQUIRED COMPONENTS Fortran )
 find_package( NetCDF REQUIRED COMPONENTS C Fortran )
 find_package( eckit 1.24.4 REQUIRED COMPONENTS MPI )
 find_package( fckit 0.11.0 REQUIRED )
-find_package( atlas 0.35.0 REQUIRED COMPONENTS OMP_Fortran TESSELATION)
+find_package( atlas 0.35.0 REQUIRED )
 
 if( ENABLE_MKL )
     find_package( MKL )
@@ -143,5 +143,18 @@ ecbuild_add_test( TARGET saber_coding_norms_src
 
 ## Package Config
 ecbuild_install_project( NAME ${PROJECT_NAME} )
+
+#Export Targets
+set(EXPORTED_TARGET_NAMESPACE "") #TODO: set to "saber::" once all packages are ready for namespaced targets
+set(INSTALL_TARGETS_PATH lib/cmake/${PROJECT_NAME})
+get_filename_component(TARGETS_FILE "${PROJECT_TARGETS_FILE}" NAME)
+# export(EXPORT ${PROJECT_NAME}-targets NAMESPACE "${EXPORTED_TARGET_NAMESPACE}" FILE ${PROJECT_TARGETS_FILE}) #Build-tree
+#install(EXPORT ${PROJECT_NAME}-targets NAMESPACE "${EXPORTED_TARGET_NAMESPACE}" DESTINATION ${INSTALL_TARGETS_PATH}) #Install-tree
+
+#Export package config for build and install trees
+set( BINDIR_BUILD_EXPORT ${CMAKE_BINARY_DIR}/bin ) #Exported binary (tools) directory locations for build-tree
+file( MAKE_DIRECTORY ${BINDIR_BUILD_EXPORT} )
+set( BINDIR_INSTALL_EXPORT ${CMAKE_INSTALL_FULL_BINDIR} ) #Exported binary (tools) directory locations for install-tree
+ecbuild_generate_project_config(${PROJECT_NAME}-config.cmake.in PATH_VARS BINDIR_BUILD_EXPORT BINDIR_INSTALL_EXPORT )
 
 ecbuild_print_summary()
