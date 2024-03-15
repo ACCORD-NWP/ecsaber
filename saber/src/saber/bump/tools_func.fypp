@@ -128,6 +128,13 @@ interface zss_minval
       #:endfor
    #:endfor
 end interface
+interface zss_absminval
+   #:for dtype in dtypes_ir
+      #:for rank in ranks_123456
+         module procedure func_zss_absminval_${dtype}$_r${rank}$
+      #:endfor
+   #:endfor
+end interface
 interface zss_sum
    #:for dtype in dtypes_ir
       #:for rank in ranks_123456
@@ -149,7 +156,7 @@ end interface
 private
 public :: fletcher32,lonlatmod,rad2short,grid_hash,independent_levels,sphere_bearing,sphere_dist,cart_dist,lonlat2xyz,xyz2lonlat, &
  & vector_product,det,inside,add,divide,vert_interp_size,vert_interp_setup,vert_interp,cholesky,syminv,histogram, &
- & cx_to_cxa,cx_to_proc,cx_to_cxu,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_sum,zss_count,global_average
+ & cx_to_cxa,cx_to_proc,cx_to_cxu,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_absminval,zss_sum,zss_count,global_average
 
 contains
 
@@ -1528,6 +1535,50 @@ endif
 @:probe_out()
 
 end function func_zss_minval_${dtype}$_r${rank}$
+#:endfor
+#:endfor
+
+#:for dtype in dtypes_ir
+#:for rank in ranks_123456
+!----------------------------------------------------------------------
+! Function: func_zss_absminval_${dtype}$_r${rank}$
+!> Zero-size-safe minval of abs function
+!----------------------------------------------------------------------
+function func_zss_absminval_${dtype}$_r${rank}$(array,mask) result(value)
+
+implicit none
+
+! Passed variables
+${ftype[dtype]}$,intent(in) :: array(${dim[rank]}$) !< Array
+logical,intent(in),optional :: mask(${dim[rank]}$)  !< Mask
+
+! Returned variable
+${ftype[dtype]}$ :: value
+
+! Set name
+@:set_name(func_zss_absminval_${dtype}$_r${rank}$)
+
+! Probe in
+@:probe_in()
+
+if (size(array)>0) then
+   if (present(mask)) then
+      if (any(mask)) then
+         value = minval(abs(array),mask=mask)
+      else
+         value = ${huge[dtype]}$
+      end if
+   else
+      value = minval(abs(array))
+   end if
+else
+   value = ${huge[dtype]}$
+endif
+
+! Probe out
+@:probe_out()
+
+end function func_zss_absminval_${dtype}$_r${rank}$
 #:endfor
 #:endfor
 

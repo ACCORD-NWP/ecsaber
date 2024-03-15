@@ -248,14 +248,23 @@ void LayerBase::setupInterpolation(const std::string & vert_coordName) {
   std::vector<int> mpiMask(nx_*ny_, 0);
   for (size_t jnode0 = 0; jnode0 < mSize_; ++jnode0) {
     if (ghostView(jnode0) == 0) {
-      for (size_t j = 0; j < ny_; ++j) {
-        for (size_t i = 0; i < nx_; ++i) {
-          if (indexIView0(jnode0)-1 == std::round(xCoord[i]) &&
-            indexJView0(jnode0)-1 == std::round(yCoord[j])) {
-            mpiTask_[i*ny_+j] = myrank_;
-            mpiMask[i*ny_+j] = 1;
-          }
+      int srcI = -1;
+      for (size_t i = 0; i < nx_; ++i) {
+        if (indexIView0(jnode0)-1 == std::round(xCoord[i])) {
+          srcI = i;
+          break;
         }
+      }
+      int srcJ = -1;
+      for (size_t j = 0; j < ny_; ++j) {
+        if (indexJView0(jnode0)-1 == std::round(yCoord[j])) {
+          srcJ = j;
+          break;
+        }
+      }
+      if ((srcI > -1) && (srcJ > -1)) {
+        mpiTask_[srcI*ny_+srcJ] = myrank_;
+        mpiMask[srcI*ny_+srcJ] = 1;
       }
     }
   }
@@ -1530,8 +1539,6 @@ void LayerBase::binarySearch(const std::vector<int> & vec,
                              const std::vector<size_t> & idx,
                              const size_t & valueToFind,
                              int & foundIndex) {
-  oops::Log::trace() << classname() << "::binarySearch starting" << std::endl;
-
   // Initialization
   foundIndex = -1;
   size_t low = 0;
@@ -1554,8 +1561,6 @@ void LayerBase::binarySearch(const std::vector<int> & vec,
       high = mid-1;
     }
   }
-
-  oops::Log::trace() << classname() << "::binarySearch starting" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

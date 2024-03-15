@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h.tmp	2024-03-07 12:22:36.603915290 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h	2024-03-07 11:36:54.473904631 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h.tmp.bak	2024-03-14 14:49:29.456329023 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h	2024-03-12 16:31:06.377089458 +0100
 @@ -36,7 +36,8 @@
    // Constructor
    LayerBase(const FastLAMParametersBase & params,
@@ -20,18 +20,29 @@
      nx0_(nx0),
      ny0_(ny0),
      mSize_(gdata_.functionSpace().ghost().shape(0)),
-@@ -71,7 +73,9 @@
+@@ -71,8 +73,10 @@
    // Non-virtual methods
  
    // Setups
 -  void setupVerticalCoord(const atlas::Field &, const atlas::Field &);
+-  void setupInterpolation();
 +  void setupVerticalCoord(const std::string &,
 +                          const atlas::Field &,
 +                          const atlas::Field &);
-   void setupInterpolation();
++  void setupInterpolation(const std::string &);
    void setupKernels();
    void setupNormalization();
-@@ -112,8 +116,9 @@
+ 
+@@ -93,6 +97,8 @@
+   const double & rfh() const {return rfh_;}
+   double & rfv() {return rfv_;}
+   const double & rfv() const {return rfv_;}
++  std::vector<double> & fakeLevels() {return fakeLevels_;}
++  const std::vector<double> & fakeLevels() const {return fakeLevels_;}
+   const std::vector<double> & normVertCoord() const {return normVertCoord_;}
+   const atlas::FieldSet & norm() const {return norm_;}
+   const atlas::FieldSet & normAcc() const {return normAcc_;}
+@@ -112,8 +118,9 @@
    const eckit::mpi::Comm & comm_;
    size_t myrank_;
  
@@ -43,7 +54,44 @@
  
    // Model grid
    size_t nx0_;
-@@ -187,6 +192,7 @@
+@@ -126,6 +133,10 @@
+   double rfh_;
+   double rfv_;
+ 
++  // Fake levels
++  std::vector<double> fakeLevels_;
++  size_t idz_;
++
+   // Convolution
+   double rh_;
+   double rv_;
+@@ -159,7 +170,7 @@
+   atlas::FunctionSpace fspace_;
+   atlas::FieldSet fset_;
+ 
+-  // Reduced grid <=> model grid (interpolation)
++  // Reduced grid <=> model grid (interpolation / extension)
+   size_t rSendSize_;
+   size_t mRecvSize_;
+   std::vector<int> rSendCounts_;
+@@ -169,11 +180,16 @@
+   std::vector<size_t> rSendMapping_;
+   std::vector<InterpElement> horInterp_;
+   std::vector<InterpElement> verInterp_;
++  std::vector<InterpElement> verExt_;
+ 
+  private:
+   // Parallelization mode
+   std::string parallelization_;
+   virtual void print(std::ostream &) const = 0;
++  void binarySearch(const std::vector<int> &,
++                    const std::vector<size_t> &,
++                    const size_t &,
++                    int &);
+ };
+ 
+ // -----------------------------------------------------------------------------
+@@ -187,6 +203,7 @@
    static std::unique_ptr<LayerBase> create(const FastLAMParametersBase &,
                                             const oops::GeometryData &,
                                             const std::string &,
@@ -51,7 +99,7 @@
                                             const size_t &,
                                             const size_t &,
                                             const size_t &);
-@@ -200,6 +206,7 @@
+@@ -200,6 +217,7 @@
    virtual std::unique_ptr<LayerBase> make(const FastLAMParametersBase &,
                                            const oops::GeometryData &,
                                            const std::string &,
@@ -59,7 +107,7 @@
                                            const size_t &,
                                            const size_t &,
                                            const size_t &) = 0;
-@@ -216,11 +223,12 @@
+@@ -216,11 +234,12 @@
  class LayerMaker : public LayerFactory {
    std::unique_ptr<LayerBase> make(const FastLAMParametersBase & params,
                                    const oops::GeometryData & gdata,

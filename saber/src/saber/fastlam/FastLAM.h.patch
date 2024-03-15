@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h.tmp.bak	2024-03-07 12:40:35.488712103 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h	2024-03-07 12:37:07.032544011 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h.tmp.bak	2024-03-14 14:49:29.388328889 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h	2024-03-11 11:22:20.314354156 +0100
 @@ -98,7 +98,14 @@
    oops::patch::Variables active2dVars_;
  
@@ -16,3 +16,13 @@
  
    // Parameters
    FastLAMParametersBase params_;
+@@ -123,6 +130,9 @@
+   // Setup weight
+   void setupWeight();
+ 
++  // Setup fake levels
++  void setupFakeLevels();
++
+   // Setup vertical coordinate
+   void setupVerticalCoord();
+ 

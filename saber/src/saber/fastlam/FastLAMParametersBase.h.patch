@@ -1,0 +1,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAMParametersBase.h.tmp	2024-03-14 14:49:29.404328921 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAMParametersBase.h	2024-03-11 11:22:44.506393432 +0100
+@@ -83,6 +83,10 @@
+   oops::OptionalParameter<std::vector<ValueOrProfileParameters>>
+     rvFromYaml{"vertical length-scale", this};
+ 
++  // Fake levels
++  oops::OptionalParameter<std::vector<ValueOrProfileParameters>>
++    fakeLevels{"fake levels", this};
++
+   // Number of layers
+   oops::OptionalParameter<size_t> nLayers{"number of layers", this};
+ 
