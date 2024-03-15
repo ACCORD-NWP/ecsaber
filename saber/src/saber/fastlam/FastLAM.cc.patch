@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.cc.tmp.bak	2024-03-07 12:40:35.568712168 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.cc	2024-03-07 12:37:15.176550514 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.cc.tmp.bak	2024-03-14 14:49:29.488329085 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.cc	2024-03-12 09:57:07.463356418 +0100
 @@ -90,33 +90,59 @@
      // No group specified, each variable is its own group
      for (const auto & var : activeVars_.variables()) {
@@ -428,7 +428,17 @@
      }
    }
    for (size_t jBin = 0; jBin < nLayers; ++jBin) {
-@@ -853,11 +827,7 @@
+@@ -843,6 +817,9 @@
+   // Setup weight
+   setupWeight();
+ 
++  // Setup fake levels
++  setupFakeLevels();
++
+   // Setup vertical coordinate
+   setupVerticalCoord();
+ 
+@@ -853,11 +830,7 @@
    setupReductionFactors();
  
    for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -441,7 +451,7 @@
  
      // Print bins
      oops::Log::info() << "Info     : - Horizontal bins: ";
-@@ -876,10 +846,10 @@
+@@ -876,13 +849,13 @@
  
        // Print normalized vertical coordinate
        oops::Log::info() << "Info     :     Normalized vertical coordinate: ";
@@ -453,8 +463,12 @@
 +      oops::Log::info() << data_[jg][jBin]->normVertCoord()[groups_[jg].nz0_-1] << std::endl;
  
        // Setup interpolation
-       data_[jg][jBin]->setupInterpolation();
-@@ -892,7 +862,7 @@
+-      data_[jg][jBin]->setupInterpolation();
++      data_[jg][jBin]->setupInterpolation(groups_[jg].vert_coordName_);
+ 
+       // Setup kernels
+       data_[jg][jBin]->setupKernels();
+@@ -892,7 +865,7 @@
  
        // Setup normalization
        data_[jg][jBin]->setupNormalization();
@@ -463,7 +477,17 @@
      }
    }
  
-@@ -929,11 +899,8 @@
+@@ -909,6 +882,9 @@
+ void FastLAM::read() {
+   oops::Log::trace() << classname() << "::read starting" << std::endl;
+ 
++  // Setup fake levels
++  setupFakeLevels();
++
+   if (comm_.rank() == 0) {
+     ASSERT(params_.dataFile.value() != boost::none);
+ 
+@@ -929,11 +905,8 @@
      ASSERT(nLayers == static_cast<int>(weight_.size()));
  
      for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -476,7 +500,7 @@
  
        for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
          // Get layer group
-@@ -945,9 +912,6 @@
+@@ -945,9 +918,6 @@
    }
  
    for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -486,7 +510,7 @@
      for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
        // Broadcast data
        data_[jg][jBin]->broadcast();
-@@ -958,11 +922,7 @@
+@@ -958,11 +928,7 @@
    setupReductionFactors();
  
    for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -499,7 +523,7 @@
  
      // Print bins
      oops::Log::info() << "Info     : - Horizontal bins: ";
-@@ -981,7 +941,7 @@
+@@ -981,10 +947,10 @@
  
        // Print normalized vertical coordinate
        oops::Log::info() << "Info     :     Normalized vertical coordinate: ";
@@ -507,8 +531,12 @@
 +      oops::Log::info() << data_[jg][jBin]->normVertCoord()[groups_[jg].nz0_-1] << std::endl;
  
        // Setup interpolation
-       data_[jg][jBin]->setupInterpolation();
-@@ -1022,11 +982,8 @@
+-      data_[jg][jBin]->setupInterpolation();
++      data_[jg][jBin]->setupInterpolation(groups_[jg].vert_coordName_);
+ 
+       // Setup parallelization
+       data_[jg][jBin]->setupParallelization();
+@@ -1022,11 +988,8 @@
      if ((retval = nc_put_att_int(ncid, NC_GLOBAL, "nLayers", NC_INT, 1, &nLayers))) ERR(retval);
  
      for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -521,7 +549,7 @@
  
        for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
          // Create layer group
-@@ -1043,9 +1000,6 @@
+@@ -1043,9 +1006,6 @@
      // Data mode
      size_t jj = 0;
      for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -531,7 +559,7 @@
        for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
          // Create layer group
          data_[jg][jBin]->writeData(grpIdsVec[jj]);
-@@ -1144,13 +1098,9 @@
+@@ -1144,13 +1104,9 @@
          fset.add(field);
  
          for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -547,7 +575,7 @@
              const auto rhView = atlas::array::make_view<double, 2>(rhField);
              view.assign(rhView);
            }
-@@ -1175,13 +1125,9 @@
+@@ -1175,13 +1131,9 @@
            fset.add(field);
  
            for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -563,7 +591,7 @@
                const auto wgtSqrtView = atlas::array::make_view<double, 2>(wgtSqrtField);
                for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
                  if (ghostView(jnode0) == 0) {
-@@ -1217,13 +1163,9 @@
+@@ -1217,13 +1169,9 @@
            fset.add(field);
  
            for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -579,7 +607,7 @@
                const auto normView = atlas::array::make_view<double, 2>(normField);
                view.assign(normView);
              }
-@@ -1253,13 +1195,9 @@
+@@ -1253,13 +1201,9 @@
            fset.add(field);
  
            for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -595,7 +623,7 @@
                const auto normView = atlas::array::make_view<double, 2>(normField);
                view.assign(normView);
              }
-@@ -1299,19 +1237,15 @@
+@@ -1299,19 +1243,15 @@
      ASSERT(params_.rhFromYaml.value() != boost::none);
      rh_.reset(new oops::FieldSet3D(validTime_, comm_));
      for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -618,7 +646,7 @@
            if (vParams.value.value() != boost::none
              && vParams.profile.value() != boost::none) {
              throw eckit::UserError("both value and profile present in the same item", Here());
-@@ -1321,10 +1255,11 @@
+@@ -1321,10 +1261,11 @@
              std::fill(profile.begin(), profile.end(), *vParams.value.value());
            } else if (vParams.profile.value() != boost::none) {
              // Copy profile
@@ -632,7 +660,7 @@
            }
          }
        }
-@@ -1332,11 +1267,11 @@
+@@ -1332,11 +1273,11 @@
  
        // Copy to rh_
        atlas::Field rhField = gdata_.functionSpace().createField<double>(
@@ -646,7 +674,7 @@
              rhView(jnode0, k0) = profile[k0];
            }
          }
-@@ -1349,19 +1284,15 @@
+@@ -1349,19 +1290,15 @@
      ASSERT(params_.rvFromYaml.value() != boost::none);
      rv_.reset(new oops::FieldSet3D(validTime_, comm_));
      for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -669,7 +697,7 @@
            if (vParams.value.value() != boost::none
              && vParams.profile.value() != boost::none) {
              throw eckit::UserError("both value and profile present in the same item", Here());
-@@ -1371,10 +1302,11 @@
+@@ -1371,10 +1308,11 @@
              std::fill(profile.begin(), profile.end(), *vParams.value.value());
            } else if (vParams.profile.value() != boost::none) {
              // Copy profile
@@ -683,7 +711,7 @@
            }
          }
        }
-@@ -1382,11 +1314,11 @@
+@@ -1382,11 +1320,11 @@
  
        // Copy to rv_
        atlas::Field rvField = gdata_.functionSpace().createField<double>(
@@ -697,7 +725,7 @@
              rvView(jnode0, k0) = profile[k0];
            }
          }
-@@ -1398,13 +1330,9 @@
+@@ -1398,13 +1336,9 @@
    // Compute correlation
    oops::Log::info() << "Info     : Correlation rh / rv:" << std::endl;
    for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -713,7 +741,7 @@
      auto rhView = atlas::array::make_view<double, 2>(rhField);
      auto rvView = atlas::array::make_view<double, 2>(rvField);
  
-@@ -1413,7 +1341,7 @@
+@@ -1413,7 +1347,7 @@
      double rvMean = 0.0;
      for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
        if (ghostView(jnode0) == 0) {
@@ -722,7 +750,7 @@
            rhMean += rhView(jnode0, k0);
            rvMean += rvView(jnode0, k0);
          }
-@@ -1421,8 +1349,8 @@
+@@ -1421,8 +1355,8 @@
      }
      comm_.allReduceInPlace(rhMean, eckit::mpi::sum());
      comm_.allReduceInPlace(rvMean, eckit::mpi::sum());
@@ -733,7 +761,7 @@
  
      // Compute horizontal variance and covariance
      double rhVar = 0.0;
-@@ -1430,7 +1358,7 @@
+@@ -1430,7 +1364,7 @@
      double cov = 0.0;
      for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
        if (ghostView(jnode0) == 0) {
@@ -742,7 +770,7 @@
            rhVar += (rhView(jnode0, k0)-rhMean)*(rhView(jnode0, k0)-rhMean);
            rvVar += (rvView(jnode0, k0)-rvMean)*(rvView(jnode0, k0)-rvMean);
            cov += (rhView(jnode0, k0)-rhMean)*(rvView(jnode0, k0)-rvMean);
-@@ -1448,7 +1376,7 @@
+@@ -1448,7 +1382,7 @@
      }
  
      // Print result
@@ -751,7 +779,7 @@
    }
  
    oops::Log::trace() << classname() << "::setupLengthScales done" << std::endl;
-@@ -1463,18 +1391,14 @@
+@@ -1463,18 +1397,14 @@
    const auto ghostView = atlas::array::make_view<int, 1>(gdata_.functionSpace().ghost());
  
    for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -772,7 +800,7 @@
            rhView(jnode0, k0) = rhView(jnode0, k0)/std::sqrt(areaView(jnode0, 0));
          }
        }
-@@ -1488,18 +1412,14 @@
+@@ -1488,18 +1418,14 @@
    }
  
    for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -793,7 +821,7 @@
            minRh = std::min(minRh, rhView(jnode0, k0));
            maxRh = std::max(maxRh, rhView(jnode0, k0));
          }
-@@ -1518,11 +1438,11 @@
+@@ -1518,27 +1444,23 @@
        // Compute weight
        for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
          if (ghostView(jnode0) == 0) {
@@ -801,28 +829,35 @@
 +          for (size_t k0 = 0; k0 < groups_[jg].nz0_; ++k0) {
              // Raw weight (difference-based)
              std::vector<double> weight(weight_.size());
++            double wgtSum = 0.0;
              for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
 -              atlas::Field fieldWgt = (*weight_[jBin])[groupName];
 +              atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
                auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
-               double diff = std::abs(rhView(jnode0, k0)-data_[jg][jBin]->rh())/(maxRh-minRh);
+-              double diff = std::abs(rhView(jnode0, k0)-data_[jg][jBin]->rh())/(maxRh-minRh);
++              const double diff = std::abs(rhView(jnode0, k0)-data_[jg][jBin]->rh())/(maxRh-minRh);
                wgtView(jnode0, k0) = std::exp(-4.6*diff);  // Factor 4.6 => minimum weight ~0.01
-@@ -1531,12 +1451,12 @@
-             // Normalized weight
-             double weightSum = 0.0;
++              wgtSum += wgtView(jnode0, k0);
+             }
+ 
+-            // Normalized weight
+-            double weightSum = 0.0;
++            // Normalize weight
              for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
 -              atlas::Field fieldWgt = (*weight_[jBin])[groupName];
-+              atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
-               const auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
-               weightSum += wgtView(jnode0, k0);
-             }
-             for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
+-              const auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
+-              weightSum += wgtView(jnode0, k0);
+-            }
+-            for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
 -              atlas::Field fieldWgt = (*weight_[jBin])[groupName];
 +              atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
                auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
-               wgtView(jnode0, k0) = wgtView(jnode0, k0)/weightSum;
+-              wgtView(jnode0, k0) = wgtView(jnode0, k0)/weightSum;
++              wgtView(jnode0, k0) /= wgtSum;
              }
-@@ -1548,7 +1468,7 @@
+           }
+         }
+@@ -1548,7 +1470,7 @@
        data_[jg][0]->rh() = 0.5*(minRh+maxRh);
  
        // Set weight to one
@@ -831,7 +866,7 @@
        auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
        wgtView.assign(1.0);
      }
-@@ -1565,8 +1485,8 @@
+@@ -1565,8 +1487,8 @@
    // Setup vertical coordinate
    for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
      for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -842,7 +877,54 @@
      }
    }
  
-@@ -1628,11 +1548,9 @@
+@@ -1621,6 +1543,46 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
++void FastLAM::setupFakeLevels() {
++  oops::Log::trace() << classname() << "::setupFakeLevels starting" << std::endl;
++
++  // Define fake levels
++  if (params_.fakeLevels.value() != boost::none) {
++    for (size_t jg = 0; jg < groups_.size(); ++jg) {
++      // Get yaml profile
++      for (const auto & vParams : *params_.fakeLevels.value()) {
++        const std::string vGroupName = vParams.group.value();
++        if (vParams.value.value() != boost::none) {
++          throw eckit::UserError("profile required for fake levels, not value", Here());
++        }
++        if (vParams.profile.value() == boost::none) {
++          throw eckit::UserError("profile required for fake levels", Here());
++        }
++        if (vGroupName == groups_[jg].name_) {
++          if (groups_[jg].nz0_ > 1) {
++            throw eckit::UserError("fake levels available for groups with one level only", Here());
++          }
++          for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
++            if (data_[jg][jBin]->fakeLevels().size() > 0) {
++              throw eckit::UserError("group" + groups_[jg].name_ + " present more that once",
++                Here());
++            }
++            data_[jg][jBin]->fakeLevels().resize(vParams.profile.value()->size());
++            data_[jg][jBin]->fakeLevels() = *vParams.profile.value();
++            for (size_t k = 0; k < data_[jg][jBin]->fakeLevels().size()-1; ++k) {
++              ASSERT(data_[jg][jBin]->fakeLevels()[k+1] > data_[jg][jBin]->fakeLevels()[k]);
++            }
++          }
++        }
++      }
++    }
++  }
++
++  oops::Log::trace() << classname() << "::setupFakeLevels done" << std::endl;
++}
++
++// -----------------------------------------------------------------------------
++
+ size_t FastLAM::getGroupIndex(const std::string & var) const {
+   oops::Log::trace() << classname() << "::getGroupIndex starting" << std::endl;
+ 
+@@ -1628,11 +1590,9 @@
    size_t groupIndex = 0;
  
    for (size_t jg = 0; jg < groups_.size(); ++jg) {
@@ -856,7 +938,7 @@
        break;
      }
  
-@@ -1660,7 +1578,7 @@
+@@ -1660,7 +1620,7 @@
      // This is a 2d variable
      if (params_.lev2d.value() == "last") {
        // Use the last level of the group
@@ -865,7 +947,7 @@
      }
    }
  
-@@ -1699,6 +1617,3 @@
+@@ -1699,6 +1659,3 @@
  
  }  // namespace fastlam
  }  // namespace saber

@@ -1,0 +1,12 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerSpec.cc.tmp	2024-03-14 14:49:29.372328857 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerSpec.cc	2024-03-12 13:39:54.349849328 +0100
+@@ -29,6 +29,9 @@
+ void LayerSpec::setupParallelization() {
+   oops::Log::trace() << classname() << "::setupParallelization starting" << std::endl;
+ 
++  // Check that we are not using fake levels
++  ASSERT(fakeLevels_.size() == 0);
++
+   // Get index fields
+   atlas::Field fieldIndexI = fset_["index_i"];
+   atlas::Field fieldIndexJ = fset_["index_j"];
