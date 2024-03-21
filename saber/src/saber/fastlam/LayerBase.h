@@ -35,6 +35,7 @@ class LayerBase : public util::Printable,
 
   // Constructor
   LayerBase(const FastLAMParametersBase & params,
+            const eckit::LocalConfiguration & fieldsMetaData,
             const oops::GeometryData & gdata,
             const std::string & myGroup,
             const std::vector<std::string> & myVars,
@@ -42,6 +43,7 @@ class LayerBase : public util::Printable,
             const size_t & ny0,
             const size_t & nz0) :
     params_(params),
+    fieldsMetaData_(fieldsMetaData),
     gdata_(gdata),
     comm_(gdata_.comm()),
     myrank_(comm_.rank()),
@@ -73,10 +75,9 @@ class LayerBase : public util::Printable,
   // Non-virtual methods
 
   // Setups
-  void setupVerticalCoord(const std::string &,
-                          const atlas::Field &,
+  void setupVerticalCoord(const atlas::Field &,
                           const atlas::Field &);
-  void setupInterpolation(const std::string &);
+  void setupInterpolation();
   void setupKernels();
   void setupNormalization();
 
@@ -97,8 +98,6 @@ class LayerBase : public util::Printable,
   const double & rfh() const {return rfh_;}
   double & rfv() {return rfv_;}
   const double & rfv() const {return rfv_;}
-  std::vector<double> & fakeLevels() {return fakeLevels_;}
-  const std::vector<double> & fakeLevels() const {return fakeLevels_;}
   const std::vector<double> & normVertCoord() const {return normVertCoord_;}
   const atlas::FieldSet & norm() const {return norm_;}
   const atlas::FieldSet & normAcc() const {return normAcc_;}
@@ -110,6 +109,7 @@ class LayerBase : public util::Printable,
 
   // Parameters
   FastLAMParametersBase params_;
+  const eckit::LocalConfiguration fieldsMetaData_;
 
   // Model grid geometry data
   const oops::GeometryData & gdata_;
@@ -132,10 +132,6 @@ class LayerBase : public util::Printable,
   double resol_;
   double rfh_;
   double rfv_;
-
-  // Fake levels
-  std::vector<double> fakeLevels_;
-  size_t idz_;
 
   // Convolution
   double rh_;
@@ -170,7 +166,7 @@ class LayerBase : public util::Printable,
   atlas::FunctionSpace fspace_;
   atlas::FieldSet fset_;
 
-  // Reduced grid <=> model grid (interpolation / extension)
+  // Reduced grid <=> model grid (interpolation)
   size_t rSendSize_;
   size_t mRecvSize_;
   std::vector<int> rSendCounts_;
@@ -180,7 +176,6 @@ class LayerBase : public util::Printable,
   std::vector<size_t> rSendMapping_;
   std::vector<InterpElement> horInterp_;
   std::vector<InterpElement> verInterp_;
-  std::vector<InterpElement> verExt_;
 
  private:
   // Parallelization mode
@@ -201,6 +196,7 @@ class LayerFactory;
 class LayerFactory {
  public:
   static std::unique_ptr<LayerBase> create(const FastLAMParametersBase &,
+                                           const eckit::LocalConfiguration &,
                                            const oops::GeometryData &,
                                            const std::string &,
                                            const std::vector<std::string> &,
@@ -215,6 +211,7 @@ class LayerFactory {
 
  private:
   virtual std::unique_ptr<LayerBase> make(const FastLAMParametersBase &,
+                                          const eckit::LocalConfiguration &,
                                           const oops::GeometryData &,
                                           const std::string &,
                                           const std::vector<std::string> &,
@@ -233,13 +230,14 @@ class LayerFactory {
 template<class T>
 class LayerMaker : public LayerFactory {
   std::unique_ptr<LayerBase> make(const FastLAMParametersBase & params,
+                                  const eckit::LocalConfiguration & fieldsMetaData,
                                   const oops::GeometryData & gdata,
                                   const std::string & myGroup,
                                   const std::vector<std::string> & myVars,
                                   const size_t & nx0,
                                   const size_t & ny0,
                                   const size_t & nz0) override {
-    return std::make_unique<T>(params, gdata, myGroup, myVars, nx0, ny0, nz0);
+    return std::make_unique<T>(params, fieldsMetaData, gdata, myGroup, myVars, nx0, ny0, nz0);
   }
 
  public:

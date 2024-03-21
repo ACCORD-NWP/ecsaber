@@ -53,6 +53,7 @@ NICAS::NICAS(const oops::GeometryData & geometryData,
                        activeVars_,
                        covarConf,
                        bumpParams_,
+                       params.fieldsMetaData.value(),
                        xb));
 
   // Read input ATLAS files
@@ -102,7 +103,7 @@ void NICAS::setReadFields(const std::vector<oops::FieldSet3D> & fsetVec) {
   for (const auto & fset : fsetVec) {
     bump_->addField(fset);
   }
-  oops::Log::trace() << classname() << "::setReadFields starting" << std::endl;
+  oops::Log::trace() << classname() << "::setReadFields done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

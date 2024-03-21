@@ -1,14 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistureControl.cc.tmp	2024-03-07 12:22:35.595914694 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistureControl.cc	2024-03-07 11:37:16.981930254 +0100
-@@ -48,7 +48,7 @@
- // -----------------------------------------------------------------------------
- 
- MoistureControl::MoistureControl(const oops::GeometryData & outerGeometryData,
--                                 const oops::patch::Variables & outerVars,
-+                                 const oops::patch::Variables & outerVars,
-                                  const eckit::Configuration & covarConf,
-                                  const Parameters_ & params,
-                                  const oops::FieldSet3D & xb,
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistureControl.cc.tmp	2024-03-21 10:06:05.639034447 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistureControl.cc	2024-03-21 09:18:19.101603582 +0100
 @@ -63,7 +63,8 @@
    oops::Log::trace() << classname() << "::MoistureControl starting" << std::endl;
  
@@ -19,7 +10,7 @@
                                 params.moistureControlParams.value());
  
    std::vector<std::string> requiredStateVariables{
-@@ -189,7 +190,8 @@
+@@ -191,7 +192,8 @@
  
  // -----------------------------------------------------------------------------
  
@@ -29,7 +20,7 @@
                                const MoistureControlCovarianceParameters & params) {
    // Get necessary parameters
    // path to covariance file with gp covariance parameters.
-@@ -199,7 +201,7 @@
+@@ -201,7 +203,7 @@
    if (fields.has("height")) {
      modelLevels = fields["height"].shape(1);
    } else {

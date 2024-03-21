@@ -15,12 +15,6 @@
 
 namespace mo {
 
-/// \brief function to evaluate saturation water pressure (svp) [Pa]
-/// the Atlas field in the argument must contain an inizialised air temperature field
-/// and to have a defined svp field which is then calculated and returned as output
-///
-bool evalSatVaporPressure(atlas::FieldSet & fields);
-
 /// \brief function to evaluate saturation specific humidity (qsat)
 /// Needs air pressure [Pa] and svp [Pa] Atlas fields and returns the qsat Atlas field
 bool evalSatSpecificHumidity(atlas::FieldSet & fields);

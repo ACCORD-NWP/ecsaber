@@ -1,6 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.cc.tmp.bak	2024-03-07 12:40:35.924712458 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.cc	2024-03-07 12:33:34.644376854 +0100
-@@ -165,9 +165,49 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.cc.tmp	2024-03-21 10:06:07.123035188 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.cc	2024-03-21 09:18:54.633621338 +0100
+@@ -34,6 +34,7 @@
+            const oops::patch::Variables & vars,
+            const eckit::Configuration & covarConf,
+            const BUMPParameters & params,
++           const eckit::LocalConfiguration & fieldsMetaData,
+            const oops::FieldSet3D & xb)
+   : keyBUMP_(), comm_(geometryData.comm()), fspace_(geometryData.functionSpace()), vars_(vars),
+   validTime_(xb.validTime()), covarConf_(covarConf), bumpConf_(params.toConfiguration()),
+@@ -165,9 +166,47 @@
      grid.set("model.2d variables", var2d);
  
      // Add level index for 2D fields
@@ -13,35 +21,33 @@
 +
 +    // Add vertical coordinate name
 +    if (!grid.has("model.vertical coordinate name")) {
-+      std::string vert_coordName;
++      std::string vertCoordName;
 +      for (const auto & var : vars_str) {
-+        if (vars.hasMetaData(var, "vert_coord")) {
-+          if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
-+            if (vert_coordName.empty()) {
-+              vert_coordName = vars.getMetaData<std::string>(var, "vert_coord");
-+            } else {
-+              ASSERT(vars.getMetaData<std::string>(var, "vert_coord") == vert_coordName);
-+            }
++        if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
++          const std::string key = var + ".vert_coord";
++          if (vertCoordName.empty()) {
++            vertCoordName = fieldsMetaData.getString(key, "");
++          } else {
++            ASSERT(fieldsMetaData.getString(key, "vert_coord") == vertCoordName);
 +          }
 +        }
 +      }
-+      if (vert_coordName.empty() && geometryData.fieldSet().has("vert_coord")) {
-+        vert_coordName = "vert_coord";
++      if (vertCoordName.empty() && geometryData.fieldSet().has("vert_coord")) {
++        vertCoordName = "vert_coord";
 +      }
-+      grid.set("model.vertical coordinate name", vert_coordName);
++      grid.set("model.vertical coordinate name", vertCoordName);
 +    }
 +
 +    // Add geographical mask name
 +    if (!grid.has("model.geographical mask name")) {
 +      std::string gmaskName;
 +      for (const auto & var : vars_str) {
-+        if (vars.hasMetaData(var, "gmask")) {
-+          if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
-+            if (gmaskName.empty()) {
-+              gmaskName = vars.getMetaData<std::string>(var, "gmask");
-+            } else {
-+              ASSERT(vars.getMetaData<std::string>(var, "gmask") == gmaskName);
-+            }
++        if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
++          const std::string key = var + ".gmask";
++          if (gmaskName.empty()) {
++            gmaskName = fieldsMetaData.getString(key, "");
++          } else {
++            ASSERT(fieldsMetaData.getString(key, "gmask") == gmaskName);
 +          }
 +        }
 +      }

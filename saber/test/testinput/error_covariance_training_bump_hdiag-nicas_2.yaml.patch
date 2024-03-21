@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_2.yaml.tmp	2024-02-14 11:14:54.563015146 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_2.yaml	2024-02-14 10:50:09.161362467 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_2.yaml.tmp.bak	2024-03-21 10:06:07.735035493 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_2.yaml	2024-03-21 09:19:11.293629660 +0100
 @@ -8,11 +8,13 @@
      - stream_function
      levels: 2
@@ -14,3 +14,15 @@
    halo: 1
  background:
    date: '2010-01-01T12:00:00Z'
+@@ -35,6 +37,11 @@
+       zero padding: 6
+   saber central block:
+     saber block name: BUMP_NICAS
++    fields metadata:
++      stream_function:
++        gmask: gmask_0
++      surface_pressure:
++        gmask: gmask_1
+     calibration:
+       general:
+         testing: true

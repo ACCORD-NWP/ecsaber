@@ -10,7 +10,7 @@ module type_avg_blk
 
 use fckit_mpi_module, only: fckit_mpi_sum,fckit_mpi_min,fckit_mpi_max
 use tools_const, only: zero,one,two,three
-use tools_func, only: histogram,zss_maxval,zss_minval,zss_sum,zss_count,zss_absminval
+use tools_func, only: histogram,zss_maxval,zss_minval,zss_sum,zss_count
 use tools_kinds, only: kind_real,huge_real
 use tools_netcdf, only: create_file,define_grp,define_dim,define_var,put_var,close_file
 use tools_repro, only: sup,inf
@@ -785,7 +785,7 @@ do il0=1,geom%nl0
                end do
             end if
             if (nc1a_cor>0) then
-               avg_blk%cor(jc3,jc4,jl0r,il0) = minval(list_cor,mask=mpl%msv%isnot(list_cor))
+               avg_blk%cor(jc3,jc4,jl0r,il0) = sum(list_cor,mask=mpl%msv%isnot(list_cor))
              else
                avg_blk%cor(jc3,jc4,jl0r,il0) = zero
             end if
@@ -827,11 +827,11 @@ do il0=1,geom%nl0
                   avg_blk%m22(jc3,jc4,jl0r,il0,isub) = mpl%msv%valr
                end do
             end if
-!            if (avg_blk%nc1a_cor(jc3,jc4,jl0r,il0)>zero) then
-!               avg_blk%cor(jc3,jc4,jl0r,il0) = avg_blk%cor(jc3,jc4,jl0r,il0)/avg_blk%nc1a_cor(jc3,jc4,jl0r,il0)
-!            else
-!               avg_blk%cor(jc3,jc4,jl0r,il0) = mpl%msv%valr
-!            end if
+            if (avg_blk%nc1a_cor(jc3,jc4,jl0r,il0)>zero) then
+               avg_blk%cor(jc3,jc4,jl0r,il0) = avg_blk%cor(jc3,jc4,jl0r,il0)/avg_blk%nc1a_cor(jc3,jc4,jl0r,il0)
+            else
+               avg_blk%cor(jc3,jc4,jl0r,il0) = mpl%msv%valr
+            end if
          end do
       end do
    end do
