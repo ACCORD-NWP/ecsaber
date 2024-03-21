@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/InterpElement.h.tmp	2024-03-14 14:49:29.520329147 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/InterpElement.h	2024-03-11 11:23:03.830424874 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/InterpElement.h.tmp	2024-03-21 10:06:06.819035036 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/InterpElement.h	2024-03-15 15:28:45.561014747 +0100
 @@ -46,7 +46,7 @@
    // Interpolation type ("c": colocated, "x": linear along x, "y": linear along y, "b": bilinear)
    std::string interpType_;

@@ -591,13 +591,10 @@ void LayerRC::rowsConvolution(atlas::Field & field) const {
       for (size_t jk = 0; jk < xKernelSize_; ++jk) {
         const size_t ii = i-jk+(xKernelSize_-1)/2;
         if (ii >= 0 && ii < nx_) {
-          for (size_t k = 0; k < nz_-idz_; ++k) {
+          for (size_t k = 0; k < nz_; ++k) {
             view(i, j, k) += copyView(ii, j, k)*xKernel_[jk];
           }
         }
-      }
-      if (idz_ == 1) {
-        view(i, j, nz_-1) = copyView(i, j, nz_-1);
       }
     }
   }
@@ -739,13 +736,10 @@ void LayerRC::colsConvolution(atlas::Field & field) const {
       for (size_t jk = 0; jk < yKernelSize_; ++jk) {
         const size_t jj = j-jk+(yKernelSize_-1)/2;
         if (jj >= 0 && jj < ny_) {
-          for (size_t k = 0; k < nz_-idz_; ++k) {
+          for (size_t k = 0; k < nz_; ++k) {
             view(i, j, k) += copyView(i, jj, k)*yKernel_[jk];
           }
         }
-      }
-      if (idz_ == 1) {
-        view(i, j, nz_-1) = copyView(i, j, nz_-1);
       }
     }
   }
@@ -786,16 +780,13 @@ void LayerRC::vertConvolution(atlas::Field & field) const {
   view.assign(0.0);
   for (size_t i = 0; i < nxPerTask_[myrank_]; ++i) {
     for (size_t j = 0; j < ny_; ++j) {
-      for (size_t k = 0; k < nz_-idz_; ++k) {
+      for (size_t k = 0; k < nz_; ++k) {
         for (size_t jk = 0; jk < zKernelSize_; ++jk) {
           const size_t kk = k-jk+(zKernelSize_-1)/2;
-          if (kk >= 0 && kk < nz_-idz_) {
+          if (kk >= 0 && kk < nz_) {
             view(i, j, k) += copyView(i, j, kk)*zKernel_[jk];
           }
         }
-      }
-      if (idz_ == 1) {
-        view(i, j, nz_-1) = copyView(i, j, nz_-1);
       }
     }
   }

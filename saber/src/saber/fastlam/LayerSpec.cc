@@ -29,9 +29,6 @@ static LayerMaker<LayerSpec> makerSpec_("spectral");
 void LayerSpec::setupParallelization() {
   oops::Log::trace() << classname() << "::setupParallelization starting" << std::endl;
 
-  // Check that we are not using fake levels
-  ASSERT(fakeLevels_.size() == 0);
-
   // Get index fields
   atlas::Field fieldIndexI = fset_["index_i"];
   atlas::Field fieldIndexJ = fset_["index_j"];

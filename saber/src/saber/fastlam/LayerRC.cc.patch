@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerRC.cc.tmp	2024-03-14 14:49:29.356328826 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerRC.cc	2024-03-13 15:08:43.245025864 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerRC.cc.tmp	2024-03-21 10:06:06.691034973 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerRC.cc	2024-03-21 09:18:43.149615600 +0100
 @@ -503,7 +503,7 @@
    const auto redView = atlas::array::make_view<double, 2>(redField);
    for (size_t jnode = 0; jnode < rSize_; ++jnode) {
@@ -46,26 +46,16 @@
        redView(jnode, k) = rRecvVec[jv];
      }
    }
-@@ -589,13 +589,16 @@
+@@ -589,7 +589,7 @@
    for (size_t j = 0; j < nyPerTask_[myrank_]; ++j) {
      for (size_t i = 0; i < nx_; ++i) {
        for (size_t jk = 0; jk < xKernelSize_; ++jk) {
 -        size_t ii = i-jk+(xKernelSize_-1)/2;
 +        const size_t ii = i-jk+(xKernelSize_-1)/2;
          if (ii >= 0 && ii < nx_) {
--          for (size_t k = 0; k < nz_; ++k) {
-+          for (size_t k = 0; k < nz_-idz_; ++k) {
+           for (size_t k = 0; k < nz_; ++k) {
              view(i, j, k) += copyView(ii, j, k)*xKernel_[jk];
-           }
-         }
-       }
-+      if (idz_ == 1) {
-+        view(i, j, nz_-1) = copyView(i, j, nz_-1);
-+      }
-     }
-   }
- 
-@@ -645,7 +648,7 @@
+@@ -645,7 +645,7 @@
    for (size_t i = 0; i < nx_; ++i) {
      for (size_t j = 0; j < nyPerTask_[myrank_]; ++j) {
        for (size_t k = 0; k < nz_; ++k) {
@@ -74,7 +64,7 @@
          xRecvVec[jv] = rowsView(i, j, k);
        }
      }
-@@ -659,10 +662,10 @@
+@@ -659,10 +659,10 @@
    // Deserialize
    auto colsView = atlas::array::make_view<double, 3>(colsField);
    for (size_t jy = 0; jy < ySendSize_; ++jy) {
@@ -88,7 +78,7 @@
        colsView(i, j, k) = ySendVec[jv];
      }
    }
-@@ -695,7 +698,7 @@
+@@ -695,7 +695,7 @@
      size_t i = yIndex_i_[jy]-nxStart_[myrank_];
      size_t j = yIndex_j_[jy];
      for (size_t k = 0; k < nz_; ++k) {
@@ -97,7 +87,7 @@
        ySendVec[jv] = colsView(i, j, k);
      }
    }
-@@ -710,7 +713,7 @@
+@@ -710,7 +710,7 @@
    for (size_t i = 0; i < nx_; ++i) {
      for (size_t j = 0; j < nyPerTask_[myrank_]; ++j) {
        for (size_t k = 0; k < nz_; ++k) {
@@ -106,43 +96,21 @@
          rowsView(i, j, k) = xRecvVec[jv];
        }
      }
-@@ -734,13 +737,16 @@
+@@ -734,7 +734,7 @@
    for (size_t i = 0; i < nxPerTask_[myrank_]; ++i) {
      for (size_t j = 0; j < ny_; ++j) {
        for (size_t jk = 0; jk < yKernelSize_; ++jk) {
 -        size_t jj = j-jk+(yKernelSize_-1)/2;
 +        const size_t jj = j-jk+(yKernelSize_-1)/2;
          if (jj >= 0 && jj < ny_) {
--          for (size_t k = 0; k < nz_; ++k) {
-+          for (size_t k = 0; k < nz_-idz_; ++k) {
+           for (size_t k = 0; k < nz_; ++k) {
              view(i, j, k) += copyView(i, jj, k)*yKernel_[jk];
-           }
-         }
-       }
-+      if (idz_ == 1) {
-+        view(i, j, nz_-1) = copyView(i, j, nz_-1);
-+      }
-     }
-   }
- 
-@@ -780,14 +786,17 @@
-   view.assign(0.0);
-   for (size_t i = 0; i < nxPerTask_[myrank_]; ++i) {
+@@ -782,7 +782,7 @@
      for (size_t j = 0; j < ny_; ++j) {
--      for (size_t k = 0; k < nz_; ++k) {
-+      for (size_t k = 0; k < nz_-idz_; ++k) {
+       for (size_t k = 0; k < nz_; ++k) {
          for (size_t jk = 0; jk < zKernelSize_; ++jk) {
 -          size_t kk = k-jk+(zKernelSize_-1)/2;
--          if (kk >= 0 && kk < nz_) {
 +          const size_t kk = k-jk+(zKernelSize_-1)/2;
-+          if (kk >= 0 && kk < nz_-idz_) {
+           if (kk >= 0 && kk < nz_) {
              view(i, j, k) += copyView(i, j, kk)*zKernel_[jk];
            }
-         }
-       }
-+      if (idz_ == 1) {
-+        view(i, j, nz_-1) = copyView(i, j, nz_-1);
-+      }
-     }
-   }
- 

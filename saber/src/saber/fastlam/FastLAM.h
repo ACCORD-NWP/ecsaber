@@ -9,7 +9,6 @@
 
 #include <memory>
 #include <string>
-#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -103,12 +102,12 @@ class FastLAM : public SaberCentralBlockBase {
     size_t nz0_;
     std::string varInModelFile_;
     std::vector<std::string> variables_;
-    std::string vert_coordName_;
   };
   std::vector<Group> groups_;
 
   // Parameters
   FastLAMParametersBase params_;
+  const eckit::LocalConfiguration fieldsMetaData_;
 
   // Inputs
   std::unique_ptr<oops::FieldSet3D> rh_;
@@ -129,9 +128,6 @@ class FastLAM : public SaberCentralBlockBase {
 
   // Setup weight
   void setupWeight();
-
-  // Setup fake levels
-  void setupFakeLevels();
 
   // Setup vertical coordinate
   void setupVerticalCoord();

@@ -87,6 +87,7 @@ PsiChiToUV::PsiChiToUV(const oops::GeometryData & outerGeometryData,
                        activeVars,
                        covarConf,
                        bumpParams_,
+                       params.fieldsMetaData.value(),
                        xb));
 
   oops::Log::trace() << classname() << "::PsiChiToUV done" << std::endl;

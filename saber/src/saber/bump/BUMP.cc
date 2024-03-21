@@ -34,6 +34,7 @@ BUMP::BUMP(const oops::GeometryData & geometryData,
            const oops::patch::Variables & vars,
            const eckit::Configuration & covarConf,
            const BUMPParameters & params,
+           const eckit::LocalConfiguration & fieldsMetaData,
            const oops::FieldSet3D & xb)
   : keyBUMP_(), comm_(geometryData.comm()), fspace_(geometryData.functionSpace()), vars_(vars),
   validTime_(xb.validTime()), covarConf_(covarConf), bumpConf_(params.toConfiguration()),
@@ -172,35 +173,33 @@ BUMP::BUMP(const oops::GeometryData & geometryData,
 
     // Add vertical coordinate name
     if (!grid.has("model.vertical coordinate name")) {
-      std::string vert_coordName;
+      std::string vertCoordName;
       for (const auto & var : vars_str) {
-        if (vars.hasMetaData(var, "vert_coord")) {
-          if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
-            if (vert_coordName.empty()) {
-              vert_coordName = vars.getMetaData<std::string>(var, "vert_coord");
-            } else {
-              ASSERT(vars.getMetaData<std::string>(var, "vert_coord") == vert_coordName);
-            }
+        if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
+          const std::string key = var + ".vert_coord";
+          if (vertCoordName.empty()) {
+            vertCoordName = fieldsMetaData.getString(key, "");
+          } else {
+            ASSERT(fieldsMetaData.getString(key, "vert_coord") == vertCoordName);
           }
         }
       }
-      if (vert_coordName.empty() && geometryData.fieldSet().has("vert_coord")) {
-        vert_coordName = "vert_coord";
+      if (vertCoordName.empty() && geometryData.fieldSet().has("vert_coord")) {
+        vertCoordName = "vert_coord";
       }
-      grid.set("model.vertical coordinate name", vert_coordName);
+      grid.set("model.vertical coordinate name", vertCoordName);
     }
 
     // Add geographical mask name
     if (!grid.has("model.geographical mask name")) {
       std::string gmaskName;
       for (const auto & var : vars_str) {
-        if (vars.hasMetaData(var, "gmask")) {
-          if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
-            if (gmaskName.empty()) {
-              gmaskName = vars.getMetaData<std::string>(var, "gmask");
-            } else {
-              ASSERT(vars.getMetaData<std::string>(var, "gmask") == gmaskName);
-            }
+        if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
+          const std::string key = var + ".gmask";
+          if (gmaskName.empty()) {
+            gmaskName = fieldsMetaData.getString(key, "");
+          } else {
+            ASSERT(fieldsMetaData.getString(key, "gmask") == gmaskName);
           }
         }
       }

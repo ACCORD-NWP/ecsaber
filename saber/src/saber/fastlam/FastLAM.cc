@@ -47,7 +47,8 @@ FastLAM::FastLAM(const oops::GeometryData & gdata,
     comm_(gdata_.comm()),
     activeVars_(activeVars),
     params_(params.calibration.value() != boost::none ? *params.calibration.value()
-      : *params.read.value())
+      : *params.read.value()),
+    fieldsMetaData_(params.fieldsMetaData.value())
 {
   oops::Log::trace() << classname() << "::FastLAM starting" << std::endl;
 
@@ -95,7 +96,6 @@ FastLAM::FastLAM(const oops::GeometryData & gdata,
       group.nz0_ = activeVars_.getLevels(var);
       group.varInModelFile_ = var;
       group.variables_ = {var};
-      group.vert_coordName_ = xb[var].metadata().getString("vert_coord", "vert_coord");
 
       // Add group
       groups_.push_back(group);
@@ -120,26 +120,6 @@ FastLAM::FastLAM(const oops::GeometryData & gdata,
       }
       group.varInModelFile_ = groupParams.varInModelFile.value().get_value_or(group.name_);
       group.variables_ = groupParams.variables.value();
-      size_t nVar2d = 0;
-      for (const auto & var : group.variables_) {
-        if (activeVars_.getLevels(var) == 1) {
-          ++nVar2d;
-        }
-      }
-      for (const auto & var : group.variables_) {
-        if (xb[var].metadata().has("vert_coord")) {
-          if (nVar2d == group.variables_.size() || activeVars_.getLevels(var) > 1) {
-            if (group.vert_coordName_.empty()) {
-              group.vert_coordName_ = xb[var].metadata().getString("vert_coord");
-            } else {
-              ASSERT(xb[var].metadata().getString("vert_coord") == group.vert_coordName_);
-            }
-          }
-        }
-      }
-      if (group.vert_coordName_.empty() && gdata.fieldSet().has("vert_coord")) {
-        group.vert_coordName_ = "vert_coord";
-      }
 
       // Add group
       groups_.push_back(group);
@@ -686,7 +666,7 @@ void FastLAM::setReadFields(const std::vector<oops::FieldSet3D> & fsetVec) {
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
       // Create layers
       for (size_t jBin = 0; jBin < nLayers; ++jBin) {
-        data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groups_[jg].name_,
+        data_[jg].emplace_back(LayerFactory::create(params_, fieldsMetaData_, gdata_, groups_[jg].name_,
           groups_[jg].variables_, nx0_, ny0_, groups_[jg].nz0_));
       }
     }
@@ -803,7 +783,7 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
     // Create layers
     std::vector<std::unique_ptr<LayerBase>> layers;
     for (size_t jBin = 0; jBin < nLayers; ++jBin) {
-      data_[jg].emplace_back(LayerFactory::create(params_, gdata_, groups_[jg].name_,
+      data_[jg].emplace_back(LayerFactory::create(params_, fieldsMetaData_, gdata_, groups_[jg].name_,
         groups_[jg].variables_, nx0_, ny0_, groups_[jg].nz0_));
     }
   }
@@ -816,9 +796,6 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
 
   // Setup weight
   setupWeight();
-
-  // Setup fake levels
-  setupFakeLevels();
 
   // Setup vertical coordinate
   setupVerticalCoord();
@@ -855,7 +832,7 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
       oops::Log::info() << data_[jg][jBin]->normVertCoord()[groups_[jg].nz0_-1] << std::endl;
 
       // Setup interpolation
-      data_[jg][jBin]->setupInterpolation(groups_[jg].vert_coordName_);
+      data_[jg][jBin]->setupInterpolation();
 
       // Setup kernels
       data_[jg][jBin]->setupKernels();
@@ -881,9 +858,6 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
 
 void FastLAM::read() {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
-
-  // Setup fake levels
-  setupFakeLevels();
 
   if (comm_.rank() == 0) {
     ASSERT(params_.dataFile.value() != boost::none);
@@ -950,7 +924,7 @@ void FastLAM::read() {
       oops::Log::info() << data_[jg][jBin]->normVertCoord()[groups_[jg].nz0_-1] << std::endl;
 
       // Setup interpolation
-      data_[jg][jBin]->setupInterpolation(groups_[jg].vert_coordName_);
+      data_[jg][jBin]->setupInterpolation();
 
       // Setup parallelization
       data_[jg][jBin]->setupParallelization();
@@ -1487,7 +1461,7 @@ void FastLAM::setupVerticalCoord() {
   // Setup vertical coordinate
   for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
-      data_[jg][jBin]->setupVerticalCoord(groups_[jg].vert_coordName_, (*rv_)[groups_[jg].name_],
+      data_[jg][jBin]->setupVerticalCoord((*rv_)[groups_[jg].name_],
         (*weight_[jBin])[groups_[jg].name_]);
     }
   }
@@ -1539,46 +1513,6 @@ void FastLAM::setupReductionFactors() {
   }
 
   oops::Log::trace() << classname() << "::setupReductionFactors done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
-void FastLAM::setupFakeLevels() {
-  oops::Log::trace() << classname() << "::setupFakeLevels starting" << std::endl;
-
-  // Define fake levels
-  if (params_.fakeLevels.value() != boost::none) {
-    for (size_t jg = 0; jg < groups_.size(); ++jg) {
-      // Get yaml profile
-      for (const auto & vParams : *params_.fakeLevels.value()) {
-        const std::string vGroupName = vParams.group.value();
-        if (vParams.value.value() != boost::none) {
-          throw eckit::UserError("profile required for fake levels, not value", Here());
-        }
-        if (vParams.profile.value() == boost::none) {
-          throw eckit::UserError("profile required for fake levels", Here());
-        }
-        if (vGroupName == groups_[jg].name_) {
-          if (groups_[jg].nz0_ > 1) {
-            throw eckit::UserError("fake levels available for groups with one level only", Here());
-          }
-          for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
-            if (data_[jg][jBin]->fakeLevels().size() > 0) {
-              throw eckit::UserError("group" + groups_[jg].name_ + " present more that once",
-                Here());
-            }
-            data_[jg][jBin]->fakeLevels().resize(vParams.profile.value()->size());
-            data_[jg][jBin]->fakeLevels() = *vParams.profile.value();
-            for (size_t k = 0; k < data_[jg][jBin]->fakeLevels().size()-1; ++k) {
-              ASSERT(data_[jg][jBin]->fakeLevels()[k+1] > data_[jg][jBin]->fakeLevels()[k]);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  oops::Log::trace() << classname() << "::setupFakeLevels done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

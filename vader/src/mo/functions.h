@@ -58,14 +58,6 @@ Eigen::MatrixXd createMIOCoeff(const std::string mioFileName,
                                const std::string s);
 
 extern "C" {
-  void umGetLookUp_f90(
-    const int &,
-    const char *,
-    const int &,
-    const char *,
-    const int &,
-    double &);
-
   void umGetLookUp2D_f90(
     const int &,
     const char *,
