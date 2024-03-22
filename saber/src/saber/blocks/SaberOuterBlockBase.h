@@ -270,11 +270,19 @@ void SaberOuterBlockBase::read(const oops::Geometry<MODEL> & geom,
   // Read fieldsets as increments
   std::vector<oops::FieldSet3D> fsetVec;
   for (const auto & input : this->getReadConfs()) {
-    // Create variables
-    oops::Variables<MODEL> varsT(templatedVarsConf(vars));
-
     // Create increment
+    std::unique_ptr<oops::patch::Variables> incVars;
+    if (input.second.has("overriding variables")) {
+      const std::vector<std::string> incVarsNames =
+        input.second.getStringVector("overriding variables");
+      incVars.reset(new oops::patch::Variables(incVarsNames));
+    } else {
+      incVars.reset(new oops::patch::Variables(vars));
+    }
+    oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
     oops::Increment<MODEL> dx(geom, varsT, validTime_);
+
+    // Read, print norm and push_back
     dx.read(input.second);
     oops::Log::test() << "Norm of input parameter " << input.first
                       << ": " << dx.norm() << std::endl;
@@ -299,14 +307,21 @@ void SaberOuterBlockBase::write(const oops::Geometry<MODEL> & geom,
   std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> outputs
     = this->fieldsToWrite();
 
-  // Create variables
-  oops::Variables<MODEL> varsT(templatedVarsConf(vars));
-
-  // Create increment
-  oops::Increment<MODEL> dx(geom, varsT, validTime_);
-
   // Loop and write
   for (const auto & output : outputs) {
+    // Create increment
+    std::unique_ptr<oops::patch::Variables> incVars;
+    if (output.first.has("overriding variables")) {
+      const std::vector<std::string> incVarsNames =
+        output.first.getStringVector("overriding variables");
+      incVars.reset(new oops::patch::Variables(incVarsNames));
+    } else {
+      incVars.reset(new oops::patch::Variables(vars));
+    }
+    oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
+    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+
+    // Write and print norm
     dx.increment().fromFieldSet(output.second.fieldSet());
     oops::Log::test() << "Norm of output parameter " << output.second.name()
                       << ": " << dx.norm() << std::endl;

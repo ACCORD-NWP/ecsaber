@@ -172,42 +172,38 @@ BUMP::BUMP(const oops::GeometryData & geometryData,
     }
 
     // Add vertical coordinate name
-    if (!grid.has("model.vertical coordinate name")) {
-      std::string vertCoordName;
-      for (const auto & var : vars_str) {
-        if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
-          const std::string key = var + ".vert_coord";
-          if (vertCoordName.empty()) {
-            vertCoordName = fieldsMetaData.getString(key, "");
-          } else {
-            ASSERT(fieldsMetaData.getString(key, "vert_coord") == vertCoordName);
-          }
+    std::string vertCoordName;
+    for (const auto & var : vars_str) {
+      if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
+        const std::string key = var + ".vert_coord";
+        if (vertCoordName.empty()) {
+          vertCoordName = fieldsMetaData.getString(key, "");
+        } else {
+          ASSERT(fieldsMetaData.getString(key, "vert_coord") == vertCoordName);
         }
       }
-      if (vertCoordName.empty() && geometryData.fieldSet().has("vert_coord")) {
-        vertCoordName = "vert_coord";
-      }
-      grid.set("model.vertical coordinate name", vertCoordName);
     }
+    if (vertCoordName.empty() && geometryData.fieldSet().has("vert_coord")) {
+      vertCoordName = "vert_coord";
+    }
+    grid.set("external.vertical coordinate name", vertCoordName);
 
     // Add geographical mask name
-    if (!grid.has("model.geographical mask name")) {
-      std::string gmaskName;
-      for (const auto & var : vars_str) {
-        if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
-          const std::string key = var + ".gmask";
-          if (gmaskName.empty()) {
-            gmaskName = fieldsMetaData.getString(key, "");
-          } else {
-            ASSERT(fieldsMetaData.getString(key, "gmask") == gmaskName);
-          }
+    std::string gmaskName;
+    for (const auto & var : vars_str) {
+      if (var2d.size() == vars_str.size() || vars_.getLevels(var) > 1) {
+        const std::string key = var + ".gmask";
+        if (gmaskName.empty()) {
+          gmaskName = fieldsMetaData.getString(key, "");
+        } else {
+          ASSERT(fieldsMetaData.getString(key, "gmask") == gmaskName);
         }
       }
-      if (gmaskName.empty() && geometryData.fieldSet().has("gmask")) {
-        gmaskName = "gmask";
-      }
-      grid.set("model.geographical mask name", gmaskName);
     }
+    if (gmaskName.empty() && geometryData.fieldSet().has("gmask")) {
+      gmaskName = "gmask";
+    }
+    grid.set("external.geographical mask name", gmaskName);
 
     // Create BUMP instance
     oops::Log::info() << "Info     :"
