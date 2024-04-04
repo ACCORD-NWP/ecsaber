@@ -1,0 +1,29 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h.tmp	2024-03-21 10:06:06.711034982 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h	2024-03-21 09:26:20.577844061 +0100
+@@ -9,7 +9,6 @@
+ 
+ #include <memory>
+ #include <string>
+-#include <tuple>
+ #include <unordered_map>
+ #include <utility>
+ #include <vector>
+@@ -98,10 +97,17 @@
+   oops::patch::Variables active2dVars_;
+ 
+   // Groups of variables
+-  std::vector<std::tuple<std::string, size_t, std::string, std::vector<std::string>>> groups_;
++  struct Group {
++    std::string name_;
++    size_t nz0_;
++    std::string varInModelFile_;
++    std::vector<std::string> variables_;
++  };
++  std::vector<Group> groups_;
+ 
+   // Parameters
+   FastLAMParametersBase params_;
++  const eckit::LocalConfiguration fieldsMetaData_;
+ 
+   // Inputs
+   std::unique_ptr<oops::FieldSet3D> rh_;

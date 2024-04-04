@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2023 Meteorlogisk Institutt
+ * (C) Copyright 2024 Meteorlogisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -31,17 +31,22 @@ class LayerRC : public LayerBase {
 
   // Constructor
   LayerRC(const FastLAMParametersBase & params,
+          const eckit::LocalConfiguration & fieldsMetaData,
           const oops::GeometryData & gdata,
-          const std::string & myVar,
+          const std::string & myGroup,
+          const std::vector<std::string> & myVars,
           const size_t & nx0,
           const size_t & ny0,
           const size_t & nz0) :
-    LayerBase(params, gdata, myVar, nx0, ny0, nz0) {}
+    LayerBase(params, fieldsMetaData, gdata, myGroup, myVars, nx0, ny0, nz0) {}
     ~LayerRC() = default;
 
   // Setups
   void setupParallelization() override;
-  void setupNormalization() override;
+  void extractConvolution(const size_t &,
+                          const size_t &,
+                          std::vector<double> &,
+                          std::vector<double> &) override;
 
   // Multiply square-root and adjoint
   size_t ctlVecSize() const override {return nxPerTask_[myrank_]*ny_*nz_;};
@@ -62,10 +67,8 @@ class LayerRC : public LayerBase {
   void colsToRows(const atlas::Field &, atlas::Field &) const;
 
   // Convolutions
-  void rowsConvolutionTL(atlas::Field &) const;
-  void rowsConvolutionAD(atlas::Field &) const;
-  void colsConvolutionTL(atlas::Field &) const;
-  void colsConvolutionAD(atlas::Field &) const;
+  void rowsConvolution(atlas::Field &) const;
+  void colsConvolution(atlas::Field &) const;
   void vertConvolution(atlas::Field &) const;
 
   // Normalizations

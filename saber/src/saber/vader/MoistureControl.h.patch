@@ -1,0 +1,23 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistureControl.h.tmp.bak	2024-03-21 10:06:05.595034425 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistureControl.h	2024-03-21 09:18:16.553602307 +0100
+@@ -26,9 +26,7 @@
+ #include "saber/blocks/SaberOuterBlockBase.h"
+ 
+ namespace oops {
+-  namespace patch{
+-class Variables;
+-}
++  namespace patch {class Variables;}
+ }
+ 
+ namespace saber {
+@@ -113,7 +111,8 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-atlas::FieldSet createMuStats(const atlas::FieldSet &,
++atlas::FieldSet createMuStats(const size_t &,
++                              const atlas::FieldSet &,
+                               const MoistureControlCovarianceParameters &);
+ 
+ // -----------------------------------------------------------------------------

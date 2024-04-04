@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_id.yaml.tmp	2024-02-15 15:43:44.662050929 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_id.yaml	2024-02-15 15:40:56.985915423 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_id.yaml.tmp	2024-03-07 12:22:38.087916166 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_id.yaml	2024-03-07 11:37:37.301953309 +0100
 @@ -8,6 +8,7 @@
      - stream_function
      - velocity_potential

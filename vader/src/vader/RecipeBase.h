@@ -39,6 +39,12 @@ class RecipeParametersBase : public oops::Parameters {
 };
 
 // ------------------------------------------------------------------------------------------------
+class EmptyRecipeParameters : public RecipeParametersBase {
+  OOPS_CONCRETE_PARAMETERS(EmptyRecipeParameters, RecipeParametersBase)
+};
+
+
+// ------------------------------------------------------------------------------------------------
 /*! \brief RecipeBase class defines interface for individual variable
            transformations.
  *

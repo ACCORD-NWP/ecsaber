@@ -38,10 +38,18 @@ class AirTemperature_B_Parameters : public RecipeParametersBase {
 };
 
 // ------------------------------------------------------------------------------------------------
-/*! \brief AirTemperature_A class defines a recipe for air_temperature
- *         from air_potential_temperature and dimensionless_exner_function
+/* CCPP Names for (hopefully near) future:
+ *  \brief AirTemperature_A class defines a recipe for air_temperature_at_interface
+ *         from air_potential_temperature_at_interface and
+ *         dimensionless_exner_function_at_interface
  *
- *         NL air_temperature = air_potential_temperature * dimensionless_exner_function
+ *         NL air_temperature_at_interface = air_potential_temperature_at_interface
+ *                                              * dimensionless_exner_function_at_interface
+ */
+/*! \brief AirTemperature_A class defines a recipe for air_temperature
+ *         from potential_temperature and exner
+ *
+ *         NL air_temperature = potential_temperature * exner
  */
 class AirTemperature_A : public RecipeBase {
  public:

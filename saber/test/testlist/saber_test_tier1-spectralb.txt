@@ -7,6 +7,8 @@ dirac_spectraltouv
 dirac_sqrtspectralb
 dirac_sqrtspectralb_correl_1
 dirac_vertproj
+dirac_spectralb_localization_1
+dirac_spectralb_localization_2
 randomization_csdual_sqrtspectralb
 randomization_sqrtspectralb_1
 compare_diagnostics_sqrtspectralb
@@ -16,4 +18,5 @@ compare_diagnostics_spectralb_write_read
 process_perts_from_gauss_perts_1
 process_perts_from_gauss_perts_2
 process_perts_from_csdual_states_1
+process_perts_from_csdual_states_2
 dirac_spectralb_duplicate_variables

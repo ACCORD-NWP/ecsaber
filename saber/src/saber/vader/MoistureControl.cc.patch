@@ -1,0 +1,31 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistureControl.cc.tmp	2024-03-21 10:06:05.639034447 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistureControl.cc	2024-03-21 09:18:19.101603582 +0100
+@@ -63,7 +63,8 @@
+   oops::Log::trace() << classname() << "::MoistureControl starting" << std::endl;
+ 
+   // Covariance FieldSet
+-  covFieldSet_ = createMuStats(outerGeometryData.fieldSet(),
++  covFieldSet_ = createMuStats(xb["air_temperature"].levels(),
++                               outerGeometryData.fieldSet(),
+                                params.moistureControlParams.value());
+ 
+   std::vector<std::string> requiredStateVariables{
+@@ -191,7 +192,8 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-atlas::FieldSet createMuStats(const atlas::FieldSet & fields,
++atlas::FieldSet createMuStats(const size_t & modelLevelsDefault,
++                              const atlas::FieldSet & fields,
+                               const MoistureControlCovarianceParameters & params) {
+   // Get necessary parameters
+   // path to covariance file with gp covariance parameters.
+@@ -201,7 +203,7 @@
+   if (fields.has("height")) {
+     modelLevels = fields["height"].shape(1);
+   } else {
+-    modelLevels = fields["vert_coord"].shape(1);
++    modelLevels = modelLevelsDefault;
+   }
+ 
+   // geostrophic pressure vertical regression statistics are grouped

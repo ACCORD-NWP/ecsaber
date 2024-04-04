@@ -1,0 +1,19 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerRC.h.tmp	2024-03-21 10:06:06.679034966 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerRC.h	2024-03-21 09:18:42.537615296 +0100
+@@ -31,12 +31,14 @@
+ 
+   // Constructor
+   LayerRC(const FastLAMParametersBase & params,
++          const eckit::LocalConfiguration & fieldsMetaData,
+           const oops::GeometryData & gdata,
+-          const std::string & myVar,
++          const std::string & myGroup,
++          const std::vector<std::string> & myVars,
+           const size_t & nx0,
+           const size_t & ny0,
+           const size_t & nz0) :
+-    LayerBase(params, gdata, myVar, nx0, ny0, nz0) {}
++    LayerBase(params, fieldsMetaData, gdata, myGroup, myVars, nx0, ny0, nz0) {}
+     ~LayerRC() = default;
+ 
+   // Setups

@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/VerticalBalance.cc.tmp	2024-03-21 10:06:07.243035248 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/VerticalBalance.cc	2024-03-21 09:18:57.885622962 +0100
+@@ -57,6 +57,7 @@
+                        activeVars_,
+                        covarConf,
+                        bumpParams_,
++                       params.fieldsMetaData.value(),
+                        xb));
+ 
+   oops::Log::trace() << classname() << "::VerticalBalance done" << std::endl;

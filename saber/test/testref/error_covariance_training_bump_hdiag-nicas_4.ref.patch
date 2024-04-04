@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag-nicas_4.ref.tmp	2024-03-07 12:22:38.535916431 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag-nicas_4.ref	2024-03-07 11:38:19.722001236 +0100
+@@ -17,7 +17,7 @@
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+-             Level   1 ~> -0.100E+01 vert. coord.
++             Level   1 ~>  0.100E+01 vert. coord.
+              Effective levels:   1   2   3   4 
+                 Horizontal support radius:    8322.41 km (   7159.64 km -    9554.80 km)
+                 Estimated nc1 from horizontal support radius:       76

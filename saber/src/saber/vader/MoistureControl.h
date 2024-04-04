@@ -26,9 +26,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  namespace patch {class Variables;}
 }
 
 namespace saber {
@@ -49,7 +47,6 @@ class MoistureControlParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(MoistureControlParameters, SaberBlockParametersBase)
 
  public:
-  oops::RequiredParameter<std::string> svp_file{"saturation vapour pressure file", this};
   oops::RequiredParameter<MoistureControlCovarianceParameters>
     moistureControlParams{"covariance data", this};
   oops::patch::Variables mandatoryActiveVars() const override {
@@ -114,7 +111,8 @@ class MoistureControl : public SaberOuterBlockBase {
 
 // -----------------------------------------------------------------------------
 
-atlas::FieldSet createMuStats(const atlas::FieldSet &,
+atlas::FieldSet createMuStats(const size_t &,
+                              const atlas::FieldSet &,
                               const MoistureControlCovarianceParameters &);
 
 // -----------------------------------------------------------------------------

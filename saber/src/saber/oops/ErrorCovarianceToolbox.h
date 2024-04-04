@@ -34,7 +34,6 @@
 #include "oops/util/parameters/RequiredParameter.h"
 
 #include "saber/oops/instantiateCovarFactory.h"
-#include "saber/oops/instantiateLocalizationFactory.h"
 #include "saber/oops/ECUtilities.h"
 
 namespace saber {
@@ -101,7 +100,6 @@ class ErrorCovarianceToolbox : public oops::Application {
 // -----------------------------------------------------------------------------
   ErrorCovarianceToolbox() {
     instantiateCovarFactory<MODEL>();
-    instantiateLocalizationFactory<MODEL>();
   }
 // -----------------------------------------------------------------------------
   virtual ~ErrorCovarianceToolbox() {}

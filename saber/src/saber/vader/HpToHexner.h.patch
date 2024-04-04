@@ -1,0 +1,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/HpToHexner.h.tmp.bak	2024-03-21 09:17:23.449575768 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/HpToHexner.h	2024-03-21 09:18:15.801601930 +0100
+@@ -26,9 +26,7 @@
+ #include "saber/blocks/SaberOuterBlockBase.h"
+ 
+ namespace oops {
+-  namespace patch{
+-class Variables;
+-}
++  namespace patch {class Variables;}
+ }
+ 
+ namespace saber {

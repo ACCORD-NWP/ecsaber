@@ -8,7 +8,6 @@
 #include "oops/util/FunctionSpaceHelpers.h"
 
 #include <string>
-#include <vector>
 
 #include "atlas/field.h"
 #include "atlas/functionspace.h"
@@ -63,39 +62,20 @@ void setupFunctionSpace(const eckit::mpi::Comm & comm,
       std::vector<int>partition(grid.size());
       partitioner.partition(grid, &partition[0]);
 
-      // Create custom distribution
-      atlas::grid::Distribution distribution(comm.size(), grid.size(), &partition[0]);
+      // Create distribution and mesh
+      atlas::grid::Distribution distribution;
+      atlas::Mesh mesh;
+      setupStructuredMeshWithCustomPartition(comm, grid, partition, distribution, mesh);
 
       // Create functionspace from distribution
       functionSpace = atlas::functionspace::StructuredColumns(grid, distribution,
                                                               atlas::option::halo(halo));
 
-      // Count number of cells for each MPI task
-      std::vector<size_t> nb_cells(comm.size(), 0);
-      for (atlas::idx_t jj = 0; jj < grid.size(); ++jj) {
-        ++nb_cells[partition[jj]];
-      }
-
-      // Get number of task with points (effective size) and mapping
-      size_t effectiveSize = 0;
-      std::vector<size_t> mapping(comm.size());
-      for (size_t jt = 0; jt < comm.size(); ++jt) {
-        if (nb_cells[jt] > 0) {
-          mapping[jt] = effectiveSize;
-          ++effectiveSize;
-        }
-      }
-
-      // Create mesh from distribution
-      atlas::util::Config meshConfig(grid.meshgenerator());
-      meshConfig.set("part", mapping[comm.rank()]);
-      meshConfig.set("nb_parts", effectiveSize);
-      const atlas::StructuredMeshGenerator gen(meshConfig);
-      mesh = gen(grid, distribution);
     } else {
       // Create functionspace from partitioner
       functionSpace = atlas::functionspace::StructuredColumns(grid, partitioner,
                                                               atlas::option::halo(halo));
+
       // Create mesh from partitioner
       mesh = atlas::MeshGenerator("structured").generate(grid, partitioner);
     }
@@ -165,6 +145,42 @@ void setupFunctionSpace(const eckit::mpi::Comm & comm,
   }
 
   fieldset.add(owned);
+}
+
+// -----------------------------------------------------------------------------
+
+void setupStructuredMeshWithCustomPartition(const eckit::mpi::Comm & comm,
+                                            const atlas::Grid & grid,
+                                            const std::vector<int> & partition,
+                                            atlas::grid::Distribution & distribution,
+                                            atlas::Mesh & mesh) {
+  // Create custom distribution
+  std::vector<int> partitionCopy = partition;
+  distribution = atlas::grid::Distribution(comm.size(), grid.size(), partitionCopy.data());
+
+  // Count number of cells for each MPI task
+  std::vector<size_t> nb_cells(comm.size(), 0);
+  for (atlas::idx_t jj = 0; jj < grid.size(); ++jj) {
+    ++nb_cells[partition[jj]];
+  }
+
+  // Get number of task with points (effective size) and mapping
+  size_t effectiveSize = 0;
+  std::vector<size_t> mapping(comm.size());
+  for (size_t jt = 0; jt < comm.size(); ++jt) {
+    if (nb_cells[jt] > 0) {
+      mapping[jt] = effectiveSize;
+      ++effectiveSize;
+    }
+  }
+
+  // Create mesh from distribution
+  atlas::util::Config meshConfig(grid.meshgenerator());
+  meshConfig.set("part", mapping[comm.rank()]);
+  meshConfig.set("nb_parts", effectiveSize);
+  meshConfig.set("mpi_comm", comm.name());
+  const atlas::StructuredMeshGenerator gen(meshConfig);
+  mesh = gen(grid, distribution);
 }
 
 // -----------------------------------------------------------------------------

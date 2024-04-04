@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-02-14 13:20:31.459915184 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-02-14 13:22:48.159994153 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-03-08 08:00:38.857997065 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-03-08 08:24:25.969887746 +0100
 @@ -1,5 +1,5 @@
  /*
 - * (C) Crown Copyright 2023-2024 Met Office
@@ -13,10 +13,10 @@
  
 +#include <omp.h>
 +
+ #include <algorithm>
  #include <memory>
  #include <sstream>
- #include <string>
-@@ -17,12 +19,14 @@
+@@ -18,12 +20,14 @@
  #include "eckit/exception/Exceptions.h"
  
  #include "oops/base/FieldSets.h"
@@ -37,7 +37,7 @@
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
  #include "oops/util/ConfigFunctions.h"
-@@ -34,6 +38,9 @@
+@@ -35,6 +39,9 @@
  #include "oops/util/parameters/RequiredParameter.h"
  
  #include "saber/blocks/SaberParametricBlockChain.h"
@@ -47,7 +47,7 @@
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -73,14 +80,12 @@
+@@ -83,14 +90,12 @@
    OOPS_CONCRETE_PARAMETERS(ModelOrGenericWriteParameters, oops::Parameters)
  
   public:
@@ -63,7 +63,7 @@
      modelWrite{"model write", this};
  };
  
-@@ -89,25 +94,20 @@
+@@ -99,25 +104,20 @@
  
  /// \brief Top-level options taken by the ProcessPerts application.
  template <typename MODEL> class ProcessPertsParameters :
@@ -95,7 +95,7 @@
  
    /// Where to read input ensemble: From states or perturbations
    oops::OptionalParameter<eckit::LocalConfiguration> ensemble{"ensemble", this};
-@@ -123,42 +123,69 @@
+@@ -133,42 +133,69 @@
  
  // -----------------------------------------------------------------------------
  
@@ -183,7 +183,7 @@
      oops::FieldSet4D fsetXb(xx);
      oops::FieldSet4D fsetFg(xx);
  
-@@ -168,18 +195,19 @@
+@@ -178,9 +205,10 @@
      std::vector<eckit::LocalConfiguration> filterCovarianceBlockConfs
        = fullConfig.getSubConfigurations("saber filter blocks");
  
@@ -196,24 +196,12 @@
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars.addMetaData(incVars[i], "levels", vlevs[i]);
      }
- 
-     std::vector<util::DateTime> dates;
-     std::vector<int> ensmems;
--    oops::FieldSets fsetEns(dates, oops::mpi::myself(), ensmems, oops::mpi::myself());
--    oops::FieldSets dualResFsetEns(dates, oops::mpi::myself(),
--                                            ensmems, oops::mpi::myself());
-+    oops::FieldSets fsetEns(dates, oops::mpi::myself(), ensmems, eckit::mpi::self());
-+    oops::FieldSets dualResFsetEns(dates, eckit::mpi::self(),
-+                                            ensmems, eckit::mpi::self());
-     eckit::LocalConfiguration covarConf;
-     covarConf.set("iterative ensemble loading", false);
-     covarConf.set("inverse test", false);
-@@ -272,19 +300,20 @@
-           eckit::LocalConfiguration conf = localOutputPert.genericWrite.value().value();
-           util::setMember(conf, jm+1);
-           setGridId(conf, getGridId(fullConfig));
+@@ -285,19 +313,20 @@
+                                 std::vector<std::string>{"geometry", "grid"},
+                                 "grid pattern",
+                                 conf);
 -          util::writeFieldSet(geom.getComm(), conf, fset4dDx[0].fieldSet());
-+          util::writeFieldSet(*commSpace, conf, fset4dDx[0].fieldSet());
++          util::writeFieldSet(geom.geometry().getComm(), conf, fset4dDx[0].fieldSet());
          }
  
          if (localOutputPert.modelWrite.value() != boost::none) {
@@ -234,12 +222,12 @@
            pert.write(writeParams);
          }
  
-@@ -305,19 +334,20 @@
-           auto conf = localOutputPert.genericWrite.value().value();
-           util::setMember(conf, jm+1);
-           setGridId(conf, getGridId(fullConfig));
+@@ -321,19 +350,20 @@
+                                 std::vector<std::string>{"geometry", "grid"},
+                                 "grid pattern",
+                                 conf);
 -          util::writeFieldSet(geom.getComm(), conf, fset4dDxI[0].fieldSet());
-+          util::writeFieldSet(*commSpace, conf, fset4dDxI[0].fieldSet());
++          util::writeFieldSet(geom.geometry().getComm(), conf, fset4dDxI[0].fieldSet());
          }
  
          if (localOutputPert.modelWrite.value() != boost::none) {
@@ -260,7 +248,7 @@
            pert.write(writeParams);
          }
  
-@@ -330,16 +360,6 @@
+@@ -346,16 +376,6 @@
      return 0;
    }
  // -----------------------------------------------------------------------------

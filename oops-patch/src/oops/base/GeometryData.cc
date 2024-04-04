@@ -21,6 +21,7 @@
 
 #include "oops/mpi/mpi.h"
 #include "oops/util/abor1_cpp.h"
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 #include "oops/util/Timer.h"
 
@@ -65,7 +66,7 @@ namespace oops {
 
 GeometryData::GeometryData(const atlas::FunctionSpace & fspace, const atlas::FieldSet & fset,
                            const bool topdown, const eckit::mpi::Comm & comm):
-  fspace_(fspace), fset_(fset), comm_(&comm), topdown_(topdown),
+  fspace_(fspace), fset_(fset), comm_(comm), topdown_(topdown),
   firstTriangulationOfQuadsIsDelaunay_(),
   earth_(atlas::util::Earth::radius()), globalNodeTree_(earth_), localCellCenterTree_(earth_)
 {
@@ -92,7 +93,7 @@ int GeometryData::closestTask(const double lat, const double lon) const {
   atlas::PointLonLat target(lon, lat);
   target.normalise();
   const int itask = globalNodeTree_.closestPoint(target).payload();
-  ASSERT(itask >= 0 && (size_t)itask < comm_->size());
+  ASSERT(itask >= 0 && (size_t)itask < comm_.size());
   return itask;
 }
 
@@ -203,7 +204,7 @@ void GeometryData::setGlobalTree(const std::vector<double> & lats,
                                  const std::vector<double> & lons) {
   ASSERT(globalNodeTree_.empty());
   util::Timer timer("oops::GeometryData", "setGlobalTree");
-  const size_t ntasks = comm_->size();
+  const size_t ntasks = comm_.size();
 
 // Local latitudes and longitudes
   const size_t sizel = lats.size();
@@ -215,13 +216,13 @@ void GeometryData::setGlobalTree(const std::vector<double> & lats,
 
 // Collect global grid lats and lons
   std::vector<size_t> sizes(ntasks);
-  comm_->allGather(sizel, sizes.begin(), sizes.end());
+  comm_.allGather(sizel, sizes.begin(), sizes.end());
 
   size_t sizeg = 0;
   for (size_t jtask = 0; jtask < ntasks; ++jtask) sizeg += sizes[jtask];
 
   std::vector<double> latlon_global(2*sizeg);
-  mpi::allGatherv(*comm_, latlon, latlon_global);
+  mpi::allGatherv(comm_, latlon, latlon_global);
 
 // Arrange coordinates and task index for kd-tree
   std::vector<double> latglo(sizeg), longlo(sizeg);
@@ -266,7 +267,7 @@ void GeometryData::setMeshAndTriangulation() {
 
       // Transform to a global partition vector
       std::vector<int> partition(grid.size());
-      if (comm_->rank() == 0) {
+      if (comm_.rank() == 0) {
         ASSERT(grid.size() == static_cast<int>(globalPartition.size()));
         const auto globalPartitionView = atlas::array::make_view<int, 1>(globalPartition);
         for (atlas::idx_t jj = 0; jj < grid.size(); ++jj) {
@@ -275,33 +276,11 @@ void GeometryData::setMeshAndTriangulation() {
       }
 
       // Broadcast global partition vector
-      comm_->broadcast(partition, 0);
+      comm_.broadcast(partition, 0);
 
-      // Create custom distribution
-      atlas::grid::Distribution distribution(comm_->size(), grid.size(), &partition[0]);
-
-      // Count number of cells for each MPI task
-      std::vector<size_t> nb_cells(comm_->size(), 0);
-      for (atlas::idx_t jj = 0; jj < grid.size(); ++jj) {
-        ++nb_cells[partition[jj]];
-      }
-
-      // Get number of task with points (effective size) and mapping
-      size_t effectiveSize = 0;
-      std::vector<size_t> mapping(comm_->size());
-      for (size_t jt = 0; jt < comm_->size(); ++jt) {
-        if (nb_cells[jt] > 0) {
-          mapping[jt] = effectiveSize;
-          ++effectiveSize;
-        }
-      }
-
-      // Create mesh from distribution
-      atlas::util::Config meshConfig(grid.meshgenerator());
-      meshConfig.set("part", mapping[comm_->rank()]);
-      meshConfig.set("nb_parts", effectiveSize);
-      const atlas::StructuredMeshGenerator gen(meshConfig);
-      mesh_ = gen(grid, distribution);
+      // Create distribution and mesh
+      atlas::grid::Distribution distribution;
+      util::setupStructuredMeshWithCustomPartition(comm_, grid, partition, distribution, mesh_);
     } else {
       // Create mesh
       const atlas::StructuredMeshGenerator gen(grid.meshgenerator());
