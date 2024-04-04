@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2023 Met Office
+ * (C) Crown Copyright 2023-2024 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -13,32 +13,39 @@
 #include "mo/constants.h"
 #include "mo/eval_virtual_potential_temperature.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
+using atlas::idx_t;
 
 namespace mo {
 
 // ------------------------------------------------------------------------------------------------
-void eval_virtual_potential_temperature_nl(atlas::FieldSet & fields) {
+void eval_virtual_potential_temperature_nl(atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_virtual_potential_temperature_nl()] starting ..." << std::endl;
-  const auto qView = make_view<const double, 2>(fields["specific_humidity"]);
-  const auto thetaView = make_view<const double, 2>(fields["potential_temperature"]);
-  auto vThetaView = make_view<double, 2>(fields["virtual_potential_temperature"]);
+  const auto qView = make_view<const double, 2>(stateFlds["specific_humidity"]);
+  const auto thetaView = make_view<const double, 2>(stateFlds["potential_temperature"]);
+  auto vThetaView = make_view<double, 2>(stateFlds["virtual_potential_temperature"]);
 
-  const atlas::idx_t n_levels = fields["virtual_potential_temperature"].shape(1);
-  atlas_omp_parallel_for(atlas::idx_t ih = 0; ih < vThetaView.shape(0); ih++) {
-    for (atlas::idx_t ilev = 0; ilev < n_levels; ilev++) {
-      vThetaView(ih, ilev) = thetaView(ih, ilev)
-              * (1.0 + constants::c_virtual * qView(ih, ilev));
+  const idx_t n_levels = stateFlds["virtual_potential_temperature"].shape(1);
+  const idx_t sizeOwned =
+    util::getSizeOwned(stateFlds["virtual_potential_temperature"].functionspace());
+
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < n_levels; jl++) {
+      vThetaView(jn, jl) = thetaView(jn, jl)
+        * (1.0 + constants::c_virtual * qView(jn, jl));
     }
   }
+  stateFlds["virtual_potential_temperature"].set_dirty();
+
   oops::Log::trace() << "[eval_virtual_potential_temperature_nl()] ... done" << std::endl;
 }
 
 // ------------------------------------------------------------------------------------------------
 void eval_virtual_potential_temperature_tl(atlas::FieldSet & incFlds,
-                                             const atlas::FieldSet & augStateFlds) {
+                                           const atlas::FieldSet & augStateFlds) {
   oops::Log::trace() << "[eval_virtual_potential_temperature_tl()] starting ..." << std::endl;
   const auto qView = make_view<const double, 2>(augStateFlds["specific_humidity"]);
   const auto thetaView = make_view<const double, 2>(augStateFlds["potential_temperature"]);
@@ -46,13 +53,17 @@ void eval_virtual_potential_temperature_tl(atlas::FieldSet & incFlds,
   const auto thetaIncView = make_view<const double, 2>(incFlds["potential_temperature"]);
   auto vThetaIncView = make_view<double, 2>(incFlds["virtual_potential_temperature"]);
 
-  const atlas::idx_t n_levels = incFlds["virtual_potential_temperature"].shape(1);
-  atlas_omp_parallel_for(atlas::idx_t ih = 0; ih < vThetaIncView.shape(0); ih++) {
-    for (atlas::idx_t ilev = 0; ilev < n_levels; ilev++) {
-      vThetaIncView(ih, ilev) = thetaView(ih, ilev) * constants::c_virtual * qIncView(ih, ilev) +
-                     thetaIncView(ih, ilev) * (1.0 + constants::c_virtual * qView(ih, ilev));
+  const idx_t n_levels = incFlds["virtual_potential_temperature"].shape(1);
+  const idx_t sizeOwned =
+    util::getSizeOwned(incFlds["virtual_potential_temperature"].functionspace());
+
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < n_levels; jl++) {
+      vThetaIncView(jn, jl) = thetaView(jn, jl) * constants::c_virtual * qIncView(jn, jl) +
+                              thetaIncView(jn, jl) * (1.0 + constants::c_virtual * qView(jn, jl));
     }
   }
+  incFlds["virtual_potential_temperature"].set_dirty();
   oops::Log::trace() << "[eval_virtual_potential_temperature_tl()] ... done" << std::endl;
 }
 
@@ -66,15 +77,22 @@ void eval_virtual_potential_temperature_ad(atlas::FieldSet & hatFlds,
   auto thetaHatView = make_view<double, 2>(hatFlds["potential_temperature"]);
   auto vThetaHatView = make_view<double, 2>(hatFlds["virtual_potential_temperature"]);
 
-  const atlas::idx_t n_levels = hatFlds["virtual_potential_temperature"].shape(1);
-  atlas_omp_parallel_for(atlas::idx_t ih = 0; ih < vThetaHatView.shape(0); ih++) {
-    for (atlas::idx_t ilev = 0; ilev < n_levels; ilev++) {
-      qHatView(ih, ilev) += thetaView(ih, ilev) * constants::c_virtual * vThetaHatView(ih, ilev);
-      thetaHatView(ih, ilev) +=  vThetaHatView(ih, ilev)
-            * (1.0 + constants::c_virtual * qView(ih, ilev));
-      vThetaHatView(ih, ilev) = 0;
+  const idx_t n_levels = hatFlds["virtual_potential_temperature"].shape(1);
+  const idx_t sizeOwned =
+    util::getSizeOwned(hatFlds["virtual_potential_temperature"].functionspace());
+
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < n_levels; jl++) {
+      qHatView(jn, jl) += thetaView(jn, jl) * constants::c_virtual * vThetaHatView(jn, jl);
+      thetaHatView(jn, jl) +=  vThetaHatView(jn, jl)
+            * (1.0 + constants::c_virtual * qView(jn, jl));
+      vThetaHatView(jn, jl) = 0;
     }
   }
+  hatFlds["specific_humidity"].set_dirty();
+  hatFlds["potential_temperature"].set_dirty();
+  hatFlds["virtual_potential_temperature"].set_dirty();
+
   oops::Log::trace() << "[eval_virtual_potential_temperature_ad()] ... done" << std::endl;
 }
 

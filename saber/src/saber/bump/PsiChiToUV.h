@@ -71,6 +71,7 @@ class PsiChiToUV : public SaberOuterBlockBase {
   const oops::GeometryData & innerGeometryData_;
   oops::patch::Variables innerVars_;
   oops::patch::Variables outerVars_;
+  oops::patch::Variables activeVars_;
   BUMPParameters bumpParams_;
   std::unique_ptr<BUMP> bump_;
 };

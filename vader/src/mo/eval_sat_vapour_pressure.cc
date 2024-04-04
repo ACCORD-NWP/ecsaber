@@ -23,7 +23,7 @@ namespace mo {
 
 
 void eval_sat_vapour_pressure_variant_nl(const std::string field_out,
-                                         atlas::FieldSet & fields)
+                                         atlas::FieldSet & stateFlds)
 {
   // normalised T lambda function
   // which enforces upper and lower bounds on T
@@ -68,33 +68,36 @@ void eval_sat_vapour_pressure_variant_nl(const std::string field_out,
 
   const auto& lookup = lookups::allSvpLookupTable[ival];
 
-  atlas::field::for_each_value(
-    atlas::execution::par_unseq,
-    fields["air_temperature"],
-    fields[field_out],
+  const auto & ghost = stateFlds[field_out].functionspace().ghost();
+  atlas::field::for_each_value_masked(
+    ghost,
+    stateFlds["air_temperature"],
+    stateFlds[field_out],
     [&](const double air_temp, double& svp) {
       indx = index(normalisedT(air_temp));
       w = weight(normalisedT(air_temp));
       svp = interp(w, lookup.at(indx), lookup.at(indx+1));
     });
+
+  stateFlds[field_out].set_dirty();
 }
 
 
-void eval_sat_vapour_pressure_nl(atlas::FieldSet & fields)
+void eval_sat_vapour_pressure_nl(atlas::FieldSet & stateFlds)
 {
   oops::Log::trace() << "[eval_sat_vapour_pressure_svp_nl()] starting ..." << std::endl;
 
-  eval_sat_vapour_pressure_variant_nl("svp", fields);
+  eval_sat_vapour_pressure_variant_nl("svp", stateFlds);
 
   oops::Log::trace() << "[eval_sat_vapour_pressure_svp_nl()] ... done" << std::endl;
 }
 
 
-void eval_derivative_ln_svp_wrt_temperature_nl(atlas::FieldSet & fields)
+void eval_derivative_ln_svp_wrt_temperature_nl(atlas::FieldSet & stateFlds)
 {
   oops::Log::trace() << "[eval_sat_vapour_pressure_dlsvpdT_nl()] starting ..." << std::endl;
 
-  eval_sat_vapour_pressure_variant_nl("dlsvpdT", fields);
+  eval_sat_vapour_pressure_variant_nl("dlsvpdT", stateFlds);
 
   oops::Log::trace() << "[eval_sat_vapour_pressure_dlsvpdT_nl()] ... done" << std::endl;
 }

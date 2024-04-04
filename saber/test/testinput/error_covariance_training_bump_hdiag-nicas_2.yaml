@@ -8,13 +8,13 @@ geometry:
     - stream_function
     levels: 2
     mask type: sea
-    mask path: ../../../quench/data/landsea.nc
+    mask path: ../../quench/data/landsea.nc
   - variables:
     - surface_pressure
     levels: 1
     lev2d: last
     mask type: sea
-    mask path: ../../../quench/data/landsea.nc
+    mask path: ../../quench/data/landsea.nc
   halo: 1
 background:
   date: '2010-01-01T12:00:00Z'

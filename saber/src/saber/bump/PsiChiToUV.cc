@@ -48,6 +48,19 @@ oops::patch::Variables createInnerVars(const oops::patch::Variables & outerVars)
   return innerVars;
 }
 
+// -----------------------------------------------------------------------------
+
+oops::patch::Variables createActiveVars(const oops::patch::Variables & innerVars,
+                                 const oops::patch::Variables & outerVars) {
+  oops::patch::Variables activeVars;
+  activeVars += innerVars;
+  activeVars += outerVars;
+  const std::vector<std::string> activeStrings{"stream_function", "velocity_potential",
+                                               "eastward_wind", "northward_wind"};
+  activeVars.intersection(oops::patch::Variables(activeStrings));
+  return activeVars;
+}
+
 }  // namespace
 
 // -----------------------------------------------------------------------------
@@ -62,34 +75,12 @@ PsiChiToUV::PsiChiToUV(const oops::GeometryData & outerGeometryData,
     innerGeometryData_(outerGeometryData),
     innerVars_(createInnerVars(outerVars)),
     outerVars_(outerVars),
-    bumpParams_(),
-    bump_() {
+    activeVars_(createActiveVars(innerVars_, outerVars_)),
+    bumpParams_(params.calibrationParams.value() != boost::none ? *params.calibrationParams.value()
+      : *params.readParams.value()),
+    bump_(new BUMP(outerGeometryData, activeVars_, covarConf, bumpParams_,
+      params.fieldsMetaData.value(), xb)) {
   oops::Log::trace() << classname() << "::PsiChiToUV starting" << std::endl;
-
-  // Get BUMP parameters
-  if (params.doCalibration()) {
-    bumpParams_ = *params.calibrationParams.value();
-  } else if (params.doRead()) {
-    bumpParams_ = *params.readParams.value();
-  } else {
-    throw eckit::UserError("calibration or read required in BUMP", Here());
-  }
-
-  oops::patch::Variables activeVars;
-  activeVars += innerVars_;
-  activeVars += outerVars_;
-  const std::vector<std::string> activeStrings{"stream_function", "velocity_potential",
-                                               "eastward_wind", "northward_wind"};
-  activeVars.intersection(oops::patch::Variables(activeStrings));
-
-  // Initialize BUMP
-  bump_.reset(new BUMP(outerGeometryData,
-                       activeVars,
-                       covarConf,
-                       bumpParams_,
-                       params.fieldsMetaData.value(),
-                       xb));
-
   oops::Log::trace() << classname() << "::PsiChiToUV done" << std::endl;
 }
 

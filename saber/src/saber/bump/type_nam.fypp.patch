@@ -1,20 +1,20 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp.tmp	2024-03-07 12:22:37.095915579 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp	2024-03-07 11:36:34.101881390 +0100
-@@ -108,6 +108,8 @@
-    character(len=1024),allocatable :: group_names(:)          !< Group of variables names
-    integer,allocatable :: group_index(:)                      !< Variables group index
-    logical :: mask_check                                      !< Check that sampling couples and interpolations do not cross mask boundaries
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp.tmp.bak	2024-04-03 17:47:41.649009264 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp	2024-03-22 15:23:17.566530394 +0100
+@@ -212,6 +212,8 @@
+ 
+    ! External section
+    logical :: iterative_algo                                  !< Iterative algorithm (ensemble members loaded sequentially)
 +   character(len=1024) :: vert_coord_name                     !< Vertical coordinate field name in geometry fields
 +   character(len=1024) :: gmask_name                          !< Geographical mask name in geometry fields
- 
-    ! Ensemble sizes
-    integer :: ens1_ne                                         !< Ensemble 1 size
-@@ -567,6 +569,8 @@
-       end if
-    end if
-    call nam%get(section,'do not cross mask boundaries',nam%mask_check)
+ contains
+    procedure :: init => nam_init
+    procedure :: final => nam_final
+@@ -951,6 +953,8 @@
+ ! External section
+ if (conf%get('external',section)) then
+    call nam%get(section,'iterative algorithm',nam%iterative_algo)
 +   call nam%get(section,'vertical coordinate name',nam%vert_coord_name)
 +   call nam%get(section,'geographical mask name',nam%gmask_name)
  end if
  
- ! Ensemble sizes
+ ! Probe out

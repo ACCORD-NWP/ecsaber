@@ -44,6 +44,10 @@ vader/recipes/RainMixingRatio.h
 vader/recipes/RainMixingRatio_A.cc
 vader/recipes/RelativeHumidity.h
 vader/recipes/RelativeHumidity_A.cc
+vader/recipes/SaturationSpecificHumidity.h
+vader/recipes/SaturationSpecificHumidity_A.cc
+vader/recipes/SaturationVaporPressure.h
+vader/recipes/SaturationVaporPressure_A.cc
 vader/recipes/SurfaceAirPressure.h
 vader/recipes/SurfaceAirPressure_A.cc
 vader/recipes/TestRecipes.cc
@@ -67,14 +71,10 @@ vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m.h
 vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A.cc
 mo/common_varchange.h
 mo/common_varchange.cc
-mo/common_linearvarchange.h
-mo/common_linearvarchange.cc
 mo/constants.h
 mo/functions.h
 mo/functions.cc
 mo/model2geovals_linearvarchange.h
-mo/control2analysis_linearvarchange.h
-mo/control2analysis_linearvarchange.cc
 mo/control2analysis_varchange.h
 mo/control2analysis_varchange.cc
 mo/dlsvp_lookup.h

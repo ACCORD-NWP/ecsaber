@@ -12,7 +12,6 @@
 
 namespace mo {
 
-// TODO(Mayeul) Remove duplicate evalMoistureControlDependencies in control2analysis_varchange.h/cc
 /// \details The linear moisture control variable trajectory fields
 ///          All fields needs to be allocated beforehand.
 ///          Inputs: qt
@@ -34,7 +33,6 @@ namespace mo {
 ///                  muRecipDeterminant
 void eval_moisture_control_traj(atlas::FieldSet & fields);
 
-// TODO(Mayeul) Remove duplicate evalMuThetavTL in control2analysis_linearvarchange.h/cc
 /// \details The linear moisture control variable transform
 ///          that transforms potential temperature increments and
 ///          total water (qt) increments to moisture control variable
@@ -42,7 +40,6 @@ void eval_moisture_control_traj(atlas::FieldSet & fields);
 void eval_moisture_control_tl(atlas::FieldSet & incFlds,
                               const atlas::FieldSet & augStateFlds);
 
-// TODO(Mayeul) Remove duplicate evalMuThetavAD in control2analysis_linearvarchange.h/cc
 /// \details Adjoint of the linear moisture control variable transform
 ///          that transforms potential temperature increments and
 ///          total water (qt) increments to moisture control variable
@@ -50,7 +47,6 @@ void eval_moisture_control_tl(atlas::FieldSet & incFlds,
 void eval_moisture_control_ad(atlas::FieldSet & hatFlds,
                               const atlas::FieldSet & augStateFlds);
 
-// TODO(Mayeul) Remove duplicate evalQtThetaTL in control2analysis_linearvarchange.h/cc
 /// \details Inverse of the linear moisture control variable transform.
 ///          It transforms virtual potential temperature and
 ///          moisture control variable increments to total water (qt) and
@@ -58,7 +54,6 @@ void eval_moisture_control_ad(atlas::FieldSet & hatFlds,
 void eval_moisture_control_inv_tl(atlas::FieldSet & incFlds,
                                   const atlas::FieldSet & augStateFlds);
 
-// TODO(Mayeul) Remove duplicate evalQtThetaAD in control2analysis_linearvarchange.h/cc
 /// \details Adjoint of the inverse of the linear moisture control variable transform
 ///          that transforms virtual potential temperature and
 ///          moisture control variable increments to total water (qt) and
