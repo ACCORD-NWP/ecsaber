@@ -15,11 +15,13 @@
 #include "mo/eval_ratio.h"
 #include "mo/eval_water_vapor_mixing_ratio.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 namespace mo {
 
 using atlas::array::make_view;
+using atlas::idx_t;
 
 // --------------------------------------------------------------------------------------
 
@@ -58,6 +60,7 @@ void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_tl(
           << "[eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_tl()] ... exit"
           << std::endl;
 }
+
 // --------------------------------------------------------------------------------------
 
 void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_ad(
@@ -87,10 +90,14 @@ bool eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_nl(
 
   const auto ds_q = make_view<const double, 2>(stateFlds["specific_humidity"]);
   auto ds_q2m = make_view<double, 2>(stateFlds["specific_humidity_at_two_meters_above_surface"]);
+  const idx_t sizeOwned =
+    util::getSizeOwned(
+      stateFlds["specific_humidity_at_two_meters_above_surface"].functionspace());
 
-  atlas_omp_parallel_for(atlas::idx_t jnode = 0; jnode < ds_q2m.shape(0); jnode++) {
-    ds_q2m(jnode, 0) = ds_q(jnode, 0);
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    ds_q2m(jn, 0) = ds_q(jn, 0);
   }
+  stateFlds["specific_humidity_at_two_meters_above_surface"].set_dirty();
 
   oops::Log::trace()
          << "[eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_nl()] ... exit"
@@ -109,15 +116,20 @@ void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_tl(
 
   auto q2m_inc = make_view<double, 2>(incFlds["specific_humidity_at_two_meters_above_surface"]);
   auto q_inc = make_view<const double, 2>(incFlds["specific_humidity"]);
+  const idx_t sizeOwned =
+    util::getSizeOwned(
+      incFlds["specific_humidity_at_two_meters_above_surface"].functionspace());
 
-  atlas_omp_parallel_for(atlas::idx_t jnode = 0; jnode < q2m_inc.shape(0); jnode++) {
-    q2m_inc(jnode, 0) = q_inc(jnode, 0);
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    q2m_inc(jn, 0) = q_inc(jn, 0);
   }
+  incFlds["specific_humidity_at_two_meters_above_surface"].set_dirty();
 
   oops::Log::trace()
          << "[eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_tl()] ... exit"
          << std::endl;
 }
+
 // --------------------------------------------------------------------------------------
 
 void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_ad(
@@ -129,11 +141,16 @@ void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_ad(
 
   auto q2m_hat = make_view<double, 2>(hatFlds["specific_humidity_at_two_meters_above_surface"]);
   auto q_hat = make_view<double, 2>(hatFlds["specific_humidity"]);
+  const idx_t sizeOwned =
+    util::getSizeOwned(
+      hatFlds["specific_humidity"].functionspace());
 
-  atlas_omp_parallel_for(atlas::idx_t jnode = 0; jnode < q_hat.shape(0); jnode++) {
-    q_hat(jnode, 0) += q2m_hat(jnode, 0);
-    q2m_hat(jnode, 0) = 0.0;
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    q_hat(jn, 0) += q2m_hat(jn, 0);
+    q2m_hat(jn, 0) = 0.0;
   }
+  hatFlds["specific_humidity_at_two_meters_above_surface"].set_dirty();
+  hatFlds["specific_humidity"].set_dirty();
 
   oops::Log::trace()
           << "[eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_ad()] ... exit"
@@ -141,4 +158,5 @@ void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_ad(
 }
 
 // --------------------------------------------------------------------------------------
+
 }  // namespace mo

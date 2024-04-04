@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2023 Met Office
+ * (C) Crown Copyright 2023-2024 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -12,6 +12,7 @@
 #include "mo/constants.h"
 #include "mo/eval_air_temperature.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
@@ -28,13 +29,16 @@ void eval_air_temperature_nl(atlas::FieldSet & stateFlds) {
   auto ds_atemp = make_view<double, 2>(stateFlds["air_temperature"]);
 
   auto fspace = stateFlds["air_temperature"].functionspace();
+  const idx_t sizeOwned = util::getSizeOwned(fspace);
+
   idx_t lvls(stateFlds["air_temperature"].shape(1));
-  for (atlas::idx_t jn = 0; jn < ds_atemp.shape(0); ++jn) {
+  for (atlas::idx_t jn = 0; jn < sizeOwned; ++jn) {
     for (atlas::idx_t jl = 0; jl < lvls; ++jl) {
       ds_atemp(jn, jl) = ds_theta(jn, jl) * ds_exner(jn, jl);
     }
   }
 
+  stateFlds["air_temperature"].set_dirty();
   oops::Log::trace() << "[eval_air_temperature_nl()] ... exit" << std::endl;
 }
 
@@ -52,9 +56,10 @@ void eval_air_temperature_tl(atlas::FieldSet & incFlds, const atlas::FieldSet & 
   idx_t lvlsm1 = lvls - 1;
   double exnerTopVal;
   double exnerTopIncVal;
+  const idx_t sizeOwned = util::getSizeOwned(incFlds["air_temperature"].functionspace());
 
   // Active code
-  for (idx_t jn = 0; jn < tIncView.shape(0); ++jn) {
+  for (idx_t jn = 0; jn < sizeOwned; ++jn) {
     // Passive code: Value above model top is assumed to be in hydrostatic balance.
     exnerTopVal = exnerLevelsView(jn, lvlsm1) -
       (constants::grav * (hlView(jn, lvls) - hlView(jn, lvlsm1))) /
@@ -85,6 +90,8 @@ void eval_air_temperature_tl(atlas::FieldSet & incFlds, const atlas::FieldSet & 
          thetaView(jn, lvlsm1)) /
       (hlView(jn, lvls) - hlView(jn, lvlsm1));
   }
+
+  incFlds["air_temperature"].set_dirty();
   oops::Log::trace() << "[eval_air_temperature_tl()] ... exit" << std::endl;
 }
 
@@ -102,8 +109,9 @@ void eval_air_temperature_ad(atlas::FieldSet & hatFlds, const atlas::FieldSet & 
   idx_t lvlsm1 = lvls - 1;
   double exnerTopVal(0);
   double exnerTopHatVal(0);
+  const idx_t sizeOwned = util::getSizeOwned(hatFlds["air_temperature"].functionspace());
 
-  for (idx_t jn = 0; jn < tHatView.shape(0); ++jn) {
+  for (idx_t jn = 0; jn < sizeOwned; ++jn) {
     // Passive code: Value above model top is assumed to be in hydrostatic balance.
     exnerTopVal = exnerLevelsView(jn, lvlsm1) -
       (constants::grav * (hlView(jn, lvls) - hlView(jn, lvlsm1))) /
@@ -148,6 +156,9 @@ void eval_air_temperature_ad(atlas::FieldSet & hatFlds, const atlas::FieldSet & 
       tHatView(jn, jl) = 0.0;
     }
   }
+  hatFlds["exner_levels_minus_one"].set_dirty();
+  hatFlds["potential_temperature"].set_dirty();
+  hatFlds["air_temperature"].set_dirty();
   oops::Log::trace() << "[eval_air_temperature_ad()] ... exit" << std::endl;
 }
 

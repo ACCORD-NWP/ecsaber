@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2023 Met Office
+ * (C) Crown Copyright 2023-2024 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -15,6 +15,7 @@
 #include "mo/eval_ratio.h"
 #include "mo/eval_total_mixing_ratio.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 namespace mo {
@@ -35,13 +36,16 @@ bool eval_total_mixing_ratio_nl(
   const auto ds_m_cl = make_view<const double, 2>(stateFlds["m_cl"]);
   const auto ds_m_r  = make_view<const double, 2>(stateFlds["m_r"]);
   auto ds_m_t  = make_view<double, 2>(stateFlds["m_t"]);
+  const idx_t sizeOwned =
+    util::getSizeOwned(stateFlds["m_t"].functionspace());
 
-  atlas_omp_parallel_for(idx_t jnode = 0; jnode < ds_m_t.shape(0); jnode++) {
-    for (idx_t jlev = 0; jlev < ds_m_t.shape(1); jlev++) {
-      ds_m_t(jnode, jlev) = 1.0 + ds_m_v(jnode, jlev) + ds_m_ci(jnode, jlev) +
-                            ds_m_cl(jnode, jlev) + ds_m_r(jnode, jlev);
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < ds_m_t.shape(1); jl++) {
+      ds_m_t(jn, jl) = 1.0 + ds_m_v(jn, jl) + ds_m_ci(jn, jl) +
+                            ds_m_cl(jn, jl) + ds_m_r(jn, jl);
     }
   }
+  stateFlds["m_t"].set_dirty();
 
   oops::Log::trace()
           << "[eval_total_mixing_ratio_nl()] ... exit"
@@ -63,13 +67,16 @@ void eval_total_mixing_ratio_tl(
   const auto inc_m_cl = make_view<const double, 2>(incFlds["m_cl"]);
   const auto inc_m_r  = make_view<const double, 2>(incFlds["m_r"]);
   auto inc_m_t  = make_view<double, 2>(incFlds["m_t"]);
+  const idx_t sizeOwned =
+    util::getSizeOwned(incFlds["m_t"].functionspace());
 
-  atlas_omp_parallel_for(idx_t jnode = 0; jnode < inc_m_t.shape(0); jnode++) {
-    for (idx_t jlev = 0; jlev < inc_m_t.shape(1); jlev++) {
-      inc_m_t(jnode, jlev) = inc_m_v(jnode, jlev) + inc_m_ci(jnode, jlev) +
-                             inc_m_cl(jnode, jlev) + inc_m_r(jnode, jlev);
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < inc_m_t.shape(1); jl++) {
+      inc_m_t(jn, jl) = inc_m_v(jn, jl) + inc_m_ci(jn, jl) +
+                        inc_m_cl(jn, jl) + inc_m_r(jn, jl);
     }
   }
+  incFlds["m_t"].set_dirty();
 
   oops::Log::trace()
           << "[eval_total_mixing_ratio_tl()] ... exit"
@@ -89,16 +96,23 @@ void eval_total_mixing_ratio_ad(
   auto hat_m_cl = make_view<double, 2>(hatFlds["m_cl"]);
   auto hat_m_r  = make_view<double, 2>(hatFlds["m_r"]);
   auto hat_m_t  = make_view<double, 2>(hatFlds["m_t"]);
+  const idx_t sizeOwned =
+    util::getSizeOwned(hatFlds["m_t"].functionspace());
 
-  atlas_omp_parallel_for(idx_t jnode = 0; jnode < hat_m_t.shape(0); jnode++) {
-    for (idx_t jlev = 0; jlev < hat_m_t.shape(1); jlev++) {
-      hat_m_v(jnode, jlev) += hat_m_t(jnode, jlev);
-      hat_m_ci(jnode, jlev) += hat_m_t(jnode, jlev);
-      hat_m_cl(jnode, jlev) += hat_m_t(jnode, jlev);
-      hat_m_r(jnode, jlev) += hat_m_t(jnode, jlev);
-      hat_m_t(jnode, jlev) = 0.0;
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < hat_m_t.shape(1); jl++) {
+      hat_m_v(jn, jl) += hat_m_t(jn, jl);
+      hat_m_ci(jn, jl) += hat_m_t(jn, jl);
+      hat_m_cl(jn, jl) += hat_m_t(jn, jl);
+      hat_m_r(jn, jl) += hat_m_t(jn, jl);
+      hat_m_t(jn, jl) = 0.0;
     }
   }
+  hatFlds["m_v"].set_dirty();
+  hatFlds["m_ci"].set_dirty();
+  hatFlds["m_cl"].set_dirty();
+  hatFlds["m_r"].set_dirty();
+  hatFlds["m_t"].set_dirty();
 
   oops::Log::trace()
           << "[eval_total_mixing_ratio_ad()] ... exit"

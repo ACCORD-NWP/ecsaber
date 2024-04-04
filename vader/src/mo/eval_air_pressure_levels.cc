@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2023 Met Office
+ * (C) Crown Copyright 2023-204 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -10,6 +10,7 @@
 
 #include "eckit/exception/Exceptions.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 #include "mo/constants.h"
@@ -31,7 +32,9 @@ void eval_air_pressure_levels_nl(atlas::FieldSet & stateFlds) {
   auto ds_pl = make_view<double, 2>(stateFlds["air_pressure_levels"]);
 
   idx_t levels(stateFlds["air_pressure_levels"].shape(1));
-  for (idx_t jn = 0; jn < stateFlds["air_pressure_levels"].shape(0); ++jn) {
+  const idx_t sizeOwned = util::getSizeOwned(stateFlds["air_pressure_levels"].functionspace());
+
+  for (idx_t jn = 0; jn < sizeOwned; ++jn) {
     for (idx_t jl = 0; jl < levels - 1; ++jl) {
       ds_pl(jn, jl) = ds_plmo(jn, jl);
     }
@@ -55,6 +58,7 @@ void eval_air_pressure_levels_nl(atlas::FieldSet & stateFlds) {
     ds_pl(jn, levels-1) = ds_pl(jn, levels-1) > 0.0 ? ds_pl(jn, levels-1) : constants::deps;
   }
 
+  stateFlds["air_pressure_levels"].set_dirty();
   oops::Log::trace() << "[eval_air_pressure_levels_nl()] ... exit" << std::endl;
 }
 

@@ -4,6 +4,9 @@
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
+# Tests activated
+message( STATUS "SABER tests activated:" )
+
 # Default SABER_TEST_TIER
 set( SABER_TEST_TIER 1 )
 
@@ -27,15 +30,11 @@ set( SABER_TEST_VALGRIND 0 )
 set( SABER_TEST_FASTLAM 1 )
 set( SABER_TEST_GSI_GEOS 0 )
 if( gsibec_FOUND )
-    if( gsibec_VERSION VERSION_GREATER_EQUAL "1.0.7" )
-        set( SABER_TEST_GSI_GEOS 1 )
-    endif()
+    set( SABER_TEST_GSI_GEOS 1 )
 endif()
 set( SABER_TEST_GSI_GFS 0 )
 if( gsibec_FOUND AND sp_FOUND )
-    if( gsibec_VERSION VERSION_GREATER_EQUAL "1.0.7" )
-        set( SABER_TEST_GSI_GFS 1 )
-    endif()
+    set( SABER_TEST_GSI_GFS 1 )
 endif()
 set( SABER_TEST_SPECTRALB 0 )
 if( atlas_TRANS_FOUND OR atlas_ECTRANS_FOUND )
@@ -88,6 +87,11 @@ if( SABER_TEST_FASTLAM )
     message( STATUS "  - TIER 1 FastLAM-specific" )
     file( STRINGS testlist/saber_test_tier1-fastlam.txt saber_test )
     list( APPEND saber_test_full ${saber_test} )
+    if( FFTW_FOUND )
+        message( STATUS "  - TIER 1 FastLAM-specific - FFTW" )
+        file( STRINGS testlist/saber_test_tier1-fastlam-fftw.txt saber_test )
+        list( APPEND saber_test_full ${saber_test} )
+    endif()
 endif()
 if( SABER_TEST_GSI_GEOS )
     message( STATUS "  - TIER 1 GSI-GEOS-specific" )

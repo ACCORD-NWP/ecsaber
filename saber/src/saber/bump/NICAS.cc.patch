@@ -1,14 +1,42 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/NICAS.cc.tmp	2024-03-21 10:06:07.379035315 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/NICAS.cc	2024-03-21 09:18:58.977623509 +0100
-@@ -53,6 +53,7 @@
-                        activeVars_,
-                        covarConf,
-                        bumpParams_,
-+                       params.fieldsMetaData.value(),
-                        xb));
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/NICAS.cc.tmp	2024-04-04 15:19:53.677076768 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/NICAS.cc	2024-04-04 14:55:51.871396597 +0200
+@@ -31,30 +31,14 @@
+              const oops::FieldSet3D & xb,
+              const oops::FieldSet3D & fg)
+   : SaberCentralBlockBase(params, xb.validTime()),
+-    bumpParams_(),
+-    bump_(),
++    activeVars_(getActiveVars(params, centralVars)),
++    bumpParams_(params.calibrationParams.value() != boost::none ? *params.calibrationParams.value()
++      : *params.readParams.value()),
++    bump_(new BUMP(geometryData, activeVars_, covarConf, bumpParams_,
++      params.fieldsMetaData.value(), xb)),
+     memberIndex_(0) {
+   oops::Log::trace() << classname() << "::NICAS starting" << std::endl;
  
+-  // Get active variables
+-  activeVars_ = getActiveVars(params, centralVars);
+-
+-  // Get BUMP parameters
+-  if (params.doCalibration()) {
+-    bumpParams_ = *params.calibrationParams.value();
+-  } else if (params.doRead()) {
+-    bumpParams_ = *params.readParams.value();
+-  } else {
+-    throw eckit::UserError("calibration or read required in BUMP", Here());
+-  }
+-
+-  // Initialize BUMP
+-  bump_.reset(new BUMP(geometryData,
+-                       activeVars_,
+-                       covarConf,
+-                       bumpParams_,
+-                       xb));
+-
    // Read input ATLAS files
-@@ -102,7 +103,7 @@
+   bump_->readAtlasFiles();
+ 
+@@ -102,7 +86,7 @@
    for (const auto & fset : fsetVec) {
      bump_->addField(fset);
    }

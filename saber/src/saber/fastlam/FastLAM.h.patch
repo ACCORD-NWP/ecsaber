@@ -1,25 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h.tmp	2024-03-21 10:06:06.711034982 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h.tmp.bak	2024-04-04 09:54:15.776297653 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.h	2024-03-21 09:26:20.577844061 +0100
-@@ -9,7 +9,6 @@
- 
- #include <memory>
- #include <string>
--#include <tuple>
- #include <unordered_map>
- #include <utility>
- #include <vector>
-@@ -98,10 +97,17 @@
-   oops::patch::Variables active2dVars_;
- 
-   // Groups of variables
--  std::vector<std::tuple<std::string, size_t, std::string, std::vector<std::string>>> groups_;
-+  struct Group {
-+    std::string name_;
-+    size_t nz0_;
-+    std::string varInModelFile_;
-+    std::vector<std::string> variables_;
-+  };
-+  std::vector<Group> groups_;
+@@ -107,6 +107,7 @@
  
    // Parameters
    FastLAMParametersBase params_;

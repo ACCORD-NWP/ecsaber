@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-02-02 13:36:57.407858029 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-02-02 13:33:39.671846926 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-04-04 15:03:58.235825073 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-04-04 15:05:27.399911243 +0200
 @@ -19,15 +19,15 @@
  #include "eckit/config/Configuration.h"
  
@@ -42,7 +42,7 @@
  void setMPI(eckit::LocalConfiguration & conf,
              const int & mpi);
  
-@@ -95,46 +101,30 @@
+@@ -94,46 +100,30 @@
    // Fill output configuration and set ensemble size
    size_t nens = 0;
    size_t ensembleFound = 0;
@@ -104,7 +104,7 @@
      ++ensembleFound;
    }
  
-@@ -144,52 +134,53 @@
+@@ -143,52 +133,53 @@
    // Check number of ensembles in yaml
    ASSERT(ensembleFound <= 1);
  
@@ -185,7 +185,7 @@
  }
  
  // -------------------------------------------------------------------------------------------------
-@@ -207,14 +198,17 @@
+@@ -206,14 +197,17 @@
    // Local copy
    eckit::LocalConfiguration localConf(conf);
  
@@ -205,7 +205,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -234,54 +228,42 @@
+@@ -233,54 +227,42 @@
    // Fill FieldSet
    size_t ensembleFound = 0;
  

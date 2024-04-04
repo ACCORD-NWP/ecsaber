@@ -6,6 +6,8 @@
  */
 
 #include <Eigen/Core>
+
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -17,6 +19,7 @@
 #include "mo/functions.h"
 
 #include "oops/base/Variables.h"
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
@@ -33,16 +36,21 @@ void eval_mio_fields_nl(const std::string & mio_path, atlas::FieldSet & augState
 
   auto cleffView = make_view<double, 2>(augStateFlds["cleff"]);
   auto cfeffView = make_view<double, 2>(augStateFlds["cfeff"]);
+
   const atlas::idx_t numLevels = augStateFlds["rht"].shape(1);
+  const atlas::idx_t sizeOwned = util::getSizeOwned(augStateFlds["rht"].functionspace());
 
   Eigen::MatrixXd mioCoeffCl = functions::createMIOCoeff(mio_path, "qcl_coef");
   Eigen::MatrixXd mioCoeffCf = functions::createMIOCoeff(mio_path, "qcf_coef");
 
-  for  (atlas::idx_t jn = 0; jn < augStateFlds["rht"].shape(0); ++jn) {
+  for  (atlas::idx_t jn = 0; jn < sizeOwned; ++jn) {
     for (int jl = 0; jl < numLevels; ++jl) {
       if (jl < constants::mioLevs) {
-        std::size_t ibin = (rhtView(jn, jl) > 1.0) ? constants::mioBins - 1 :
-                           static_cast<std::size_t>(floor(rhtView(jn, jl) / constants::rHTBin));
+        // Ternary false branch has std::max inside the static_cast to make sure a small negative
+        // integer does not underflow to a giant positive size_t.
+        const std::size_t ibin = (rhtView(jn, jl) > 1.0) ? constants::mioBins - 1 :
+                                 static_cast<std::size_t>(
+                                     std::max(floor(rhtView(jn, jl) / constants::rHTBin), 0.0));
 
         std::double_t ceffdenom = (1.0 -  clView(jn, jl) * cfView(jn, jl) );
         if (ceffdenom > constants::tol) {
@@ -59,6 +67,9 @@ void eval_mio_fields_nl(const std::string & mio_path, atlas::FieldSet & augState
       }
     }
   }
+  augStateFlds["cleff"].set_dirty();
+  augStateFlds["cfeff"].set_dirty();
+
   oops::Log::trace() << "[eval_mio_fields_nl()] ... exit" << std::endl;
 }
 

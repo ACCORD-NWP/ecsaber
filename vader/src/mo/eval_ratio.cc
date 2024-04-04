@@ -17,6 +17,7 @@
 
 #include "mo/eval_ratio.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
@@ -38,12 +39,13 @@ bool eval_ratio_to_second(atlas::FieldSet & fields, const std::vector<std::strin
   const auto ds_m_t  = make_view<const double, 2>(fields[vars[1]]);
   auto ds_tfield  = make_view<double, 2>(fields[vars[2]]);
 
-  atlas_omp_parallel_for(idx_t jnode = 0; jnode < ds_tfield.shape(0); jnode++) {
-    for (idx_t jlev = 0; jlev < ds_tfield.shape(1); jlev++) {
-      ds_tfield(jnode, jlev) = ds_m_x(jnode, jlev) / ds_m_t(jnode, jlev);
+  const idx_t sizeOwned = util::getSizeOwned(fields[vars[2]].functionspace());
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < ds_tfield.shape(1); jl++) {
+      ds_tfield(jn, jl) = ds_m_x(jn, jl) / ds_m_t(jn, jl);
     }
   }
-
+  fields[vars[2]].set_dirty();
   oops::Log::trace() << "[eval_ratio_to_second()] ... exit" << std::endl;
   return true;
 }
@@ -67,13 +69,14 @@ void eval_ratio_to_second_tl(atlas::FieldSet & incFields,
   const auto m_t  = make_view<const double, 2>(fields[vars[1]]);
   auto inc_ratio  = make_view<double, 2>(incFields[vars[2]]);
 
-  atlas_omp_parallel_for(idx_t jnode = 0; jnode < m_t.shape(0); jnode++) {
-    for (idx_t jlev = 0; jlev < m_t.shape(1); jlev++) {
-      inc_ratio(jnode, jlev) = inc_m_x(jnode, jlev) / m_t(jnode, jlev)
-                 - m_x(jnode, jlev) / (m_t(jnode, jlev) * m_t(jnode, jlev)) * inc_m_t(jnode, jlev);
+  const idx_t sizeOwned = util::getSizeOwned(incFields[vars[2]].functionspace());
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < m_t.shape(1); jl++) {
+      inc_ratio(jn, jl) = inc_m_x(jn, jl) / m_t(jn, jl)
+                 - m_x(jn, jl) / (m_t(jn, jl) * m_t(jn, jl)) * inc_m_t(jn, jl);
     }
   }
-
+  incFields[vars[2]].set_dirty();
   oops::Log::trace() << "[eval_ratio_to_second_tl()] ... exit" << std::endl;
 }
 
@@ -96,14 +99,18 @@ void eval_ratio_to_second_ad(atlas::FieldSet & hatFields,
   const auto m_t  = make_view<const double, 2>(fields[vars[1]]);
   auto hat_ratio  = make_view<double, 2>(hatFields[vars[2]]);
 
-  atlas_omp_parallel_for(idx_t jnode = 0; jnode < m_t.shape(0); jnode++) {
-    for (idx_t jlev = 0; jlev < m_t.shape(1); jlev++) {
-      hat_m_x(jnode, jlev) += hat_ratio(jnode, jlev) / m_t(jnode, jlev);
-      hat_m_t(jnode, jlev) -= hat_ratio(jnode, jlev) * m_x(jnode, jlev)
-                                / (m_t(jnode, jlev) * m_t(jnode, jlev));
-      hat_ratio(jnode, jlev) = 0.0;
+  const idx_t sizeOwned = util::getSizeOwned(hatFields[vars[2]].functionspace());
+  atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
+    for (idx_t jl = 0; jl < m_t.shape(1); jl++) {
+      hat_m_x(jn, jl) += hat_ratio(jn, jl) / m_t(jn, jl);
+      hat_m_t(jn, jl) -= hat_ratio(jn, jl) * m_x(jn, jl)
+                                / (m_t(jn, jl) * m_t(jn, jl));
+      hat_ratio(jn, jl) = 0.0;
     }
   }
+  hatFields[vars[0]].set_dirty();
+  hatFields[vars[1]].set_dirty();
+  hatFields[vars[2]].set_dirty();
 
   oops::Log::trace() << "[eval_ratio_to_second_ad()] ... exit" << std::endl;
 }

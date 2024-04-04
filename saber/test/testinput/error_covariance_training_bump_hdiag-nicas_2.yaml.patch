@@ -1,16 +1,16 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_2.yaml.tmp.bak	2024-03-21 10:06:07.735035493 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_2.yaml	2024-03-21 09:19:11.293629660 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_2.yaml.tmp.bak	2024-04-04 11:14:09.293213956 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag-nicas_2.yaml	2024-04-04 10:11:24.125706991 +0200
 @@ -8,11 +8,13 @@
      - stream_function
      levels: 2
      mask type: sea
-+    mask path: ../../../quench/data/landsea.nc
++    mask path: ../../quench/data/landsea.nc
    - variables:
      - surface_pressure
      levels: 1
      lev2d: last
      mask type: sea
-+    mask path: ../../../quench/data/landsea.nc
++    mask path: ../../quench/data/landsea.nc
    halo: 1
  background:
    date: '2010-01-01T12:00:00Z'
