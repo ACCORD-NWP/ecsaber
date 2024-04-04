@@ -1,0 +1,12 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/optimization_bump_hdiag_gsi_2.yaml.tmp	2024-03-21 10:06:07.587035420 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/optimization_bump_hdiag_gsi_2.yaml	2024-03-21 09:19:06.777627402 +0100
+@@ -18,6 +18,9 @@
+   covariance model: SABER
+   saber central block:
+     saber block name: BUMP_NICAS
++    fields metadata:
++      stream_function:
++        vert_coord: vert_coord_0
+     calibration:
+       general:
+         testing: true

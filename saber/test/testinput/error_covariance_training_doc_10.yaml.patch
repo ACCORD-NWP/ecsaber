@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_doc_10.yaml.tmp	2024-02-14 11:14:54.859015579 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_doc_10.yaml	2024-02-14 10:48:44.361352192 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_doc_10.yaml.tmp.bak	2024-03-21 10:06:08.019035636 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_doc_10.yaml	2024-03-21 09:19:19.301633661 +0100
 @@ -8,6 +8,7 @@
      - stream_function
      levels: 1
@@ -8,3 +8,13 @@
    halo: 1
  background:
    date: '2010-01-01T12:00:00Z'
+@@ -27,6 +28,9 @@
+       zero padding: 6
+   saber central block:
+     saber block name: BUMP_NICAS
++    fields metadata:
++      stream_function:
++        vert_coord: vert_coord_0
+     calibration:
+       io:
+         data directory: testdata

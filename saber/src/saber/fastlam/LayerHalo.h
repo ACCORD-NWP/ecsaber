@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2023 Meteorlogisk Institutt
+ * (C) Copyright 2024 Meteorlogisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -8,7 +8,6 @@
 #pragma once
 
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include "atlas/field.h"
@@ -32,17 +31,22 @@ class LayerHalo : public LayerBase {
 
   // Constructor
   LayerHalo(const FastLAMParametersBase & params,
+            const eckit::LocalConfiguration & fieldsMetaData,
             const oops::GeometryData & gdata,
-            const std::string & myVar,
+            const std::string & myGroup,
+            const std::vector<std::string> & myVars,
             const size_t & nx0,
             const size_t & ny0,
             const size_t & nz0) :
-    LayerBase(params, gdata, myVar, nx0, ny0, nz0) {}
+    LayerBase(params, fieldsMetaData, gdata, myGroup, myVars, nx0, ny0, nz0) {}
   ~LayerHalo() = default;
 
   // Setups
   void setupParallelization() override;
-  void setupNormalization() override;
+  void extractConvolution(const size_t &,
+                          const size_t &,
+                          std::vector<double> &,
+                          std::vector<double> &) override;
 
   // Multiply square-root and adjoint
   size_t ctlVecSize() const override {return rSize_*nz_;};
@@ -72,9 +76,16 @@ class LayerHalo : public LayerBase {
   void multiplyRedSqrt(atlas::Field &) const;
   void multiplyRedSqrtTrans(atlas::Field &) const;
 
+  // Convolution structure
+  struct Convolution {
+    size_t row_;
+    size_t col_;
+    double S_;
+  };
+
   // Rows <=> reduced grid
   size_t xcSize_;
-  std::vector<std::tuple<int, int, double>> xcOperations_;
+  std::vector<Convolution> xcOperations_;
   size_t xcRecvSize_;
   std::vector<int> xcRecvCounts_;
   std::vector<int> xcRecvDispls_;
@@ -85,7 +96,7 @@ class LayerHalo : public LayerBase {
 
   // Columns <=> rows
   size_t ycSize_;
-  std::vector<std::tuple<int, int, double>> ycOperations_;
+  std::vector<Convolution> ycOperations_;
   size_t ycRecvSize_;
   std::vector<int> ycRecvCounts_;
   std::vector<int> ycRecvDispls_;

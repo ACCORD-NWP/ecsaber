@@ -15,7 +15,7 @@
 
 namespace mo {
 
-/// \details getMIOFields returns the effective cloud fractions
+/// \details eval_mio_fields_nl returns the effective cloud fractions
 ///          for the moisture incrementing operator (MIO)
 void eval_mio_fields_nl(const std::string & mio_file, atlas::FieldSet & fields);
 

@@ -173,7 +173,7 @@ void SaberCentralBlockBase::sqrtTest(const oops::GeometryData & geometryData,
   const double dp1 = fset.dot_product_with(fsetSave, vars);
   double dp2 = 0.0;
   for (size_t jnode = 0; jnode < ctlVecSize(); ++jnode) {
-      dp2 += view(jnode)*viewSave(jnode);
+    dp2 += view(jnode)*viewSave(jnode);
   }
   geometryData.comm().allReduceInPlace(dp2, eckit::mpi::sum());
   oops::Log::info() << std::setprecision(16) << "Info     : Square-root test: y^t (Ux) = " << dp1
@@ -188,7 +188,8 @@ void SaberCentralBlockBase::sqrtTest(const oops::GeometryData & geometryData,
   this->multiply(fsetSave);
 
   // Check that the fieldsets are similar within tolerance
-  const bool sqrtComparison = fset.compare_with(fsetSave, sqrtTolerance, false);
+  const bool sqrtComparison = fset.compare_with(fsetSave, sqrtTolerance,
+                                                util::ToleranceType::relative);
   if (sqrtComparison) {
     oops::Log::info() << "Info     : Square-root test passed: U U^t x == B x" << std::endl;
   } else {

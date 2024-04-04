@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-02-14 08:49:54.988155527 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-02-14 08:49:34.303996517 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-03-07 12:22:38.667916509 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-02-23 08:03:57.010238147 +0100
 @@ -4,12 +4,6 @@
  # This software is licensed under the terms of the Apache Licence Version 2.0
  # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -13,7 +13,19 @@
  # Default SABER_TEST_TIER
  set( SABER_TEST_TIER 1 )
  
-@@ -147,9 +141,10 @@
+@@ -94,11 +88,6 @@
+     message( STATUS "  - TIER 1 FastLAM-specific" )
+     file( STRINGS testlist/saber_test_tier1-fastlam.txt saber_test )
+     list( APPEND saber_test_full ${saber_test} )
+-    if( FFTW_FOUND )
+-        message( STATUS "  - TIER 1 FastLAM-specific - FFTW" )
+-        file( STRINGS testlist/saber_test_tier1-fastlam-fftw.txt saber_test )
+-        list( APPEND saber_test_full ${saber_test} )
+-    endif()
+ endif()
+ if( SABER_TEST_GSI_GEOS )
+     message( STATUS "  - TIER 1 GSI-GEOS-specific" )
+@@ -152,9 +141,10 @@
      file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
      # Link to yaml file
@@ -27,7 +39,7 @@
  
      # Link to reference file
      if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -157,6 +152,13 @@
+@@ -162,6 +152,13 @@
                           ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref
                           ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref )
      endif()
@@ -41,7 +53,7 @@
  endforeach()
  foreach( data ${saber_data} )
      # Link to input data file
-@@ -239,14 +241,44 @@
+@@ -244,14 +241,44 @@
                          endif()
                      endif()
  
@@ -93,7 +105,7 @@
                  endif()
              endif()
          endforeach()
-@@ -270,9 +302,9 @@
+@@ -275,9 +302,9 @@
              ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
                                MPI ${mpi}
                                OMP ${omp}

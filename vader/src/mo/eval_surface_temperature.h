@@ -22,6 +22,6 @@ void eval_surface_temperature_tl(atlas::FieldSet & incFlds);
 /// \details This calculates the adjoint of the atmospheric temperature
 ///          at the lowest level from the adjoint of the surface temperature
 // TODO(Mayeul) Remove evalSurfaceTemperatureAD in model2geovals_linearvarchange.h/.cc
-void eval_surface_temperature_adj(atlas::FieldSet & HatFlds);
+void eval_surface_temperature_ad(atlas::FieldSet & HatFlds);
 
 }  // namespace mo

@@ -1,0 +1,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/HydrostaticExner.h.tmp.bak	2024-03-07 14:56:01.748890698 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/HydrostaticExner.h	2024-03-07 12:46:13.468972879 +0100
+@@ -27,9 +27,7 @@
+ #include "saber/vader/PressureParameters.h"
+ 
+ namespace oops {
+-  namespace patch{
+-class Variables;
+-}
++  namespace patch {class Variables;}
+ }
+ 
+ namespace saber {

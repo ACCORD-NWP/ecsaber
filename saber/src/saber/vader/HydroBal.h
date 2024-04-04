@@ -23,9 +23,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  namespace patch {class Variables;}
 }
 
 namespace saber {
@@ -37,7 +35,6 @@ class HydroBalParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(HydroBalParameters, SaberBlockParametersBase)
 
  public:
-  oops::RequiredParameter<std::string> svp_file{"saturation vapour pressure file", this};
   oops::patch::Variables mandatoryActiveVars() const override {
     return oops::patch::Variables({
         "air_pressure_levels",

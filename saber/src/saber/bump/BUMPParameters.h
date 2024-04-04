@@ -20,7 +20,7 @@
 #include "oops/util/parameters/Parameters.h"
 #include "oops/util/parameters/RequiredParameter.h"
 
-#include "saber/bump/lib/type_bump_parameters.h"
+#include "saber/bump/type_bump_parameters.h"
 
 namespace saber {
 namespace bump {
@@ -29,12 +29,12 @@ namespace bump {
 // Elemental parameters (without default value)
 // -----------------------------------------------------------------------------
 
-// patch::Variables value or profile elemental parameters
+// Variables value or profile elemental parameters
 class VarsValueOrProfileParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(VarsValueOrProfileParameters, oops::Parameters)
 
  public:
-  // patch::Variables
+  // Variables
   oops::RequiredParameter<std::vector<std::string>> variables{"variables", this};
   // Value
   oops::OptionalParameter<double> value{"value", this};
@@ -64,7 +64,7 @@ class GroupsValueParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(GroupsValueParameters, oops::Parameters)
 
  public:
-  // patch::Variables
+  // Variables
   oops::RequiredParameter<std::vector<std::string>> groups{"groups", this};
   // Value
   oops::RequiredParameter<int> value{"value", this};
@@ -175,15 +175,15 @@ class GeneralSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(GeneralSection, oops::Parameters)
 
  private:
-  bump_lib::GeneralDef def;
+  GeneralDef def;
 
  public:
   // Add colors to the log (for display on terminal)
   oops::Parameter<bool> color_log = param(def.color_log, this);
   // Stream test messages into a dedicated channel
   oops::Parameter<bool> testing = param(def.testing, this);
-  // Default seed for random numbers
-  oops::Parameter<bool> default_seed = param(def.default_seed, this);
+  // Default seed for random numbers (0 for time-dependent seed)
+  oops::Parameter<int> default_seed = param(def.default_seed, this);
   // Inter-compilers reproducibility
   oops::Parameter<bool> repro_ops = param(def.repro_ops, this);
   // Reproducibility threshold
@@ -201,7 +201,7 @@ class IOSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(IOSection, oops::Parameters)
 
  private:
-  bump_lib::IODef def;
+  IODef def;
 
  public:
   // Data directory
@@ -246,7 +246,7 @@ class DriversSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(DriversSection, oops::Parameters)
 
  private:
-  bump_lib::DriversDef def;
+  DriversDef def;
 
  public:
   // Compute covariance, ensemble 1
@@ -352,12 +352,12 @@ class ModelSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(ModelSection, oops::Parameters)
 
  private:
-  bump_lib::ModelDef def;
+  ModelDef def;
 
  public:
   // Level for 2D variables ('first' or 'last')
   oops::Parameter<std::string> lev2d = param(def.lev2d, this);
-  // patch::Variables names
+  // Variables names
   oops::Parameter<std::vector<std::string>> variables{"variables", {}, this};
   // 2D variables names
   oops::Parameter<std::vector<std::string>> var2d{"2d variables", {}, this};
@@ -374,7 +374,7 @@ class EnsembleSizesSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(EnsembleSizesSection, oops::Parameters)
 
  private:
-  bump_lib::EnsembleSizesDef def;
+  EnsembleSizesDef def;
 
  public:
   // Ensemble 1 size
@@ -394,7 +394,7 @@ class MaskParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(MaskParameters, oops::Parameters)
 
  private:
-  bump_lib::MaskDef def;
+  MaskDef def;
 
  public:
   // Mask restriction type
@@ -412,7 +412,7 @@ class SamplingSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(SamplingSection, oops::Parameters)
 
  private:
-  bump_lib::SamplingDef def;
+  SamplingDef def;
 
  public:
   // Computation grid size
@@ -453,7 +453,7 @@ class DiagnosticsSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(DiagnosticsSection, oops::Parameters)
 
  private:
-  bump_lib::DiagnosticsDef def;
+  DiagnosticsDef def;
 
  public:
   // Ensemble size
@@ -477,7 +477,7 @@ class VerticalBalanceBlockParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(VerticalBalanceBlockParameters, oops::Parameters)
 
  private:
-  bump_lib::VerticalBalanceBlockDef def;
+  VerticalBalanceBlockDef def;
 
  public:
   // Balanced variable
@@ -497,7 +497,7 @@ class VerticalBalanceSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(VerticalBalanceSection, oops::Parameters)
 
  private:
-  bump_lib::VerticalBalanceDef def;
+  VerticalBalanceDef def;
 
  public:
   // Vertical balance parameters
@@ -519,7 +519,7 @@ class VarianceSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(VarianceSection, oops::Parameters)
 
  private:
-  bump_lib::VarianceDef def;
+  VarianceDef def;
 
  public:
   // Force specific variance
@@ -550,7 +550,7 @@ class OptimalityTestSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(OptimalityTestSection, oops::Parameters)
 
  private:
-  bump_lib::OptimalityTestDef def;
+  OptimalityTestDef def;
 
  public:
   // Number of length-scale factors for optimization
@@ -568,7 +568,7 @@ class FitSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(FitSection, oops::Parameters)
 
  private:
-  bump_lib::FitDef def;
+  FitDef def;
 
  public:
   // Threshold to filter out lower raw values
@@ -590,7 +590,7 @@ class NICASSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(NICASSection, oops::Parameters)
 
  private:
-  bump_lib::NICASDef def;
+  NICASDef def;
 
  public:
   // Resolution
@@ -633,7 +633,7 @@ class PsichitouvSection : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(PsichitouvSection, oops::Parameters)
 
  private:
-  bump_lib::PsichitouvDef def;
+  PsichitouvDef def;
 
  public:
   // Number of longitudes for the regular grid

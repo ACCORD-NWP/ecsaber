@@ -1,0 +1,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.h.tmp.bak	2024-03-21 10:06:07.035035144 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.h	2024-03-21 09:18:53.069620556 +0100
+@@ -18,6 +18,7 @@
+ #include "eckit/log/Channel.h"
+ 
+ #include "oops/base/FieldSets.h"
++#include "oops/base/GeometryData.h"
+ 
+ #include "saber/bump/BUMPParameters.h"
+ #include "saber/bump/type_bump.h"
+@@ -36,6 +37,7 @@
+        const oops::patch::Variables &,
+        const eckit::Configuration &,
+        const BUMPParameters &,
++       const eckit::LocalConfiguration &,
+        const oops::FieldSet3D &);
+ 
+   // Destructor

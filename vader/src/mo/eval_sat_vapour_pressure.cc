@@ -1,43 +1,30 @@
 /*
- * (C) Crown Copyright 2023 Met Office
+ * (C) Crown Copyright 2023-2024 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
 
-#include <algorithm>
-#include <functional>
-#include <memory>
-#include <ostream>
 #include <string>
 #include <vector>
 
-#include "atlas/array/MakeView.h"
-#include "atlas/field/Field.h"
-#include "atlas/field/FieldSet.h"
-#include "atlas/functionspace.h"
-
-#include "eckit/config/Configuration.h"
-#include "eckit/exception/Exceptions.h"
-#include "eckit/mpi/Comm.h"
+#include "atlas/field/for_each.h"
 
 #include "mo/constants.h"
 #include "mo/eval_sat_vapour_pressure.h"
 #include "mo/functions.h"
+#include "mo/lookups.h"
 
-#include "oops/base/Variables.h"
 #include "oops/util/Logger.h"
 
-using atlas::array::make_view;
-using atlas::idx_t;
 
 namespace mo {
 
-void eval_sat_vapour_pressure_nl(const std::string & svp_file, atlas::FieldSet & fields)
-{
-  oops::Log::trace() << "[svp()] starting ..." << std::endl;
 
+void eval_sat_vapour_pressure_variant_nl(const std::string field_out,
+                                         atlas::FieldSet & fields)
+{
   // normalised T lambda function
   // which enforces upper and lower bounds on T
   auto normalisedT = [](const double tVal) {
@@ -66,46 +53,52 @@ void eval_sat_vapour_pressure_nl(const std::string & svp_file, atlas::FieldSet &
      return (weight * v2 + (1 - weight) * v1);
   };
 
-  // lambda function to determine the gradient of variable in table
-  // with respect to temperature
-  auto normalisedDiff = [](const double v1, const double v2) {
-     return (v2 - v1)/ constants::Tinc;
-  };
-
-  double w;  // weight
-  std::size_t indx;  // index
-
-  const auto tView  = make_view<const double, 2>(fields["air_temperature"]);
-  const std::vector<std::string> vars{"svp", "dlsvp", "svpW", "dlsvpW"};
-  oops::patch::Variables lookUpVars(vars);
-  auto lookUpData = functions::getLookUps(svp_file, lookUpVars,
-                               constants::svpLookUpLength);
-
-  const std::vector<std::string> fnames {"svp", "dlsvpdT"};
-  int ival = 0;  // set ival = 2 to get svp wrt water
-  for (auto & ef : fnames) {
-    if (fields.has(ef)) {
-      auto svpView = make_view<double, 2>(fields[ef]);
-
-      auto conf = atlas::util::Config("levels", fields[ef].shape(1)) |
-                  atlas::util::Config("include_halo", true);
-
-      // check this recipe to calculate svp is correct
-      const std::vector<double> Lookup = lookUpData[ival];
-      ++ival;
-      auto evaluateSVP = [&] (atlas::idx_t i, atlas::idx_t j) {
-      indx = index(normalisedT(tView(i, j)));
-      w = weight(normalisedT(tView(i, j)));
-      svpView(i, j) = interp(w, Lookup.at(indx), Lookup.at(indx+1)); };
-
-      auto fspace = fields[ef].functionspace();
-
-      functions::parallelFor(fspace, evaluateSVP, conf);
-    }
+  // ID to identify a type of 'saturation water pressure'
+  int ival;
+  if (field_out == "svp") {
+    ival = 0;
+  } else if (field_out == "dlsvpdT") {
+    ival = 1;
   }
 
-  oops::Log::trace() << "[svp()] ... exit" << std::endl;
+  // weight
+  double w;
+  // index
+  std::size_t indx;
+
+  const auto& lookup = lookups::allSvpLookupTable[ival];
+
+  atlas::field::for_each_value(
+    atlas::execution::par_unseq,
+    fields["air_temperature"],
+    fields[field_out],
+    [&](const double air_temp, double& svp) {
+      indx = index(normalisedT(air_temp));
+      w = weight(normalisedT(air_temp));
+      svp = interp(w, lookup.at(indx), lookup.at(indx+1));
+    });
 }
+
+
+void eval_sat_vapour_pressure_nl(atlas::FieldSet & fields)
+{
+  oops::Log::trace() << "[eval_sat_vapour_pressure_svp_nl()] starting ..." << std::endl;
+
+  eval_sat_vapour_pressure_variant_nl("svp", fields);
+
+  oops::Log::trace() << "[eval_sat_vapour_pressure_svp_nl()] ... done" << std::endl;
+}
+
+
+void eval_derivative_ln_svp_wrt_temperature_nl(atlas::FieldSet & fields)
+{
+  oops::Log::trace() << "[eval_sat_vapour_pressure_dlsvpdT_nl()] starting ..." << std::endl;
+
+  eval_sat_vapour_pressure_variant_nl("dlsvpdT", fields);
+
+  oops::Log::trace() << "[eval_sat_vapour_pressure_dlsvpdT_nl()] ... done" << std::endl;
+}
+
 
 }  // namespace mo
 
