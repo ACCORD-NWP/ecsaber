@@ -12,6 +12,7 @@
 
 #include "mo/eval_total_relative_humidity.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
@@ -31,7 +32,9 @@ bool eval_total_relative_humidity_nl(atlas::FieldSet & fields) {
   auto rhtView = make_view<double, 2>(fields["rht"]);
 
   const atlas::idx_t n_levels(fields["rht"].shape(1));
-  atlas_omp_parallel_for(atlas::idx_t ih = 0; ih < rhtView.shape(0); ih++) {
+  const atlas::idx_t sizeOwned =
+        util::getSizeOwned(fields["rht"].functionspace());
+  atlas_omp_parallel_for(atlas::idx_t ih = 0; ih < sizeOwned; ih++) {
     for (atlas::idx_t ilev = 0; ilev < n_levels; ilev++) {
       rhtView(ih, ilev) = (qView(ih, ilev) + qclView(ih, ilev) + qciView(ih, ilev)
                           + qrainView(ih, ilev)) / qsatView(ih, ilev) * 100.0;
@@ -39,7 +42,7 @@ bool eval_total_relative_humidity_nl(atlas::FieldSet & fields) {
       if (rhtView(ih, ilev) < 0.0) rhtView(ih, ilev) = 0.0;
     }
   }
-
+  fields["rht"].set_dirty();
   oops::Log::trace() << "[eval_total_relative_humidity_nl()] ... exit" << std::endl;
   return true;
 }

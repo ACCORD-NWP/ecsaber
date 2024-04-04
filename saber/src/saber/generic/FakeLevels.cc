@@ -303,7 +303,6 @@ void FakeLevels::directCalibration(const oops::FieldSets &) {
         double wgtSum = 0.0;
         for (size_t k = 0; k < nz_; ++k) {
           const double normDist = std::abs(vertCoordView(jnode, 0)-fakeLevels[k])/rvView(jnode, 0);
-      
           if ((fakeLevels[k] < vertCoordView(jnode, 0)) && (normDist > 1.0e-12)) {
             // Under ground
             wgt[k] = 0.0;
@@ -336,9 +335,6 @@ void FakeLevels::directCalibration(const oops::FieldSets &) {
         }
       }
     }
-
-    // Halo exchange
-    field.haloExchange();
 
     // Add field
     weight_->add(field);

@@ -1,0 +1,12 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/VerticalBalance.h.tmp	2024-04-04 15:19:53.633076704 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/VerticalBalance.h	2024-04-04 14:55:51.043395953 +0200
+@@ -77,8 +77,8 @@
+   void print(std::ostream &) const override;
+   const oops::GeometryData & innerGeometryData_;
+   oops::patch::Variables innerVars_;
+-  BUMPParameters bumpParams_;
+   oops::patch::Variables activeVars_;
++  BUMPParameters bumpParams_;
+   std::unique_ptr<BUMP> bump_;
+   size_t memberIndex_;
+ };

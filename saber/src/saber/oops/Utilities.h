@@ -80,8 +80,7 @@ void checkFieldsAreNotAllocated(const oops::FieldSet3D & fset,
 void allocateMissingFields(oops::FieldSet3D & fset,
                            const oops::patch::Variables & varsToAllocate,
                            const oops::patch::Variables & varsWithLevels,
-                           const atlas::FunctionSpace & functionSpace,
-                           const bool haloExchange = true);
+                           const atlas::FunctionSpace & functionSpace);
 
 // -----------------------------------------------------------------------------
 

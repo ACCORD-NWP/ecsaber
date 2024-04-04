@@ -1,17 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FunctionSpaceHelpers.h.tmp	2024-03-07 11:39:32.382082706 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FunctionSpaceHelpers.h	2024-03-07 11:31:51.493560112 +0100
-@@ -7,7 +7,10 @@
- 
- #pragma once
- 
-+#include <vector>
-+
- namespace atlas {
-+namespace grid { class Distribution; }
- namespace grid { class Partitioner; }
- class Grid;
- class Mesh;
-@@ -35,4 +38,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FunctionSpaceHelpers.h.tmp.bak	2024-04-04 15:06:30.559973193 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/util/FunctionSpaceHelpers.h	2024-04-04 15:12:04.180325409 +0200
+@@ -70,4 +70,13 @@
  
  // -----------------------------------------------------------------------------
  

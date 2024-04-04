@@ -104,7 +104,7 @@ void FieldSet3D::allocateOnly(const atlas::FieldSet & otherFset) {
   for (const auto & otherField : otherFset) {
     // Create field
     atlas::Field field = otherField.functionspace().createField<double>(
-      atlas::option::name(otherField.name()) | atlas::option::levels(otherField.levels()));
+      atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
 
     // Copy metadata
     field.metadata() = otherField.metadata();
@@ -178,7 +178,7 @@ patch::Variables FieldSet3D::currentVariables() const {
   patch::Variables vars;
   for (const auto & field : fset_) {
     vars.push_back(field.name());
-    vars.addMetaData(field.name(), "levels", field.levels());
+    vars.addMetaData(field.name(), "levels", field.shape(1));
   }
   return vars;
 }
