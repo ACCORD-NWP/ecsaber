@@ -69,6 +69,8 @@ atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
     view.assign(initalizationValue);
   }
 
+  fset.set_dirty(false);  // initialization to constant produces up-to-date halos
+
   // Return FieldSet
   return fset;
 }
@@ -151,7 +153,7 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
 
     // Global field
     atlas::Field globalField = fspace.createField<double>(
-      atlas::option::name(field.name()) | atlas::option::levels(field.levels())
+      atlas::option::name(field.name()) | atlas::option::levels(field.shape(1))
       | atlas::option::global());
 
     std::vector<double> rand_vec_glb(nglb);
@@ -270,10 +272,7 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
     }
   }
 
-  if (fspace.type() != "Spectral") {
-    // Halo exchange
-    fset.haloExchange();
-  }
+  fset.set_dirty();  // code is too complicated, mark dirty to be safe
 
   // Return FieldSet
   return fset;
@@ -318,6 +317,7 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
         }
       }
     }
+    fset.set_dirty();  // code is too complicated, mark dirty to be safe
     return fset;
   }
 
@@ -339,6 +339,8 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
       }
     }
 
+    fset.set_dirty(false);  // smooth function will be up-to-date at ghost points
+
     // Set metadata for interpolation type
     field.metadata().set("interp_type", "default");
   }
@@ -354,7 +356,7 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
   for (const auto & otherField : otherFset) {
     // Create Field
     atlas::Field field = otherField.functionspace().createField<double>(
-      atlas::option::name(otherField.name()) | atlas::option::levels(otherField.levels()));
+      atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
 
     // Copy data
     if (field.rank() == 2) {
@@ -897,6 +899,7 @@ void readFieldSet(const eckit::mpi::Comm & comm,
     if ((tempretval = nc_close(tempncid))) ERR(tempretval);
     ASSERT(oneFilePerTask);
     readRank3FieldSet(fspace, variableSizes, vars, fset, ncfilepath);
+    fset.set_dirty();  // code is too complicated, mark dirty to be safe
     return;
   }
   if ((tempretval = nc_close(tempncid))) ERR(tempretval);
@@ -957,11 +960,6 @@ void readFieldSet(const eckit::mpi::Comm & comm,
 
     // Close file
     if ((retval = nc_close(ncid))) ERR(retval);
-
-    if (fspace.type() != "PointCloud") {
-      // Exchange halo
-      fset.haloExchange();
-    }
   } else {
     // Case 2: one file for all MPI tasks
 
@@ -1072,10 +1070,9 @@ void readFieldSet(const eckit::mpi::Comm & comm,
       atlas::functionspace::NodeColumns fs(fspace);
       fs.scatter(globalData, fset);
     }
-
-    // Exchange halo
-    fset.haloExchange();
   }
+
+  fset.set_dirty();  // code is too complicated, mark dirty to be safe
 }
 
 // -----------------------------------------------------------------------------
@@ -1136,10 +1133,6 @@ void readRank3FieldSet(const atlas::FunctionSpace & fspace,
   }
 
   if ((retval = nc_close(ncid))) ERR(retval);
-
-  if (fspace.type() != "PointCloud") {
-    fset.haloExchange();
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -1228,7 +1221,7 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
     for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
       // Create vertical dimension
       std::string nzName = "nz_" + vars[jvar];
-      if ((retval = nc_def_dim(ncid, nzName.c_str(), fset.field(vars[jvar]).levels(),
+      if ((retval = nc_def_dim(ncid, nzName.c_str(), fset.field(vars[jvar]).shape(1),
         &nz_id[jvar]))) ERR(retval);
 
       // Dimensions array, vertical part
@@ -1268,11 +1261,11 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
     for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
       // Copy data
       const auto varView = atlas::array::make_view<double, 2>(fset.field(vars[jvar]));
-      double zvar[nb_nodes][fset.field(vars[jvar]).levels()];
+      double zvar[nb_nodes][fset.field(vars[jvar]).shape(1)];
       inode = 0;
       for (atlas::idx_t jnode = 0; jnode < fset.field(vars[0]).shape(0); ++jnode) {
         if (ghostView(jnode) == 0) {
-          for (atlas::idx_t k = 0; k < fset.field(vars[jvar]).levels(); ++k) {
+          for (atlas::idx_t k = 0; k < fset.field(vars[jvar]).shape(1); ++k) {
             zvar[inode][k] = varView(jnode, k);
           }
           ++inode;
@@ -1315,7 +1308,7 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
     globalData.add(latGlobal);
     for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
       atlas::Field globalField = fspace.createField<double>(atlas::option::name(vars[jvar]) |
-        atlas::option::levels(fset.field(vars[jvar]).levels()) | atlas::option::global());
+        atlas::option::levels(fset.field(vars[jvar]).shape(1)) | atlas::option::global());
       globalData.add(globalField);
     }
 
@@ -1362,7 +1355,7 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
         for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
           // Create vertical dimension
           std::string nzName = "nz_" + vars[jvar];
-          if ((retval = nc_def_dim(ncid, nzName.c_str(), fset.field(vars[jvar]).levels(),
+          if ((retval = nc_def_dim(ncid, nzName.c_str(), fset.field(vars[jvar]).shape(1),
             &nz_id[jvar]))) ERR(retval);
 
           // Dimensions array, vertical part
@@ -1406,8 +1399,8 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
         for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
           // Copy data
           auto varView = atlas::array::make_view<double, 2>(globalData[vars[jvar]]);
-          double zvar[fset.field(vars[jvar]).levels()][ny][nx];
-          for (atlas::idx_t k = 0; k < fset.field(vars[jvar]).levels(); ++k) {
+          double zvar[fset.field(vars[jvar]).shape(1)][ny][nx];
+          for (atlas::idx_t k = 0; k < fset.field(vars[jvar]).shape(1); ++k) {
             for (atlas::idx_t j = 0; j < ny; ++j) {
               for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
                 atlas::gidx_t gidx = grid.index(i, ny-1-j);
@@ -1455,7 +1448,7 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
         for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
           // Create vertical dimension
           std::string nzName = "nz_" + vars[jvar];
-          if ((retval = nc_def_dim(ncid, nzName.c_str(), fset.field(vars[jvar]).levels(),
+          if ((retval = nc_def_dim(ncid, nzName.c_str(), fset.field(vars[jvar]).shape(1),
             &nz_id[jvar]))) ERR(retval);
 
           // Dimensions array, vertical part
@@ -1492,8 +1485,8 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
         for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
           // Copy data
           auto varView = atlas::array::make_view<double, 2>(globalData[vars[jvar]]);
-          double zvar[nb_nodes][fset.field(vars[jvar]).levels()];
-          for (atlas::idx_t k = 0; k < fset.field(vars[jvar]).levels(); ++k) {
+          double zvar[nb_nodes][fset.field(vars[jvar]).shape(1)];
+          for (atlas::idx_t k = 0; k < fset.field(vars[jvar]).shape(1); ++k) {
             for (atlas::idx_t i = 0; i < nb_nodes; ++i) {
               zvar[i][k] = varView(i, k);
             }
@@ -1546,7 +1539,7 @@ void writeRank3FieldSet(const atlas::FieldSet & fset,
   for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
     // Create vertical dimension, assign to dimension array
     std::string nzName = "nz_" + vars[jvar];
-    if ((retval = nc_def_dim(ncid, nzName.c_str(), fset.field(vars[jvar]).levels(), &nz_id[jvar])))
+    if ((retval = nc_def_dim(ncid, nzName.c_str(), fset.field(vars[jvar]).shape(1), &nz_id[jvar])))
       ERR(retval);
     d3D_id[1] = nz_id[jvar];
 
@@ -1588,7 +1581,7 @@ void writeRank3FieldSet(const atlas::FieldSet & fset,
 
   for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
     // Copy data from Field
-    const int nb_levels = fset[vars[jvar]].levels();
+    const int nb_levels = fset[vars[jvar]].shape(1);
     const int rank3Size = fset[vars[jvar]].shape(2);
     const auto varView = atlas::array::make_view<double, 3>(fset[vars[jvar]]);
     std::vector<double> zvar(nb_nodes * nb_levels * rank3Size);

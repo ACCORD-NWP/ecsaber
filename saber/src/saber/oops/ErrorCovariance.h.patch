@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-03-07 14:56:02.564891414 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-03-07 12:50:45.309189458 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-04-04 09:54:15.468297174 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-04-04 09:55:45.596435052 +0200
 @@ -13,20 +13,18 @@
  
  #include "atlas/field.h"
@@ -41,7 +41,7 @@
  namespace saber {
  
  // -----------------------------------------------------------------------------
-@@ -50,33 +51,46 @@
+@@ -52,33 +53,46 @@
  // -----------------------------------------------------------------------------
  
  template <typename MODEL>
@@ -109,7 +109,7 @@
  
    /// Chain of outer blocks applied to all components of hybrid covariances.
    /// Not initialized for non-hybrid covariances.
-@@ -89,242 +103,303 @@
+@@ -91,242 +105,303 @@
    /// Vector of field weights for hybrid B components (one element, empty
    /// fieldset for non-hybrid case).
    std::vector<oops::FieldSet3D> hybridFieldWeightSqrt_;
@@ -616,7 +616,7 @@
    for (size_t jtime = 0; jtime < fset4dSum.size(); ++jtime) {
      fset4dSum[jtime].init(hybridBlockChain_[0]->outerFunctionSpace(),
                            hybridBlockChain_[0]->outerVariables(),
-@@ -334,7 +409,7 @@
+@@ -336,7 +411,7 @@
    // Loop over components for the central block
    for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
      // Randomize covariance
@@ -625,7 +625,7 @@
      hybridBlockChain_[jj]->randomize(fset4dCmp);
  
      // Weight square-root multiplication
-@@ -354,20 +429,20 @@
+@@ -356,20 +431,20 @@
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
    // ATLAS fieldset to Increment_
@@ -654,7 +654,7 @@
  
    // Copy input
    dxo = dxi;
-@@ -415,27 +490,314 @@
+@@ -417,27 +492,314 @@
    // Apply outer blocks forward
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  

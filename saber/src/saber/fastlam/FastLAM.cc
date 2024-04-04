@@ -666,8 +666,8 @@ void FastLAM::setReadFields(const std::vector<oops::FieldSet3D> & fsetVec) {
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
       // Create layers
       for (size_t jBin = 0; jBin < nLayers; ++jBin) {
-        data_[jg].emplace_back(LayerFactory::create(params_, fieldsMetaData_, gdata_, groups_[jg].name_,
-          groups_[jg].variables_, nx0_, ny0_, groups_[jg].nz0_));
+        data_[jg].emplace_back(LayerFactory::create(params_, fieldsMetaData_, gdata_,
+          groups_[jg].name_, groups_[jg].variables_, nx0_, ny0_, groups_[jg].nz0_));
       }
     }
 
@@ -783,8 +783,8 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
     // Create layers
     std::vector<std::unique_ptr<LayerBase>> layers;
     for (size_t jBin = 0; jBin < nLayers; ++jBin) {
-      data_[jg].emplace_back(LayerFactory::create(params_, fieldsMetaData_, gdata_, groups_[jg].name_,
-        groups_[jg].variables_, nx0_, ny0_, groups_[jg].nz0_));
+      data_[jg].emplace_back(LayerFactory::create(params_, fieldsMetaData_, gdata_,
+        groups_[jg].name_, groups_[jg].variables_, nx0_, ny0_, groups_[jg].nz0_));
     }
   }
   for (size_t jBin = 0; jBin < nLayers; ++jBin) {
@@ -1038,6 +1038,7 @@ std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> FastLAM::fie
       }
 
       // Add pair
+      fset.name() = param;
       pairs.push_back(std::make_pair(file, fset));
     }
     if (param == "index j") {
@@ -1062,6 +1063,7 @@ std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> FastLAM::fie
       }
 
       // Add pair
+      fset.name() = param;
       pairs.push_back(std::make_pair(file, fset));
     }
     if (param == "normalized horizontal length-scale") {
@@ -1088,6 +1090,7 @@ std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> FastLAM::fie
       }
 
       // Add pair
+      fset.name() = param;
       pairs.push_back(std::make_pair(file, fset));
     }
     if (param == "weight") {
@@ -1125,6 +1128,7 @@ std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> FastLAM::fie
         util::seekAndReplace(fileCmp, "%component%", jBin, 2);
 
         // Add pair
+        fset.name() = param + " - " + std::to_string(jBin);
         pairs.push_back(std::make_pair(fileCmp, fset));
       }
     }
@@ -1157,6 +1161,7 @@ std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> FastLAM::fie
         util::seekAndReplace(fileCmp, "%component%", jBin, 2);
 
         // Add pair
+        fset.name() = param + " - " + std::to_string(jBin);
         pairs.push_back(std::make_pair(fileCmp, fset));
       }
     }
@@ -1189,6 +1194,7 @@ std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> FastLAM::fie
         util::seekAndReplace(fileCmp, "%component%", jBin, 2);
 
         // Add pair
+        fset.name() = param + " - " + std::to_string(jBin);
         pairs.push_back(std::make_pair(fileCmp, fset));
       }
     }

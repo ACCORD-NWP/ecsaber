@@ -10,15 +10,15 @@
 
 #include "mo/eval_moisture_incrementing_operator.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
+using atlas::idx_t;
 
 namespace mo {
 
 // ------------------------------------------------------------------------------------------------
-// Note this is a copy of qtTemperature2qqclqcfTL
-// TODO(Mayeul,MW) Remove duplicate in control2analysis_linearvarchange.cc/h
 void eval_moisture_incrementing_operator_tl(atlas::FieldSet & incFlds,
                                             const atlas::FieldSet & augStateFlds) {
   oops::Log::trace() << "[eval_moisture_incrementing_operator_tl()] starting ..."
@@ -35,25 +35,29 @@ void eval_moisture_incrementing_operator_tl(atlas::FieldSet & incFlds,
   auto qcfIncView = make_view<double, 2>
                     (incFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
   auto qIncView = make_view<double, 2>(incFlds["specific_humidity"]);
-  const atlas::idx_t numLevels = incFlds["qt"].shape(1);
+  const idx_t numLevels = incFlds["qt"].shape(1);
+  const idx_t sizeOwned =
+        util::getSizeOwned(incFlds["qt"].functionspace());
 
   double maxCldInc;
-  for (atlas::idx_t jn = 0; jn < incFlds["qt"].shape(0); ++jn) {
-    for (atlas::idx_t jl = 0; jl < numLevels; ++jl) {
-        maxCldInc = qtIncView(jn, jl) - qsatView(jn, jl) *
-            dlsvpdTView(jn, jl) * temperIncView(jn, jl);
-        qclIncView(jn, jl) = cleffView(jn, jl) * maxCldInc;
-        qcfIncView(jn, jl) = cfeffView(jn, jl) * maxCldInc;
-        qIncView(jn, jl) = qtIncView(jn, jl) - qclIncView(jn, jl) - qcfIncView(jn, jl);
+  for (idx_t jn = 0; jn < sizeOwned; ++jn) {
+    for (idx_t jl = 0; jl < numLevels; ++jl) {
+      maxCldInc = qtIncView(jn, jl) - qsatView(jn, jl) *
+                  dlsvpdTView(jn, jl) * temperIncView(jn, jl);
+      qclIncView(jn, jl) = cleffView(jn, jl) * maxCldInc;
+      qcfIncView(jn, jl) = cfeffView(jn, jl) * maxCldInc;
+      qIncView(jn, jl) = qtIncView(jn, jl) - qclIncView(jn, jl) - qcfIncView(jn, jl);
     }
   }
+  incFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"].set_dirty();
+  incFlds["mass_content_of_cloud_ice_in_atmosphere_layer"].set_dirty();
+  incFlds["specific_humidity"].set_dirty();
+
   oops::Log::trace() << "[eval_moisture_incrementing_operator_tl()] ... done"
                      << std::endl;
 }
 
 // ------------------------------------------------------------------------------------------------
-// Note this is a copy of qtTemperature2qqclqcfAD
-// TODO(Mayeul,MW) Remove duplicate in control2analysis_linearvarchange.cc/h
 void eval_moisture_incrementing_operator_ad(atlas::FieldSet & hatFlds,
                              const atlas::FieldSet & augStateFlds) {
   oops::Log::trace() << "[eval_moisture_incrementing_operator_ad()] starting ..."
@@ -70,11 +74,13 @@ void eval_moisture_incrementing_operator_ad(atlas::FieldSet & hatFlds,
                     (hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
   auto qcfHatView = make_view<double, 2>
                     (hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
-  const atlas::idx_t numLevels = hatFlds["qt"].shape(1);
+  const idx_t numLevels = hatFlds["qt"].shape(1);
+  const idx_t sizeOwned =
+        util::getSizeOwned(hatFlds["qt"].functionspace());
 
   double qsatdlsvpdT;
-  for (atlas::idx_t jn = 0; jn < hatFlds["qt"].shape(0); ++jn) {
-    for (atlas::idx_t jl = 0; jl < numLevels; ++jl) {
+  for (idx_t jn = 0; jn < sizeOwned; ++jn) {
+    for (idx_t jl = 0; jl < numLevels; ++jl) {
       qsatdlsvpdT = qsatView(jn, jl) * dlsvpdTView(jn, jl);
       temperHatView(jn, jl) += ((cleffView(jn, jl) + cfeffView(jn, jl)) * qHatView(jn, jl)
                                 - cleffView(jn, jl) * qclHatView(jn, jl)
@@ -88,6 +94,12 @@ void eval_moisture_incrementing_operator_ad(atlas::FieldSet & hatFlds,
       qcfHatView(jn, jl) = 0.0;
     }
   }
+  hatFlds["air_temperature"].set_dirty();
+  hatFlds["specific_humidity"].set_dirty();
+  hatFlds["qt"].set_dirty();
+  hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"].set_dirty();
+  hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"].set_dirty();
+
   oops::Log::trace() << "[eval_moisture_incrementing_operator_ad()] ... done"
                      << std::endl;
 }
@@ -104,15 +116,19 @@ void eval_total_water_tl(atlas::FieldSet & incFlds,
                       (incFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
 
   auto qtIncView = make_view<double, 2>(incFlds["qt"]);
-  const atlas::idx_t numLevels = incFlds["qt"].shape(1);
+  const idx_t numLevels = incFlds["qt"].shape(1);
+  const idx_t sizeOwned =
+        util::getSizeOwned(incFlds["qt"].functionspace());
 
-  for (atlas::idx_t jnode = 0; jnode < incFlds["qt"].shape(0); jnode++) {
-    for (atlas::idx_t jlev = 0; jlev < numLevels; jlev++) {
+  for (idx_t jnode = 0; jnode < sizeOwned; jnode++) {
+    for (idx_t jlev = 0; jlev < numLevels; jlev++) {
       qtIncView(jnode, jlev) = qIncView(jnode, jlev)
                              + qclIncView(jnode, jlev)
                              + qcfIncView(jnode, jlev);
     }
   }
+  incFlds["qt"].set_dirty();
+
   oops::Log::trace() << "[eval_total_water_tl()] ... done" << std::endl;
 }
 
@@ -126,17 +142,22 @@ void eval_total_water_ad(atlas::FieldSet & hatFlds,
   auto qcfIncView = make_view<double, 2>
                       (hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
   auto qtIncView = make_view<double, 2>(hatFlds["qt"]);
-  const atlas::idx_t numLevels = hatFlds["qt"].shape(1);
+  const idx_t numLevels = hatFlds["qt"].shape(1);
+  const idx_t sizeOwned =
+        util::getSizeOwned(hatFlds["qt"].functionspace());
 
-  for (atlas::idx_t jnode = 0; jnode < hatFlds["qt"].shape(0); jnode++) {
-    for (atlas::idx_t jlev = 0; jlev < numLevels; jlev++) {
+  for (idx_t jnode = 0; jnode < sizeOwned; jnode++) {
+    for (idx_t jlev = 0; jlev < numLevels; jlev++) {
       qIncView(jnode, jlev) += qtIncView(jnode, jlev);
       qclIncView(jnode, jlev) += qtIncView(jnode, jlev);
       qcfIncView(jnode, jlev) += qtIncView(jnode, jlev);
+      qtIncView(jnode, jlev) = 0.0;
     }
   }
-
-  qtIncView.assign(0.0);
+  hatFlds["specific_humidity"].set_dirty();
+  hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"].set_dirty();
+  hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"].set_dirty();
+  hatFlds["qt"].set_dirty();
 
   oops::Log::trace() << "[eval_total_water_ad()] ... done" << std::endl;
 }

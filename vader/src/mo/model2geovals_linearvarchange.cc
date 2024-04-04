@@ -11,6 +11,7 @@
 #include "mo/constants.h"
 #include "mo/model2geovals_linearvarchange.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
@@ -29,14 +30,17 @@ void evalAirPressureTL(atlas::FieldSet & incFlds, const atlas::FieldSet & augSta
 
   double alpha_jl(0.0);
 
-  atlas::idx_t lvls(incFlds["air_pressure"].shape(1));
-  for (atlas::idx_t jn = 0; jn < pbarIncView.shape(0); ++jn) {
+  const atlas::idx_t lvls(incFlds["air_pressure"].shape(1));
+  const atlas::idx_t sizeOwned =
+        util::getSizeOwned(incFlds["air_pressure"].functionspace());
+  for (atlas::idx_t jn = 0; jn < sizeOwned; ++jn) {
     for (atlas::idx_t jl = 0; jl < lvls; ++jl) {
       alpha_jl = (hView(jn, jl) - hlView(jn, jl)) / (hlView(jn, jl+1) - hlView(jn, jl));
       pbarIncView(jn, jl) = (1.0 - alpha_jl) * pIncView(jn, jl) +
                             alpha_jl * pIncView(jn, jl+1);
     }
   }
+  incFlds["air_pressure"].set_dirty();
 }
 
 void evalAirPressureAD(atlas::FieldSet & hatFlds, const atlas::FieldSet & augStateFlds) {
@@ -50,8 +54,10 @@ void evalAirPressureAD(atlas::FieldSet & hatFlds, const atlas::FieldSet & augSta
 
   double alpha_jl(0.0);
 
-  atlas::idx_t lvls(hatFlds["air_pressure"].shape(1));
-  for (atlas::idx_t jn = 0; jn < pHatView.shape(0); ++jn) {
+  const atlas::idx_t lvls(hatFlds["air_pressure"].shape(1));
+  const atlas::idx_t sizeOwned =
+        util::getSizeOwned(hatFlds["air_pressure"].functionspace());
+  for (atlas::idx_t jn = 0; jn < sizeOwned; ++jn) {
     for (atlas::idx_t jl = 0; jl < lvls; ++jl) {
       alpha_jl = (hView(jn, jl) - hlView(jn, jl)) / (hlView(jn, jl+1) - hlView(jn, jl));
       pHatView(jn, jl) += (1.0 - alpha_jl) * pbarHatView(jn, jl);
@@ -59,6 +65,8 @@ void evalAirPressureAD(atlas::FieldSet & hatFlds, const atlas::FieldSet & augSta
       pbarHatView(jn, jl) = 0.0;
     }
   }
+  hatFlds["air_pressure"].set_dirty();
+  hatFlds["air_pressure_levels"].set_dirty();
 }
 
 }  // namespace mo

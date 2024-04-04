@@ -11,7 +11,6 @@
 
 namespace mo {
 
-// TODO(Mayeul) Remove duplicate evalAirPressureLevels in common_varchange.cc/h
 /// \details Vertical extrapolation of air pressure above model top
 void eval_air_pressure_levels_nl(atlas::FieldSet & stateFlds);
 

@@ -1,15 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h.tmp	2024-03-21 10:06:06.763035008 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h	2024-03-21 09:18:46.001617023 +0100
-@@ -35,16 +35,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h.tmp.bak	2024-04-04 09:54:15.820297722 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.h	2024-03-25 16:37:27.937996925 +0100
+@@ -35,6 +35,7 @@
  
    // Constructor
    LayerBase(const FastLAMParametersBase & params,
 +            const eckit::LocalConfiguration & fieldsMetaData,
              const oops::GeometryData & gdata,
--            const std::string & myVar,
-+            const std::string & myGroup,
-+            const std::vector<std::string> & myVars,
-             const size_t & nx0,
+             const std::string & myGroup,
+             const std::vector<std::string> & myVars,
+@@ -42,6 +43,7 @@
              const size_t & ny0,
              const size_t & nz0) :
      params_(params),
@@ -17,23 +16,7 @@
      gdata_(gdata),
      comm_(gdata_.comm()),
      myrank_(comm_.rank()),
--    myVar_(myVar),
-+    myGroup_(myGroup),
-+    myVars_(myVars),
-     nx0_(nx0),
-     ny0_(ny0),
-     mSize_(gdata_.functionSpace().ghost().shape(0)),
-@@ -71,7 +75,8 @@
-   // Non-virtual methods
- 
-   // Setups
--  void setupVerticalCoord(const atlas::Field &, const atlas::Field &);
-+  void setupVerticalCoord(const atlas::Field &,
-+                          const atlas::Field &);
-   void setupInterpolation();
-   void setupKernels();
-   void setupNormalization();
-@@ -104,6 +109,7 @@
+@@ -107,6 +109,7 @@
  
    // Parameters
    FastLAMParametersBase params_;
@@ -41,64 +24,42 @@
  
    // Model grid geometry data
    const oops::GeometryData & gdata_;
-@@ -112,8 +118,9 @@
-   const eckit::mpi::Comm & comm_;
-   size_t myrank_;
+@@ -164,6 +167,7 @@
+   atlas::FieldSet fset_;
  
--  // Variable
--  std::string myVar_;
-+  // Group and variables
-+  std::string myGroup_;
-+  std::vector<std::string> myVars_;
- 
-   // Model grid
-   size_t nx0_;
-@@ -174,6 +181,10 @@
-   // Parallelization mode
-   std::string parallelization_;
-   virtual void print(std::ostream &) const = 0;
-+  void binarySearch(const std::vector<int> &,
-+                    const std::vector<size_t> &,
-+                    const size_t &,
-+                    int &);
- };
- 
- // -----------------------------------------------------------------------------
-@@ -185,8 +196,10 @@
+   // Reduced grid <=> model grid (interpolation)
++  bool noInterp_;
+   size_t rSendSize_;
+   size_t mRecvSize_;
+   std::vector<int> rSendCounts_;
+@@ -193,6 +197,7 @@
  class LayerFactory {
   public:
    static std::unique_ptr<LayerBase> create(const FastLAMParametersBase &,
 +                                           const eckit::LocalConfiguration &,
                                             const oops::GeometryData &,
                                             const std::string &,
-+                                           const std::vector<std::string> &,
-                                            const size_t &,
-                                            const size_t &,
-                                            const size_t &);
-@@ -198,8 +211,10 @@
+                                            const std::vector<std::string> &,
+@@ -207,6 +212,7 @@
  
   private:
    virtual std::unique_ptr<LayerBase> make(const FastLAMParametersBase &,
 +                                          const eckit::LocalConfiguration &,
                                            const oops::GeometryData &,
                                            const std::string &,
-+                                          const std::vector<std::string> &,
-                                           const size_t &,
-                                           const size_t &,
-                                           const size_t &) = 0;
-@@ -215,12 +230,14 @@
+                                           const std::vector<std::string> &,
+@@ -225,13 +231,14 @@
  template<class T>
  class LayerMaker : public LayerFactory {
    std::unique_ptr<LayerBase> make(const FastLAMParametersBase & params,
 +                                  const eckit::LocalConfiguration & fieldsMetaData,
                                    const oops::GeometryData & gdata,
--                                  const std::string & myVar,
-+                                  const std::string & myGroup,
-+                                  const std::vector<std::string> & myVars,
+                                   const std::string & myGroup,
+                                   const std::vector<std::string> & myVars,
                                    const size_t & nx0,
                                    const size_t & ny0,
                                    const size_t & nz0) override {
--    return std::make_unique<T>(params, gdata, myVar, nx0, ny0, nz0);
+-    return std::make_unique<T>(params, gdata, myGroup, myVars, nx0, ny0, nz0);
 +    return std::make_unique<T>(params, fieldsMetaData, gdata, myGroup, myVars, nx0, ny0, nz0);
    }
  

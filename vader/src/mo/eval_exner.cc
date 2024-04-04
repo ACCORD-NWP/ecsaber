@@ -12,6 +12,7 @@
 #include "mo/constants.h"
 #include "mo/eval_exner.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
@@ -29,13 +30,17 @@ void eval_hydrostatic_exner_levels_tl(atlas::FieldSet & incFlds,
   auto exnerIncView = make_view<double, 2>(incFlds["hydrostatic_exner_levels"]);
 
   atlas::idx_t levels = incFlds["hydrostatic_exner_levels"].shape(1);
-  for (atlas::idx_t jn = 0; jn < incFlds["hydrostatic_exner_levels"].shape(0); ++jn) {
+  const atlas::idx_t sizeOwned =
+        util::getSizeOwned(incFlds["hydrostatic_exner_levels"].functionspace());
+
+  for (atlas::idx_t jn = 0; jn < sizeOwned; ++jn) {
     for (atlas::idx_t jl = 0; jl < levels; ++jl) {
       exnerIncView(jn, jl) = pIncView(jn, jl) *
         (constants::rd_over_cp * exnerView(jn, jl)) /
         pView(jn, jl);
     }
   }
+  incFlds["hydrostatic_exner_levels"].set_dirty();
   oops::Log::trace() << "[eval_hydrostatic_exner_levels_tl()] ... done" << std::endl;
 }
 
@@ -49,7 +54,10 @@ void eval_hydrostatic_exner_levels_ad(atlas::FieldSet & hatFlds,
   auto exnerHatView = make_view<double, 2>(hatFlds["hydrostatic_exner_levels"]);
 
   atlas::idx_t levels = hatFlds["hydrostatic_exner_levels"].shape(1);
-  for (atlas::idx_t jn = 0; jn < hatFlds["hydrostatic_exner_levels"].shape(0); ++jn) {
+  const atlas::idx_t sizeOwned =
+        util::getSizeOwned(hatFlds["hydrostatic_exner_levels"].functionspace());
+
+  for (atlas::idx_t jn = 0; jn < sizeOwned; ++jn) {
     for (atlas::idx_t jl = 0; jl < levels; ++jl) {
       pHatView(jn, jl) += exnerHatView(jn, jl) *
         (constants::rd_over_cp * exnerView(jn, jl)) /
@@ -57,6 +65,8 @@ void eval_hydrostatic_exner_levels_ad(atlas::FieldSet & hatFlds,
       exnerHatView(jn, jl) = 0.0;
     }
   }
+  hatFlds["hydrostatic_pressure_levels"].set_dirty();
+  hatFlds["hydrostatic_exner_levels"].set_dirty();
   oops::Log::trace() << "[eval_hydrostatic_exner_levels_ad()] ... done" << std::endl;
 }
 
@@ -69,12 +79,15 @@ void eval_hydrostatic_exner_levels_tl_inv(atlas::FieldSet & incFlds,
   const auto exnerIncView = make_view<const double, 2>(incFlds["hydrostatic_exner_levels"]);
   auto pIncView = make_view<double, 2>(incFlds["hydrostatic_pressure_levels"]);
 
-  for (atlas::idx_t jn = 0; jn < pIncView.shape(0); ++jn) {
+  const atlas::idx_t sizeOwned =
+        util::getSizeOwned(incFlds["hydrostatic_pressure_levels"].functionspace());
+  for (atlas::idx_t jn = 0; jn < sizeOwned; ++jn) {
     for (atlas::idx_t jl = 0; jl < pIncView.shape(1); ++jl) {
       pIncView(jn, jl) = exnerIncView(jn, jl) * pView(jn, jl) /
               (constants::rd_over_cp * exnerView(jn, jl));
     }
   }
+  incFlds["hydrostatic_pressure_levels"].set_dirty();
   oops::Log::trace() << "[eval_hydrostatic_exner_levels_tl_inv()] ... done" << std::endl;
 }
 

@@ -1,13 +1,13 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc.tmp	2024-03-07 12:22:37.023915538 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc	2024-03-07 11:36:34.101881390 +0100
-@@ -180,6 +180,10 @@
-   param(modelDef.lev2d, modelConf);
-   // Check that sampling couples and interpolations do not cross mask boundaries
-   param(modelDef.mask_check, modelConf);
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc.tmp.bak	2024-04-03 17:47:41.493008962 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc	2024-03-22 15:23:12.970496911 +0100
+@@ -333,6 +333,10 @@
+   eckit::LocalConfiguration externalConf;
+   // Iterative algorithm (ensemble members loaded sequentially)
+   param(externalDef.iterative_algo, externalConf);
 +  // Vertical coordinate field name in geometry fields
-+  param(modelDef.vert_coord_name, modelConf);
++  param(externalDef.vert_coord_name, externalConf);
 +  // Geographical mask name in geometry fields
-+  param(modelDef.gmask_name, modelConf);
++  param(externalDef.gmask_name, externalConf);
  
-   // Ensemble sizes section
-   EnsembleSizesDef ensembleSizesDef;
+   // General parameters
+   config->set("general", generalConf);
