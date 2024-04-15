@@ -48,9 +48,10 @@ void eval_mio_fields_nl(const std::string & mio_path, atlas::FieldSet & augState
       if (jl < constants::mioLevs) {
         // Ternary false branch has std::max inside the static_cast to make sure a small negative
         // integer does not underflow to a giant positive size_t.
-        const std::size_t ibin = (rhtView(jn, jl) > 1.0) ? constants::mioBins - 1 :
-                                 static_cast<std::size_t>(
-                                     std::max(floor(rhtView(jn, jl) / constants::rHTBin), 0.0));
+        const std::size_t ibin = (rhtView(jn, jl) > constants::rHTLastBinLowerLimit) ?
+                                 constants::mioBins - 1 :
+                                 static_cast<std::size_t>(std::max(floor(rhtView(jn, jl) /
+                                                                         constants::rHTBin), 0.0));
 
         std::double_t ceffdenom = (1.0 -  clView(jn, jl) * cfView(jn, jl) );
         if (ceffdenom > constants::tol) {

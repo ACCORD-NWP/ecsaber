@@ -9,14 +9,17 @@
 
 #include "vader/vader.h"
 // Recipe headers
+#include "recipes/AirDensityLevelsMinusOne.h"
 #include "recipes/AirPotentialTemperature.h"
 #include "recipes/AirPressureThickness.h"
 #include "recipes/AirTemperature.h"
 #include "recipes/AirVirtualTemperature.h"
 #include "recipes/CloudIceMixingRatio.h"
 #include "recipes/CloudLiquidMixingRatio.h"
+#include "recipes/DryAirDensity.h"
 #include "recipes/DryAirDensityLevelsMinusOne.h"
 #include "recipes/HydrostaticExnerLevels.h"
+#include "recipes/ParticulateMatter2p5.h"
 #include "recipes/RainMixingRatio.h"
 #include "recipes/TotalMixingRatio.h"
 #include "recipes/TotalWater.h"
@@ -35,9 +38,10 @@ const cookbookConfigType Vader::defaultCookbookDefinition = {
                                    {CloudIceMixingRatio_A::Name}},
         {"mass_content_of_cloud_liquid_water_in_atmosphere_layer",
                                    {CloudLiquidMixingRatio_A::Name}},
-        {"dry_air_density_levels_minus_one",  {DryAirDensityLevelsMinusOne_C::Name,
-                                               DryAirDensityLevelsMinusOne_A::Name,
-                                               DryAirDensityLevelsMinusOne_B::Name}},
+        {"dry_air_density",        {DryAirDensity_A::Name}},
+        {"dry_air_density_levels_minus_one",  {DryAirDensityLevelsMinusOne_A::Name}},
+        {"air_density_levels_minus_one",  {AirDensityLevelsMinusOne_A::Name,
+                                           AirDensityLevelsMinusOne_B::Name}},
         {"hydrostatic_exner_levels",  {HydrostaticExnerLevels_A::Name}},
         {"potential_temperature",  {AirPotentialTemperature_A::Name}},
         {"qrain",                  {RainMixingRatio_A::Name}},
@@ -50,7 +54,9 @@ const cookbookConfigType Vader::defaultCookbookDefinition = {
         {"virtual_potential_temperature",  {VirtualPotentialTemperature_B::Name,
                                             VirtualPotentialTemperature_A::Name}},
         {"virtual_temperature",    {AirVirtualTemperature_A::Name}},
-        {"vwind_at_10m",           {vwind_at_10m_A::Name}}
+        {"vwind_at_10m",           {vwind_at_10m_A::Name}},
+        {"mass_density_of_particulate_matter_2p5_in_air", {ParticulateMatter2p5_A::Name,
+                                    ParticulateMatter2p5_B::Name}}
     };
 
 }  // namespace vader

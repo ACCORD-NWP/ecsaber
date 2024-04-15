@@ -1,13 +1,11 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc.tmp.bak	2024-04-03 17:47:41.493008962 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc	2024-03-22 15:23:12.970496911 +0100
-@@ -333,6 +333,10 @@
-   eckit::LocalConfiguration externalConf;
-   // Iterative algorithm (ensemble members loaded sequentially)
-   param(externalDef.iterative_algo, externalConf);
-+  // Vertical coordinate field name in geometry fields
-+  param(externalDef.vert_coord_name, externalConf);
-+  // Geographical mask name in geometry fields
-+  param(externalDef.gmask_name, externalConf);
- 
-   // General parameters
-   config->set("general", generalConf);
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc.tmp	2024-04-15 14:44:00.033839560 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc	2024-04-15 12:15:51.539664802 +0200
+@@ -233,6 +233,8 @@
+   param(diagnosticsDef.ne_lr, diagnosticsConf);
+   // Gaussian approximation for asymptotic quantities
+   param(diagnosticsDef.gau_approx, diagnosticsConf);
++  // Compute localization from correlation
++  param(diagnosticsDef.loc_from_cor, diagnosticsConf);
+   // Threshold on generalized kurtosis (3.0 = Gaussian distribution)
+   param(diagnosticsDef.gen_kurt_th, diagnosticsConf);
+   // Number of bins for averaged statistics histograms

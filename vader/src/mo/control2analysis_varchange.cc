@@ -22,24 +22,6 @@ using atlas::idx_t;
 
 namespace mo {
 
-void evalVirtualPotentialTemperature(atlas::FieldSet & stateFlds) {
-  const auto qView = make_view<const double, 2>(stateFlds["specific_humidity"]);
-  const auto thetaView = make_view<const double, 2>(stateFlds["potential_temperature"]);
-  auto vthetaView = make_view<double, 2>(stateFlds["virtual_potential_temperature"]);
-
-  auto fspace = stateFlds["virtual_potential_temperature"].functionspace();
-
-  auto evaluateVTheta = [&] (idx_t i, idx_t j) {
-    vthetaView(i, j) = thetaView(i, j) * (1.0 + constants::c_virtual * qView(i, j)); };
-
-  auto conf = Config("levels", stateFlds["virtual_potential_temperature"].shape(1)) |
-              Config("include_halo", false);
-
-  functions::parallelFor(fspace, evaluateVTheta, conf);
-
-  stateFlds["virtual_potential_temperature"].set_dirty();
-}
-
 /// \details Calculate the hydrostatic exner pressure (on levels)
 ///          using air_pressure_minus_one and virtual potential temperature.
 void evalHydrostaticExnerLevels(atlas::FieldSet & stateFlds) {

@@ -1,20 +1,18 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp.tmp.bak	2024-04-03 17:47:41.649009264 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp	2024-03-22 15:23:17.566530394 +0100
-@@ -212,6 +212,8 @@
- 
-    ! External section
-    logical :: iterative_algo                                  !< Iterative algorithm (ensemble members loaded sequentially)
-+   character(len=1024) :: vert_coord_name                     !< Vertical coordinate field name in geometry fields
-+   character(len=1024) :: gmask_name                          !< Geographical mask name in geometry fields
- contains
-    procedure :: init => nam_init
-    procedure :: final => nam_final
-@@ -951,6 +953,8 @@
- ! External section
- if (conf%get('external',section)) then
-    call nam%get(section,'iterative algorithm',nam%iterative_algo)
-+   call nam%get(section,'vertical coordinate name',nam%vert_coord_name)
-+   call nam%get(section,'geographical mask name',nam%gmask_name)
- end if
- 
- ! Probe out
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp.tmp	2024-04-15 14:44:00.193839046 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp	2024-04-15 12:18:31.279225382 +0200
+@@ -139,6 +139,7 @@
+    integer :: ne                                              !< Ensemble size
+    integer :: ne_lr                                           !< Ensemble size of the low-resolution term (ensemble 2)
+    logical :: gau_approx                                      !< Gaussian approximation for asymptotic quantities
++   logical :: loc_from_cor                                    !< Compute localization from correlation                       
+    real(kind_real) :: gen_kurt_th                             !< Threshold on generalized kurtosis (3.0 = Gaussian distribution)
+    integer :: avg_nbins                                       !< Number of bins for averaged statistics histograms
+    real(kind_real) :: lengths_scaling                         !< Support radius scaling in CMAT from HDIAG
+@@ -636,6 +637,7 @@
+    call nam%get(section,'target ensemble size',nam%ne)
+    call nam%get(section,'target lowres ensemble size',nam%ne_lr)
+    call nam%get(section,'gaussian approximation',nam%gau_approx)
++   call nam%get(section,'localization from correlation',nam%loc_from_cor)
+    call nam%get(section,'generalized kurtosis threshold',nam%gen_kurt_th)
+    call nam%get(section,'histogram bins',nam%avg_nbins)
+    call nam%get(section,'diagnosed lengths scaling',nam%lengths_scaling)

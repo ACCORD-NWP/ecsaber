@@ -13,12 +13,10 @@ namespace mo {
 
 /// \details This calculates the surface pressure increment from the atmospheric
 ///          pressure increment at the lowest level
-// TODO(Mayeul) Remove evalSurfacePressureTL in model2geovals_linearvarchange.h/.cc
 void eval_surface_pressure_tl(atlas::FieldSet & incFlds);
 
 /// \details This calculates the adjoint of the atmospheric pressure
 ///          at the lowest level from the adjoint of the surface pressure
-// TODO(Mayeul) Remove evalSurfacePressureAD in model2geovals_linearvarchange.h/.cc
 void eval_surface_pressure_ad(atlas::FieldSet & HatFlds);
 
 }  // namespace mo

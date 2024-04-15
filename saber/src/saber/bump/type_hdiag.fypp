@@ -319,14 +319,14 @@ if (nam%compute_loc1) then
    ! Ensemble 1
    write(mpl%info,'(a7,a)') '','Ensemble 1:'
    call mpl%flush
-   call hdiag%loc(1)%localization(mpl,nam,geom(1),samp(1),hdiag%avg(1),'loc1')
+   call hdiag%loc(1)%localization(mpl,nam,geom(1),samp(1),hdiag%avg(1),nam%ne,'loc1')
 end if
 
 if (nam%compute_loc2) then
    ! Ensemble 2
    write(mpl%info,'(a7,a)') '','Ensemble 2:'
    call mpl%flush
-   call hdiag%loc(2)%localization(mpl,nam,geom(2),samp(2),hdiag%avg(2),'loc2')
+   call hdiag%loc(2)%localization(mpl,nam,geom(2),samp(2),hdiag%avg(2),nam%ne_lr,'loc2')
 end if
 
 if (nam%compute_hyb) then

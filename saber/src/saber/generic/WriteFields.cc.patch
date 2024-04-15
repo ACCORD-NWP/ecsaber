@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/generic/WriteFields.cc.tmp	2024-04-15 14:43:59.085842651 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/generic/WriteFields.cc	2024-04-15 14:31:44.297535561 +0200
+@@ -83,7 +83,6 @@
+     oops::Log::test() << "  " << field.name() << ": "
+                       << util::normField(field, innerGeometryData_.comm()) << std::endl;
+   }
+-  oops::Log::test() << std::endl;
+ }
+ 
+ // -----------------------------------------------------------------------------

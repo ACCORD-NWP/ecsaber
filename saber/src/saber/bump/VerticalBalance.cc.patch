@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/VerticalBalance.cc.tmp	2024-04-04 15:19:53.533076562 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/VerticalBalance.cc	2024-04-04 14:55:48.991394359 +0200
-@@ -34,31 +34,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/VerticalBalance.cc.tmp.bak	2024-04-15 14:44:00.113839303 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/VerticalBalance.cc	2024-04-04 15:35:09.282252474 +0200
+@@ -34,32 +34,13 @@
    : SaberOuterBlockBase(params, xb.validTime()),
      innerGeometryData_(outerGeometryData),
      innerVars_(outerVars),
@@ -32,6 +32,7 @@
 -                       activeVars_,
 -                       covarConf,
 -                       bumpParams_,
+-                       params.fieldsMetaData.value(),
 -                       xb));
 -
 +  oops::Log::trace() << classname() << "::VerticalBalance starting" << std::endl;

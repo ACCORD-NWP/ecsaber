@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-03-08 08:00:38.857997065 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-03-08 08:24:25.969887746 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-04-15 14:43:58.769843695 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-04-15 12:40:00.791233263 +0200
 @@ -1,5 +1,5 @@
  /*
 - * (C) Crown Copyright 2023-2024 Met Office
@@ -7,16 +7,18 @@
   *
   * This software is licensed under the terms of the Apache Licence Version 2.0
   * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-@@ -7,6 +7,8 @@
+@@ -7,8 +7,9 @@
  
  #pragma once
  
 +#include <omp.h>
 +
  #include <algorithm>
+-#include <map>
  #include <memory>
  #include <sstream>
-@@ -18,12 +20,14 @@
+ #include <string>
+@@ -19,12 +20,14 @@
  #include "eckit/exception/Exceptions.h"
  
  #include "oops/base/FieldSets.h"
@@ -37,24 +39,31 @@
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
  #include "oops/util/ConfigFunctions.h"
-@@ -35,6 +39,9 @@
+@@ -32,12 +35,13 @@
+ #include "oops/util/FieldSetHelpers.h"
+ #include "oops/util/Logger.h"
+ #include "oops/util/parameters/OptionalParameter.h"
+-#include "oops/util/parameters/Parameter.h"
+ #include "oops/util/parameters/Parameters.h"
  #include "oops/util/parameters/RequiredParameter.h"
  
  #include "saber/blocks/SaberParametricBlockChain.h"
+-#include "saber/oops/ErrorCovarianceParameters.h"
 +#include "saber/oops/instantiateCovarFactory.h"
 +
 +#include "saber/oops/ECUtilities.h"
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -83,14 +90,12 @@
-   OOPS_CONCRETE_PARAMETERS(ModelOrGenericWriteParameters, oops::Parameters)
+@@ -108,7 +112,6 @@
+   OOPS_CONCRETE_PARAMETERS(OutputWriteParameters, oops::Parameters)
  
   public:
 -  typedef typename oops::Increment<MODEL>::WriteParameters_  IncrementWriteParameters_;
--
-   /// Write parameters using generic oops::util::writeFieldSet writer
-   oops::OptionalParameter<eckit::LocalConfiguration>
+   typedef ErrorCovarianceParameters<MODEL>                   ErrorCovarianceParameters_;
+ 
+   // This is there to get ErrorCovarianceParameters and in particular
+@@ -121,7 +124,7 @@
      genericWrite{"generic write", this};
  
    /// Write parameters using model increment writer
@@ -63,7 +72,7 @@
      modelWrite{"model write", this};
  };
  
-@@ -99,25 +104,20 @@
+@@ -143,22 +146,19 @@
  
  /// \brief Top-level options taken by the ProcessPerts application.
  template <typename MODEL> class ProcessPertsParameters :
@@ -75,9 +84,9 @@
   public:
 -  typedef oops::ModelSpaceCovarianceParametersWrapper<MODEL> CovarianceParameters_;
 -
--  typedef typename oops::Geometry<MODEL>::Parameters_     GeometryParameters_;
--  typedef ErrorCovarianceParameters<MODEL>                ErrorCovarianceParameters_;
-   typedef ModelOrGenericWriteParameters<MODEL>            ModelOrGenericWriteParameters_;
+-  typedef typename oops::Geometry<MODEL>::Parameters_    GeometryParameters_;
+   typedef BandParameters<MODEL>                          BandParameters_;
+ 
    /// Geometry parameters.
 -  oops::RequiredParameter<GeometryParameters_> geometry{"geometry", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> geometry{"resolution", this};
@@ -89,13 +98,9 @@
 -  oops::RequiredParameter<oops::patch::Variables> inputVariables{"input variables", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> inputVariables{"input variables", this};
  
--  oops::RequiredParameter<std::vector<ErrorCovarianceParameters_>>
--   saberFilterCovarianceParams{"saber filter blocks", this};
-+  oops::RequiredParameter<eckit::LocalConfiguration> saberFilterCovarianceParams{"saber filter blocks", this};
+   oops::RequiredParameter<std::vector<BandParameters_>> bands{"bands", this};
  
-   /// Where to read input ensemble: From states or perturbations
-   oops::OptionalParameter<eckit::LocalConfiguration> ensemble{"ensemble", this};
-@@ -133,42 +133,69 @@
+@@ -169,52 +169,80 @@
  
  // -----------------------------------------------------------------------------
  
@@ -183,30 +188,32 @@
      oops::FieldSet4D fsetXb(xx);
      oops::FieldSet4D fsetFg(xx);
  
-@@ -178,9 +205,10 @@
-     std::vector<eckit::LocalConfiguration> filterCovarianceBlockConfs
-       = fullConfig.getSubConfigurations("saber filter blocks");
+     // Setup time
+     const util::DateTime time = xx[0].validTime();
  
 -    oops::patch::Variables incVars = params.inputVariables;
 +    const Variables_ incVarsT(params.inputVariables);
 +    oops::patch::Variables incVars(incVarsT.variables().variablesList());
+ 
      // Initialize outer variables
 -    const std::vector<std::size_t> vlevs = geom.variableSizes(incVars);
 +    const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsT.variables());
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars.addMetaData(incVars[i], "levels", vlevs[i]);
      }
-@@ -285,19 +313,20 @@
+@@ -375,22 +403,22 @@
                                  std::vector<std::string>{"geometry", "grid"},
                                  "grid pattern",
-                                 conf);
--          util::writeFieldSet(geom.getComm(), conf, fset4dDx[0].fieldSet());
-+          util::writeFieldSet(geom.geometry().getComm(), conf, fset4dDx[0].fieldSet());
+                                 gconf);
+-          util::writeFieldSet(geom.getComm(), gconf, fset4dDx[0].fieldSet());
++          util::writeFieldSet(geom.geometry().getComm(), gconf, fset4dDx[0].fieldSet());
          }
  
-         if (localOutputPert.modelWrite.value() != boost::none) {
+         if (auto it{modelWriteConfs.find(b)}; it != std::end(modelWriteConfs)) {
+           eckit::LocalConfiguration mconf = it->second;
+ 
            // Should be on the model geometry!
-+          const Variables_ pertVarsT(templatedVarsConf(fset4dDx[0].variables()));
++          const Variables_ pertVarsT(templatedVarsConf(fset4dDxI[0].variables()));
            auto pert = Increment_(geom,
 -                                 fset4dDx[0].variables(),
 +                                 pertVarsT,
@@ -215,40 +222,15 @@
 -          pert.fromFieldSet(fset4dDx[0].fieldSet());
 +          pert.increment().fromFieldSet(fset4dDx[0].fieldSet());
  
--          IncrementWriteParameters_ writeParams = localOutputPert.modelWrite.value().value();
+-          IncrementWriteParameters_ writeParams;
+-          writeParams.deserialize(mconf);
 -          writeParams.setMember(jm+1);
-+          eckit::LocalConfiguration writeParams = *localOutputPert.modelWrite.value();
++          eckit::LocalConfiguration writeParams = mconf;
 +          util::setMember(writeParams, jm+1);
            pert.write(writeParams);
          }
- 
-@@ -321,19 +350,20 @@
-                                 std::vector<std::string>{"geometry", "grid"},
-                                 "grid pattern",
-                                 conf);
--          util::writeFieldSet(geom.getComm(), conf, fset4dDxI[0].fieldSet());
-+          util::writeFieldSet(geom.geometry().getComm(), conf, fset4dDxI[0].fieldSet());
-         }
- 
-         if (localOutputPert.modelWrite.value() != boost::none) {
-           // Should be on the model geometry!
-+          const Variables_ pertVarsT(templatedVarsConf(fset4dDxI[0].variables()));
-           auto pert = Increment_(geom,
--                                 fset4dDxI[0].variables(),
-+                                 pertVarsT,
-                                  time);
-           pert.zero();
--          pert.fromFieldSet(fset4dDxI[0].fieldSet());
-+          pert.increment().fromFieldSet(fset4dDxI[0].fieldSet());
- 
--          auto writeParams = localOutputPert.modelWrite.value().value();
--          writeParams.setMember(jm+1);
-+          auto writeParams = *localOutputPert.modelWrite.value();
-+          util::setMember(writeParams, jm+1);
-           pert.write(writeParams);
-         }
- 
-@@ -346,16 +376,6 @@
+       }
+@@ -399,16 +427,6 @@
      return 0;
    }
  // -----------------------------------------------------------------------------

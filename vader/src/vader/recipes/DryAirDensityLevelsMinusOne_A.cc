@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2022 UCAR.
- * (C) Crown Copyright 2023 Met Office.
+ * (C) Crown Copyright 2023-2024 Met Office.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -23,8 +23,18 @@ namespace vader
 // Static attribute initialization
 const char DryAirDensityLevelsMinusOne_A::Name[] = "DryAirDensityLevelsMinusOne_A";
 const std::vector<std::string> DryAirDensityLevelsMinusOne_A::
-    Ingredients = {"height", "height_levels", "virtual_potential_temperature",
-                   "air_pressure_levels_minus_one"};
+    Ingredients = {"height", "height_levels", "potential_temperature",
+                   "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
+                   "mass_content_of_cloud_ice_in_atmosphere_layer",
+                   "specific_humidity", "air_pressure_levels_minus_one"};
+    // For renaming to CCPP standard in (hopefully) near future:
+    // Ingredients = {"height_above_mean_sea_level_at_interface",
+    //                "height_above_mean_sea_levels_extended_up_by_one",
+    //                "air_potential_temperature_at_interface",
+    //                "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
+    //                "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water",
+    //                "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water",
+    //                "air_pressure"}
 
 // Register the maker
 static RecipeMaker<DryAirDensityLevelsMinusOne_A>
@@ -47,6 +57,8 @@ std::string DryAirDensityLevelsMinusOne_A::name() const
 std::string DryAirDensityLevelsMinusOne_A::product() const
 {
     return "dry_air_density_levels_minus_one";
+    // For renaming to CCPP standard in (hopefully) near future:
+    // return "dry_air_density";
 }
 
 std::vector<std::string> DryAirDensityLevelsMinusOne_A::ingredients() const
@@ -57,6 +69,8 @@ std::vector<std::string> DryAirDensityLevelsMinusOne_A::ingredients() const
 size_t DryAirDensityLevelsMinusOne_A::productLevels(const atlas::FieldSet & afieldset) const
 {
     return afieldset["air_pressure_levels_minus_one"].shape(1);
+    // For renaming to CCPP standard in (hopefully) near future:
+    //  return afieldset["air_pressure"].shape(1);
 }
 
 atlas::FunctionSpace DryAirDensityLevelsMinusOne_A::productFunctionSpace(const atlas::FieldSet

@@ -29,12 +29,12 @@ namespace bump {
 // Elemental parameters (without default value)
 // -----------------------------------------------------------------------------
 
-// Variables value or profile elemental parameters
+// patch::Variables value or profile elemental parameters
 class VarsValueOrProfileParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(VarsValueOrProfileParameters, oops::Parameters)
 
  public:
-  // Variables
+  // patch::Variables
   oops::RequiredParameter<std::vector<std::string>> variables{"variables", this};
   // Value
   oops::OptionalParameter<double> value{"value", this};
@@ -64,7 +64,7 @@ class GroupsValueParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(GroupsValueParameters, oops::Parameters)
 
  public:
-  // Variables
+  // patch::Variables
   oops::RequiredParameter<std::vector<std::string>> groups{"groups", this};
   // Value
   oops::RequiredParameter<int> value{"value", this};
@@ -357,7 +357,7 @@ class ModelSection : public oops::Parameters {
  public:
   // Level for 2D variables ('first' or 'last')
   oops::Parameter<std::string> lev2d = param(def.lev2d, this);
-  // Variables names
+  // patch::Variables names
   oops::Parameter<std::vector<std::string>> variables{"variables", {}, this};
   // 2D variables names
   oops::Parameter<std::vector<std::string>> var2d{"2d variables", {}, this};
@@ -462,6 +462,8 @@ class DiagnosticsSection : public oops::Parameters {
   oops::Parameter<int> ne_lr = param(def.ne_lr, this);
   // Gaussian approximation for asymptotic quantities
   oops::Parameter<bool> gau_approx = param(def.gau_approx, this);
+  // Compute localization from correlation
+  oops::Parameter<bool> loc_from_cor = param(def.loc_from_cor, this);
   // Threshold on generalized kurtosis (3.0 = Gaussian distribution)
   oops::Parameter<double> gen_kurt_th = param(def.gen_kurt_th, this);
   // Number of bins for averaged statistics histograms

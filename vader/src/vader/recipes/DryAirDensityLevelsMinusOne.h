@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2021-2022 UCAR
- * (C) Crown Copyright 2023 Met Office.
+ * (C) Crown Copyright 2023-2024 Met Office.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -23,72 +23,8 @@ namespace vader {
 
 // ------------------------------------------------------------------------------------------------
 
-/*! \brief DryAirDensityLevelsMinusOne_A class defines a recipe for dry air density
- *
- *  \details This instantiation of RecipeBase produces dry air density
- *           using virtual_potential_temperature and pressure
- *           (air_pressure_levels_minus_one) as inputs.
- */
-class DryAirDensityLevelsMinusOne_A : public RecipeBase {
- public:
-    static const char Name[];
-    static const std::vector<std::string> Ingredients;
-
-    typedef EmptyRecipeParameters Parameters_;
-
-    DryAirDensityLevelsMinusOne_A(const Parameters_ &, const VaderConfigVars &);
-
-    // Recipe base class overrides
-    std::string name() const override;
-    std::string product() const override;
-    std::vector<std::string> ingredients() const override;
-    size_t productLevels(const atlas::FieldSet &) const override;
-    atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
-    bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
-
- private:
-    const VaderConfigVars & configVariables_;
-};
-
-// ------------------------------------------------------------------------------------------------
-
-/*! \brief DryAirDensityLevelsMinusOne_B class defines a recipe for dry air density
- *
- *  \details This instantiation of RecipeBase produces dry air density
- *           using virtual_potential_temperature and pressure (air_pressure_levels)
- *           as inputs.
- */
-class DryAirDensityLevelsMinusOne_B : public RecipeBase {
- public:
-    static const char Name[];
-    static const std::vector<std::string> Ingredients;
-
-    typedef EmptyRecipeParameters Parameters_;
-
-    DryAirDensityLevelsMinusOne_B(const Parameters_ &, const VaderConfigVars &);
-
-    // Recipe base class overrides
-    std::string name() const override;
-    std::string product() const override;
-    std::vector<std::string> ingredients() const override;
-    size_t productLevels(const atlas::FieldSet &) const override;
-    atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
-    bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
-
- private:
-    const VaderConfigVars & configVariables_;
-};
-
-// ------------------------------------------------------------------------------------------------
-
 // For renaming to CCPP standard in (hopefully) near future:
-/* \brief DryAirDensityLevelsMinusOne_C class defines a recipe for dry air density
+/* \brief DryAirDensityLevelsMinusOne_A class defines a recipe for dry air density
  *
  *  \details This instantiation of RecipeBase produces dry_air_density
  *           using air_potential_temperature_at_interface,
@@ -97,7 +33,7 @@ class DryAirDensityLevelsMinusOne_B : public RecipeBase {
  *           cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water and
  *           air_pressure_extended_up_by_one as inputs.
  */
-/*! \brief DryAirDensityLevelsMinusOne_C class defines a recipe for dry air density
+/*! \brief DryAirDensityLevelsMinusOne_A class defines a recipe for dry air density
  *
  *  \details This instantiation of RecipeBase produces dry air density
  *           using potential_temperature, specific humidity,
@@ -106,14 +42,14 @@ class DryAirDensityLevelsMinusOne_B : public RecipeBase {
  *           and pressure (air_pressure_levels) as inputs.
  */
 
-class DryAirDensityLevelsMinusOne_C : public RecipeBase {
+class DryAirDensityLevelsMinusOne_A : public RecipeBase {
  public:
     static const char Name[];
     static const std::vector<std::string> Ingredients;
 
     typedef EmptyRecipeParameters Parameters_;
 
-    DryAirDensityLevelsMinusOne_C(const Parameters_ &, const VaderConfigVars &);
+    DryAirDensityLevelsMinusOne_A(const Parameters_ &, const VaderConfigVars &);
 
     // Recipe base class overrides
     std::string name() const override;

@@ -57,6 +57,7 @@ background error:
           filepath: testdata/dirac_fakelevels_2/_MPI__rv
       - parameter: weight
         file:
+          overriding variables: [snow_depth_fakeLevels]
           filepath: testdata/dirac_fakelevels_2/_MPI__weight
 dirac:
   lon:

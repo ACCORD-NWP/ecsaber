@@ -34,6 +34,7 @@ namespace constants {
   static constexpr std::double_t rHTBin = 5.0;     // done as a percentage!
   static constexpr std::double_t MinRhRef = 0.0;
   static constexpr std::double_t MaxRhRef = 150.0;
+  static constexpr std::double_t rHTLastBinLowerLimit = (mioBins - 1) * rHTBin;  // in percentage
   static constexpr std::double_t TolMonotonicity = 1.0;
   static constexpr std::double_t effectiveRNegative = 5.0;
 

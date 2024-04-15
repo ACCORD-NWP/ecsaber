@@ -15,14 +15,12 @@ namespace mo {
 /// \details Hydrostatic balance from hydrostatic_exner_levels to virtual potential temperature
 void eval_hydrobal_virtual_potential_temperature_nl(atlas::FieldSet & fields);
 
-// TODO(MW) Delete duplicate hexner2ThetavTL in control2analysis_linearvarchange.h/.cc
 /// \details Tangent linear approximation to the
 ///          transformation from hydrostatically-balanced exner (hydrostatic_exner_levels)
 ///          to virtual_potential_temperature
 void eval_hydrobal_virtual_potential_temperature_tl(atlas::FieldSet & incFlds,
                                                     const atlas::FieldSet & augStateFlds);
 
-// TODO(MW) Delete duplicate hexner2ThetavAD in control2analysis_linearvarchange.h/.cc
 /// \details Adjoint of the tangent linear approximation to the
 ///          transformation from virtual potential temperature () to
 ///          hydrostatically-balanced exner (hexner)

@@ -11,7 +11,6 @@
 
 namespace mo {
 
-// TODO(Mayeul): Remove duplicate evalAirTemperature in model2geovals_varchange.h/cc
 void eval_air_temperature_nl(atlas::FieldSet & stateFlds);
 
 void eval_air_temperature_tl(atlas::FieldSet & incFlds, const atlas::FieldSet & stateFlds);

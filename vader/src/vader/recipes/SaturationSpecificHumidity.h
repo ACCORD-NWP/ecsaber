@@ -20,7 +20,12 @@ namespace vader
 
 // -------------------------------------------------------------------------------------------------
 
-/*! \brief The class 'SaturationSpecificHumidity_A' defines a recipe for 'saturation specific humidity (qsat)'
+/*! \brief The class 'SaturationSpecificHumidity_A' defines a recipe for
+ *         'saturation specific humidity (qsat)'
+ *
+ *  \details This instantiation of RecipeBase produces saturation specific humidity (qsat)
+ *           using air pressure, saturation vapour pressure (svp), and air temperature as inputs.
+ *
  */
 class SaturationSpecificHumidity_A : public RecipeBase
 {
