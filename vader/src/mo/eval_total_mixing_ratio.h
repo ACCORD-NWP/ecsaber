@@ -18,7 +18,6 @@ namespace mo {
 ///   M_dry = mass of dry air
 ///   m_t  =  moist air and condensed water mixing ratio wrt dry air
 ///
-// TODO(Stefano) Remove evalTotalMassMoistAir in model2geovals_varchange.h/.cc
 bool eval_total_mixing_ratio_nl(
         atlas::FieldSet & stateFlds);
 

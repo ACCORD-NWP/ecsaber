@@ -11,7 +11,6 @@
 
 namespace mo {
 
-// TODO(Mayeul) Remove duplicate evalMassCloudLiquid in model2geovals_varchange.cc/.h
 /// \brief function to evaluate the cloud liquid water mixing ratio
 ///        wrt moist air and condensed water:
 ///   qcl = m_cl/m_t

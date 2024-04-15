@@ -11,7 +11,6 @@
 
 namespace mo {
 
-// TODO(Mayeul) Remove duplicate evalSpecificHumidity in model2geovals_varchange.cc/.h
 /// \brief function to evaluate the water vapor mixing ratio wrt
 ///        moist air and condensed water (one possible definition
 ///        of specific humidity):
@@ -32,7 +31,6 @@ void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_ad(
         const atlas::FieldSet & stateFlds);
 
 
-// TODO(Mayeul) Remove duplicate evalSpecificHumidityFromRH_2m in model2geovals_varchange.cc/.h
 /// \brief function to evaluate the water vapor mixing ratio wrt moist air
 ///        and condensed water at 2m:
 ///   q2m = rh * qsat

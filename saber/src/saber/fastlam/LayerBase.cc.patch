@@ -1,40 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc.tmp	2024-04-04 15:19:53.057075882 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc	2024-04-04 13:31:39.029671091 +0200
-@@ -43,6 +43,7 @@
- 
- std::unique_ptr<LayerBase> LayerFactory::create(
-   const FastLAMParametersBase & params,
-+  const eckit::LocalConfiguration & fieldsMetaData,
-   const oops::GeometryData & gdata,
-   const std::string & myGroup,
-   const std::vector<std::string> & myVars,
-@@ -57,7 +58,7 @@
-     throw eckit::UserError("Element does not exist in saber::LayerFactory.", Here());
-   }
-   std::unique_ptr<LayerBase> ptr =
--    jsb->second->make(params, gdata, myGroup, myVars, nx0, ny0, nz0);
-+    jsb->second->make(params, fieldsMetaData, gdata, myGroup, myVars, nx0, ny0, nz0);
-   oops::Log::trace() << "LayerBase::create done" << std::endl;
-   return ptr;
- }
-@@ -84,12 +85,14 @@
-     std::vector<double> wgt(nz0_, 0.0);
-     const auto rvView = atlas::array::make_view<double, 2>(rvField);
-     const auto wgtView = atlas::array::make_view<double, 2>(wgtField);
-+    const std::string key = myGroup_ + ".vert_coord";
-+    const std::string vertCoordName = fieldsMetaData_.getString(key, "vert_coord");
-     for (size_t jnode0 = 0; jnode0 < mSize_; ++jnode0) {
-       if (ghostView(jnode0) == 0) {
-         for (size_t k0 = 0; k0 < nz0_; ++k0) {
-           double VC = static_cast<double>(k0+1);
--          if (gdata_.fieldSet().has("vert_coord")) {
--            const atlas::Field vertCoordField = gdata_.fieldSet()["vert_coord"];
-+          if (gdata_.fieldSet().has(vertCoordName)) {
-+            const atlas::Field vertCoordField = gdata_.fieldSet()[vertCoordName];
-             const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoordField);
-             VC = vertCoordView(jnode0, k0);
-           }
-@@ -196,6 +199,9 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc.tmp.bak	2024-04-15 14:43:59.385841673 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc	2024-04-04 15:35:09.290252483 +0200
+@@ -199,6 +199,9 @@
    oops::Log::info() << "Info     :     - along y: " << yRedFac_ << std::endl;
    oops::Log::info() << "Info     :     - along z: " << zRedFac_ << std::endl;
  
@@ -44,7 +10,7 @@
    // Reduced grid coordinates
    std::vector<double> xCoord;
    const double dxCoord = static_cast<double>(nx0_-1)/static_cast<double>(nx_-1);
-@@ -217,259 +223,320 @@
+@@ -220,259 +223,320 @@
      zCoord.push_back(0.0);
    }
  
@@ -584,7 +550,7 @@
      }
    }
  
-@@ -522,6 +589,10 @@
+@@ -525,6 +589,10 @@
    }
  
    if (!params_.skipTests.value()) {
@@ -595,7 +561,7 @@
      // Check interpolation accuracy
      atlas::Field redField = fspace_.createField<double>(
        atlas::option::name("dummy") | atlas::option::levels(nz_));
-@@ -786,59 +857,68 @@
+@@ -789,59 +857,68 @@
  
    // Compute horizontal normalization
    normView.assign(0.0);
@@ -716,7 +682,7 @@
        }
      }
    }
-@@ -1209,48 +1289,61 @@
+@@ -1212,48 +1289,61 @@
                                  atlas::Field & modelField) const {
    oops::Log::trace() << classname() << "::interpolationTL starting" << std::endl;
  
@@ -811,7 +777,7 @@
            }
          }
        }
-@@ -1266,51 +1359,64 @@
+@@ -1269,51 +1359,64 @@
                                  atlas::Field & redField) const {
    oops::Log::trace() << classname() << "::interpolationAD starting" << std::endl;
  

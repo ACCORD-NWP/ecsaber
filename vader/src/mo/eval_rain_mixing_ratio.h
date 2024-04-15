@@ -11,7 +11,6 @@
 
 namespace mo {
 
-// TODO(Mayeul) Remove duplicate evalMassRain in model2geovals_varchange.cc/.h
 /// \brief function to evaluate the rain mixing ratio
 ///        wrt moist air and condensed water:
 ///   qrain = m_r/m_t

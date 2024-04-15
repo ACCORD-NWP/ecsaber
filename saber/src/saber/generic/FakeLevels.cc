@@ -71,6 +71,7 @@ FakeLevels::FakeLevels(const oops::GeometryData & outerGeometryData,
       innerVars_.addMetaData(newVarName, "levels", nz_);
     } else {
       innerVars_.push_back(varName);
+      innerVars_.addMetaData(varName, "levels", innerVars_.getLevels(varName));
     }
   }
 

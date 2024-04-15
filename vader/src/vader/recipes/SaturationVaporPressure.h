@@ -22,6 +22,10 @@ namespace vader
 // -------------------------------------------------------------------------------------------------
 
 /*! \brief The class 'SaturationVaporPressure_A' defines a recipe for 'saturation water pressure (svp)'
+ *
+ *  \details This instantiation of RecipeBase produces saturation vapour pressure (svp)
+ *           using air temperature as input.
+ *
  */
 class SaturationVaporPressure_A : public RecipeBase
 {

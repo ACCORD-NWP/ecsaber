@@ -1,252 +1,210 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_write_fields.ref.tmp	2024-03-21 10:06:08.539035895 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_write_fields.ref	2024-03-21 09:58:47.370815672 +0100
-@@ -3,50 +3,42 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_write_fields.ref.tmp	2024-04-15 14:44:02.197832676 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_write_fields.ref	2024-04-15 14:27:52.039959828 +0200
+@@ -3,44 +3,36 @@
    air_temperature: 6.9612733413378621e+04
    eastward_wind: 4.3110191105979111e+03
    northward_wind: 2.6855538642475080e+03
 -
- Wrote file testdata/dirac_write_fields/fields_initial_fg_0.nc
+ Wrote file testdata/dirac_write_fields/fields_initial_fg_1.nc
  Fields:
    air_temperature: 6.9612733413378621e+04
    eastward_wind: 4.3110191105979111e+03
    northward_wind: 2.6855538642475080e+03
--
- Wrote file testdata/dirac_write_fields/fields_initial_multiply_0.nc
- Fields:
-   air_temperature: 2.8526486981989632e+02
-   eastward_wind: 2.8429020128491067e+02
-   northward_wind: 2.8324762633635731e+02
--
- Wrote file testdata/dirac_write_fields/fields_initial_leftinverse_0.nc
- Fields:
-   air_temperature: 2.8526486981989632e+02
-   eastward_wind: 2.8429020128491067e+02
-   northward_wind: 2.8324762633635731e+02
 -
  Wrote file testdata/dirac_write_fields/fields_initial_multiply_1.nc
  Fields:
-   air_temperature: 2.8526486981989632e+02
-   eastward_wind: 2.8429020128491067e+02
-   northward_wind: 2.8324762633635731e+02
+   eastward_wind: 2.8379601702273209e+02
+   northward_wind: 2.8379268695397110e+02
 -
- Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Wrote file testdata/dirac_write_fields/fields_initial_leftinverse_1.nc
  Fields:
-   air_temperature: 2.8323691751796866e+02
-   eastward_wind: 2.8385342254238037e+02
-   northward_wind: 2.8389654312538028e+02
+   eastward_wind: 2.8379601702273209e+02
+   northward_wind: 2.8379268695397110e+02
 -
  Wrote file testdata/dirac_write_fields/fields_initial_multiply_2.nc
  Fields:
-   air_temperature: 2.8323691751796866e+02
-   eastward_wind: 2.8385342254238037e+02
-   northward_wind: 2.8389654312538028e+02
+   eastward_wind: 2.8379601702273209e+02
+   northward_wind: 2.8379268695397110e+02
 -
+ Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Wrote file testdata/dirac_write_fields/fields_initial_leftinverse_2.nc
  Fields:
-   air_temperature: 2.8323691751796866e+02
-   eastward_wind: 2.8385342254238037e+02
-   northward_wind: 2.8389654312538028e+02
+   eastward_wind: 2.8312701297995261e+02
+   northward_wind: 2.8410709702025184e+02
+-
+ Wrote file testdata/dirac_write_fields/fields_initial_multiply_3.nc
+ Fields:
+   eastward_wind: 2.8312701297995261e+02
+   northward_wind: 2.8410709702025184e+02
+-
+ Wrote file testdata/dirac_write_fields/fields_initial_leftinverse_3.nc
+ Fields:
+   eastward_wind: 2.8312701297995261e+02
+   northward_wind: 2.8410709702025184e+02
 -
  Outer inverse test for block write fields passed: Uinv U (Uinv x) == (Uinv x)
  skipping inverse test for block mo_dry_air_density
- Inner inverse test for block mo_moistincrop passed: U Uinv (U x) == (U x)
-@@ -64,7 +56,7 @@
-   air_temperature: 6.9613178551411562e+04
-   cfeff: 1.5480238828863840e+01
-   cleff: 7.9847087812465611e+00
--  dlsvpdT: 3.1080917551272133e+01
-+  dlsvpdT: 3.1080917576123142e+01
-   dry_air_density_levels_minus_one: 1.9511848571508736e+02
-   eastward_wind: 4.3110191105979111e+03
-   exner: 2.0080918049764489e+02
-@@ -78,11 +70,11 @@
-   mass_content_of_cloud_liquid_water_in_atmosphere_layer: 5.2050502512631909e-03
-   mass_content_of_cloud_ice_in_atmosphere_layer: 3.3189423131903895e-03
-   mu: 0.0000000000000000e+00
--  muA: 8.9155494832920380e+09
--  muH1: 8.9486540365916269e+01
--  muRecipDeterminant: 1.1453278404116168e-01
--  muRow1Column1: 6.7622640867156970e+11
--  muRow1Column2: 1.0033631218304595e+02
-+  muA: 8.9155494832920399e+09
-+  muH1: 8.9486540398161196e+01
-+  muRecipDeterminant: 1.1453278402379559e-01
-+  muRow1Column1: 6.7622640003463086e+11
-+  muRow1Column2: 1.0033631223258756e+02
-   muRow2Column1: 2.0205985994366638e+05
-   muRow2Column2: 2.8426580959819063e+02
-   m_ci: 3.3266757770325809e-03
-@@ -93,14 +85,13 @@
-   northward_wind: 2.6855538642475080e+03
-   potential_temperature: 3.3246175252039719e+05
-   qrain: 8.9206201774926831e-04
--  qsat: 7.3474566021533917e+01
-+  qsat: 7.3474565995874627e+01
-   qt: 1.1283546854014694e+00
--  rht: 1.6157990423494533e+04
-+  rht: 1.6157990432056071e+04
-   specific_humidity: 1.1270323267062516e+00
--  svp: 2.2710223327097250e+05
-+  svp: 2.2710223314057812e+05
+ skipping inverse test for block mo_moistincrop
+@@ -93,7 +85,6 @@
+   svp: 2.2710223314057812e+05
    unbalanced_pressure_levels_minus_one: 0.0000000000000000e+00
-   virtual_potential_temperature: 3.3248453710034938e+05
+   virtual_potential_temperature: 3.3248454242244555e+05
 -
- Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_fg_0.nc
+ Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_fg_1.nc
  Fields:
    air_pressure: 1.4854096513008801e+07
-@@ -145,7 +136,6 @@
+@@ -138,7 +129,6 @@
    svp: 2.2845360142896551e+05
    unbalanced_pressure_levels_minus_one: 0.0000000000000000e+00
    virtual_potential_temperature: 3.3248454242244555e+05
 -
- Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_multiply_0.nc
- Fields:
-   air_pressure: 2.8353676639768565e+02
-@@ -190,7 +180,6 @@
-   svp: 2.8348692267232605e+02
-   unbalanced_pressure_levels_minus_one: 2.8302714181408487e+02
-   virtual_potential_temperature: 2.8385557245400889e+02
--
- Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_leftinverse_0.nc
- Fields:
-   air_pressure: 2.8353676639768565e+02
-@@ -235,7 +224,6 @@
-   svp: 2.8348692267232605e+02
-   unbalanced_pressure_levels_minus_one: 2.8302714181408487e+02
-   virtual_potential_temperature: 2.8385557245400889e+02
--
  Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_multiply_1.nc
  Fields:
-   air_pressure: 2.8353676639768565e+02
-@@ -280,7 +268,6 @@
-   svp: 2.8348692267232605e+02
-   unbalanced_pressure_levels_minus_one: 2.8302714181408487e+02
-   virtual_potential_temperature: 2.8385557245400889e+02
+   air_pressure_levels: 2.8691906588829215e+02
+@@ -156,7 +146,6 @@
+   qt: 2.8276483099352220e+02
+   specific_humidity: 2.8403987562173188e+02
+   virtual_potential_temperature: 2.8427381623375226e+02
 -
- Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_leftinverse_1.nc
  Fields:
-@@ -326,7 +313,6 @@
-   svp: 2.8445301179487046e+02
-   unbalanced_pressure_levels_minus_one: 2.8341488284534472e+02
-   virtual_potential_temperature: 2.8396630812299543e+02
+   air_pressure_levels: 2.8691906588829215e+02
+@@ -174,7 +163,6 @@
+   qt: 2.8276483099352220e+02
+   specific_humidity: 2.8403987562173188e+02
+   virtual_potential_temperature: 2.8427381623375226e+02
 -
  Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_multiply_2.nc
  Fields:
-   air_pressure: 2.8418930251852237e+02
-@@ -371,7 +357,6 @@
-   svp: 2.8445301179487046e+02
-   unbalanced_pressure_levels_minus_one: 2.8341488284534472e+02
-   virtual_potential_temperature: 2.8396630812299543e+02
+   air_pressure_levels: 2.8691906588829215e+02
+@@ -192,7 +180,6 @@
+   qt: 2.8276483099352220e+02
+   specific_humidity: 2.8403987562173188e+02
+   virtual_potential_temperature: 2.8427381623375226e+02
 -
+ Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_leftinverse_2.nc
  Fields:
-   air_pressure: 2.8418930251852237e+02
-@@ -416,7 +401,6 @@
-   svp: 2.8445301179487046e+02
-   unbalanced_pressure_levels_minus_one: 2.8341488284534472e+02
-   virtual_potential_temperature: 2.8396630812299543e+02
+@@ -211,7 +198,6 @@
+   qt: 2.8366178629122214e+02
+   specific_humidity: 2.8450437809381515e+02
+   virtual_potential_temperature: 2.8298144363312076e+02
+-
+ Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_multiply_3.nc
+ Fields:
+   air_pressure_levels: 2.8434790685162335e+02
+@@ -229,7 +215,6 @@
+   qt: 2.8366178629122214e+02
+   specific_humidity: 2.8450437809381515e+02
+   virtual_potential_temperature: 2.8298144363312076e+02
+-
+ Wrote file testdata/dirac_write_fields/fields_after_mo_moisture_control_leftinverse_3.nc
+ Fields:
+   air_pressure_levels: 2.8434790685162335e+02
+@@ -247,7 +232,6 @@
+   qt: 2.8366178629122214e+02
+   specific_humidity: 2.8450437809381515e+02
+   virtual_potential_temperature: 2.8298144363312076e+02
 -
  Outer inverse test for block write fields passed: Uinv U (Uinv x) == (Uinv x)
  Inner inverse test for block mo_hydro_bal passed: U Uinv (U x) == (U x)
  Outer inverse test for block mo_hydro_bal passed: Uinv U (Uinv x) == (Uinv x)
-@@ -425,98 +409,76 @@
- Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_xb_0.nc
+@@ -256,98 +240,76 @@
+ Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_xb_1.nc
  Fields:
    eastward_wind: 4.3110191105979111e+03
 -
- Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_fg_0.nc
+ Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_fg_1.nc
  Fields:
    eastward_wind: 4.3110191105979111e+03
--
- Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_multiply_0.nc
- Fields:
-   eastward_wind: 2.8517375801669374e+02
--
- Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_leftinverse_0.nc
- Fields:
-   eastward_wind: 2.8517375801669374e+02
 -
  Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_multiply_1.nc
  Fields:
-   eastward_wind: 2.8517375801669374e+02
+   eastward_wind: 2.8295210457342341e+02
 -
- Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_leftinverse_1.nc
  Fields:
-   eastward_wind: 2.8480104893310659e+02
+   eastward_wind: 2.8295210457342341e+02
 -
  Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_multiply_2.nc
  Fields:
-   eastward_wind: 2.8480104893310659e+02
+   eastward_wind: 2.8295210457342341e+02
 -
+ Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_leftinverse_2.nc
  Fields:
-   eastward_wind: 2.8480104893310659e+02
+   eastward_wind: 2.8420420713890996e+02
+-
+ Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_multiply_3.nc
+ Fields:
+   eastward_wind: 2.8420420713890996e+02
+-
+ Did not write file testdata/dirac_write_fields/fields_after_mo_hydrostatic_pressure_leftinverse_3.nc
+ Fields:
+   eastward_wind: 2.8420420713890996e+02
 -
  Outer inverse test for block write fields passed: Uinv U (Uinv x) == (Uinv x)
  Inner inverse test for block mo_hydrostatic_pressure passed: U Uinv (U x) == (U x)
  Outer inverse test for block mo_hydrostatic_pressure passed: Uinv U (Uinv x) == (Uinv x)
- Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_xb_0.nc
+ Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_xb_1.nc
  Fields:
    eastward_wind: 4.3110191105979111e+03
 -
- Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_fg_0.nc
+ Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_fg_1.nc
  Fields:
    eastward_wind: 4.3110191105979111e+03
--
- Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_multiply_0.nc
- Fields:
-   eastward_wind: 2.8417016633867166e+02
--
- Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_leftinverse_0.nc
- Fields:
-   eastward_wind: 2.8417016633867166e+02
 -
  Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_multiply_1.nc
  Fields:
-   eastward_wind: 2.8417016633867166e+02
+   eastward_wind: 2.8493826111344993e+02
 -
- Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_leftinverse_1.nc
  Fields:
-   eastward_wind: 2.8419237436473344e+02
+   eastward_wind: 2.8493826111344993e+02
 -
  Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_multiply_2.nc
  Fields:
-   eastward_wind: 2.8419237436473344e+02
+   eastward_wind: 2.8493826111344993e+02
 -
+ Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_leftinverse_2.nc
  Fields:
-   eastward_wind: 2.8419237436473344e+02
+   eastward_wind: 2.8381678316124214e+02
+-
+ Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_multiply_3.nc
+ Fields:
+   eastward_wind: 2.8381678316124214e+02
+-
+ Wrote file testdata/dirac_write_fields/fields_before_mo_hydrostatic_pressure_leftinverse_3.nc
+ Fields:
+   eastward_wind: 2.8381678316124214e+02
 -
  Outer inverse test for block write fields passed: Uinv U (Uinv x) == (Uinv x)
  Inner inverse test for block spectral to gauss passed: U Uinv (U x) == (U x)
  Outer inverse test for block spectral to gauss passed: Uinv U (Uinv x) == (Uinv x)
- Did not write file testdata/dirac_write_fields/fields_final_multiply_0.nc
- Fields:
-   streamfunction: 1.9978327364086979e+02
--
- Did not write file testdata/dirac_write_fields/fields_final_leftinverse_0.nc
- Fields:
-   streamfunction: 1.9978327364086979e+02
--
  Did not write file testdata/dirac_write_fields/fields_final_multiply_1.nc
  Fields:
-   streamfunction: 1.9978327364086979e+02
+   streamfunction: 2.0096449948370449e+02
 -
- Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Did not write file testdata/dirac_write_fields/fields_final_leftinverse_1.nc
  Fields:
-   streamfunction: 2.0011849095932308e+02
+   streamfunction: 2.0096449948370449e+02
 -
  Did not write file testdata/dirac_write_fields/fields_final_multiply_2.nc
  Fields:
-   streamfunction: 2.0011849095932308e+02
+   streamfunction: 2.0096449948370449e+02
 -
+ Inner inverse test for block write fields passed: U Uinv (U x) == (U x)
  Did not write file testdata/dirac_write_fields/fields_final_leftinverse_2.nc
  Fields:
-   streamfunction: 2.0011849095932308e+02
+   streamfunction: 2.0033468834878460e+02
+-
+ Did not write file testdata/dirac_write_fields/fields_final_multiply_3.nc
+ Fields:
+   streamfunction: 2.0033468834878460e+02
+-
+ Did not write file testdata/dirac_write_fields/fields_final_leftinverse_3.nc
+ Fields:
+   streamfunction: 2.0033468834878460e+02
 -
  Outer inverse test for block write fields passed: Uinv U (Uinv x) == (Uinv x)

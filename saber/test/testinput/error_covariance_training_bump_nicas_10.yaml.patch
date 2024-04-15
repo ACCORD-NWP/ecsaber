@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_10.yaml.tmp	2024-03-21 10:06:07.987035619 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_10.yaml	2024-03-21 09:19:18.365633193 +0100
-@@ -2,27 +2,29 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_10.yaml.tmp	2024-04-15 14:44:01.225835742 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_10.yaml	2024-04-15 12:18:44.746782812 +0200
+@@ -2,30 +2,26 @@
    function space: StructuredColumns
    grid:
      type: regular_lonlat
@@ -35,13 +35,13 @@
    covariance model: SABER
    saber central block:
      saber block name: BUMP_NICAS
-+    fields metadata:
-+      snow_depth:
-+        vert_coord: vert_coord_0
+-    fields metadata:
+-      snow_depth:
+-        vert_coord: vert_coord_0
      calibration:
        general:
          testing: true
-@@ -35,28 +37,50 @@
+@@ -38,28 +34,50 @@
          compute nicas: true
          adjoints test: true
          internal dirac test: true

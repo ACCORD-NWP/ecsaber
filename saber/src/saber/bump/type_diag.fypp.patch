@@ -1,0 +1,28 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_diag.fypp.tmp	2024-04-15 14:43:59.785840368 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_diag.fypp	2024-04-15 12:15:49.659510589 +0200
+@@ -1001,7 +1001,7 @@
+ ! Subroutine: diag_localization
+ !> Compute diagnostic localization
+ !----------------------------------------------------------------------
+-subroutine diag_localization(diag,mpl,nam,geom,samp,avg,prefix)
++subroutine diag_localization(diag,mpl,nam,geom,samp,avg,ne,prefix)
+ 
+ implicit none
+ 
+@@ -1012,6 +1012,7 @@
+ type(geom_type),intent(in) :: geom     !< Geometry
+ type(samp_type),intent(in) :: samp     !< Sampling
+ type(avg_type),intent(in) :: avg       !< Averaged statistics
++integer,intent(in) :: ne               !< Ensemble size
+ character(len=*),intent(in) :: prefix  !< Block prefix
+ 
+ ! Local variables
+@@ -1075,7 +1076,7 @@
+ 
+       do ic2a=0,diag%nc2a
+          ! Compute localization
+-         call diag%blk(ic2a,ig)%localization(mpl,nam,geom,avg%grp(ic2a,ig))
++         call diag%blk(ic2a,ig)%localization(mpl,nam,geom,avg%grp(ic2a,ig),ne)
+ 
+          ! Fitting
+          call diag%blk(ic2a,ig)%fitting(mpl,nam,geom)
