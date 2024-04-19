@@ -26,10 +26,18 @@ function( check_diff_recursively input commandPath )
     endif()
 endfunction()
 
+# QUENCH compilation
+set( ENABLE_QUENCH ON )
+if( DEFINED ENV{ENABLE_QUENCH} )
+    set( ENABLE_QUENCH $ENV{ENABLE_QUENCH} )
+endif()
+
 # Add subdirectories
 if( ECSABER )
     add_subdirectory( oops-patch )
     add_subdirectory( vader )
-    add_subdirectory( quench )
+    if( ENABLE_QUENCH )
+        add_subdirectory( quench )
+    endif()
     add_subdirectory( saber )
 endif()
