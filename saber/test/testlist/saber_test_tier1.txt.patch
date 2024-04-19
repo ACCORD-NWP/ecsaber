@@ -1,18 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt.tmp	2024-04-15 14:44:02.305832340 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt.tmp.bak	2024-04-19 11:55:56.130262074 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt	2024-04-15 12:19:25.489841619 +0200
-@@ -5,7 +5,11 @@
- dirac_bump_5
- dirac_bump_6
- dirac_bump_7
-+dirac_bump_8
- dirac_ens_noloc_4d
-+dirac_fakelevels_1
-+dirac_fakelevels_2
-+dirac_fakelevels_3
- dirac_oops_ens_noloc_4d
- compare_diagnostics_ens_noloc
- dirac_id
-@@ -30,6 +34,7 @@
+@@ -34,6 +34,7 @@
  error_covariance_training_bump_hdiag_8
  error_covariance_training_bump_hdiag_9
  error_covariance_training_bump_hdiag_10
@@ -20,11 +8,3 @@
  error_covariance_training_bump_hdiag-nicas_1
  error_covariance_training_bump_hdiag-nicas_2
  error_covariance_training_bump_hdiag-nicas_3
-@@ -45,7 +50,6 @@
- error_covariance_training_bump_nicas_8
- error_covariance_training_bump_nicas_9
- error_covariance_training_bump_nicas_10
--error_covariance_training_bump_nicas_11
- error_covariance_training_bump_stddev_1
- error_covariance_training_bump_stddev_2
- error_covariance_training_bump_stddev_3

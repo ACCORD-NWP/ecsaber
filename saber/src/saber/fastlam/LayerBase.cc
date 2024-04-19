@@ -243,11 +243,13 @@ void LayerBase::setupInterpolation() {
       for (size_t j = 0; j < ny_; ++j) {
         for (size_t i = 0; i < nx_; ++i) {
           if (mpiMask[i*ny_+j] == 0) {
-            oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")" << std::endl;
+            oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")"
+              << std::endl;
             throw eckit::Exception("task not define for this point", Here());
           }
           if (mpiMask[i*ny_+j] > 1) {
-            oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")" << std::endl;
+            oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")"
+              << std::endl;
             throw eckit::Exception("task defined more than once for this point", Here());
           }
         }
@@ -315,11 +317,13 @@ void LayerBase::setupInterpolation() {
     for (size_t j = 0; j < ny_; ++j) {
       for (size_t i = 0; i < nx_; ++i) {
         if (mpiMask[i*ny_+j] == 0) {
-          oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")" << std::endl;
+          oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")"
+            << std::endl;
           throw eckit::Exception("task not define for this point", Here());
         }
         if (mpiMask[i*ny_+j] > 1) {
-          oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")" << std::endl;
+          oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")"
+            << std::endl;
           throw eckit::Exception("task defined more than once for this point", Here());
         }
       }

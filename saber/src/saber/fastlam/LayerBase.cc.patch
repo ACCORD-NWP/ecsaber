@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc.tmp.bak	2024-04-15 14:43:59.385841673 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc	2024-04-04 15:35:09.290252483 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc.tmp	2024-04-19 11:55:53.065970726 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/LayerBase.cc	2024-04-19 11:47:29.435552044 +0200
 @@ -199,6 +199,9 @@
    oops::Log::info() << "Info     :     - along y: " << yRedFac_ << std::endl;
    oops::Log::info() << "Info     :     - along z: " << zRedFac_ << std::endl;
@@ -10,7 +10,7 @@
    // Reduced grid coordinates
    std::vector<double> xCoord;
    const double dxCoord = static_cast<double>(nx0_-1)/static_cast<double>(nx_-1);
-@@ -220,259 +223,320 @@
+@@ -220,259 +223,324 @@
      zCoord.push_back(0.0);
    }
  
@@ -48,11 +48,13 @@
 -          break;
 +        for (size_t i = 0; i < nx_; ++i) {
 +          if (mpiMask[i*ny_+j] == 0) {
-+            oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")" << std::endl;
++            oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")"
++              << std::endl;
 +            throw eckit::Exception("task not define for this point", Here());
 +          }
 +          if (mpiMask[i*ny_+j] > 1) {
-+            oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")" << std::endl;
++            oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")"
++              << std::endl;
 +            throw eckit::Exception("task defined more than once for this point", Here());
 +          }
          }
@@ -217,11 +219,13 @@
 +    for (size_t j = 0; j < ny_; ++j) {
 +      for (size_t i = 0; i < nx_; ++i) {
 +        if (mpiMask[i*ny_+j] == 0) {
-+          oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")" << std::endl;
++          oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")"
++            << std::endl;
 +          throw eckit::Exception("task not define for this point", Here());
 +        }
 +        if (mpiMask[i*ny_+j] > 1) {
-+          oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")" << std::endl;
++          oops::Log::info() << "Info     :     Point (i,j) = (" << i << "," << j << ")"
++            << std::endl;
 +          throw eckit::Exception("task defined more than once for this point", Here());
 +        }
 +      }
@@ -550,7 +554,7 @@
      }
    }
  
-@@ -525,6 +589,10 @@
+@@ -525,6 +593,10 @@
    }
  
    if (!params_.skipTests.value()) {
@@ -561,7 +565,7 @@
      // Check interpolation accuracy
      atlas::Field redField = fspace_.createField<double>(
        atlas::option::name("dummy") | atlas::option::levels(nz_));
-@@ -789,59 +857,68 @@
+@@ -789,59 +861,68 @@
  
    // Compute horizontal normalization
    normView.assign(0.0);
@@ -682,7 +686,7 @@
        }
      }
    }
-@@ -1212,48 +1289,61 @@
+@@ -1212,48 +1293,61 @@
                                  atlas::Field & modelField) const {
    oops::Log::trace() << classname() << "::interpolationTL starting" << std::endl;
  
@@ -777,7 +781,7 @@
            }
          }
        }
-@@ -1269,51 +1359,64 @@
+@@ -1269,51 +1363,64 @@
                                  atlas::Field & redField) const {
    oops::Log::trace() << classname() << "::interpolationAD starting" << std::endl;
  

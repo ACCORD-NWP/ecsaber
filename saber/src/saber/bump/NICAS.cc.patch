@@ -1,4 +1,4 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/NICAS.cc.tmp.bak	2024-04-15 14:44:00.373838468 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/NICAS.cc.tmp	2024-04-19 12:02:26.510956967 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/NICAS.cc	2024-04-04 15:35:09.282252474 +0200
 @@ -31,31 +31,14 @@
               const oops::FieldSet3D & xb,
@@ -37,12 +37,3 @@
    // Read input ATLAS files
    bump_->readAtlasFiles();
  
-@@ -103,7 +86,7 @@
-   for (const auto & fset : fsetVec) {
-     bump_->addField(fset);
-   }
--  oops::Log::trace() << classname() << "::setReadFields starting" << std::endl;
-+  oops::Log::trace() << classname() << "::setReadFields done" << std::endl;
- }
- 
- // -----------------------------------------------------------------------------

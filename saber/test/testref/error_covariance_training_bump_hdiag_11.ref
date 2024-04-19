@@ -59,14 +59,14 @@
                    Level:   2 ~> amplitude:        1.00
                                  cor. hor. support:      3657.53 km
                                  cor. ver. support:         3.21 vertical units
-             Block stream_function:  0.24431734E+00 for       28 diagnostic points
+             Block stream_function:  0.20289437E+00 for       40 diagnostic points
                 Level:   1 ~> loc. at class zero:       0.92
                 Level:   2 ~> loc. at class zero:       0.92
                    Level:   1 ~> amplitude:        1.00
-                                 loc. hor. support:      5843.76 km
-                                 loc. ver. support:         6.06 vertical units
+                                 loc. hor. support:      4681.12 km
+                                 loc. ver. support:         6.50 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 loc. hor. support:      6557.74 km
-                                 loc. ver. support:         6.06 vertical units
-Norm of output parameter loc_rh - 1: 2.5457598577278528e+08
-Norm of output parameter loc_rv - 1: 2.4823828761075143e+02
+                                 loc. hor. support:      4802.64 km
+                                 loc. ver. support:         6.50 vertical units
+Norm of output parameter loc_rh - 1: 1.9437518117365789e+08
+Norm of output parameter loc_rv - 1: 2.6648870270249807e+02

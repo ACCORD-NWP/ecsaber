@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_cmat.fypp.tmp	2024-04-19 11:55:53.970053730 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_cmat.fypp	2024-04-19 11:48:45.103581401 +0200
+@@ -228,7 +228,7 @@
+ 
+ if (.not.cmat%allocated) then
+    ! Allocation
+-   call cmat%alloc(nam,geom,nam%fit_ncmp)
++   call cmat%alloc(nam,geom,diag%blk(0,1)%ncmp)
+ 
+    ! Initialization
+    call cmat%init(mpl,nam)
