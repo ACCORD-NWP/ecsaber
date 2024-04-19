@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp.tmp	2024-04-15 14:44:00.193839046 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp	2024-04-15 12:18:31.279225382 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp.tmp	2024-04-19 11:55:53.902047486 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp	2024-04-19 11:48:44.519581169 +0200
 @@ -139,6 +139,7 @@
     integer :: ne                                              !< Ensemble size
     integer :: ne_lr                                           !< Ensemble size of the low-resolution term (ensemble 2)
@@ -16,3 +16,11 @@
     call nam%get(section,'generalized kurtosis threshold',nam%gen_kurt_th)
     call nam%get(section,'histogram bins',nam%avg_nbins)
     call nam%get(section,'diagnosed lengths scaling',nam%lengths_scaling)
+@@ -1232,6 +1234,7 @@
+  & call mpl%abort('${subr}$','ne should be larger than 3')
+    if (((.not.nam%from_gsi).and.(nam%compute_cov2.or.nam%compute_cor2.or.nam%compute_loc2)).and.(nam%ne_lr<=3)) &
+  & call mpl%abort('${subr}$','ne_lr should be larger than 3')
++   if (nam%loc_from_cor.and.(.not.(nam%compute_cor1.or.nam%compute_cor2))) call mpl%abort('${subr}$','loc_from_cor requires compute_correlation')
+    if (.not.(nam%gen_kurt_th>zero)) call mpl%abort('${subr}$','gen_kurt_th should be positive')
+    if (.not.(nam%lengths_scaling>zero)) call mpl%abort('${subr}$','lengths_scaling should be positive')
+ end if

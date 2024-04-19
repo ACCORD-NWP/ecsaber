@@ -1,4 +1,4 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2024-04-15 14:43:58.189845616 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2024-04-19 11:46:29.599529560 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2024-04-04 15:35:09.282252474 +0200
 @@ -18,9 +18,9 @@
  #include "eckit/exception/Exceptions.h"
@@ -20,23 +20,15 @@
  
  namespace oops {
    class FieldSet3D;
-@@ -270,11 +271,24 @@
-   std::vector<oops::FieldSet3D> fsetVec;
-   for (const auto & input : this->getReadConfs()) {
-     // Create increment
--    oops::Increment<MODEL> dx(geom, vars, validTime_);
-+    std::unique_ptr<oops::patch::Variables> incVars;
-+    if (input.second.has("overriding variables")) {
-+      const std::vector<std::string> incVarsNames =
-+        input.second.getStringVector("overriding variables");
-+      incVars.reset(new oops::patch::Variables(incVarsNames));
-+    } else {
-+      incVars.reset(new oops::patch::Variables(vars));
-+    }
+@@ -278,13 +279,16 @@
+     } else {
+       incVars.reset(new oops::patch::Variables(vars));
+     }
+-    oops::Increment<MODEL> dx(geom, *incVars, validTime_);
 +    oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
 +    oops::Increment<MODEL> dx(geom, varsT, validTime_);
-+
-+    // Read, print norm and push_back
+ 
+     // Read, print norm and push_back
      dx.read(input.second);
      oops::Log::test() << "Norm of input parameter " << input.first
                        << ": " << dx.norm() << std::endl;
@@ -47,29 +39,16 @@
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -293,12 +307,22 @@
-   std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> outputs
-     = this->fieldsToWrite();
- 
--  // Create increment
--  oops::Increment<MODEL> dx(geom, vars, validTime_);
--
-   // Loop and write
-   for (const auto & output : outputs) {
--    dx.fromFieldSet(output.second.fieldSet());
-+    // Create increment
-+    std::unique_ptr<oops::patch::Variables> incVars;
-+    if (output.first.has("overriding variables")) {
-+      const std::vector<std::string> incVarsNames =
-+        output.first.getStringVector("overriding variables");
-+      incVars.reset(new oops::patch::Variables(incVarsNames));
-+    } else {
-+      incVars.reset(new oops::patch::Variables(vars));
-+    }
+@@ -314,10 +318,11 @@
+     } else {
+       incVars.reset(new oops::patch::Variables(vars));
+     }
+-    oops::Increment<MODEL> dx(geom, *incVars, validTime_);
 +    oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
 +    oops::Increment<MODEL> dx(geom, varsT, validTime_);
-+
-+    // Write and print norm
+ 
+     // Write and print norm
+-    dx.fromFieldSet(output.second.fieldSet());
 +    dx.increment().fromFieldSet(output.second.fieldSet());
      oops::Log::test() << "Norm of output parameter " << output.second.name()
                        << ": " << dx.norm() << std::endl;

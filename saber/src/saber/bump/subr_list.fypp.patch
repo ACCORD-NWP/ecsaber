@@ -1,6 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/subr_list.fypp.tmp	2024-03-07 12:22:36.899915465 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/subr_list.fypp	2024-03-07 11:36:34.101881390 +0100
-@@ -834,6 +834,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/subr_list.fypp.tmp.bak	2024-04-19 11:55:53.510011493 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/subr_list.fypp	2024-04-19 11:48:43.255580673 +0200
+@@ -221,6 +221,7 @@
+ #:set subr_list = subr_list + ["diag_blk_write"]
+ #:set subr_list = subr_list + ["diag_blk_fitting"]
+ #:set subr_list = subr_list + ["diag_blk_localization"]
++#:set subr_list = subr_list + ["diag_blk_localization_from_correlation"]
+ #:set subr_list = subr_list + ["diag_blk_hybridization"]
+ #:set subr_list = subr_list + ["diag_alloc"]
+ #:set subr_list = subr_list + ["diag_partial_dealloc"]
+@@ -834,6 +835,7 @@
  #:set subr_list = subr_list + ["fieldset_to_array_all"]
  #:set subr_list = subr_list + ["fieldset_from_array_single"]
  #:set subr_list = subr_list + ["fieldset_from_array_all"]
