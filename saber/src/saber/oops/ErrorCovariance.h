@@ -105,6 +105,10 @@ class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
   /// Vector of field weights for hybrid B components (one element, empty
   /// fieldset for non-hybrid case).
   std::vector<oops::FieldSet3D> hybridFieldWeightSqrt_;
+
+  /// Whether to run Hybrid in parallel
+  bool parallelHybrid_;
+
   /// Dummy static covariance
   std::unique_ptr<oops::ModelSpaceCovarianceBase<MODEL>> static_;
   /// Geometry UID
@@ -112,7 +116,7 @@ class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
   /// Increment variables
   const Variables_ incVars_;
   /// Parameters
-  Parameters_ params_;
+  Parameters_ params;
 };
 
 // -----------------------------------------------------------------------------
@@ -123,12 +127,12 @@ ErrorCovariance4D<MODEL>::ErrorCovariance4D(const Geometry_ & geom,
                                             const eckit::Configuration & config,
                                             const State4D_ &)
   : oops::ModelSpaceCovariance4DBase<MODEL>::ModelSpaceCovariance4DBase(geom, config),
-    static_(), incVars_(incVars)
+    parallelHybrid_(false), static_(), incVars_(incVars)
 {
   oops::Log::trace() << "ErrorCovariance4D::ErrorCovariance4D starting" << std::endl;
 
   // Save parameters
-  params_.validateAndDeserialize(config);
+  params.validateAndDeserialize(config);
 
   oops::Log::trace() << "ErrorCovariance4D::ErrorCovariance4D done" << std::endl;
 }
@@ -173,121 +177,119 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
     hybridFieldWeightSqrt_.clear();
     static_.reset();
 
-    // Local copy of background and first guess that can undergo interpolation
-    const oops::FieldSet4D fset4dXbTmp(xb);
-    const oops::FieldSet4D fset4dFgTmp(fg);
+// Start wrong indentation to stick with SABER version
 
-    oops::FieldSet4D fset4dXb = oops::copyFieldSet4D(fset4dXbTmp);
-    oops::FieldSet4D fset4dFg = oops::copyFieldSet4D(fset4dFgTmp);
+  // Local copy of background and first guess that can undergo interpolation
+  const oops::FieldSet4D fset4dXbTmp(xb);
+  const oops::FieldSet4D fset4dFgTmp(fg);
 
-    // Initialize outer variables
-    const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
-    oops::patch::Variables outerVars(incVars_.variables().variablesList());
-    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
-      outerVars.addMetaData(outerVars[i], "levels", vlevs[i]);
+  oops::FieldSet4D fset4dXb = oops::copyFieldSet4D(fset4dXbTmp);
+  oops::FieldSet4D fset4dFg = oops::copyFieldSet4D(fset4dFgTmp);
+
+  // Extend background and first guess with geometry fields
+  // TODO(Benjamin, Marek, Mayeul, ?)
+
+  // Initialize outer variables
+  const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
+  oops::patch::Variables outerVars(incVars_.variables().variablesList());
+  for (std::size_t i = 0; i < vlevs.size() ; ++i) {
+    outerVars.addMetaData(outerVars[i], "levels", vlevs[i]);
+  }
+
+  // Create covariance configuration
+  eckit::LocalConfiguration covarConf;
+  covarConf.set("adjoint test", params.adjointTest.value());
+  covarConf.set("adjoint tolerance", params.adjointTolerance.value());
+  covarConf.set("inverse test", params.inverseTest.value());
+  covarConf.set("inverse tolerance", params.inverseTolerance.value());
+  covarConf.set("square-root test", params.sqrtTest.value());
+  covarConf.set("square-root tolerance", params.sqrtTolerance.value());
+  covarConf.set("iterative ensemble loading", params.iterativeEnsembleLoading.value());
+  covarConf.set("time covariance", params.timeCovariance.value());
+
+  // Iterative ensemble loading flag
+  const bool iterativeEnsembleLoading = params.iterativeEnsembleLoading.value();
+
+  // Read ensemble (for non-iterative ensemble loading)
+  eckit::LocalConfiguration ensembleConf;
+  oops::FieldSets fsetEns = readEnsemble(geom,
+                                         outerVars,
+                                         xb,
+                                         fg,
+                                         params.toConfiguration(),
+                                         iterativeEnsembleLoading,
+                                         ensembleConf);
+
+  covarConf.set("ensemble configuration", ensembleConf);
+  // Read dual resolution ensemble if needed
+  const auto & dualResParams = params.dualResParams.value();
+  const Geometry_ * dualResGeom = &geom;
+  std::unique_ptr<oops::FieldSets> fsetDualResEns;
+  if (dualResParams != boost::none) {
+    const auto & dualResGeomConf = dualResParams->geometry.value();
+    if (dualResGeomConf != boost::none) {
+      // Create dualRes geometry
+      dualResGeom = new Geometry_(*dualResGeomConf);
     }
-    for (const auto & var : outerVars.variables()) {
-      if (fset4dXb[0][var].metadata().has("vert_coord")) {
-        outerVars.addMetaData(var, "vert_coord", fset4dXb[0][var].metadata().getString("vert_coord"));
-      }
-      if (fset4dXb[0][var].metadata().has("gmask")) {
-        outerVars.addMetaData(var, "gmask", fset4dXb[0][var].metadata().getString("gmask"));
-      }
+    // Background and first guess at dual resolution geometry
+    const State4D_ xbDualRes(*dualResGeom, xb);
+    const State4D_ fgDualRes(*dualResGeom, fg);
+    // Read dual resolution ensemble
+    eckit::LocalConfiguration dualResEnsembleConf;
+    fsetDualResEns = std::make_unique<oops::FieldSets>(readEnsemble(*dualResGeom,
+                     outerVars,
+                     xbDualRes,
+                     fgDualRes,
+                     dualResParams->toConfiguration(),
+                     iterativeEnsembleLoading,
+                     dualResEnsembleConf));
+    // Add dual resolution ensemble configuration
+    covarConf.set("dual resolution ensemble configuration", dualResEnsembleConf);
+  }
+  if (!fsetDualResEns) {
+    std::vector<util::DateTime> dates;
+    std::vector<int> ensmems;
+    fsetDualResEns = std::make_unique<oops::FieldSets>(dates,
+                                      eckit::mpi::self(), ensmems, eckit::mpi::comm());
+  }
+
+  // Add ensemble output
+  const auto & outputEnsemble = params.outputEnsemble.value();
+  if (outputEnsemble != boost::none) {
+    covarConf.set("output ensemble", *outputEnsemble);
+  }
+
+  const SaberBlockParametersBase & saberCentralBlockParams =
+    params.saberCentralBlockParams.value().saberCentralBlockParameters;
+  // Build covariance blocks: hybrid covariance case
+  if (saberCentralBlockParams.saberBlockName.value() == "Hybrid") {
+    // Build common (for all hybrid components) outer blocks if they exist
+    const auto & saberOuterBlocksParams = params.saberOuterBlocksParams.value();
+    if (saberOuterBlocksParams != boost::none) {
+      outerBlockChain_ = std::make_unique<SaberOuterBlockChain>(geom,
+                       outerVars,
+                       fset4dXb,
+                       fset4dFg,
+                       fsetEns,
+                       covarConf,
+                       *saberOuterBlocksParams);
+      outerVars = outerBlockChain_->innerVars();
     }
 
-    // Create covariance configuration
-    eckit::LocalConfiguration covarConf;
-    covarConf.set("adjoint test", params_.adjointTest.value());
-    covarConf.set("adjoint tolerance", params_.adjointTolerance.value());
-    covarConf.set("inverse test", params_.inverseTest.value());
-    covarConf.set("inverse tolerance", params_.inverseTolerance.value());
-    covarConf.set("square-root test", params_.sqrtTest.value());
-    covarConf.set("square-root tolerance", params_.sqrtTolerance.value());
-    covarConf.set("iterative ensemble loading", params_.iterativeEnsembleLoading.value());
-    covarConf.set("time covariance", params_.timeCovariance.value());
+    // Hybrid central block
+    eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
 
-    // Iterative ensemble loading flag
-    const bool iterativeEnsembleLoading = params_.iterativeEnsembleLoading.value();
-
-    // Read ensemble (for non-iterative ensemble loading)
-    eckit::LocalConfiguration ensembleConf;
-    oops::FieldSets fsetEns = readEnsemble(geom,
-                                          outerVars,
-                                          xb,
-                                          fg,
-                                          params_.toConfiguration(),
-                                          iterativeEnsembleLoading,
-                                          ensembleConf);
-
-    covarConf.set("ensemble configuration", ensembleConf);
-    // Read dual resolution ensemble if needed
-    const auto & dualResParams = params_.dualResParams.value();
-    const Geometry_ * dualResGeom = &geom;
-    std::unique_ptr<oops::FieldSets> fsetDualResEns;
-    if (dualResParams != boost::none) {
-      const auto & dualResGeomConf = dualResParams->geometry.value();
-      if (dualResGeomConf != boost::none) {
-        // Create dualRes geometry
-        dualResGeom = new Geometry_(*dualResGeomConf);
-      }
-      // Background and first guess at dual resolution geometry
-      const State4D_ xbDualRes(*dualResGeom, xb);
-      const State4D_ fgDualRes(*dualResGeom, fg);
-      // Read dual resolution ensemble
-      eckit::LocalConfiguration dualResEnsembleConf;
-      fsetDualResEns = std::make_unique<oops::FieldSets>(readEnsemble(*dualResGeom,
-                      outerVars,
-                      xbDualRes,
-                      fgDualRes,
-                      dualResParams->toConfiguration(),
-                      iterativeEnsembleLoading,
-                      dualResEnsembleConf));
-      // Add dual resolution ensemble configuration
-      covarConf.set("dual resolution ensemble configuration", dualResEnsembleConf);
-    }
-    if (!fsetDualResEns) {
-      std::vector<util::DateTime> dates;
-      std::vector<int> ensmems;
-      fsetDualResEns = std::make_unique<oops::FieldSets>(dates,
-                                        eckit::mpi::self(), ensmems, eckit::mpi::comm());
-    }
-
-    // Add ensemble output
-    const auto & outputEnsemble = params_.outputEnsemble.value();
-    if (outputEnsemble != boost::none) {
-      covarConf.set("output ensemble", *outputEnsemble);
-    }
-
-    const SaberBlockParametersBase & saberCentralBlockParams =
-      params_.saberCentralBlockParams.value().saberCentralBlockParameters;
-    // Build covariance blocks: hybrid covariance case
-    if (saberCentralBlockParams.saberBlockName.value() == "Hybrid") {
-      // Build common (for all hybrid components) outer blocks if they exist
-      const auto & saberOuterBlocksParams = params_.saberOuterBlocksParams.value();
-      if (saberOuterBlocksParams != boost::none) {
-        outerBlockChain_ = std::make_unique<SaberOuterBlockChain>(geom,
-                        outerVars,
-                        fset4dXb,
-                        fset4dFg,
-                        fsetEns,
-                        covarConf,
-                        *saberOuterBlocksParams);
-        outerVars = outerBlockChain_->innerVars();
-      }
-
-      // Hybrid central block
-      eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
-
+    if (parallelHybrid_) {
+      throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
+    } else {
+      oops::Log::info() << "Info     : Creating Hybrid block serially" << std::endl;
       // Create block geometry (needed for ensemble reading)
       const Geometry_ * hybridGeom = &geom;
       if (hybridConf.has("geometry")) {
         hybridGeom = new Geometry_(hybridConf.getSubConfiguration("geometry"));
       }
-
-      // Loop over components
       for (const auto & cmp : hybridConf.getSubConfigurations("components")) {
         // Initialize component outer variables
-        // TODO(AS): this should be either outerVars or outerBlockChain_->innerVars();
         const oops::patch::Variables cmpOuterVars(outerVars);
 
         // Set weight
@@ -299,10 +301,10 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
         if (weightConf.has("file")) {
           // File-base weight
           readHybridWeight(*hybridGeom,
-                          outerVars,
-                          xb[0].validTime(),
-                          weightConf.getSubConfiguration("file"),
-                          fsetWeight);
+                           outerVars,
+                           xb[0].validTime(),
+                           weightConf.getSubConfiguration("file"),
+                           fsetWeight);
           fsetWeight.sqrt();
         }
         hybridFieldWeightSqrt_.push_back(fsetWeight);
@@ -313,34 +315,35 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
         // Read ensemble
         eckit::LocalConfiguration cmpEnsembleConf;
         oops::FieldSets fset4dCmpEns
-          = readEnsemble(*hybridGeom,
+           = readEnsemble(*hybridGeom,
                           cmpOuterVars,
                           xb,
                           fg,
                           cmpConf,
-                          params_.iterativeEnsembleLoading.value(),
+                          params.iterativeEnsembleLoading.value(),
                           cmpEnsembleConf);
 
         // Create internal configuration
         eckit::LocalConfiguration cmpCovarConf;
         cmpCovarConf.set("ensemble configuration", cmpEnsembleConf);
-        cmpCovarConf.set("adjoint test", params_.adjointTest.value());
-        cmpCovarConf.set("adjoint tolerance", params_.adjointTolerance.value());
-        cmpCovarConf.set("inverse test", params_.inverseTest.value());
-        cmpCovarConf.set("inverse tolerance", params_.inverseTolerance.value());
-        cmpCovarConf.set("square-root test", params_.sqrtTest.value());
-        cmpCovarConf.set("square-root tolerance", params_.sqrtTolerance.value());
-        cmpCovarConf.set("iterative ensemble loading", params_.iterativeEnsembleLoading.value());
-        cmpCovarConf.set("time covariance", params_.timeCovariance.value());
+        cmpCovarConf.set("adjoint test", params.adjointTest.value());
+        cmpCovarConf.set("adjoint tolerance", params.adjointTolerance.value());
+        cmpCovarConf.set("inverse test", params.inverseTest.value());
+        cmpCovarConf.set("inverse tolerance", params.inverseTolerance.value());
+        cmpCovarConf.set("square-root test", params.sqrtTest.value());
+        cmpCovarConf.set("square-root tolerance", params.sqrtTolerance.value());
+        cmpCovarConf.set("iterative ensemble loading", params.iterativeEnsembleLoading.value());
+        cmpCovarConf.set("time covariance", params.timeCovariance.value());
 
         SaberCentralBlockParametersWrapper cmpCentralBlockParamsWrapper;
-        cmpCentralBlockParamsWrapper.deserialize(cmpConf.getSubConfiguration("saber central block"));
+        cmpCentralBlockParamsWrapper.deserialize(
+                    cmpConf.getSubConfiguration("saber central block"));
         const auto & centralBlockParams =
-                    cmpCentralBlockParamsWrapper.saberCentralBlockParameters.value();
+                     cmpCentralBlockParamsWrapper.saberCentralBlockParameters.value();
 
         hybridBlockChain_.push_back
           (SaberBlockChainFactory<MODEL>::create
-          (parametricIfNotEnsemble(centralBlockParams.saberBlockName.value()),
+           (parametricIfNotEnsemble(centralBlockParams.saberBlockName.value()),
             *hybridGeom,
             *dualResGeom,
             cmpOuterVars,
@@ -352,27 +355,29 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
             cmpConf));
       }
       ASSERT(hybridBlockChain_.size() > 0);
-    } else {
-      // Non-hybrid covariance: single block chain
-      hybridBlockChain_.push_back
-        (SaberBlockChainFactory<MODEL>::create
-        (parametricIfNotEnsemble(saberCentralBlockParams.saberBlockName.value()),
-          geom,
-          *dualResGeom,
-          outerVars,
-          fset4dXb,
-          fset4dFg,
-          fsetEns,
-          *fsetDualResEns,
-          covarConf,
-          params_.toConfiguration()));
-
-      // Set weights
-      hybridScalarWeightSqrt_.push_back(1.0);
-      // File-base weight
-      oops::FieldSet3D fsetWeight(xb[0].validTime(), eckit::mpi::comm());
-      hybridFieldWeightSqrt_.push_back(fsetWeight);
     }
+  } else {
+    // Non-hybrid covariance: single block chain
+    hybridBlockChain_.push_back
+      (SaberBlockChainFactory<MODEL>::create
+       (parametricIfNotEnsemble(saberCentralBlockParams.saberBlockName.value()),
+        geom,
+        *dualResGeom,
+        outerVars,
+        fset4dXb,
+        fset4dFg,
+        fsetEns,
+        *fsetDualResEns,
+        covarConf,
+        params.toConfiguration()));
+
+    // Set weights
+    hybridScalarWeightSqrt_.push_back(1.0);
+    // File-base weight
+    oops::FieldSet3D fsetWeight(xb[0].validTime(), eckit::mpi::comm());
+    hybridFieldWeightSqrt_.push_back(fsetWeight);
+  }
+// End wrong indentation to stick with SABER version
   }
 
   oops::Log::trace() << "ErrorCovariance4D advectedLinearize done" << std::endl;
@@ -408,24 +413,28 @@ void ErrorCovariance4D<MODEL>::randomize(Increment4D_ & dx) const {
                           0.0);
   }
 
-  // Loop over components for the central block
-  for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
-    // Randomize covariance
-    oops::FieldSet4D fset4dCmp(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
-    hybridBlockChain_[jj]->randomize(fset4dCmp);
+  if (parallelHybrid_) {
+    throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
+  } else {
+    // Loop over components for the central block
+    for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
+      // Randomize covariance
+      oops::FieldSet4D fset4dCmp(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
+      hybridBlockChain_[jj]->randomize(fset4dCmp);
 
-    // Weight square-root multiplication
-    if (hybridScalarWeightSqrt_[jj] != 1.0) {
-      // Scalar weight
-      fset4dCmp *= hybridScalarWeightSqrt_[jj];
-    }
-    if (!hybridFieldWeightSqrt_[jj].empty()) {
-      // File-based weight
-      fset4dCmp *= hybridFieldWeightSqrt_[jj];
-    }
+      // Weight square-root multiplication
+      if (hybridScalarWeightSqrt_[jj] != 1.0) {
+        // Scalar weight
+        fset4dCmp *= hybridScalarWeightSqrt_[jj];
+      }
+      if (!hybridFieldWeightSqrt_[jj].empty()) {
+        // File-based weight
+        fset4dCmp *= hybridFieldWeightSqrt_[jj];
+      }
 
-    // Add component
-    fset4dSum += fset4dCmp;
+      // Add component
+      fset4dSum += fset4dCmp;
+    }
   }
 
   if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
@@ -458,35 +467,39 @@ void ErrorCovariance4D<MODEL>::advectedMultiply(const Increment4D_ &dxi,
   fset4dSum.zero();
 
   // Loop over B components
-  for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
-    // Create temporary FieldSet
-    oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(fset4dInit);
+  if (parallelHybrid_) {
+    throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
+  } else {
+    for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
+      // Create temporary FieldSet
+      oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(fset4dInit);
 
-    // Apply weight
-    if (hybridScalarWeightSqrt_[jj] != 1.0) {
-      // Scalar weight
-      fset4dCmp *= hybridScalarWeightSqrt_[jj];
-    }
-    if (!hybridFieldWeightSqrt_[jj].empty()) {
-      // File-based weight
-      fset4dCmp *= hybridFieldWeightSqrt_[jj];
-    }
+      // Apply weight
+      if (hybridScalarWeightSqrt_[jj] != 1.0) {
+        // Scalar weight
+        fset4dCmp *= hybridScalarWeightSqrt_[jj];
+      }
+      if (!hybridFieldWeightSqrt_[jj].empty()) {
+        // File-based weight
+        fset4dCmp *= hybridFieldWeightSqrt_[jj];
+      }
 
-    // Apply covariance
-    hybridBlockChain_[jj]->multiply(fset4dCmp);
+      // Apply covariance
+      hybridBlockChain_[jj]->multiply(fset4dCmp);
 
-    // Apply weight
-    if (hybridScalarWeightSqrt_[jj] != 1.0) {
-      // Scalar weight
-      fset4dCmp *= hybridScalarWeightSqrt_[jj];
-    }
-    if (!hybridFieldWeightSqrt_[jj].empty()) {
-      // File-based weight
-      fset4dCmp *= hybridFieldWeightSqrt_[jj];
-    }
+      // Apply weight
+      if (hybridScalarWeightSqrt_[jj] != 1.0) {
+        // Scalar weight
+        fset4dCmp *= hybridScalarWeightSqrt_[jj];
+      }
+      if (!hybridFieldWeightSqrt_[jj].empty()) {
+        // File-based weight
+        fset4dCmp *= hybridFieldWeightSqrt_[jj];
+      }
 
-    // Add component
-    fset4dSum += fset4dCmp;
+      // Add component
+      fset4dSum += fset4dCmp;
+    }
   }
 
   // Apply outer blocks forward
