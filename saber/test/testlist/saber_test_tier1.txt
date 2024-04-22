@@ -12,7 +12,6 @@ dirac_fakelevels_2
 dirac_fakelevels_3
 dirac_oops_ens_noloc_4d
 compare_diagnostics_ens_noloc
-compare_diagnostics_hybrid_stddev
 dirac_id
 dirac_id_4d
 dirac_id_4d_timecov
