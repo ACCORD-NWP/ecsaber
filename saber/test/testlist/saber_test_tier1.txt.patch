@@ -1,10 +1,11 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt.tmp.bak	2024-04-19 11:55:56.130262074 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt	2024-04-15 12:19:25.489841619 +0200
-@@ -34,6 +34,7 @@
- error_covariance_training_bump_hdiag_8
- error_covariance_training_bump_hdiag_9
- error_covariance_training_bump_hdiag_10
-+error_covariance_training_bump_hdiag_11
- error_covariance_training_bump_hdiag-nicas_1
- error_covariance_training_bump_hdiag-nicas_2
- error_covariance_training_bump_hdiag-nicas_3
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt.tmp	2024-04-22 10:47:37.603584996 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt	2024-04-22 10:46:24.075433490 +0200
+@@ -23,8 +23,6 @@
+ dirac_stddev_1
+ dirac_stddev_2
+ dirac_duplicate_variables
+-dirac_parallel_hybrid_id
+-dirac_parallel_hybrid_stddev
+ error_covariance_training_bump_1
+ error_covariance_training_bump_2
+ error_covariance_training_bump_hdiag_1
