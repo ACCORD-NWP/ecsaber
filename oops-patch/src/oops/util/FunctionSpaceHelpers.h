@@ -70,13 +70,4 @@ void setupStructuredMeshWithCustomPartition(const eckit::mpi::Comm &,
 
 // -----------------------------------------------------------------------------
 
-// Define a distribution and a mesh from a custom partition
-void setupStructuredMeshWithCustomPartition(const eckit::mpi::Comm &,
-    const atlas::Grid &,
-    const std::vector<int> &,
-    atlas::grid::Distribution &,
-    atlas::Mesh &);
-
-// -----------------------------------------------------------------------------
-
 }  // namespace util

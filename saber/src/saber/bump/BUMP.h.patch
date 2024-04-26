@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.h.tmp	2024-04-19 12:02:25.911001769 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.h	2024-04-04 15:35:09.282252474 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.h.tmp	2024-04-26 09:40:05.400531094 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMP.h	2024-04-26 09:20:25.185747443 +0200
 @@ -18,6 +18,7 @@
  #include "eckit/log/Channel.h"
  
