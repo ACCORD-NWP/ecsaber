@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump.fypp.tmp	2024-05-06 14:16:29.575695615 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump.fypp	2024-05-06 13:01:37.211574495 +0200
+@@ -120,7 +120,7 @@
+ call initialize_constants
+ 
+ ! Initialize MPL
+-call bump%mpl%init(comm,conf)
++call bump%mpl%init(comm)
+ 
+ ! Initialize parameters
+ call bump%nam%init(bump%mpl)

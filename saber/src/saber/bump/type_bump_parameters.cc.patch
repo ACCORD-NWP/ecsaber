@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc.tmp	2024-05-06 14:16:29.591695658 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.cc	2024-05-06 13:01:37.723575995 +0200
+@@ -319,6 +319,8 @@
+   param(nicasDef.file_component, nicasConf);
+   // Same horizontal convolution for all levels, no vertical convolution
+   param(nicasDef.same_horizontal, nicasConf);
++  // Similar levels threshold (relative tolerance on horizontal length-scale)
++  param(nicasDef.sim_levs_th, nicasConf);
+ 
+   // Psichitouv section
+   PsichitouvDef psichitouvDef;

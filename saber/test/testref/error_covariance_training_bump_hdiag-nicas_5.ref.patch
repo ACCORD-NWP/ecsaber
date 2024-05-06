@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag-nicas_5.ref.tmp	2024-05-06 14:16:31.423700611 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag-nicas_5.ref	2024-05-06 13:02:24.871713025 +0200
+@@ -159,7 +159,7 @@
+              0.0 /    0.0:  1.0000000
+           Level   1:  0.0000000 -  1.0000000
+           Level   2:  0.0000000 -  0.5687413
+-Norm of output parameter dirac_mom - 1: 4.5847594118047885e+00
++Norm of output parameter dirac_mom - 1: 4.5847594118047867e+00
+ Norm of output parameter dirac_diag_cor - 1: 1.4049010083234903e+00
+ Norm of output parameter cor_a - 1: 1.1193645188076077e+01
+ Norm of output parameter cor_a - 2: 7.4246181896717696e+00

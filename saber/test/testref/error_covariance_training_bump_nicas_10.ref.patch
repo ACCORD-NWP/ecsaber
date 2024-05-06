@@ -1,0 +1,47 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_10.ref.tmp	2024-05-06 14:16:30.799698924 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_10.ref	2024-05-06 13:02:02.599648587 +0200
+@@ -25,12 +25,6 @@
+                    Subgrid hash:   1676590011
+                 Final nc1:      589
+                 Effective horizontal resolution:  4.00
+-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
+-                Estimated nc1 from horizontal support radius:      589
+-                   Decimate full grid, at least      589 points required,     762 valid points found
+-                   Subgrid hash:   1676590011
+-                Final nc1:      589
+-                Effective horizontal resolution:  4.00
+              nc1(  1) =                        589
+              nc1(  2) =                        589
+              ns =                             1178
+@@ -43,12 +37,6 @@
+                    Subgrid hash:    -19204982
+                 Final nc1:      376
+                 Effective horizontal resolution:  3.99
+-                Horizontal support radius:    5000.00 km (   5000.00 km -    5000.00 km)
+-                Estimated nc1 from horizontal support radius:      376
+-                   Decimate full grid, at least      376 points required,     762 valid points found
+-                   Subgrid hash:    -19204982
+-                Final nc1:      376
+-                Effective horizontal resolution:  3.99
+              nc1(  1) =                        376
+              nc1(  2) =                        376
+              ns =                              752
+@@ -81,18 +69,6 @@
+                 Horizontal support radius:    3000.00 km (   3000.00 km -    3000.00 km)
+                 Estimated nc1 from horizontal support radius:     1047
+                    Decimate full grid, at least      762 points required,     762 valid points found
+-                   Subgrid hash:   1550418632
+-                Final nc1:      762
+-                Effective horizontal resolution:  3.41
+-                Horizontal support radius:    3000.00 km (   3000.00 km -    3000.00 km)
+-                Estimated nc1 from horizontal support radius:     1047
+-                   Decimate full grid, at least      762 points required,     762 valid points found
+-                   Subgrid hash:   1550418632
+-                Final nc1:      762
+-                Effective horizontal resolution:  3.41
+-                Horizontal support radius:    3000.00 km (   3000.00 km -    3000.00 km)
+-                Estimated nc1 from horizontal support radius:     1047
+-                   Decimate full grid, at least      762 points required,     762 valid points found
+                    Subgrid hash:   1550418632
+                 Final nc1:      762
+                 Effective horizontal resolution:  3.41

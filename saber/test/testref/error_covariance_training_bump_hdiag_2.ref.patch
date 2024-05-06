@@ -1,0 +1,15 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag_2.ref.tmp	2024-05-06 14:16:31.351700417 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag_2.ref	2024-05-06 13:02:22.591706452 +0200
+@@ -78,10 +78,10 @@
+ Norm of output parameter cor_rh1 - 1: 2.0441952620901942e+08
+ Norm of output parameter cor_rh1 - 2: 1.6651671443499693e+08
+ Norm of output parameter cor_rh2 - 1: 2.1837060308251354e+08
+-Norm of output parameter cor_rh2 - 2: 1.8578793421458143e+08
++Norm of output parameter cor_rh2 - 2: 1.8578793421458146e+08
+ Norm of output parameter cor_rhc - 1: 6.5732728479733300e+00
+ Norm of output parameter cor_rhc - 2: 6.5732728479733300e+00
+ Norm of output parameter cor_rh - 1: 2.0952112063387245e+08
+ Norm of output parameter cor_rh - 2: 1.7450092299345303e+08
+ Norm of output parameter cor_rv - 1: 1.4709470657569224e+02
+-Norm of output parameter cor_rv - 2: 4.1170870413008117e+01
++Norm of output parameter cor_rv - 2: 4.1170870413008124e+01

@@ -1,0 +1,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag_5.ref.tmp	2024-05-06 14:16:30.903699205 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_hdiag_5.ref	2024-05-06 13:02:07.155661811 +0200
+@@ -130,8 +130,8 @@
+                 Level:   1 ~> hybrid coefficients: 0.56 / 0.42
+                 Level:   2 ~> hybrid coefficients: 0.53 / 0.43
+ Norm of output parameter loc_rh - 1: 2.1711165838792601e+08
+-Norm of output parameter loc_rv - 1: 2.0044142458539670e+02
++Norm of output parameter loc_rv - 1: 2.0044142458539636e+02
+ Norm of output parameter hyb_coef_ens - 1: 2.6732620444699819e+01
+-Norm of output parameter hyb_coef_ens_lr - 1: 2.0822510714431008e+01
++Norm of output parameter hyb_coef_ens_lr - 1: 2.0822510714430994e+01
+ Norm of output parameter loc_rh_lr - 1: 2.3694160476838183e+08
+ Norm of output parameter loc_rv_lr - 1: 2.4681360916537037e+02

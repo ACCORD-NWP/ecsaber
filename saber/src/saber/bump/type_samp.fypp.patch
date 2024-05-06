@@ -1,0 +1,65 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_samp.fypp.tmp	2024-05-06 14:16:29.355695020 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_samp.fypp	2024-05-06 13:01:31.023556328 +0200
+@@ -1880,7 +1880,7 @@
+ end if
+ 
+ ! Reset random seed if necessary
+-call rng%reseed(mpl)
++call rng%reseed
+ 
+ ! Probe out
+ @:probe_out()
+@@ -1956,7 +1956,7 @@
+ end if
+ 
+ ! Reset random seed if necessary
+-call rng%reseed(mpl)
++call rng%reseed
+ 
+ ! Probe out
+ @:probe_out()
+@@ -2799,7 +2799,7 @@
+ 
+ if (samp%sc2) then
+    ! Setup tree
+-   call samp%tree_c1u%alloc(mpl,samp%nc1u)
++   call samp%tree_c1u%alloc(samp%nc1u)
+    call samp%tree_c1u%init(samp%lon_c1u,samp%lat_c1u)
+ 
+    ! Setup mesh
+@@ -2897,7 +2897,7 @@
+ allocate(samp%nn_c2a_index(samp%nc2u,samp%nc2a))
+ allocate(samp%nn_c2a_dist(samp%nc2u,samp%nc2a))
+ allocate(samp%ldwv_to_c2a(nam%nldwv))
+-call tree%alloc(mpl,samp%nc2u)
++call tree%alloc(samp%nc2u)
+ 
+ ! Initialization
+ call tree%init(samp%lon_c2u,samp%lat_c2u)
+@@ -2973,7 +2973,7 @@
+ allocate(smask_hor_c2(samp%nc2))
+ if (.not.samp%lat_bands) then
+    call mesh_c2%alloc(samp%nc2)
+-   call tree_c2%alloc(mpl,samp%nc2)
++   call tree_c2%alloc(samp%nc2)
+ end if
+ allocate(samp%interp_c2b_to_c0a(geom%nl0i))
+ if (samp%compute_c2b_to_c1a) allocate(smask_hor_c1a(samp%nc1a))
+@@ -3442,7 +3442,7 @@
+ 
+ ! Allocation
+ allocate(samp%local_mask(samp%nc1u,samp%nc2a))
+-call tree%alloc(mpl,samp%nc1u)
++call tree%alloc(samp%nc1u)
+ 
+ ! Initialization
+ samp%local_mask = .false.
+@@ -3583,7 +3583,7 @@
+ 
+ ! Allocation
+ allocate(samp%vbal_mask(samp%nc1u,samp%nc2b))
+-call tree%alloc(mpl,samp%nc1u)
++call tree%alloc(samp%nc1u)
+ 
+ ! Initialization
+ samp%vbal_mask = .false.

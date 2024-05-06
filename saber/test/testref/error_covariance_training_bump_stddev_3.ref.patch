@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_stddev_3.ref.tmp	2024-05-06 14:16:31.223700070 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_stddev_3.ref	2024-05-06 13:02:18.203693787 +0200
+@@ -11,4 +11,4 @@
+              Level   2 ~>  0.99134E+00 /  0.99134E+00
+              Level   1 ~>  0.97242E+00 /  0.97242E+00
+              Level   2 ~>  0.99757E+00 /  0.99757E+00
+-Norm of output parameter stddev - 1: 5.7539391781676251e+01
++Norm of output parameter stddev - 1: 5.7539391781678255e+01

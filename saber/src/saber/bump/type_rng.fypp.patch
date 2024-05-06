@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_rng.fypp.tmp	2024-05-06 14:16:29.667695863 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_rng.fypp	2024-05-06 13:01:38.235577496 +0200
+@@ -129,16 +129,12 @@
+ ! Subroutine: rng_reseed
+ !> Re-seed the random number generator
+ !----------------------------------------------------------------------
+-subroutine rng_reseed(rng,mpl)
++subroutine rng_reseed(rng)
+ 
+ implicit none
+ 
+ ! Passed variable
+ class(rng_type),intent(inout) :: rng !< Random number generator
+-type(mpl_type),intent(inout) :: mpl  !< MPI data
+-
+-! Local variable
+-integer :: seed
+ 
+ ! Set name
+ @:set_name(rng_reseed)

@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_stddev_5.ref.tmp	2024-05-06 14:16:31.119699789 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_stddev_5.ref	2024-05-06 13:02:13.743680894 +0200
+@@ -8,7 +8,7 @@
+              Level   1 ~>  0.100E+01 vert. coord.
+              Level   2 ~>  0.200E+01 vert. coord.
+ Norm of input parameter var - 1: 4.3289362578921313e+01
+-Norm of input parameter m4 - 1: 1.3993375181143369e+02
++Norm of input parameter m4 - 1: 1.3993375181143315e+02
+                 Level   1: rhflt =   40000.00 km, rel. diff. =  0.33902E-02
+                 Level   2: rhflt =   40000.00 km, rel. diff. =  0.19375E-01
+              Level   1 ~>  0.10169E+01 /  0.10169E+01
