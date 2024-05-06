@@ -1,0 +1,17 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_tree.fypp.tmp	2024-05-06 14:16:29.791696199 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_tree.fypp	2024-05-06 13:01:40.283583497 +0200
+@@ -48,13 +48,12 @@
+ ! Subroutine: tree_alloc
+ !> Allocation
+ !----------------------------------------------------------------------
+-subroutine tree_alloc(tree,mpl,n,mask)
++subroutine tree_alloc(tree,n,mask)
+ 
+ implicit none
+ 
+ ! Passed variables
+ class(tree_type),intent(inout) :: tree !< Tree
+-type(mpl_type),intent(inout) :: mpl    !< MPI data
+ integer,intent(in) :: n                !< Number of points
+ logical,intent(in),optional :: mask(n) !< Mask
+ 

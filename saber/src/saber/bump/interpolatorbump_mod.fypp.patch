@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/interpolatorbump_mod.fypp.tmp	2024-05-06 14:16:29.387695106 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/interpolatorbump_mod.fypp	2024-05-06 13:01:34.383566198 +0200
+@@ -160,7 +160,7 @@
+ call conf%set('model.var2d',(/0/))
+ 
+ ! Initialize MPL
+-call bint%bump%mpl%init(comm,conf)
++call bint%bump%mpl%init(comm)
+ 
+ ! Initialize constants
+ call initialize_constants

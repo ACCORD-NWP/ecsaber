@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_vbal.fypp.tmp	2024-05-06 14:16:29.335694966 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_vbal.fypp	2024-05-06 13:01:27.091544764 +0200
+@@ -2085,7 +2085,7 @@
+ if (nam%check_dirac) call vbal%test_dirac(mpl,nam,geom)
+ 
+ ! Reset random seed if necessary
+-call rng%reseed(mpl)
++call rng%reseed
+ 
+ ! Probe out
+ @:probe_out()

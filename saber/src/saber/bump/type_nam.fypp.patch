@@ -1,0 +1,26 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp.tmp	2024-05-06 14:16:29.695695939 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nam.fypp	2024-05-06 13:01:38.795579138 +0200
+@@ -198,6 +198,7 @@
+    logical :: interp_test                                     !< Horizontal NICAS interpolation test
+    integer :: file_component                                  !< Overriding component in file
+    logical :: same_horizontal                                 !< Same horizontal convolution for all levels, no vertical convolution
++   real(kind_real) :: sim_levs_th                             !< Similar levels threshold (relative tolerance on horizontal length-scale)
+ 
+    ! Psichitouv section
+    integer :: wind_nlon                                       !< Number of longitudes for the regular grid
+@@ -901,6 +902,7 @@
+    call nam%get(section,'horizontal interpolation test',nam%interp_test)
+    call nam%get(section,'overriding component in file',nam%file_component)
+    call nam%get(section,'same horizontal convolution',nam%same_horizontal)
++   call nam%get(section,'similar levels threshold',nam%sim_levs_th)
+ end if
+ 
+ ! Psichitouv section
+@@ -1360,6 +1362,7 @@
+       end select
+    end do
+    if (nam%same_horizontal.and.nam%write_nicas_steps) call mpl%abort('${subr}$','NICAS steps not available with horizontal convolution')
++   if (nam%sim_levs_th<zero) call mpl%abort('${subr}$','similar levels threshold should not be negative')
+ end if
+ 
+ ! Dirac section

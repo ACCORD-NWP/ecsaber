@@ -1,0 +1,13 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.h.tmp	2024-05-06 14:16:29.423695203 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_bump_parameters.h	2024-05-06 13:01:34.955567876 +0200
+@@ -569,6 +569,10 @@
+   // Same horizontal convolution for all levels, no vertical convolution
+   std::pair<const char *, bool> same_horizontal =
+     std::make_pair("same horizontal convolution", 0);
++
++  // Similar levels threshold (relative tolerance on horizontal length-scale)
++  std::pair<const char *, double> sim_levs_th =
++    std::make_pair("similar levels threshold", 0.0);
+ };
+ 
+ // Psichitouv section

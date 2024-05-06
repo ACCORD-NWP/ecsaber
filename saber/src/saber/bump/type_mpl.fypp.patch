@@ -1,0 +1,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_mpl.fypp.tmp	2024-05-06 14:16:29.783696177 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_mpl.fypp	2024-05-06 13:01:39.815582126 +0200
+@@ -154,14 +154,13 @@
+ ! Subroutine: mpl_init
+ !> Initialize MPL object
+ !----------------------------------------------------------------------
+-subroutine mpl_init(mpl,f_comm,conf)
++subroutine mpl_init(mpl,f_comm)
+ 
+ implicit none
+ 
+ ! Passed variables
+ class(mpl_type),intent(inout) :: mpl             !< MPI data
+ type(fckit_mpi_comm),intent(in),target :: f_comm !< FCKIT MPI communicator wrapper
+-type(fckit_configuration),intent(in) :: conf     !< Configuration
+ 
+ ! Local variables
+ type(fckit_mpi_comm) :: world_comm

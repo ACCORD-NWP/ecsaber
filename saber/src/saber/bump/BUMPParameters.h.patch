@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMPParameters.h.tmp	2024-05-06 14:16:29.807696242 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/BUMPParameters.h	2024-05-06 13:01:40.855585172 +0200
+@@ -628,6 +628,8 @@
+   oops::Parameter<int> file_component = param(def.file_component, this);
+   // Same horizontal convolution for all levels, no vertical convolution
+   oops::Parameter<bool> same_horizontal = param(def.same_horizontal, this);
++  // Similar levels threshold (relative tolerance on horizontal length-scale)
++  oops::Parameter<double> sim_levs_th = param(def.sim_levs_th, this);
+ };
+ 
+ // -----------------------------------------------------------------------------

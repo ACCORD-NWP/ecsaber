@@ -1,0 +1,83 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_blk.fypp.tmp	2024-05-06 14:16:29.855696372 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_blk.fypp	2024-05-06 13:01:41.367586671 +0200
+@@ -683,7 +683,7 @@
+    nicas_blk%cmp(icmp)%nl0_id = nl0_id
+ 
+    ! Component work
+-   call nicas_blk%cmp(icmp)%write_global_def(mpl)
++   call nicas_blk%cmp(icmp)%write_global_def(mpl,geom)
+ end do
+ 
+ ! End associate
+@@ -698,13 +698,14 @@
+ ! Subroutine: nicas_blk_write_global_data
+ !> Write data for global I/O, data mode
+ !----------------------------------------------------------------------
+-subroutine nicas_blk_write_global_data(nicas_blk,mpl)
++subroutine nicas_blk_write_global_data(nicas_blk,mpl,geom)
+ 
+ implicit none
+ 
+ ! Passed variables
+ class(nicas_blk_type),intent(inout) :: nicas_blk !< NICAS data
+ type(mpl_type),intent(inout) :: mpl              !< MPI data
++type(geom_type),intent(in) :: geom               !< Geometry
+ 
+ ! Local variables
+ integer :: icmp
+@@ -717,7 +718,7 @@
+ 
+ do icmp=1,nicas_blk%ncmp
+    ! Component work
+-   call nicas_blk%cmp(icmp)%write_global_data(mpl)
++   call nicas_blk%cmp(icmp)%write_global_data(mpl,geom)
+ end do
+ 
+ ! Probe out
+@@ -937,7 +938,7 @@
+ 
+ if (.not.nam%load_nicas_global) then
+    ! Reset random numbers seed
+-   if (trim(nam%strategy)=='crossed') call rng%reseed(mpl)
++   if (trim(nam%strategy)=='crossed') call rng%reseed
+ end if
+ 
+ do icmp=1,nicas_blk%ncmp
+@@ -1106,6 +1107,9 @@
+    nicas_blk%cmp(il0i)%smoother = .true.
+    nicas_blk%cmp(il0i)%compute_norm = .false.
+ 
++   ! Set interpolation computation flag
++   nicas_blk%cmp(il0i)%compute_interp = .true.
++
+    ! Set number of levels
+    nicas_blk%cmp(il0i)%nl0 = geom%nl0
+ 
+@@ -1178,6 +1182,9 @@
+      nicas_blk%cmp(icmp)%nl0 = geom%nl0
+    end if
+ 
++   ! Set interpolation computation flag
++   nicas_blk%cmp(icmp)%compute_interp = .true.
++
+    ! Allocation
+    allocate(nicas_blk%cmp(icmp)%vlev(nicas_blk%cmp(icmp)%nl0))
+    allocate(nicas_blk%cmp(icmp)%a(geom%nc0a,nicas_blk%cmp(icmp)%nl0))
+@@ -1460,7 +1467,7 @@
+ deallocate(cv_blk2%cmp)
+ 
+ ! Reset random seed if necessary
+-call rng%reseed(mpl)
++call rng%reseed
+ 
+ ! Probe out
+ @:probe_out()
+@@ -1548,7 +1555,7 @@
+ if (nicas_blk%verbosity) call mpl%flush
+ 
+ ! Reset random seed if necessary
+-call rng%reseed(mpl)
++call rng%reseed
+ 
+ ! Probe out
+ @:probe_out()
