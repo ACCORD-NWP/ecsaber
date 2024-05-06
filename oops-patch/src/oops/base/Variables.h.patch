@@ -1,14 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/Variables.h.tmp.bak	2024-03-07 12:39:56.568680485 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/Variables.h	2024-03-07 12:30:14.436224980 +0100
-@@ -13,6 +13,7 @@
- #include <vector>
- 
- #include "eckit/config/LocalConfiguration.h"
-+#include "eckit/exception/Exceptions.h"
- 
- #include "oops/util/Printable.h"
- 
-@@ -21,6 +22,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/Variables.h.tmp.bak	2024-05-06 12:36:57.575692351 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/Variables.h	2024-04-04 15:35:09.282252474 +0200
+@@ -22,6 +22,7 @@
  }
  
  namespace oops {
@@ -16,7 +8,7 @@
  
  // -----------------------------------------------------------------------------
  /// \brief Class to set an container of variable names and manipulate it.
-@@ -35,43 +37,39 @@
+@@ -36,39 +37,39 @@
  ///
  ///        Most operators / methods do not affect/interact with the meta data.
  ///        The exceptions are:
@@ -61,10 +53,6 @@
 -  bool operator==(const patch::Variables &) const;
 -  bool operator!=(const patch::Variables &) const;
 -  bool operator<=(const patch::Variables &) const;
--
--  void addMetaData(const std::string & varname,
--                   const std::string & keyname,
--                   const int & keyvalue);
 +  bool operator==(const Variables &) const;
 +  bool operator!=(const Variables &) const;
 +  bool operator<=(const Variables &) const;
@@ -80,93 +68,46 @@
  
    const std::vector<std::string> & variables() const {return vars_;}
    const std::vector<int> & channels() const {return channels_;}
-@@ -80,6 +78,17 @@
-   void push_back(const std::string &);
-   void sort();
+@@ -117,7 +118,7 @@
+ // -----------------------------------------------------------------------------
  
-+  // Metadata
-+  bool hasMetaData(const std::string & varname,
-+                   const std::string & keyname) const;
-+  template<typename T>
-+  void addMetaData(const std::string & varname,
-+                   const std::string & keyname,
-+                   const T & keyvalue);
-+  template<typename T>
-+  T getMetaData(const std::string & varname,
-+                const std::string & keyname) const;
-+  // TODO(Later): might be replaced with getMetaData<int>(varname, "levels")
-   int getLevels(const std::string &) const;
+ template<typename T>
+-void patch::Variables::addMetaData(const std::string & varname,
++void Variables::addMetaData(const std::string & varname,
+                             const std::string & keyname,
+                             const T & keyvalue) {
+   setVariableSubKeyValue(varname, keyname, keyvalue, varMetaData_);
+@@ -126,7 +127,7 @@
+ // -----------------------------------------------------------------------------
  
-  private:
-@@ -88,14 +97,16 @@
-   /// returns sorted variable names
-   std::vector<std::string> asCanonical() const;
+ template<typename T>
+-T patch::Variables::getMetaData(const std::string & varname,
++T Variables::getMetaData(const std::string & varname,
+                          const std::string & keyname) const {
+   T keyvalue;
+   getVariableSubKeyValue(varname, keyname, varMetaData_, keyvalue);
+@@ -136,7 +137,7 @@
+ // -----------------------------------------------------------------------------
  
-+  template<typename T>
-   void getVariableSubKeyValue(const std::string & varname,
-                               const std::string & keyname,
-                               const eckit::Configuration & conf,
--                              int & intvalue) const;
-+                              T & keyvalue) const;
+ template<typename T>
+-void patch::Variables::getVariableSubKeyValue(const std::string & varname,
++void Variables::getVariableSubKeyValue(const std::string & varname,
+                                        const std::string & keyname,
+                                        const eckit::Configuration & variablesconf,
+                                        T & keyvalue) const {
+@@ -149,7 +150,7 @@
+ // -----------------------------------------------------------------------------
  
-+  template<typename T>
-   void setVariableSubKeyValue(const std::string & varname,
-                               const std::string & keyname,
--                              const int & keyvalue,
-+                              const T & keyvalue,
-                               eckit::LocalConfiguration & lconf);
- 
-   std::string convention_;
-@@ -106,6 +117,53 @@
+ template<typename T>
+-void patch::Variables::setVariableSubKeyValue(const std::string & varname,
++void Variables::setVariableSubKeyValue(const std::string & varname,
+                                        const std::string & keyname,
+                                        const T & keyvalue,
+                                        eckit::LocalConfiguration & variableslconf) {
+@@ -162,6 +163,7 @@
  
  // -----------------------------------------------------------------------------
  
-+template<typename T>
-+void Variables::addMetaData(const std::string & varname,
-+                            const std::string & keyname,
-+                            const T & keyvalue) {
-+  setVariableSubKeyValue(varname, keyname, keyvalue, varMetaData_);
-+}
-+
-+// -----------------------------------------------------------------------------
-+
-+template<typename T>
-+T Variables::getMetaData(const std::string & varname,
-+                         const std::string & keyname) const {
-+  T keyvalue;
-+  getVariableSubKeyValue(varname, keyname, varMetaData_, keyvalue);
-+  return keyvalue;
-+}
-+
-+// -----------------------------------------------------------------------------
-+
-+template<typename T>
-+void Variables::getVariableSubKeyValue(const std::string & varname,
-+                                       const std::string & keyname,
-+                                       const eckit::Configuration & variablesconf,
-+                                       T & keyvalue) const {
-+  ASSERT(!variablesconf.empty());
-+  ASSERT(variablesconf.has(varname));
-+  ASSERT(variablesconf.getSubConfiguration(varname).has(keyname));
-+  variablesconf.getSubConfiguration(varname).get(keyname, keyvalue);
-+}
-+
-+// -----------------------------------------------------------------------------
-+
-+template<typename T>
-+void Variables::setVariableSubKeyValue(const std::string & varname,
-+                                       const std::string & keyname,
-+                                       const T & keyvalue,
-+                                       eckit::LocalConfiguration & variableslconf) {
-+  eckit::LocalConfiguration variablelconf =
-+    variableslconf.has(varname) ? variableslconf.getSubConfiguration(varname) :
-+                                  eckit::LocalConfiguration();
-+  variablelconf.set(keyname, keyvalue);
-+  variableslconf.set(varname, variablelconf);
-+}
-+
-+// -----------------------------------------------------------------------------
-+
 +}  // namespace patch
  }  // namespace oops
  

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2024-03-08 08:00:38.289998496 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2024-03-08 08:20:47.886101319 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2024-05-06 13:39:34.877664293 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2024-05-06 13:37:59.713411217 +0200
 @@ -17,8 +17,8 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -9,9 +9,9 @@
 +#include "oops/interface/Geometry.h"
 +#include "oops/interface/Increment.h"
  #include "oops/interface/ModelData.h"
+ #include "oops/util/FieldSetHelpers.h"
  #include "oops/util/Logger.h"
- #include "oops/util/Random.h"
-@@ -27,6 +27,7 @@
+@@ -28,6 +28,7 @@
  #include "saber/blocks/SaberBlockParametersBase.h"
  #include "saber/blocks/SaberOuterBlockChain.h"
  #include "saber/blocks/SaberParametricBlockChain.h"
@@ -19,7 +19,7 @@
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -79,6 +80,9 @@
+@@ -80,6 +81,9 @@
    /// TODO(AS): check whether this is needed or can be inferred from ensemble.
    oops::patch::Variables vars_;
    int seed_ = 7;  // For reproducibility
@@ -29,7 +29,7 @@
  };
  
  // -----------------------------------------------------------------------------
-@@ -97,8 +101,10 @@
+@@ -98,8 +102,10 @@
                         oops::FieldSets & fsetDualResEns,
                         const eckit::LocalConfiguration & covarConf,
                         const eckit::Configuration & conf)
@@ -42,7 +42,7 @@
    oops::Log::trace() << "SaberEnsembleBlockChain ctor starting" << std::endl;
  
    // Check that there is an ensemble of at least 2 members.
-@@ -123,7 +129,7 @@
+@@ -124,7 +130,7 @@
    oops::patch::Variables currentOuterVars = outerBlockChain_ ?
                                       outerBlockChain_->innerVars() : outerVars;
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
@@ -51,7 +51,7 @@
  
    // Get parameters:
    SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
-@@ -151,7 +157,7 @@
+@@ -162,7 +168,7 @@
    eckit::LocalConfiguration centralBlockConf = conf.getSubConfiguration("saber central block");
    const double inflationValue = centralBlockConf.getDouble("inflation value", 1);
    oops::Log::info() << "Info     : Read inflation field" << std::endl;
@@ -60,7 +60,7 @@
    // Read ATLAS inflation file
    if (centralBlockConf.has("inflation field.atlas file")) {
      eckit::LocalConfiguration inflationConf =
-@@ -173,12 +179,15 @@
+@@ -184,12 +190,15 @@
                                centralBlockConf.getSubConfiguration("inflation field.model file");
      // Copy file
      // Read fieldsets as increments
@@ -78,3 +78,21 @@
    }
  
    // Apply inflation on ensemble members
+@@ -254,7 +263,7 @@
+   }
+ 
+   const oops::GeometryData & localizationOuterGeomData = outerBlockChain_ ?
+-              outerBlockChain_->innerGeometryData() : geom.generic();
++              outerBlockChain_->innerGeometryData() : geomData_;
+ 
+   // Localization
+   const auto & locConf = saberCentralBlockParams.localization.value();
+@@ -266,7 +275,7 @@
+ 
+     // Check consistency of `geom` and the current geometry
+     const auto & currentFspace = localizationOuterGeomData.functionSpace();
+-    if (util::getGridUid(geom.functionSpace()) != util::getGridUid(currentFspace)) {
++    if (util::getGridUid(geom.geometry().functionSpace()) != util::getGridUid(currentFspace)) {
+       oops::Log::info() << "Info     : Localization and ensemble are on different "
+                            "functionSpaces, building localization with generic "
+                            "constructor" << std::endl;

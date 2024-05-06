@@ -317,6 +317,10 @@ void bump_config_init_f90(eckit::LocalConfiguration * config) {
   param(nicasDef.interp_test, nicasConf);
   // Overriding component in file
   param(nicasDef.file_component, nicasConf);
+  // Same horizontal convolution for all levels, no vertical convolution
+  param(nicasDef.same_horizontal, nicasConf);
+  // Similar levels threshold (relative tolerance on horizontal length-scale)
+  param(nicasDef.sim_levs_th, nicasConf);
 
   // Psichitouv section
   PsichitouvDef psichitouvDef;

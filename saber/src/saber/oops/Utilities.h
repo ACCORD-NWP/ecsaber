@@ -7,7 +7,9 @@
 
 #pragma once
 
+#include <algorithm>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -15,8 +17,10 @@
 #include <boost/range/adaptor/reversed.hpp>
 
 #include "atlas/field.h"
+#include "atlas/grid.h"
 
 #include "eckit/config/Configuration.h"
+#include "eckit/exception/Exceptions.h"
 
 #include "oops/base/FieldSets.h"
 #include "oops/interface/Geometry.h"
@@ -31,6 +35,7 @@
 #include "oops/util/DateTime.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/FieldSetOperations.h"
+#include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 #include "saber/blocks/SaberBlockParametersBase.h"
@@ -86,12 +91,12 @@ void allocateMissingFields(oops::FieldSet3D & fset,
 
 template<typename MODEL>
 oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
-                                      const oops::patch::Variables & modelvars,
-                                      const oops::State4D<MODEL> & xb,
-                                      const oops::State4D<MODEL> & fg,
-                                      const eckit::LocalConfiguration & inputConf,
-                                      const bool & iterativeEnsembleLoading,
-                                      eckit::LocalConfiguration & outputConf) {
+                             const oops::patch::Variables & modelvars,
+                             const oops::State4D<MODEL> & xb,
+                             const oops::State4D<MODEL> & fg,
+                             const eckit::LocalConfiguration & inputConf,
+                             const bool & iterativeEnsembleLoading,
+                             eckit::LocalConfiguration & outputConf) {
   oops::Log::trace() << "readEnsemble starting" << std::endl;
 
   // Prepare ensemble configuration
@@ -127,11 +132,45 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     ++ensembleFound;
   }
 
+  // Increment ensemble from increments on disk on other geometry
+  eckit::LocalConfiguration ensemblePertOtherGeom;
+  if (inputConf.has("ensemble pert on other geometry")
+          && inputConf.has("ensemble geometry")) {
+    ensemblePertOtherGeom = inputConf.getSubConfiguration("ensemble pert on other geometry");
+
+    // Bespoke validation, mimicking oops::IncrementEnsembleParameters<MODEL>
+    ASSERT(ensemblePertOtherGeom.has("date"));
+    ASSERT(ensemblePertOtherGeom.has("members from template")
+           || ensemblePertOtherGeom.has("members"));
+    ASSERT(!(ensemblePertOtherGeom.has("members from template")
+           && ensemblePertOtherGeom.has("members")));
+
+    if (ensemblePertOtherGeom.has("members")) {
+      const auto members = ensemblePertOtherGeom.getSubConfigurations("members");
+      nens = members.size();
+    }
+
+    if (ensemblePertOtherGeom.has("members from template")) {
+      const auto members = ensemblePertOtherGeom.getSubConfiguration("members from template");
+      ASSERT(members.has("nmembers"));
+      ASSERT(members.has("pattern"));
+      ASSERT(members.has("template"));
+      nens = members.getInt("nmembers");
+    }
+
+    outputConf.set("ensemble pert on other geometry", ensemblePertOtherGeom);
+    outputConf.set("ensemble geometry",
+                   inputConf.getSubConfiguration("ensemble geometry"));
+    ++ensembleFound;
+  }
+
   // Set ensemble size
   outputConf.set("ensemble size", nens);
 
   // Check number of ensembles in yaml
   ASSERT(ensembleFound <= 1);
+
+  oops::patch::Variables vars(modelvars);
 
   if (!iterativeEnsembleLoading) {
     // Full ensemble loading
@@ -172,6 +211,58 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       std::vector<int> ensmems(nens);
       std::iota(ensmems.begin(), ensmems.end(), 0);
       oops::FieldSets fsetEns(xb, ensmems);
+      return fsetEns;
+    }
+
+    // Increment ensemble from increments on disk on other geometry
+    if (!ensemblePertOtherGeom.empty()) {
+      oops::Log::info() << "Info     : Increment ensemble from increments "
+                        << "on disk on other geometry" << std::endl;
+      const eckit::mpi::Comm & commGeom = eckit::mpi::comm();
+
+      // Setup functionspace
+      auto fspaceConf = inputConf.getSubConfiguration("ensemble geometry");
+      atlas::Grid grid;
+      atlas::grid::Partitioner partitioner;
+      atlas::Mesh mesh;
+      atlas::FunctionSpace fspace;
+      atlas::FieldSet fieldset;
+      util::setupFunctionSpace(commGeom, fspaceConf, grid, partitioner,
+                               mesh, fspace, fieldset);
+
+      // Setup variable sizes
+      if (fspaceConf.has("groups")) {
+        // Read level information from configuration
+        const auto groups = fspaceConf.getSubConfigurations("groups");
+        for (const auto & group : groups) {
+          const int levels = group.getInt("levels");
+          for (const auto & var : group.getStringVector("variables")) {
+            if (vars.has(var)) {
+              vars.addMetaData(var, "levels", levels);
+            }
+          }
+        }
+        // Check all variables have been populated with level information
+        const auto & metaData = vars.variablesMetaData();
+        for (const auto & var : vars.variables()) {
+          if (!metaData.getSubConfiguration(var).has("levels")) {
+            std::stringstream ss;
+            ss << "Could not find vertical level information for variable "
+               << var << " in `ensemble geometry: groups`.";
+            throw eckit::UserError(ss.str(), Here());
+          }
+        }
+      } else {
+        // Use level information from the model variables
+        for (const auto & var : vars.variables()) {
+          vars.addMetaData(var, "levels", modelvars.getLevels(var));
+        }
+      }
+
+      // Read perturbations into oops::FieldSets
+      oops::FieldSets fsetEns(fspace, vars, xb.times(),
+                              ensemblePertOtherGeom,
+                              commGeom, eckit::mpi::self());
       return fsetEns;
     }
   }
@@ -265,6 +356,12 @@ void readEnsembleMember(const oops::Geometry<MODEL> & geom,
     fset.deepCopy(dx.increment().fieldSet());
 
     ++ensembleFound;
+  }
+
+  if (conf.has("ensemble pert on other geometry")
+          && conf.has("ensemble geometry")) {
+    throw eckit::NotImplemented("readEnsembleMember not yet implemented for an"
+                                "ensemble on a non-MODEL geometry", Here());
   }
 
   // Check number of ensembles in configuration

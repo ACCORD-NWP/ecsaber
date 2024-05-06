@@ -160,7 +160,7 @@ call conf%set('model.variables',(/'var'/))
 call conf%set('model.var2d',(/0/))
 
 ! Initialize MPL
-call bint%bump%mpl%init(comm,conf)
+call bint%bump%mpl%init(comm)
 
 ! Initialize constants
 call initialize_constants

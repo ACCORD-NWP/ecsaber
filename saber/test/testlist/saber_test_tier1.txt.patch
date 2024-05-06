@@ -1,14 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt.tmp.bak	2024-04-22 15:45:59.830027990 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt	2024-04-22 15:45:28.253999283 +0200
-@@ -12,7 +12,6 @@
- dirac_fakelevels_3
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt.tmp.bak	2024-05-06 12:38:44.355912627 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1.txt	2024-05-06 13:02:30.219728423 +0200
+@@ -14,7 +14,6 @@
+ dirac_fakelevels_5
  dirac_oops_ens_noloc_4d
  compare_diagnostics_ens_noloc
 -compare_diagnostics_hybrid_stddev
  dirac_id
  dirac_id_4d
  dirac_id_4d_timecov
-@@ -23,8 +22,6 @@
+@@ -25,8 +24,6 @@
  dirac_stddev_1
  dirac_stddev_2
  dirac_duplicate_variables

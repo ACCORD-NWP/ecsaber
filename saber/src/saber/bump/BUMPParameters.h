@@ -626,6 +626,10 @@ class NICASSection : public oops::Parameters {
   oops::Parameter<bool> interp_test = param(def.interp_test, this);
   // Overriding component in file
   oops::Parameter<int> file_component = param(def.file_component, this);
+  // Same horizontal convolution for all levels, no vertical convolution
+  oops::Parameter<bool> same_horizontal = param(def.same_horizontal, this);
+  // Similar levels threshold (relative tolerance on horizontal length-scale)
+  oops::Parameter<double> sim_levs_th = param(def.sim_levs_th, this);
 };
 
 // -----------------------------------------------------------------------------

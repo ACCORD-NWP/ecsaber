@@ -1,59 +1,55 @@
---- /perm/sbbm/hm_lib/saber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2024-02-16 11:15:25.789514607 +0000
-+++ /perm/sbbm/hm_lib/saber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2024-02-16 09:51:52.106023994 +0000
-@@ -16,7 +16,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2024-05-06 14:08:00.054271843 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2024-05-06 14:01:08.744995726 +0200
+@@ -18,7 +18,7 @@
  
  #include "oops/base/FieldSet4D.h"
  #include "oops/base/FieldSets.h"
 -#include "oops/base/Geometry.h"
 +#include "oops/interface/Geometry.h"
+ #include "oops/base/GeometryData.h"
  #include "oops/interface/ModelData.h"
  
- #include "saber/blocks/SaberBlockParametersBase.h"
-@@ -119,6 +119,7 @@
+@@ -175,6 +175,7 @@
    /// TODO(AS): Need to expand this to create different outer blocks for different
    /// times for the 4D with multiple times on one MPI task.
    std::vector<std::unique_ptr<SaberOuterBlockBase>> outerBlocks_;
-+  const oops::GeometryData geomData_;
++  std::unique_ptr<oops::GeometryData> geomData_;
  };
  
  // -----------------------------------------------------------------------------
-@@ -130,7 +131,9 @@
+@@ -186,7 +187,9 @@
                         const oops::FieldSet4D & fset4dFg,
                         oops::FieldSets & fsetEns,
                         const eckit::LocalConfiguration & covarConf,
 -                       const std::vector<saber::SaberOuterBlockParametersWrapper> & params) {
 +                       const std::vector<saber::SaberOuterBlockParametersWrapper> & params) :
-+  geomData_(geom.geometry().functionSpace(), geom.geometry().fields(),
-+  geom.geometry().levelsAreTopDown(), geom.geometry().getComm()) {
++  geomData_(new oops::GeometryData(geom.geometry().functionSpace(), geom.geometry().fields(),
++  geom.geometry().levelsAreTopDown(), geom.geometry().getComm())) {
    oops::Log::trace() << "SaberOuterBlockChain ctor starting" << std::endl;
    oops::Log::info() << "Info     : Creating outer blocks" << std::endl;
  
-@@ -152,7 +155,7 @@
-     oops::patch::Variables currentOuterVars = outerBlocks_.size() == 0 ?
-                                        outerVars : outerBlocks_.back()->innerVars();
+@@ -198,12 +201,13 @@
+   eckit::LocalConfiguration outerBlockConf{covarConf};
+   outerBlockConf.set("vader", modelDataConf);
+ 
++
+   // Loop in reverse order
+   for (const SaberOuterBlockParametersWrapper & saberOuterBlockParamWrapper :
+     boost::adaptors::reverse(params)) {
+-    // Initialize current outer geometry data
++    // Initialize current outer variables and outer geometry data
      const oops::GeometryData & currentOuterGeometryData = outerBlocks_.size() == 0 ?
 -                                       geom.generic() : outerBlocks_.back()->innerGeometryData();
-+                                       geomData_ : outerBlocks_.back()->innerGeometryData();
++      *geomData_ : outerBlocks_.back()->innerGeometryData();
  
-     // Get outer block parameters
-     const SaberBlockParametersBase & saberOuterBlockParams =
-@@ -194,7 +197,7 @@
+     // Initialize outer block
+     const auto[saberOuterBlockParams,
+@@ -282,7 +286,7 @@
  
-         for (size_t ie = 0; ie < nens; ++ie) {
-           // Read ensemble member
--          oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.getComm());
-+          oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
-           readEnsembleMember(geom,
-                              currentOuterVars,
-                              ensembleConf,
-@@ -266,8 +269,8 @@
-       && saberOuterBlockParams.inverseVars.value().size() > 0) {
-       oops::Log::info() << "Info     : Left inverse multiplication on xb and fg" << std::endl;
-       // Share fields pointers
--      oops::FieldSet3D fsetXbInv(fset4dXb[0].validTime(), geom.getComm());
--      oops::FieldSet3D fsetFgInv(fset4dXb[0].validTime(), geom.getComm());
-+      oops::FieldSet3D fsetXbInv(fset4dXb[0].validTime(), geom.geometry().getComm());
-+      oops::FieldSet3D fsetFgInv(fset4dXb[0].validTime(), geom.geometry().getComm());
-       for (const auto & var : saberOuterBlockParams.inverseVars.value().variables()) {
-         fsetXbInv.fieldSet().add(fset4dXb[0].fieldSet().field(var));
-         fsetFgInv.fieldSet().add(fset4dFg[0].fieldSet().field(var));
+     for (size_t ie = 0; ie < nens; ++ie) {
+       // Read ensemble member
+-      oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.getComm());
++      oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
+       readEnsembleMember(geom,
+                          outerVars,
+                          ensembleConf,

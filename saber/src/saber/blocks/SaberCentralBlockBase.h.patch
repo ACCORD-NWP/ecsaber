@@ -1,5 +1,5 @@
---- /perm/sbbm/hm_lib/saber/bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp.bak	2024-02-16 11:15:26.815031818 +0000
-+++ /perm/sbbm/hm_lib/saber/bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2024-02-16 09:51:52.099209382 +0000
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp.bak	2024-05-06 13:39:34.737663924 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2024-05-06 13:05:34.496243376 +0200
 @@ -30,6 +30,7 @@
  #include "oops/util/Printable.h"
  
@@ -8,7 +8,7 @@
  
  // Forward declaration
  namespace oops {
-@@ -226,12 +227,17 @@
+@@ -225,12 +226,17 @@
    // Read fieldsets as increments
    std::vector<oops::FieldSet3D> fsetVec;
    for (const auto & input : this->getReadConfs()) {
@@ -28,20 +28,14 @@
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -250,12 +256,15 @@
-   std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> outputs
-     = this->fieldsToWrite();
- 
-+  // Create variables
-+  oops::Variables<MODEL> varsT(templatedVarsConf(vars));
-+
-   // Create increment
--  oops::Increment<MODEL> dx(geom, vars, validTime_);
-+  oops::Increment<MODEL> dx(geom, varsT, validTime_);
+@@ -250,8 +256,9 @@
  
    // Write fieldsets as increments
    for (const auto & output : outputs) {
+-    oops::Increment<MODEL> dx(geom, output.second.variables(), validTime_);
 -    dx.fromFieldSet(output.second.fieldSet());
++    oops::Variables<MODEL> varsT(templatedVarsConf(output.second.variables()));
++    oops::Increment<MODEL> dx(geom, varsT, validTime_);
 +    dx.increment().fromFieldSet(output.second.fieldSet());
      oops::Log::test() << "Norm of output parameter " << output.second.name()
                        << ": " << dx.norm() << std::endl;
