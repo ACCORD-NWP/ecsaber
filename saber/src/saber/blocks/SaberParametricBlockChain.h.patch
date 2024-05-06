@@ -1,15 +1,15 @@
---- /perm/sbbm/hm_lib/saber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2024-02-16 11:15:28.062663874 +0000
-+++ /perm/sbbm/hm_lib/saber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2024-02-16 09:51:52.108291832 +0000
-@@ -75,6 +75,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2024-05-06 14:08:00.074271901 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2024-05-06 14:01:45.101116262 +0200
+@@ -101,6 +101,8 @@
    size_t size4D_;
    oops::patch::Variables centralVars_;
    atlas::FunctionSpace centralFunctionSpace_;
-+  const oops::GeometryData geomData_;
-+  const oops::GeometryData dualResGeomData_;
++  std::unique_ptr<oops::GeometryData> geomData_;
++  std::unique_ptr<oops::GeometryData> dualResGeomData_;
  };
  
  // -----------------------------------------------------------------------------
-@@ -91,9 +93,13 @@
+@@ -117,9 +119,14 @@
                         oops::FieldSets & fsetDualResEns,
                         const eckit::LocalConfiguration & covarConf,
                         const eckit::Configuration & conf)
@@ -18,23 +18,24 @@
    crossTimeCov_(covarConf.getString("time covariance") == "multivariate duplicated"),
 -  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
 +  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()),
-+  geomData_(geom.geometry().functionSpace(), geom.geometry().fields(),
-+  geom.geometry().levelsAreTopDown(), geom.geometry().getComm()),
-+  dualResGeomData_(dualResGeom.geometry().functionSpace(), dualResGeom.geometry().fields(),
-+  dualResGeom.geometry().levelsAreTopDown(), geom.geometry().getComm()) {
++  geomData_(new oops::GeometryData(geom.geometry().functionSpace(), geom.geometry().fields(),
++  geom.geometry().levelsAreTopDown(), geom.geometry().getComm())),
++  dualResGeomData_(new oops::GeometryData(dualResGeom.geometry().functionSpace(),
++  dualResGeom.geometry().fields(), dualResGeom.geometry().levelsAreTopDown(),
++  geom.geometry().getComm())) {
    oops::Log::trace() << "SaberParametricBlockChain ctor starting" << std::endl;
  
    // If needed create outer block chain
-@@ -113,7 +119,7 @@
-   const oops::patch::Variables currentOuterVars = outerBlockChain_ ?
-                              outerBlockChain_->innerVars() : outerVariables_;
+@@ -137,7 +144,7 @@
+ 
+   // Set outer geometry data for central block
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
 -                             outerBlockChain_->innerGeometryData() : geom.generic();
-+                             outerBlockChain_->innerGeometryData() : geomData_;
++                             outerBlockChain_->innerGeometryData() : *geomData_;
  
    SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
    saberCentralBlockParamsWrapper.deserialize(conf.getSubConfiguration("saber central block"));
-@@ -168,7 +174,7 @@
+@@ -178,7 +185,7 @@
  
        for (size_t ie = 0; ie < nens; ++ie) {
          // Read ensemble member
@@ -43,16 +44,16 @@
          readEnsembleMember(geom, outerVariables_, ensembleConf, ie, fset);
  
          // Apply outer blocks inverse (all of them)
-@@ -199,7 +205,7 @@
+@@ -209,7 +216,7 @@
      oops::Log::info() << "Info     : Dual resolution setup" << std::endl;
  
      // Dual resolution setup
 -    centralBlock_->dualResolutionSetup(dualResGeom.generic());
-+    centralBlock_->dualResolutionSetup(dualResGeomData_);
++    centralBlock_->dualResolutionSetup(*dualResGeomData_);
  
      // Ensemble configuration
      eckit::LocalConfiguration dualResEnsembleConf
-@@ -217,7 +223,7 @@
+@@ -227,7 +234,7 @@
  
        for (size_t ie = 0; ie < dualResNens; ++ie) {
          // Read ensemble member
@@ -61,7 +62,7 @@
          readEnsembleMember(dualResGeom, outerVariables_, dualResEnsembleConf, ie, fset);
  
          // Use FieldSet in the central block
-@@ -248,18 +254,18 @@
+@@ -258,18 +265,18 @@
      const eckit::LocalConfiguration outputEnsembleConf(covarConf, "output ensemble");
  
      // Check whether geometry grid is similar to the last outer block inner geometry
@@ -83,7 +84,7 @@
          readEnsembleMember(geom, activeVars, ensembleConf, ie, fsetMem);
  
          // Update mean
-@@ -282,14 +288,16 @@
+@@ -292,14 +299,16 @@
  
      for (size_t ie = 0; ie < ensembleSize; ++ie) {
        oops::Log::info() << "Info     : Write member " << ie << std::endl;
@@ -102,7 +103,7 @@
          readEnsembleMember(geom, activeVars, ensembleConf, ie, fset);
  
          // Remove mean
-@@ -299,10 +307,10 @@
+@@ -309,10 +318,10 @@
          if (outerBlockChain_) outerBlockChain_->leftInverseMultiply(fset);
  
          // ATLAS fieldset to Increment_

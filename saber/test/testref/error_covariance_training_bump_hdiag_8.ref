@@ -121,6 +121,6 @@
                 Level:   1 ~> hybrid coefficients: 0.54 / 0.44
                 Level:   2 ~> hybrid coefficients: 0.42 / 0.53
 Norm of output parameter loc_rh - 1: 2.1711165838792601e+08
-Norm of output parameter loc_rv - 1: 2.0044142458539670e+02
+Norm of output parameter loc_rv - 1: 2.0044142458539636e+02
 Norm of output parameter hyb_coef_ens - 1: 2.3875214743019935e+01
 Norm of output parameter hyb_coef_sta - 1: 1.9037387479822311e+01

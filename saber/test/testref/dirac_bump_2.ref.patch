@@ -1,34 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref.tmp.bak	2023-12-19 10:32:27.684737527 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref	2023-12-19 09:40:24.368643167 +0100
-@@ -58,7 +58,7 @@
-           nc2 =      250
-           Independent levels:  1[2]
- Adjoint test for block BUMP_VerticalBalance passed
--Norm of input parameter StdDev: 5.7539391781676251e+01
-+Norm of input parameter StdDev: 5.7539391781678255e+01
- Adjoint test for block StdDev passed
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
-@@ -79,7 +79,7 @@
-              Level   2 ~> 100.0%
-              Level   1 ~>  0.100E+01 vert. coord.
-              Level   2 ~>  0.200E+01 vert. coord.
--Norm of input parameter stddev - 1: 5.7539391781676251e+01
-+Norm of input parameter stddev - 1: 5.7539391781678255e+01
- Adjoint test for block BUMP_StdDev passed
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
-@@ -92,8 +92,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref.tmp	2024-05-06 14:08:02.842279981 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref	2024-05-06 14:03:37.101476530 +0200
+@@ -92,7 +92,7 @@
               Level   2 ~>  0.200E+01 vert. coord.
  Adjoint test for block BUMP_NICAS passed
  Square-root test for block BUMP_NICAS passed
--Norm of input parameter inflation: 5.7319844819175479e+01
--Norm of input parameter StdDev: 5.3046693215269315e+01
-+Norm of input parameter inflation: 5.7319844819175614e+01
-+Norm of input parameter StdDev: 5.3046693215269400e+01
+-Norm of input parameter inflation: 5.7319844819175614e+01
++Norm of input parameter inflation: 5.7319844819175621e+01
+ Norm of input parameter StdDev: 5.3046693215269400e+01
         Independent levels:  1[2]
            Subset Sc0 size:              762
-           Min. / max. longitudes: -171.0 /   180.0
 @@ -106,7 +106,7 @@
  Square-root test for block BUMP_NICAS passed
  Adjoint test for block Ensemble passed
@@ -42,10 +22,10 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 4.6279789413894318e-01
--  northward_wind: 1.2282258734663955e-01
-+  eastward_wind: 3.1497796971217984e-01
-+  northward_wind: 1.2582557351303239e-01
+-  eastward_wind: 4.6277913662317277e-01
+-  northward_wind: 1.2275820379462828e-01
++  eastward_wind: 3.1497228077222345e-01
++  northward_wind: 1.2579405910183361e-01
  Valid time:2010-01-01T18:00:00Z
  Quench geometry grid:
  - name: L40x21
@@ -53,31 +33,13 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 9.1226562295384284e-02
--  northward_wind: 7.7785064897270773e-02
-+  eastward_wind: 8.7709693758078563e-02
-+  northward_wind: 9.0034153806853756e-02
+-  eastward_wind: 9.1227416041006398e-02
+-  northward_wind: 7.7720086254917012e-02
++  eastward_wind: 8.7692143605848441e-02
++  northward_wind: 9.0014058992322843e-02
         Independent levels:  1[2]
            Subset Sc0 size:              762
            Min. / max. longitudes: -171.0 /   180.0
-@@ -166,7 +166,7 @@
-           nc2 =      250
-           Independent levels:  1[2]
- Adjoint test for block BUMP_VerticalBalance passed
--Norm of input parameter StdDev: 5.7539391781676251e+01
-+Norm of input parameter StdDev: 5.7539391781678255e+01
- Adjoint test for block StdDev passed
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
-@@ -187,7 +187,7 @@
-              Level   2 ~> 100.0%
-              Level   1 ~>  0.100E+01 vert. coord.
-              Level   2 ~>  0.200E+01 vert. coord.
--Norm of input parameter stddev - 1: 5.7539391781676251e+01
-+Norm of input parameter stddev - 1: 5.7539391781678255e+01
- Adjoint test for block BUMP_StdDev passed
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
 @@ -200,7 +200,7 @@
               Level   2 ~>  0.200E+01 vert. coord.
  Adjoint test for block BUMP_NICAS passed
@@ -87,32 +49,15 @@
  Valid time:2010-01-01T12:00:00Z
  Quench geometry grid:
  - name: L40x21
-@@ -217,8 +217,8 @@
-   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-   Mask size: 100%
+@@ -237,7 +237,7 @@
  Fields:
--  eastward_wind: 9.4326766281929146e-14
--  northward_wind: 3.3389718418878846e-14
-+  eastward_wind: 9.4326766281929108e-14
-+  northward_wind: 3.3389718418878827e-14
- Valid time:2010-01-01T18:00:00Z
- Quench geometry grid:
- - name: L40x21
-@@ -235,10 +235,10 @@
-   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-   Mask size: 100%
- Fields:
--  eastward_wind: 9.4326766281929095e-14
--  northward_wind: 3.3389718418878815e-14
--Norm of input parameter inflation: 5.7319844819175479e+01
--Norm of input parameter StdDev: 5.3046693215269315e+01
-+  eastward_wind: 9.4326766281929108e-14
-+  northward_wind: 3.3389718418878827e-14
-+Norm of input parameter inflation: 5.7319844819175614e+01
-+Norm of input parameter StdDev: 5.3046693215269400e+01
+   eastward_wind: 9.0462803982807654e-14
+   northward_wind: 2.7442608459841396e-14
+-Norm of input parameter inflation: 5.7319844819175614e+01
++Norm of input parameter inflation: 5.7319844819175621e+01
+ Norm of input parameter StdDev: 5.3046693215269400e+01
         Independent levels:  1[2]
            Subset Sc0 size:              762
-           Min. / max. longitudes: -171.0 /   180.0
 @@ -251,7 +251,7 @@
  Square-root test for block BUMP_NICAS passed
  Adjoint test for block Ensemble passed
@@ -122,20 +67,19 @@
  Valid time:2010-01-01T12:00:00Z
  Quench geometry grid:
  - name: L40x21
-@@ -268,8 +268,8 @@
+@@ -268,7 +268,7 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 6.2995593942433925e-01
--  northward_wind: 2.5165114702606473e-01
-+  eastward_wind: 6.2995593942433892e-01
-+  northward_wind: 2.5165114702606489e-01
+-  eastward_wind: 6.2994456154442680e-01
++  eastward_wind: 6.2994456154442668e-01
+   northward_wind: 2.5158811820366722e-01
  Valid time:2010-01-01T18:00:00Z
  Quench geometry grid:
- - name: L40x21
-@@ -287,4 +287,4 @@
+@@ -286,5 +286,5 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
-   eastward_wind: 1.7541938751614833e-01
--  northward_wind: 1.8006830761370743e-01
-+  northward_wind: 1.8006830761370751e-01
+-  eastward_wind: 1.7538428721168914e-01
++  eastward_wind: 1.7538428721168911e-01
+   northward_wind: 1.8002811798464560e-01

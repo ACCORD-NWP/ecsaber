@@ -92,7 +92,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~>  0.200E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Norm of input parameter inflation: 5.7319844819175614e+01
+Norm of input parameter inflation: 5.7319844819175621e+01
 Norm of input parameter StdDev: 5.3046693215269400e+01
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -123,8 +123,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 3.1497796971217984e-01
-  northward_wind: 1.2582557351303239e-01
+  eastward_wind: 3.1497228077222345e-01
+  northward_wind: 1.2579405910183361e-01
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -141,8 +141,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 8.7709693758078563e-02
-  northward_wind: 9.0034153806853756e-02
+  eastward_wind: 8.7692143605848441e-02
+  northward_wind: 9.0014058992322843e-02
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Min. / max. longitudes: -171.0 /   180.0
@@ -217,8 +217,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 9.4326766281929108e-14
-  northward_wind: 3.3389718418878827e-14
+  eastward_wind: 9.0462803982807654e-14
+  northward_wind: 2.7442608459841396e-14
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -235,9 +235,9 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 9.4326766281929108e-14
-  northward_wind: 3.3389718418878827e-14
-Norm of input parameter inflation: 5.7319844819175614e+01
+  eastward_wind: 9.0462803982807654e-14
+  northward_wind: 2.7442608459841396e-14
+Norm of input parameter inflation: 5.7319844819175621e+01
 Norm of input parameter StdDev: 5.3046693215269400e+01
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -268,8 +268,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 6.2995593942433892e-01
-  northward_wind: 2.5165114702606489e-01
+  eastward_wind: 6.2994456154442668e-01
+  northward_wind: 2.5158811820366722e-01
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -286,5 +286,5 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 1.7541938751614833e-01
-  northward_wind: 1.8006830761370751e-01
+  eastward_wind: 1.7538428721168911e-01
+  northward_wind: 1.8002811798464560e-01

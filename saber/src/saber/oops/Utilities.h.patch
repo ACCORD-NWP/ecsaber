@@ -1,7 +1,7 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-04-04 15:03:58.235825073 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-04-04 15:05:27.399911243 +0200
-@@ -19,15 +19,15 @@
- #include "eckit/config/Configuration.h"
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-05-06 13:39:35.273665339 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-05-06 13:32:40.548530998 +0200
+@@ -23,15 +23,14 @@
+ #include "eckit/exception/Exceptions.h"
  
  #include "oops/base/FieldSets.h"
 -#include "oops/base/Geometry.h"
@@ -18,11 +18,10 @@
  #include "oops/base/Variables.h"
  #include "oops/interface/ModelData.h"
 +#include "oops/interface/Variables.h"
-+#include "oops/util/ConfigFunctions.h"
+ #include "oops/util/ConfigFunctions.h"
  #include "oops/util/DateTime.h"
  #include "oops/util/FieldSetHelpers.h"
- #include "oops/util/FieldSetOperations.h"
-@@ -37,6 +37,7 @@
+@@ -43,6 +42,7 @@
  #include "saber/blocks/SaberCentralBlockBase.h"
  #include "saber/blocks/SaberOuterBlockBase.h"
  #include "saber/oops/ErrorCovarianceParameters.h"
@@ -30,7 +29,7 @@
  
  namespace oops {
    class FieldSet3D;
-@@ -61,6 +62,11 @@
+@@ -67,6 +67,11 @@
  
  // -----------------------------------------------------------------------------
  
@@ -42,7 +41,7 @@
  void setMPI(eckit::LocalConfiguration & conf,
              const int & mpi);
  
-@@ -94,46 +100,30 @@
+@@ -100,46 +105,30 @@
    // Fill output configuration and set ensemble size
    size_t nens = 0;
    size_t ensembleFound = 0;
@@ -104,14 +103,31 @@
      ++ensembleFound;
    }
  
-@@ -143,52 +133,53 @@
+@@ -159,7 +148,6 @@
+     if (ensemblePertOtherGeom.has("members")) {
+       const auto members = ensemblePertOtherGeom.getSubConfigurations("members");
+       nens = members.size();
+-      varConf = members[0];
+     }
+ 
+     if (ensemblePertOtherGeom.has("members from template")) {
+@@ -168,7 +156,6 @@
+       ASSERT(members.has("pattern"));
+       ASSERT(members.has("template"));
+       nens = members.getInt("nmembers");
+-      varConf = members.getSubConfiguration("template");
+     }
+ 
+     outputConf.set("ensemble pert on other geometry", ensemblePertOtherGeom);
+@@ -183,44 +170,47 @@
    // Check number of ensembles in yaml
    ASSERT(ensembleFound <= 1);
  
 -  oops::patch::Variables vars(varConf.has("variables") ?
 -    oops::patch::Variables{varConf.getStringVector("variables")} :
 -    modelvars);
--
++  oops::patch::Variables vars(modelvars);
+ 
    if (!iterativeEnsembleLoading) {
      // Full ensemble loading
      oops::Log::info() << "Info     : Read full ensemble" << std::endl;
@@ -174,6 +190,15 @@
 +      oops::FieldSets fsetEns(xb, ensmems);
        return fsetEns;
      }
+ 
+@@ -272,15 +262,15 @@
+       // Read perturbations into oops::FieldSets
+       oops::FieldSets fsetEns(fspace, vars, xb.times(),
+                               ensemblePertOtherGeom,
+-                              commGeom, xb.commTime());
++                              commGeom, eckit::mpi::self());
+       return fsetEns;
+     }
    }
    // Return empty ensemble if none was returned before
    std::vector<util::DateTime> dates;
@@ -185,7 +210,7 @@
  }
  
  // -------------------------------------------------------------------------------------------------
-@@ -206,14 +197,17 @@
+@@ -298,14 +288,17 @@
    // Local copy
    eckit::LocalConfiguration localConf(conf);
  
@@ -205,7 +230,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -233,54 +227,42 @@
+@@ -325,54 +318,42 @@
    // Fill FieldSet
    size_t ensembleFound = 0;
  

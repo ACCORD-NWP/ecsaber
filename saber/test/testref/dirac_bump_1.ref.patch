@@ -1,31 +1,13 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_1.ref.tmp	2023-12-18 18:17:50.058175772 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_1.ref	2023-12-18 13:01:12.325768170 +0100
-@@ -58,7 +58,7 @@
-           nc2 =      250
-           Independent levels:  1[2]
- Adjoint test for block BUMP_VerticalBalance passed
--Norm of input parameter StdDev: 5.7539391781676251e+01
-+Norm of input parameter StdDev: 5.7539391781678255e+01
- Adjoint test for block StdDev passed
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
-@@ -79,7 +79,7 @@
-              Level   2 ~> 100.0%
-              Level   1 ~>  0.100E+01 vert. coord.
-              Level   2 ~>  0.200E+01 vert. coord.
--Norm of input parameter stddev - 1: 5.7539391781676251e+01
-+Norm of input parameter stddev - 1: 5.7539391781678255e+01
- Adjoint test for block BUMP_StdDev passed
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_1.ref.tmp	2024-05-06 14:08:02.854280016 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_1.ref	2024-05-06 14:04:11.077582887 +0200
 @@ -118,8 +118,8 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 4.6279789413894318e-01
--  northward_wind: 1.2282258734663955e-01
-+  eastward_wind: 7.6472603742531664e-01
-+  northward_wind: 2.4511251487936986e-01
+-  eastward_wind: 4.6277913662317277e-01
+-  northward_wind: 1.2275820379462828e-01
++  eastward_wind: 7.6469517419453437e-01
++  northward_wind: 2.4507263685615482e-01
  Valid time:2010-01-01T18:00:00Z
  Quench geometry grid:
  - name: L40x21
@@ -33,61 +15,39 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 9.1226562295384284e-02
--  northward_wind: 7.7785064897270773e-02
-+  eastward_wind: 1.7250853691787324e-01
-+  northward_wind: 1.4108323025141317e-01
+-  eastward_wind: 9.1227416041006412e-02
+-  northward_wind: 7.7720086254916998e-02
++  eastward_wind: 1.7245707129062748e-01
++  northward_wind: 1.4105636151765230e-01
         Independent levels:  1[2]
            Subset Sc0 size:              762
            Min. / max. longitudes: -171.0 /   180.0
-@@ -161,7 +161,7 @@
-           nc2 =      250
-           Independent levels:  1[2]
- Adjoint test for block BUMP_VerticalBalance passed
--Norm of input parameter StdDev: 5.7539391781676251e+01
-+Norm of input parameter StdDev: 5.7539391781678255e+01
- Adjoint test for block StdDev passed
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
-@@ -182,7 +182,7 @@
-              Level   2 ~> 100.0%
-              Level   1 ~>  0.100E+01 vert. coord.
-              Level   2 ~>  0.200E+01 vert. coord.
--Norm of input parameter stddev - 1: 5.7539391781676251e+01
-+Norm of input parameter stddev - 1: 5.7539391781678255e+01
- Adjoint test for block BUMP_StdDev passed
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
-@@ -212,8 +212,8 @@
+@@ -212,7 +212,7 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 9.4326766281929146e-14
--  northward_wind: 3.3389718418878846e-14
-+  eastward_wind: 9.4326766281929108e-14
-+  northward_wind: 3.3389718418878827e-14
+-  eastward_wind: 9.0462803982807667e-14
++  eastward_wind: 9.0462803982807654e-14
+   northward_wind: 2.7442608459841396e-14
  Valid time:2010-01-01T18:00:00Z
  Quench geometry grid:
- - name: L40x21
-@@ -230,8 +230,8 @@
+@@ -230,7 +230,7 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 9.4326766281929095e-14
--  northward_wind: 3.3389718418878815e-14
-+  eastward_wind: 9.4326766281929108e-14
-+  northward_wind: 3.3389718418878827e-14
+-  eastward_wind: 9.0462803982807667e-14
++  eastward_wind: 9.0462803982807654e-14
+   northward_wind: 2.7442608459841396e-14
         Independent levels:  1[2]
            Subset Sc0 size:              762
-           Min. / max. longitudes: -171.0 /   180.0
 @@ -258,8 +258,8 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 6.2995593942433925e-01
--  northward_wind: 2.5165114702606473e-01
-+  eastward_wind: 1.5294520748506082e+00
-+  northward_wind: 4.9022502975873966e-01
+-  eastward_wind: 6.2994456154442668e-01
+-  northward_wind: 2.5158811820366722e-01
++  eastward_wind: 1.5293903483890439e+00
++  northward_wind: 4.9014527371230965e-01
  Valid time:2010-01-01T18:00:00Z
  Quench geometry grid:
  - name: L40x21
@@ -95,18 +55,21 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
--  eastward_wind: 1.7541938751614833e-01
--  northward_wind: 1.8006830761370743e-01
-+  eastward_wind: 3.4501707383574709e-01
-+  northward_wind: 2.8216646050282640e-01
+-  eastward_wind: 1.7538428721168914e-01
+-  northward_wind: 1.8002811798464560e-01
++  eastward_wind: 3.4491414258125613e-01
++  northward_wind: 2.8211272303530460e-01
         Independent levels:  1[2]
            Subset Sc0 size:              762
            Min. / max. longitudes: -171.0 /   180.0
-@@ -325,5 +325,5 @@
-   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-   Mask size: 100%
- Fields:
--  eastward_wind: 2.2533507386711489e+00
--  northward_wind: 2.2533507386711489e+00
-+  eastward_wind: 2.2533507386711493e+00
-+  northward_wind: 2.2533507386711493e+00
+@@ -289,7 +289,9 @@
+              Level   2 ~>  0.200E+01 vert. coord.
+ Localization(hybrid2_ensemble_localization) diagnostics:
+ - Localization at zero separation:
+-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
++  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
++  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
++  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
+ Localization(hybrid2_ensemble) * Increment:
+ Valid time:2010-01-01T12:00:00Z
+ Quench geometry grid:

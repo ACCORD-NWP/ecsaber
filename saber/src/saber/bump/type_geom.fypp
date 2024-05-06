@@ -141,7 +141,6 @@ type geom_type
 
    ! I/O
    type(io_type) :: io                                !< Subset Sc0 I/O
-   logical :: io_initialized                          !< Flag to check if subset Sc0 I/O is initialized
 
    ! Allocation flag
    logical :: allocated                               !< Allocation flag
@@ -312,6 +311,8 @@ type(fieldset_type),intent(in),optional :: fieldset    !< Fieldset containing ge
 
 ! Local variables
 integer :: il0,jl0off,jl0r,jc3,jc4,iproc
+integer,allocatable :: order_c0(:),order_c0a(:)
+real(kind_real),allocatable :: lon_c0(:),lat_c0(:)
 
 ! Set name
 @:set_name(geom_setup)
@@ -354,7 +355,7 @@ call geom%setup_universe(mpl,rng,nam)
 ! Setup tree
 write(mpl%info,'(a7,a)') '','Setup tree'
 call mpl%flush
-call geom%tree_c0u%alloc(mpl,geom%nc0u)
+call geom%tree_c0u%alloc(geom%nc0u)
 call geom%tree_c0u%init(geom%lon_c0u,geom%lat_c0u)
 
 ! Setup mesh
@@ -389,6 +390,37 @@ call geom%setup_dirac(mpl,nam)
 
 ! Set allocation flag
 geom%allocated = .true.
+
+if (((nam%new_nicas.or.nam%load_nicas_local).and.nam%write_nicas_global).or.nam%load_nicas_global) then
+   ! Allocation
+   if (mpl%main) then
+      allocate(lon_c0(geom%nc0))
+      allocate(lat_c0(geom%nc0))
+      allocate(order_c0(geom%nc0))
+   else
+      allocate(lon_c0(0))
+      allocate(lat_c0(0))
+      allocate(order_c0(0))
+   end if
+   allocate(order_c0a(geom%nc0a))
+
+   ! Communication
+   call mpl%loc_to_glb(geom%nc0a,geom%nc0,geom%c0a_to_c0,geom%lon_c0a,lon_c0)
+   call mpl%loc_to_glb(geom%nc0a,geom%nc0,geom%c0a_to_c0,geom%lat_c0a,lat_c0)
+
+   ! Compute global order
+   if (mpl%main) call qsort(geom%nc0,lon_c0,lat_c0,order_c0,.false.)
+   call mpl%glb_to_loc(geom%nc0a,geom%nc0,geom%c0a_to_c0,order_c0,order_c0a)
+
+   ! Setup fields output
+   call geom%io%init(mpl,7,'0',geom%nc0,geom%nc0a,geom%c0a_to_c0,geom%proc_to_c0_offset,order_c0a)
+
+   ! Release memory
+   deallocate(lon_c0)
+   deallocate(lat_c0)
+   deallocate(order_c0)
+   deallocate(order_c0a)
+end if
 
 ! Print summary
 write(mpl%info,'(a7,a)') '','Geometry summary:'
@@ -427,7 +459,7 @@ do iproc=1,mpl%nproc
 end do
 
 ! Reset random seed if necessary
-call rng%reseed(mpl)
+call rng%reseed
 
 ! Probe out
 @:probe_out()
@@ -450,7 +482,7 @@ type(atlas_functionspace),intent(in) :: afunctionspace !< ATLAS function space
 type(fieldset_type),intent(in),optional :: fieldset    !< Fieldset
 
 ! Local variables
-integer :: il0,imga,ifield
+integer :: il0,imga
 real(kind_real),allocatable :: area_mga(:,:)
 real(kind_real),pointer :: real_ptr(:,:)
 type(atlas_field) :: afield,afield_lonlat
@@ -778,7 +810,7 @@ type(rng_type),intent(inout) :: rng    !< Random number generator
 type(nam_type),intent(in) :: nam       !< Namelist
 
 ! Local variables
-integer :: iproc,ic0a,ic0u,ic0,notempty
+integer :: iproc,ic0a,ic0u,ic0
 integer :: proc_to_universe_size(mpl%nproc)
 integer,allocatable :: order(:)
 real(kind_real) :: dist,x,y,z,x_avg,y_avg,z_avg,n_avg,lon_avg,lat_avg,distmax,norm_c0u
@@ -879,7 +911,7 @@ do iproc=1,mpl%nproc
 end do
 
 ! Reset random seed if necessary
-call rng%reseed(mpl)
+call rng%reseed
 
 ! Communicate data from halo A to universe on subset Sc0
 write(mpl%info,'(a10,a)') '','Communicate data from halo A to universe on subset Sc0'
@@ -1243,8 +1275,8 @@ type(nam_type),intent(in) :: nam       !< Namelist
 ! Local variables
 integer :: idir,il0,ic0a,idir_2d,ndir_2d,jl0
 integer :: il0dir(nam%ndir),iprocdir(nam%ndir),ic0adir(nam%ndir)
-integer,allocatable :: nn_index(:),distv(:),order(:,:),inbdir(:),idir_2dto3d(:)
-real(kind_real),allocatable :: londir_2d(:),latdir_2d(:)
+integer,allocatable :: nn_index(:),order(:,:),inbdir(:),idir_2dto3d(:)
+real(kind_real),allocatable :: distv(:),londir_2d(:),latdir_2d(:)
 logical :: valid(nam%ndir)
 type(tree_type) :: tree_dirac
 
@@ -1335,7 +1367,7 @@ if (nam%check_dirac.and.(nam%ndir>0)) then
          end do
 
          ! Create tree
-         call tree_dirac%alloc(mpl,ndir_2d)
+         call tree_dirac%alloc(ndir_2d)
          call tree_dirac%init(londir_2d,latdir_2d)
 
          ! Affect each horizontal point to a dirac point
@@ -1752,7 +1784,7 @@ real(kind_real),allocatable :: x_ssa(:),y_ssa(:),z_ssa(:),ch_ssa(:),potential(:)
 real(kind_real),allocatable :: lon_ssa(:),lat_ssa(:),rh_ssa(:),lon_rep(:),lat_rep(:),rh_rep(:),dist_rep(:)
 real(kind_real),allocatable :: x_ss(:),y_ss(:),z_ss(:),ch_ss(:),lon_ss(:),lat_ss(:),rh_ss(:)
 logical :: retry,valid
-logical,allocatable :: lmask_cxa(:),lmask_ssa(:),indist_ssa(:),gmask_s(:),lmask_ss(:),rmask(:)
+logical,allocatable :: lmask_cxa(:),lmask_ssa(:),indist_ssa(:),gmask_s(:),rmask(:)
 character(len=1024) :: cfmt
 type(atlas_structuredgrid) :: agrid
 type(tree_type) :: tree
@@ -2275,7 +2307,7 @@ else
          do is=1,ns+nrep
             if (is>2) then
                ! Allocation
-               call tree%alloc(mpl,nssa,mask=lmask_ssa)
+               call tree%alloc(nssa,mask=lmask_ssa)
 
                ! Initialization
                call tree%init(lon_ssa,lat_ssa)
@@ -2369,7 +2401,7 @@ else
             ! Remove closest points
             do irep=1,nrep
                ! Allocation
-               call tree%alloc(mpl,ns+nrep,mask=rmask)
+               call tree%alloc(ns+nrep,mask=rmask)
 
                ! Initialization
                call tree%init(lon_rep,lat_rep)
@@ -2561,7 +2593,7 @@ end do
 call rng%desync(mpl)
 
 ! Reset random seed if necessary
-call rng%reseed(mpl)
+call rng%reseed
 
 ! Probe out
 @:probe_out()
