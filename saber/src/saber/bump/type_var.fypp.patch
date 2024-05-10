@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_var.fypp.tmp	2024-05-06 14:16:29.563695582 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_var.fypp	2024-05-06 13:01:36.703573004 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_var.fypp.tmp.bak	2024-05-10 15:10:15.630090363 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_var.fypp	2024-05-10 15:11:29.870255257 +0200
 @@ -322,7 +322,7 @@
  end if
  
@@ -9,7 +9,7 @@
  
  ! Probe out
  @:probe_out()
-@@ -435,7 +435,7 @@
+@@ -439,7 +439,7 @@
  end if
  
  ! Reset random seed if necessary

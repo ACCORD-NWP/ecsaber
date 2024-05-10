@@ -532,9 +532,6 @@ void Vader::executePlanTL(atlas::FieldSet & afieldset,
         checkOrAddField(afieldset, varPlan.first,
                         varPlan.second->productFunctionSpace(afieldset),
                         varPlan.second->productLevels(afieldset));
-        for (auto ingredient :  varPlan.second->ingredients()) {
-            ASSERT(afieldset.has(ingredient));
-        }
         if (varPlan.second->requiresSetup()) {
             varPlan.second->setup(afieldset);
         }

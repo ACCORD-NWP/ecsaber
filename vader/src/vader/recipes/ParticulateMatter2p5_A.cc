@@ -133,13 +133,13 @@ std::vector<std::string> ParticulateMatter2p5_A::ingredients() const
 
 size_t ParticulateMatter2p5_A::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return afieldset.field(AERO6_INGREDIENTS[0]).shape(1);
+    return afieldset.field(AERO6_INGREDIENTS[4]).shape(1);
 }
 
 atlas::FunctionSpace ParticulateMatter2p5_A::productFunctionSpace
                                                 (const atlas::FieldSet & afieldset) const
 {
-    return afieldset.field(AERO6_INGREDIENTS[0]).functionspace();
+    return afieldset.field(AERO6_INGREDIENTS[4]).functionspace();
 }
 
 bool ParticulateMatter2p5_A::executeNL(atlas::FieldSet & afieldset)
