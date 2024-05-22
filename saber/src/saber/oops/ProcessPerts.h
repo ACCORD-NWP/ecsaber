@@ -400,7 +400,7 @@ class ProcessPerts : public oops::Application {
           eckit::LocalConfiguration gconf = it->second;
           util::setMember(gconf, jm+1);
           setConcatenatedString(fullConfig,
-                                std::vector<std::string>{"geometry", "grid"},
+                                std::vector<std::string>{"resolution", "grid"},
                                 "grid pattern",
                                 gconf);
           util::writeFieldSet(geom.geometry().getComm(), gconf, fset4dDx[0].fieldSet());

@@ -1,5 +1,30 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_blk.fypp.tmp	2024-05-06 14:16:29.855696372 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_blk.fypp	2024-05-06 13:01:41.367586671 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_blk.fypp.tmp	2024-05-22 11:25:07.098617628 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_blk.fypp	2024-05-22 10:50:01.475297942 +0200
+@@ -13,7 +13,7 @@
+ !$ use omp_lib
+ use tools_const, only: zero,hundredth,quarter,half,tenth,one,two,three,four,five,hundred,pi,req,reqkm,deg2rad,rad2deg
+ use tools_fit, only: tensor_d2h
+-use tools_func, only: lonlatmod,sphere_dist,inside,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_sum,zss_count
++use tools_func, only: lonlatmod,sphere_dist,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_sum,zss_count
+ use tools_gc99, only: fit_func_sqrt
+ use tools_kinds, only: kind_real
+ use tools_netcdf, only: define_grp,inquire_grp,put_att,get_att,define_dim,inquire_dim,check_dim
+@@ -25,7 +25,6 @@
+ use type_geom, only: geom_type
+ use type_io, only: io_type
+ use type_linop, only: linop_type
+-use type_mesh, only: mesh_type
+ use type_mpl, only: mpl_type
+ use type_nam, only: nam_type
+ use type_nicas_cmp, only: nicas_cmp_type
+@@ -586,6 +585,7 @@
+    nicas_blk%cmp(icmp)%interp_type = nam%nicas_interp_type(ig)
+    nicas_blk%cmp(icmp)%smoother = .false.
+    nicas_blk%cmp(icmp)%compute_norm = (.not.allocated(nicas_blk%cmp(icmp)%norm))
++   nicas_blk%cmp(icmp)%interp_in_global_file = nam%interp_in_global_file
+ 
+    ! Copy file ID
+    nicas_blk%cmp(icmp)%ncid = nicas_blk%ncid
 @@ -683,7 +683,7 @@
     nicas_blk%cmp(icmp)%nl0_id = nl0_id
  
@@ -43,27 +68,25 @@
  end if
  
  do icmp=1,nicas_blk%ncmp
-@@ -1106,6 +1107,9 @@
+@@ -1105,6 +1106,7 @@
+    nicas_blk%cmp(il0i)%interp_type = 'si'
     nicas_blk%cmp(il0i)%smoother = .true.
     nicas_blk%cmp(il0i)%compute_norm = .false.
++   nicas_blk%cmp(il0i)%interp_in_global_file = .false.
  
-+   ! Set interpolation computation flag
-+   nicas_blk%cmp(il0i)%compute_interp = .true.
-+
     ! Set number of levels
     nicas_blk%cmp(il0i)%nl0 = geom%nl0
- 
-@@ -1178,6 +1182,9 @@
-      nicas_blk%cmp(icmp)%nl0 = geom%nl0
-    end if
+@@ -1171,6 +1173,9 @@
+    ! Set anisotropic parameter
+    nicas_blk%cmp(icmp)%anisotropic = allocated(cmat_blk%D11).and.allocated(cmat_blk%D22).and.allocated(cmat_blk%D12)
  
 +   ! Set interpolation computation flag
-+   nicas_blk%cmp(icmp)%compute_interp = .true.
++   nicas_blk%cmp(icmp)%interp_in_global_file = nam%interp_in_global_file
 +
-    ! Allocation
-    allocate(nicas_blk%cmp(icmp)%vlev(nicas_blk%cmp(icmp)%nl0))
-    allocate(nicas_blk%cmp(icmp)%a(geom%nc0a,nicas_blk%cmp(icmp)%nl0))
-@@ -1460,7 +1467,7 @@
+    ! Set number of levels
+    if (nam%same_horizontal) then
+      nicas_blk%cmp(icmp)%nl0 = 1
+@@ -1460,7 +1465,7 @@
  deallocate(cv_blk2%cmp)
  
  ! Reset random seed if necessary
@@ -72,7 +95,7 @@
  
  ! Probe out
  @:probe_out()
-@@ -1548,7 +1555,7 @@
+@@ -1548,7 +1553,7 @@
  if (nicas_blk%verbosity) call mpl%flush
  
  ! Reset random seed if necessary

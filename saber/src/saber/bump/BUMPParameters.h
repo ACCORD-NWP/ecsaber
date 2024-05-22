@@ -630,6 +630,8 @@ class NICASSection : public oops::Parameters {
   oops::Parameter<bool> same_horizontal = param(def.same_horizontal, this);
   // Similar levels threshold (relative tolerance on horizontal length-scale)
   oops::Parameter<double> sim_levs_th = param(def.sim_levs_th, this);
+  // Read/write interpolation in global file
+  oops::Parameter<bool> interp_in_global_file = param(def.interp_in_global_file, this);
 };
 
 // -----------------------------------------------------------------------------

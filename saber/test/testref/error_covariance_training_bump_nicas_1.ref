@@ -1,6 +1,6 @@
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -58,14 +58,14 @@
              0.0 /    0.0:  0.0000000
           Level   1:  0.0000000 -  0.0000000
           Level   2:  0.0000000 -  0.0000000
-          MSE (exp. / th. / ratio):  0.76656463E+03 /  0.76594645E+03 / 1.001
-          MSE (exp. / th. / ratio):  0.31069155E+03 /  0.30637858E+03 / 1.014
-          MSE (exp. / th. / ratio):  0.20609931E+03 /  0.20425239E+03 / 1.009
-          MSE (exp. / th. / ratio):  0.14498844E+03 /  0.14589456E+03 / 0.994
-          MSE (exp. / th. / ratio):  0.11442609E+03 /  0.11783791E+03 / 0.971
-          MSE (exp. / th. / ratio):  0.93905782E+02 /  0.95743306E+02 / 0.981
-          MSE (exp. / th. / ratio):  0.82129666E+02 /  0.82805021E+02 / 0.992
-          MSE (exp. / th. / ratio):  0.71056094E+02 /  0.71250832E+02 / 0.997
-          MSE (exp. / th. / ratio):  0.63190302E+02 /  0.62526241E+02 / 1.011
+          MSE (exp. / th. / ratio):  0.75269518E+03 /  0.76594153E+03 / 0.983
+          MSE (exp. / th. / ratio):  0.31003811E+03 /  0.30637661E+03 / 1.012
+          MSE (exp. / th. / ratio):  0.20497538E+03 /  0.20425107E+03 / 1.004
+          MSE (exp. / th. / ratio):  0.14691746E+03 /  0.14589362E+03 / 1.007
+          MSE (exp. / th. / ratio):  0.11700860E+03 /  0.11783716E+03 / 0.993
+          MSE (exp. / th. / ratio):  0.97004885E+02 /  0.95742691E+02 / 1.013
+          MSE (exp. / th. / ratio):  0.85182813E+02 /  0.82804489E+02 / 1.029
+          MSE (exp. / th. / ratio):  0.73327469E+02 /  0.71250375E+02 / 1.029
+          MSE (exp. / th. / ratio):  0.64240210E+02 /  0.62525839E+02 / 1.027
 Norm of output parameter cor_rh - 1: 2.3186202793903100e+08
 Norm of output parameter cor_rv - 1: 1.7389652095427326e+02

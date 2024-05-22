@@ -193,7 +193,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     }
 
     // Increment ensemble from increments on disk
-    if (ensemblePert.size() > 0) {
+    if (ensemblePert.size() > 0 && ensemblePertOtherGeom.empty()) {
       oops::Log::info() << "Info     : Increment ensemble from increments on disk" << std::endl;
 
       for (unsigned jsub = 0; jsub < xb.times().size(); ++jsub) {

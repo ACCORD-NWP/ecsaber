@@ -1,5 +1,13 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_9.ref.tmp	2024-05-06 14:16:30.699698654 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_9.ref	2024-05-06 13:01:56.451630709 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_9.ref.tmp	2024-05-22 11:25:07.938619092 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_9.ref	2024-05-22 10:50:35.939355588 +0200
+@@ -1,6 +1,6 @@
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
 @@ -14,12 +14,6 @@
                     Subgrid hash:   1676590011
                  Final nc1:      589
@@ -31,13 +39,13 @@
            Component NICAS adjoint test result:             T
               Min / max: 1.0000000 /  1.0000000 over     50 tests
 -             Min / max: 0.7586249 /  1.3420904 over     50 tests
-+             Min / max: 0.8067169 /  1.4670308 over     50 tests
++             Min / max: 0.8073385 /  1.4670308 over     50 tests
               Min / max: 1.0000000 /  1.0000000 over     50 tests
 -             Min / max: 0.7586249 /  1.3420904 over     50 tests
 -             0.0 /    0.0:  0.8747900
 -          Level   1:  0.0000000 -  0.8747900
 -          Level   2:  0.0000000 -  0.5208351
-+             Min / max: 0.8067169 /  1.4670308 over     50 tests
++             Min / max: 0.8073385 /  1.4670308 over     50 tests
 +             0.0 /    0.0:  1.1169505
 +          Level   1:  0.0000000 -  1.1169505
 +          Level   2:  0.0000000 -  0.6201234

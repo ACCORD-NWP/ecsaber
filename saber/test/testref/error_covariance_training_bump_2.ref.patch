@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_2.ref.tmp	2024-05-22 11:25:08.534620132 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_2.ref	2024-05-22 10:50:59.727397393 +0200
+@@ -1,6 +1,6 @@
+        Independent levels:  1[2]
+           Subset Sc0 size:             1350
+-          Min. / max. longitudes: -174.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%

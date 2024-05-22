@@ -1,5 +1,22 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_bump_nicas_L10L2.ref.tmp	2024-05-06 14:16:31.339700384 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_bump_nicas_L10L2.ref	2024-05-06 13:02:22.247705460 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_bump_nicas_L10L2.ref.tmp	2024-05-22 11:25:08.778620557 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_bump_nicas_L10L2.ref	2024-05-22 10:51:09.363414775 +0200
+@@ -1,6 +1,6 @@
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+@@ -9,7 +9,7 @@
+              Level   2 ~>  0.200E+01 vert. coord.
+        Independent levels:  1[1]
+           Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
 @@ -21,12 +21,6 @@
                     Subgrid hash:   1676590011
                  Final nc1:      589

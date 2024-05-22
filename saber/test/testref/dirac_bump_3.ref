@@ -19,7 +19,7 @@ Fields:
   northward_wind: 0.0000000000000000e+00
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -29,7 +29,7 @@ Fields:
 Adjoint test for block BUMP_PsiChiToUV passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -44,7 +44,7 @@ Norm of input parameter StdDev: 5.7539391781678255e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -54,7 +54,7 @@ Adjoint test for block StdDev passed
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -65,7 +65,7 @@ Norm of input parameter stddev - 1: 5.7539391781678255e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -74,11 +74,11 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~>  0.200E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Norm of input parameter inflation: 5.7319844819175614e+01
+Norm of input parameter inflation: 5.7319844819175621e+01
 Norm of input parameter StdDev: 5.3046693215269400e+01
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -105,11 +105,11 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 3.1497228077222345e-01
-  northward_wind: 1.2579405910183361e-01
+  eastward_wind: 3.1483249736689284e-01
+  northward_wind: 1.2902876001035396e-01
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -119,7 +119,7 @@ Fields:
 Adjoint test for block BUMP_PsiChiToUV passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -134,7 +134,7 @@ Norm of input parameter StdDev: 5.7539391781678255e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -144,7 +144,7 @@ Adjoint test for block StdDev passed
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -155,7 +155,7 @@ Norm of input parameter stddev - 1: 5.7539391781678255e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -181,13 +181,13 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 9.0462803982807654e-14
-  northward_wind: 2.7442608459841396e-14
-Norm of input parameter inflation: 5.7319844819175614e+01
+  eastward_wind: 8.9637890899685688e-14
+  northward_wind: 2.6913973475260309e-14
+Norm of input parameter inflation: 5.7319844819175621e+01
 Norm of input parameter StdDev: 5.3046693215269400e+01
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -171.0 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -214,5 +214,5 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 6.2994456154442680e-01
-  northward_wind: 2.5158811820366722e-01
+  eastward_wind: 6.2966499473376614e-01
+  northward_wind: 2.5805752002070798e-01

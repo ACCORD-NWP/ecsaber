@@ -1,11 +1,12 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_bump_nicas_lam_1.ref.tmp	2024-05-06 14:16:31.283700232 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_bump_nicas_lam_1.ref	2024-05-06 13:02:20.031699066 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_bump_nicas_lam_1.ref.tmp	2024-05-22 11:25:08.714620445 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_bump_nicas_lam_1.ref	2024-05-22 10:51:07.051410581 +0200
 @@ -22,6 +22,6 @@
    - vert_coord: [1.0000000000000000e+00]
    Mask size: 100%
  Fields:
 -  stream_function: 9.9797497601865127e+05
 -  velocity_potential: 1.4064268000071293e+06
-+  stream_function: 9.9796659113663901e+05
-+  velocity_potential: 1.4064152347309133e+06
-   surface_pressure: 2.8446473119424377e+05
+-  surface_pressure: 2.8446473119424377e+05
++  stream_function: 1.1588953757745447e+06
++  velocity_potential: 1.3423362071271669e+06
++  surface_pressure: 4.3539204074898304e+05

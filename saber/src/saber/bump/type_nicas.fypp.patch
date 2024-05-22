@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas.fypp.tmp	2024-05-06 14:16:29.475695344 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas.fypp	2024-05-06 13:01:35.635569872 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas.fypp.tmp	2024-05-22 11:25:06.682616903 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas.fypp	2024-05-22 10:49:46.647274258 +0200
 @@ -12,7 +12,7 @@
  use tools_const, only: zero,one,two,ten,rad2deg,reqkm,pi
  use tools_func, only: fletcher32,sphere_dist,zss_sum
@@ -39,7 +39,7 @@
 -                  end do
 +   do ig=1,nam%ng
 +      do icmp=1,nicas%blk(ig)%ncmp
-+         if (nicas%blk(ig)%cmp(icmp)%compute_interp.and.(nam%nicas_interp_type(ig)=='si')) then
++         if ((.not.nicas%blk(ig)%cmp(icmp)%interp_in_global_file).and.(nam%nicas_interp_type(ig)=='si')) then
 +            ! Check whether cmat is allocated
 +            if (.not.cmat%allocated) call mpl%abort('${subr}$', &
 + & 'rh should be specified in input fields for NICAS global reading with si interpolation (old global files)')

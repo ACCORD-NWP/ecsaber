@@ -1,6 +1,24 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_4.ref.tmp	2024-05-06 14:16:30.951699335 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_4.ref	2024-05-06 13:02:08.499665707 +0200
-@@ -40,7 +40,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_4.ref.tmp	2024-05-22 11:25:08.290619706 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_4.ref	2024-05-22 10:50:49.319378912 +0200
+@@ -19,7 +19,7 @@
+   northward_wind: 0.0000000000000000e+00
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+@@ -29,7 +29,7 @@
+ Adjoint test for block BUMP_PsiChiToUV passed
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+@@ -40,11 +40,11 @@
            nc2 =      250
            Independent levels:  1[2]
  Adjoint test for block BUMP_VerticalBalance passed
@@ -9,11 +27,25 @@
  Adjoint test for block StdDev passed
         Independent levels:  1[2]
            Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+@@ -55,7 +55,7 @@
+ Square-root test for block BUMP_NICAS passed
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
 @@ -82,5 +82,5 @@
    - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
    Mask size: 100%
  Fields:
 -  eastward_wind: 2.3187376237098562e-13
 -  northward_wind: 2.1956469456184360e-13
-+  eastward_wind: 2.1734216281358465e-13
-+  northward_wind: 2.0283339969344209e-13
++  eastward_wind: 2.5078873410833877e-13
++  northward_wind: 2.4416309745960587e-13

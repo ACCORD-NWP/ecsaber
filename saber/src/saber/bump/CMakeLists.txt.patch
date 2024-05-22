@@ -1,0 +1,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/CMakeLists.txt.tmp	2024-05-22 11:25:06.894617272 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/CMakeLists.txt	2024-05-22 10:49:53.887285735 +0200
+@@ -32,6 +32,7 @@
+ tools_wrfda.fypp
+ type_avg.fypp
+ type_avg_blk.fypp
++type_bnda.fypp
+ type_bump.h
+ type_bump.fypp
+ type_bump_interface.F90
+@@ -50,6 +51,7 @@
+ type_geom.fypp
+ type_gsi.fypp
+ type_hdiag.fypp
++type_hull.fypp
+ type_io.fypp
+ type_linop.fypp
+ type_mesh.fypp

@@ -1,0 +1,111 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/tools_atlas.fypp.tmp	2024-05-22 11:25:06.954617377 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/tools_atlas.fypp	2024-05-22 10:49:56.131289327 +0200
+@@ -11,14 +11,18 @@
+ 
+ use atlas_module, only: atlas_structuredgrid,atlas_regionalgrid,atlas_field,atlas_integer,atlas_real,atlas_functionspace, &
+  & atlas_functionspace_nodecolumns,atlas_functionspace_pointcloud,atlas_functionspace_structuredcolumns
+-use tools_const, only: zero,quarter,half,rad2deg
++use tools_const, only: zero,quarter,half,three,deg2rad,rad2deg
+ use tools_kinds, only: kind_int,kind_real
+-use tools_func, only: sphere_dist,convert_i2l,convert_l2i
++use tools_func, only: lonlatmod,lonlat2xyz,xyz2lonlat,sphere_dist,convert_i2l,convert_l2i,vector_product
++use tools_repro, only: inf
+ use type_mpl, only: mpl_type
+ @:use_probe()
+ 
+ implicit none
+ 
++interface get_corners
++   module procedure atlas_get_corners
++end interface
+ interface get_grid
+    module procedure atlas_get_global_grid
+    module procedure atlas_get_regional_grid
+@@ -41,12 +45,86 @@
+ end interface
+ 
+ private
+-public :: get_grid
++public :: get_corners,get_grid
+ public :: field_to_array,field_from_array,get_atlas_functionspace_size,get_atlas_field_size
+ 
+ contains
+ 
+ !----------------------------------------------------------------------
++! Subroutine: atlas_get_corners
++!> Get regional grid corners
++!----------------------------------------------------------------------
++subroutine atlas_get_corners(mpl,afunctionspace,vbnd)
++
++implicit none
++
++! Passed variables
++type(mpl_type),intent(inout) :: mpl                    !< MPI data
++type(atlas_functionspace),intent(in) :: afunctionspace !< ATLAS grid
++real(kind_real),intent(out) :: vbnd(3,4)               !< Boundary vertices
++
++
++! Local variables
++integer :: ny,nx_inf,nx_sup,ib
++real(kind_real) :: lonlat_bnd(2,4),vp(3),v1(3),v2(3),cp(3),cd(3)
++type(atlas_functionspace_structuredcolumns) :: afunctionspace_sc
++type(atlas_structuredgrid) :: agrid_sc
++
++! Set name
++@:set_name(atlas_get_corners)
++
++! Probe in
++@:probe_in()
++
++select case (afunctionspace%name())
++case ('StructuredColumns')
++   ! Get structured columns function space
++   afunctionspace_sc = atlas_functionspace_structuredcolumns(afunctionspace%c_ptr())
++
++   ! Get structured grid
++   agrid_sc = afunctionspace_sc%grid()
++
++   ! Get grid size
++   ny = agrid_sc%ny()
++   nx_inf = agrid_sc%nx(1)
++   nx_sup = agrid_sc%nx(ny)
++   if (nx_inf/=nx_sup) call mpl%abort('${subr}$','unexpected grid shape')
++
++   ! Get corners coordinates
++   lonlat_bnd(:,1) = agrid_sc%lonlat(1,1)*deg2rad
++   lonlat_bnd(:,2) = agrid_sc%lonlat(nx_inf,1)*deg2rad
++   lonlat_bnd(:,3) = agrid_sc%lonlat(nx_sup,ny)*deg2rad
++   lonlat_bnd(:,4) = agrid_sc%lonlat(1,ny)*deg2rad
++
++   do ib=1,4
++      ! Enforce bounds
++      call lonlatmod(lonlat_bnd(1,ib),lonlat_bnd(2,ib))
++
++      ! Transform to cartesian coordinates
++      call lonlat2xyz(mpl,lonlat_bnd(1,ib),lonlat_bnd(2,ib),vbnd(1,ib),vbnd(2,ib),vbnd(3,ib))
++   end do
++
++   ! Check order
++   v1 = vbnd(:,2)-vbnd(:,1)
++   v2 = vbnd(:,3)-vbnd(:,1)
++   call vector_product(v1,v2,cp)
++   cd = (vbnd(:,1)+vbnd(:,2)+vbnd(:,3))/three
++   if (inf(sum(cp*cd),zero)) then 
++      ! Switch vectors 2 and 4
++      v2 = vbnd(:,2)
++      vbnd(:,2) = vbnd(:,4)
++      vbnd(:,4) = v2
++   end if
++case default
++   call mpl%abort('${subr}$','wrong function space: '//afunctionspace%name())
++end select
++
++! Probe out
++@:probe_out()
++
++end subroutine atlas_get_corners
++
++!----------------------------------------------------------------------
+ ! Subroutine: atlas_get_global_grid
+ !> Define global ATLAS grid (reduced Gaussian) from minimum number of points
+ !----------------------------------------------------------------------

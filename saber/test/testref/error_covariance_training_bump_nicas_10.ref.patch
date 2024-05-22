@@ -1,5 +1,22 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_10.ref.tmp	2024-05-06 14:16:30.799698924 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_10.ref	2024-05-06 13:02:02.599648587 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_10.ref.tmp	2024-05-22 11:25:08.066619315 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_10.ref	2024-05-22 10:50:42.051366181 +0200
+@@ -1,6 +1,6 @@
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+@@ -9,7 +9,7 @@
+              Level   2 ~>  0.200E+01 vert. coord.
+        Independent levels:  1[3]
+           Subset Sc0 size:              762
+-          Min. / max. longitudes: -171.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
 @@ -25,12 +25,6 @@
                     Subgrid hash:   1676590011
                  Final nc1:      589

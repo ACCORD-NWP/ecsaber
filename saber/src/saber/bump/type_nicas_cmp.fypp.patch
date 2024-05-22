@@ -1,7 +1,11 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_cmp.fypp.tmp	2024-05-06 14:16:29.735696047 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_cmp.fypp	2024-05-06 13:01:39.275580544 +0200
-@@ -17,8 +17,8 @@
- use tools_func, only: lonlatmod,sphere_dist,inside,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_sum,zss_count
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_cmp.fypp.tmp	2024-05-22 11:25:06.974617412 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_nicas_cmp.fypp	2024-05-22 10:49:58.211292671 +0200
+@@ -14,11 +14,11 @@
+ use tools_atlas, only: get_grid
+ use tools_const, only: zero,quarter,half,tenth,one,two,three,four,five,hundred,pi,req,reqkm,deg2rad,rad2deg
+ use tools_fit, only: tensor_d2h
+-use tools_func, only: lonlatmod,sphere_dist,inside,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_sum,zss_count
++use tools_func, only: lonlatmod,sphere_dist,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_sum,zss_count
  use tools_gc99, only: fit_func_sqrt
  use tools_kinds, only: kind_int,kind_real,kind_long,huge_int,huge_real
 -use tools_netcdf, only: define_grp,inquire_grp,put_att,get_att,define_dim,inquire_dim_size,check_dim,define_var,inquire_var, &
@@ -103,7 +107,7 @@
     character(len=2) :: interp_type                      !< Interpolation type
     logical :: smoother                                  !< Smoother flag
     logical :: compute_norm                              !< Compute normalization
-+   logical :: compute_interp                            !< Compute interpolation
++   logical :: interp_in_global_file                     !< Read/write interpolation in global file
     integer :: nc0a                                      !< Number of points in subset Sc0, halo A
     integer :: nl0                                       !< Number of levels in subset Sl0
  
@@ -599,7 +603,7 @@
     call mpl%flush
  
     ! Allocation
-@@ -1501,79 +1546,148 @@
+@@ -1501,79 +1546,149 @@
        ! Get group
        nicas_cmp%hor(il1)%levid = inquire_grp(mpl,nicas_cmp%cmpid,levname)
  
@@ -618,9 +622,11 @@
 -      ! Allocation
 -      allocate(lon_c1(nicas_cmp%hor(il1)%nc1))
 -      allocate(lat_c1(nicas_cmp%hor(il1)%nc1))
-+         ! Get dimension
-+         nicas_cmp%hor(il1s)%nc1 = inquire_dim_size(mpl,nicas_cmp%hor(il1s)%levid,'nc1')
-+         if (mpl%iobcast) call mpl%f_comm_iobcast%broadcast(nicas_cmp%hor(il1s)%nc1,mpl%rootproc-1)
++         ! Check that interpolation is available in global file
++         if (nicas_cmp%interp_in_global_file) then
++            if (mpl%msv%is(inquire_dim(mpl,nicas_cmp%hor(il1s)%levid,'c1b_to_c0a_nopmax'))) &
++ & call mpl%abort('${subr}$','subset Sc1 point is out of the domain')
++         end if
  
 -      ! Get variables
 -      lon_c1_id = inquire_var(mpl,nicas_cmp%hor(il1)%levid,'lon_c1')
@@ -633,10 +639,24 @@
 -         call mpl%f_comm_iobcast%broadcast(lon_c1,mpl%rootproc-1)
 -         call mpl%f_comm_iobcast%broadcast(lat_c1,mpl%rootproc-1)
 -      end if
++         ! Get dimension
++         nicas_cmp%hor(il1s)%nc1 = inquire_dim_size(mpl,nicas_cmp%hor(il1s)%levid,'nc1')
++         if (mpl%iobcast) call mpl%f_comm_iobcast%broadcast(nicas_cmp%hor(il1s)%nc1,mpl%rootproc-1)
+ 
+-      ! Allocation
+-      allocate(lev_c1(nicas_cmp%hor(il1)%nc1))
+-      allocate(c1_to_proc(nicas_cmp%hor(il1)%nc1))
+-      allocate(c1_to_c0a(nicas_cmp%hor(il1)%nc1))
+-      allocate(gmask_c1(nicas_cmp%hor(il1)%nc1))
+-
+-      ! Split sampling among processors
+-      lev_c1 = 0
+-      call geom%index_from_lonlat(mpl,nicas_cmp%hor(il1)%nc1,lon_c1,lat_c1,lev_c1,c1_to_proc,c1_to_c0a,gmask_c1)
+-      if (mpl%msv%isany(c1_to_proc)) call mpl%abort('${subr}$','subset Sc1 point is out of the domain')
 +         ! Allocation
 +         allocate(lon_c1(nicas_cmp%hor(il1s)%nc1))
 +         allocate(lat_c1(nicas_cmp%hor(il1s)%nc1))
-+         allocate(order_c1(nicas_cmp%hor(il1s)%nc1))
++         if (nicas_cmp%interp_in_global_file) allocate(order_c1(nicas_cmp%hor(il1s)%nc1))
 +
 +         ! Get variables
 +         lon_c1_id = inquire_var(mpl,nicas_cmp%hor(il1s)%levid,'lon_c1')
@@ -650,16 +670,8 @@
 +            call mpl%f_comm_iobcast%broadcast(lat_c1,mpl%rootproc-1)
 +         end if
  
--      ! Allocation
--      allocate(lev_c1(nicas_cmp%hor(il1)%nc1))
--      allocate(c1_to_proc(nicas_cmp%hor(il1)%nc1))
--      allocate(c1_to_c0a(nicas_cmp%hor(il1)%nc1))
--      allocate(gmask_c1(nicas_cmp%hor(il1)%nc1))
--
--      ! Split sampling among processors
--      lev_c1 = 0
--      call geom%index_from_lonlat(mpl,nicas_cmp%hor(il1)%nc1,lon_c1,lat_c1,lev_c1,c1_to_proc,c1_to_c0a,gmask_c1)
--      if (mpl%msv%isany(c1_to_proc)) call mpl%abort('${subr}$','subset Sc1 point is out of the domain')
+-      ! Sampling size on halo A
+-      nicas_cmp%hor(il1)%nc1a = count(c1_to_proc==mpl%myproc)
 +         ! Allocation
 +         allocate(lev_c1(nicas_cmp%hor(il1s)%nc1))
 +         allocate(c1_to_proc(nicas_cmp%hor(il1s)%nc1))
@@ -671,18 +683,12 @@
 +         call geom%index_from_lonlat(mpl,nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,lev_c1,c1_to_proc,c1_to_c0a,gmask_c1)
 +         if (mpl%msv%isany(c1_to_proc)) call mpl%abort('${subr}$','subset Sc1 point is out of the domain')
  
--      ! Sampling size on halo A
--      nicas_cmp%hor(il1)%nc1a = count(c1_to_proc==mpl%myproc)
-+         ! Sampling size on halo A
-+         nicas_cmp%hor(il1s)%nc1a = count(c1_to_proc==mpl%myproc)
- 
 -      ! Allocation
 -      allocate(nicas_cmp%hor(il1)%lon_c1a(nicas_cmp%hor(il1)%nc1a))
 -      allocate(nicas_cmp%hor(il1)%lat_c1a(nicas_cmp%hor(il1)%nc1a))
 -      allocate(nicas_cmp%hor(il1)%vert_coord_c1a(nicas_cmp%hor(il1)%nc1a))
-+         ! Allocation
-+         allocate(nicas_cmp%hor(il1s)%lon_c1a(nicas_cmp%hor(il1s)%nc1a))
-+         allocate(nicas_cmp%hor(il1s)%lat_c1a(nicas_cmp%hor(il1s)%nc1a))
++         ! Sampling size on halo A
++         nicas_cmp%hor(il1s)%nc1a = count(c1_to_proc==mpl%myproc)
  
 -      ! Copy lon/lat/vert_coord
 -      ic1a = 0
@@ -696,6 +702,17 @@
 -            nicas_cmp%hor(il1)%vert_coord_c1a(ic1a) = geom%vert_coord_c0a(ic0a,il0)
 -         end if
 -      end do
++         ! Allocation
++         allocate(nicas_cmp%hor(il1s)%lon_c1a(nicas_cmp%hor(il1s)%nc1a))
++         allocate(nicas_cmp%hor(il1s)%lat_c1a(nicas_cmp%hor(il1s)%nc1a))
+ 
+-      ! Release memory
+-      deallocate(lon_c1)
+-      deallocate(lat_c1)
+-      deallocate(lev_c1)
+-      deallocate(c1_to_proc)
+-      deallocate(c1_to_c0a)
+-      deallocate(gmask_c1)
 +         ! Copy lon/lat
 +         ic1a = 0
 +         do ic1=1,nicas_cmp%hor(il1s)%nc1
@@ -706,19 +723,14 @@
 +            end if
 +         end do
  
--      ! Release memory
--      deallocate(lon_c1)
--      deallocate(lat_c1)
--      deallocate(lev_c1)
--      deallocate(c1_to_proc)
--      deallocate(c1_to_c0a)
--      deallocate(gmask_c1)
-+         ! Order lon/lat for subset Sc1
-+         call qsort(nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,order_c1,.false.)
- 
 -      ! Allocation
 -      allocate(nicas_cmp%hor(il1)%proc_to_nc1a(mpl%nproc))
 -      allocate(nicas_cmp%hor(il1)%proc_to_c1_offset(mpl%nproc))
++         ! Order lon/lat for subset Sc1
++         if (nicas_cmp%interp_in_global_file) call qsort(nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,order_c1,.false.)
+ 
+-      ! Communication
+-      call mpl%f_comm%allgather(nicas_cmp%hor(il1)%nc1a,nicas_cmp%hor(il1)%proc_to_nc1a)
 +         ! Release memory
 +         deallocate(lon_c1)
 +         deallocate(lat_c1)
@@ -727,18 +739,16 @@
 +         deallocate(c1_to_c0a)
 +         deallocate(gmask_c1)
  
--      ! Communication
--      call mpl%f_comm%allgather(nicas_cmp%hor(il1)%nc1a,nicas_cmp%hor(il1)%proc_to_nc1a)
-+         ! Allocation
-+         allocate(nicas_cmp%hor(il1s)%proc_to_nc1a(mpl%nproc))
-+         allocate(nicas_cmp%hor(il1s)%proc_to_c1_offset(mpl%nproc))
- 
 -      ! Subset Sc1 offset for halo A
 -      nicas_cmp%hor(il1)%proc_to_c1_offset(1) = 0
 -      do iproc=2,mpl%nproc
 -         nicas_cmp%hor(il1)%proc_to_c1_offset(iproc) = nicas_cmp%hor(il1)%proc_to_c1_offset(iproc-1) &
 - & +nicas_cmp%hor(il1)%proc_to_nc1a(iproc-1)
 -      end do
++         ! Allocation
++         allocate(nicas_cmp%hor(il1s)%proc_to_nc1a(mpl%nproc))
++         allocate(nicas_cmp%hor(il1s)%proc_to_c1_offset(mpl%nproc))
++
 +         ! Communication
 +         call mpl%f_comm%allgather(nicas_cmp%hor(il1s)%nc1a,nicas_cmp%hor(il1s)%proc_to_nc1a)
 +
@@ -749,10 +759,7 @@
 + & +nicas_cmp%hor(il1s)%proc_to_nc1a(iproc-1)
 +         end do
 +
-+         ! Check whether interpolation is available in global file (for backward compatibility)
-+         nicas_cmp%compute_interp = mpl%msv%is(inquire_dim(mpl,nicas_cmp%hor(il1s)%levid,'c1b_to_c0a_nopmax'))
-+
-+         if (.not.nicas_cmp%compute_interp) then
++         if (nicas_cmp%interp_in_global_file) then
 +            ! Read interpolation
 +            write(mpl%info,'(a22,a)') '','Read interpolation'
 +            call mpl%flush
@@ -797,6 +804,7 @@
 +            end do
 +
 +            ! Release memory
++            deallocate(order_c1)
 +            deallocate(c1b_to_c0a_col_c0a)
 +            deallocate(c1b_to_c0a_S_c0a)
 +         else
@@ -804,14 +812,11 @@
 +            write(mpl%info,'(a22,a)') '','Missing interpolation'
 +            call mpl%flush
 +         end if
-+
-+         ! Release memory
-+         deallocate(order_c1)
 +      end if
     end do
  
     ! Define subgrid
-@@ -1584,8 +1698,9 @@
+@@ -1584,8 +1699,9 @@
     nicas_cmp%nsa = 0
     nicas_cmp%ns = 0
     do il1=1,nicas_cmp%nl1
@@ -823,7 +828,7 @@
     end do
  
     ! Allocation
-@@ -1612,7 +1727,7 @@
+@@ -1612,7 +1728,7 @@
     ! Communication
     call mpl%f_comm%allgather(nicas_cmp%nsa,nicas_cmp%proc_to_nsa)
  
@@ -832,7 +837,7 @@
     nicas_cmp%proc_to_s_offset(1) = 0
     do iproc=2,mpl%nproc
        nicas_cmp%proc_to_s_offset(iproc) = nicas_cmp%proc_to_s_offset(iproc-1)+nicas_cmp%proc_to_nsa(iproc-1)
-@@ -1631,10 +1746,11 @@
+@@ -1631,10 +1747,11 @@
     is = 0
     do iproc=1,mpl%nproc
        do il1=1,nicas_cmp%nl1
@@ -847,7 +852,7 @@
              is = is+1
  
              ! Halo A
-@@ -1651,8 +1767,9 @@
+@@ -1651,8 +1768,9 @@
     do isa=1,nicas_cmp%nsa
        ic1a = nicas_cmp%sa_to_c1a(isa)
        il1 = nicas_cmp%sa_to_l1(isa)
@@ -859,7 +864,7 @@
     end do
  
     ! Communication
-@@ -1757,18 +1874,19 @@
+@@ -1757,18 +1875,19 @@
  ! Subroutine: nicas_cmp_write_global_def
  !> Write data for global I/O, definition mode
  !----------------------------------------------------------------------
@@ -883,7 +888,7 @@
  character(len=1024) :: levname
  
  ! Set name
-@@ -1788,7 +1906,7 @@
+@@ -1788,7 +1907,7 @@
  nicas_cmp%vlev_id = define_var(mpl,nicas_cmp%cmpid,'vlev','int',(/nicas_cmp%nl0_id/))
  
  if (any(nicas_cmp%vlev)) then
@@ -892,7 +897,7 @@
     nicas_cmp%l1_to_l0_id = define_var(mpl,nicas_cmp%cmpid,'l1_to_l0','int',(/nl1_id/))
  
     ! Define horizontal sampling
-@@ -1804,12 +1922,40 @@
+@@ -1804,12 +1923,47 @@
        ! Define group
        nicas_cmp%hor(il1)%levid = define_grp(mpl,nicas_cmp%cmpid,levname)
  
@@ -907,38 +912,45 @@
 +      ! Base sublevel
 +      il1s = nicas_cmp%hor(il1)%il1s
 +      if (il1==il1s) then
-+         ! Allocation
-+         allocate(c1b_to_c0a_nop(nicas_cmp%hor(il1s)%interp_c1b_to_c0a%n_s))
-+
-+         ! Count convolution operations
-+         c1b_to_c0a_nop = 0
-+         do i_s=1,nicas_cmp%hor(il1s)%interp_c1b_to_c0a%n_s
-+            ic0a = nicas_cmp%hor(il1s)%interp_c1b_to_c0a%row(i_s)
-+            c1b_to_c0a_nop(ic0a) = c1b_to_c0a_nop(ic0a)+1
-+         end do
-+         nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax = zss_maxval(c1b_to_c0a_nop)
-+         call mpl%f_comm%allreduce(nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax,fckit_mpi_max())
-+
-+         ! Define dimensions
++         ! Define dimension
 +         nc1_id = define_dim(mpl,nicas_cmp%hor(il1s)%levid,'nc1',nicas_cmp%hor(il1s)%nc1)
-+         nc0_id = define_dim(mpl,nicas_cmp%hor(il1s)%levid,'nc0',geom%nc0)
-+         c1b_to_c0a_nopmax_id = define_dim(mpl,nicas_cmp%hor(il1s)%levid,'c1b_to_c0a_nopmax',nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax)
 +
 +         ! Define variables
 +         nicas_cmp%hor(il1s)%lon_c1_id = define_var(mpl,nicas_cmp%hor(il1s)%levid,'lon_c1','real',(/nc1_id/))
 +         nicas_cmp%hor(il1s)%lat_c1_id = define_var(mpl,nicas_cmp%hor(il1s)%levid,'lat_c1','real',(/nc1_id/))
-+         nicas_cmp%hor(il1s)%c1b_to_c0a_col_c0_id = define_var(mpl,nicas_cmp%hor(il1s)%levid,'c1b_to_c0a_col_c0','int', &
++
++         if (nicas_cmp%interp_in_global_file) then
++            ! Allocation
++            allocate(c1b_to_c0a_nop(nicas_cmp%hor(il1s)%interp_c1b_to_c0a%n_s))
++
++            ! Count interpolation operations
++            c1b_to_c0a_nop = 0
++            do i_s=1,nicas_cmp%hor(il1s)%interp_c1b_to_c0a%n_s
++               ic0a = nicas_cmp%hor(il1s)%interp_c1b_to_c0a%row(i_s)
++               c1b_to_c0a_nop(ic0a) = c1b_to_c0a_nop(ic0a)+1
++            end do
++            nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax = zss_maxval(c1b_to_c0a_nop)
++            call mpl%f_comm%allreduce(nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax,fckit_mpi_max())
++
++            ! Define dimensions
++            nc0_id = define_dim(mpl,nicas_cmp%hor(il1s)%levid,'nc0',geom%nc0)
++            c1b_to_c0a_nopmax_id = define_dim(mpl,nicas_cmp%hor(il1s)%levid,'c1b_to_c0a_nopmax', &
++ & nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax)
++
++            ! Define variables
++            nicas_cmp%hor(il1s)%c1b_to_c0a_col_c0_id = define_var(mpl,nicas_cmp%hor(il1s)%levid,'c1b_to_c0a_col_c0','int', &
 + & (/nc0_id,c1b_to_c0a_nopmax_id/))
-+         nicas_cmp%hor(il1s)%c1b_to_c0a_S_c0_id = define_var(mpl,nicas_cmp%hor(il1s)%levid,'c1b_to_c0a_S_c0','real', &
++            nicas_cmp%hor(il1s)%c1b_to_c0a_S_c0_id = define_var(mpl,nicas_cmp%hor(il1s)%levid,'c1b_to_c0a_S_c0','real', &
 + & (/nc0_id,c1b_to_c0a_nopmax_id/))
 +
-+         ! Release memory
-+         deallocate(c1b_to_c0a_nop)
++            ! Release memory
++            deallocate(c1b_to_c0a_nop)
++         end if
 +      end if
     end do
  
     ! Define convolution
-@@ -1836,6 +1982,9 @@
+@@ -1836,6 +1990,9 @@
     nicas_cmp%c_col_s_id = define_var(mpl,nicas_cmp%cmpid,'c_col_s','int',(/ns_id,c_nopmax_id/))
     nicas_cmp%c_S_s_id = define_var(mpl,nicas_cmp%cmpid,'c_S_s','real',(/ns_id,c_nopmax_id/))
     nicas_cmp%inorm_s_id = define_var(mpl,nicas_cmp%cmpid,'inorm_s','real',(/ns_id/))
@@ -948,7 +960,7 @@
  end if
  
  ! Probe out
-@@ -1847,20 +1996,21 @@
+@@ -1847,20 +2004,21 @@
  ! Subroutine: nicas_cmp_write_global_data
  !> Write data for global I/O, data mode
  !----------------------------------------------------------------------
@@ -975,7 +987,7 @@
  
  ! Set name
  @:set_name(nicas_cmp_write_global_data)
-@@ -1889,16 +2039,66 @@
+@@ -1889,16 +2047,69 @@
        write(mpl%info,'(a13,a,i3)') '','Sublevel: ',il1
        call mpl%flush
  
@@ -985,11 +997,6 @@
 +      ! Base sublevel
 +      il1s = nicas_cmp%hor(il1)%il1s
 +      if (il1==il1s) then
-+         ! Allocation
-+         allocate(c1b_to_c0a_nop(nicas_cmp%hor(il1s)%interp_c1b_to_c0a%n_s))
-+         allocate(c1b_to_c0a_col_c0a(geom%nc0a,nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax))
-+         allocate(c1b_to_c0a_S_c0a(geom%nc0a,nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax))
-+
 +         ! Setup fields output
 +         call io_c1%init(mpl,16,'1',nicas_cmp%hor(il1s)%nc1,nicas_cmp%hor(il1s)%nc1a,nicas_cmp%hor(il1s)%c1a_to_c1, &
 + & nicas_cmp%hor(il1s)%proc_to_c1_offset,nicas_cmp%hor(il1s)%order_c1a)
@@ -997,60 +1004,68 @@
 +         ! Write variables
 +         call io_c1%fld_write(mpl,nicas_cmp%hor(il1s)%levid,nicas_cmp%hor(il1s)%lon_c1_id,nicas_cmp%hor(il1s)%lon_c1a)
 +         call io_c1%fld_write(mpl,nicas_cmp%hor(il1s)%levid,nicas_cmp%hor(il1s)%lat_c1_id,nicas_cmp%hor(il1s)%lat_c1a)
-+
-+         ! Reshape interpolation data
-+         c1b_to_c0a_nop = 0
-+         c1b_to_c0a_col_c0a = mpl%msv%vali
-+         c1b_to_c0a_S_c0a = mpl%msv%valr
-+         do i_s=1,nicas_cmp%hor(il1s)%interp_c1b_to_c0a%n_s
-+            ic0a = nicas_cmp%hor(il1s)%interp_c1b_to_c0a%row(i_s)
-+            jc1b = nicas_cmp%hor(il1s)%interp_c1b_to_c0a%col(i_s)
-+            jc1u = nicas_cmp%hor(il1s)%c1b_to_c1u(jc1b)
-+            jc1 = nicas_cmp%hor(il1s)%c1u_to_c1(jc1u)
-+            c1b_to_c0a_nop(ic0a) = c1b_to_c0a_nop(ic0a)+1
-+            c1b_to_c0a_col_c0a(ic0a,c1b_to_c0a_nop(ic0a)) = jc1
-+            c1b_to_c0a_S_c0a(ic0a,c1b_to_c0a_nop(ic0a)) = nicas_cmp%hor(il1s)%interp_c1b_to_c0a%S(i_s)
-+         end do
++         ! Release memory
++         call io_c1%dealloc
  
 -      ! Write variables
 -      call io_c1%fld_write(mpl,nicas_cmp%hor(il1)%levid,nicas_cmp%hor(il1)%lon_c1_id,nicas_cmp%hor(il1)%lon_c1a)
 -      call io_c1%fld_write(mpl,nicas_cmp%hor(il1)%levid,nicas_cmp%hor(il1)%lat_c1_id,nicas_cmp%hor(il1)%lat_c1a)
-+         ! Reorder interpolation data
-+         do ic0a=1,geom%nc0a
++         if (nicas_cmp%interp_in_global_file) then
 +            ! Allocation
-+            allocate(list(c1b_to_c0a_nop(ic0a)))
-+            allocate(order(c1b_to_c0a_nop(ic0a)))
++            allocate(c1b_to_c0a_nop(nicas_cmp%hor(il1s)%interp_c1b_to_c0a%n_s))
++            allocate(c1b_to_c0a_col_c0a(geom%nc0a,nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax))
++            allocate(c1b_to_c0a_S_c0a(geom%nc0a,nicas_cmp%hor(il1s)%c1b_to_c0a_nopmax))
++
++            ! Reshape interpolation data
++            c1b_to_c0a_nop = 0
++            c1b_to_c0a_col_c0a = mpl%msv%vali
++            c1b_to_c0a_S_c0a = mpl%msv%valr
++            do i_s=1,nicas_cmp%hor(il1s)%interp_c1b_to_c0a%n_s
++               ic0a = nicas_cmp%hor(il1s)%interp_c1b_to_c0a%row(i_s)
++               jc1b = nicas_cmp%hor(il1s)%interp_c1b_to_c0a%col(i_s)
++               jc1u = nicas_cmp%hor(il1s)%c1b_to_c1u(jc1b)
++               jc1 = nicas_cmp%hor(il1s)%c1u_to_c1(jc1u)
++               c1b_to_c0a_nop(ic0a) = c1b_to_c0a_nop(ic0a)+1
++               c1b_to_c0a_col_c0a(ic0a,c1b_to_c0a_nop(ic0a)) = jc1
++               c1b_to_c0a_S_c0a(ic0a,c1b_to_c0a_nop(ic0a)) = nicas_cmp%hor(il1s)%interp_c1b_to_c0a%S(i_s)
++            end do
  
 -      ! Release memory
 -      call io_c1%dealloc
-+            ! Sort column
-+            list = c1b_to_c0a_col_c0a(ic0a,1:c1b_to_c0a_nop(ic0a))
-+            call qsort(c1b_to_c0a_nop(ic0a),list,order)
++            ! Reorder interpolation data
++            do ic0a=1,geom%nc0a
++               ! Allocation
++               allocate(list(c1b_to_c0a_nop(ic0a)))
++               allocate(order(c1b_to_c0a_nop(ic0a)))
 +
-+            ! Reorder column and weight
-+            c1b_to_c0a_col_c0a(ic0a,1:c1b_to_c0a_nop(ic0a)) = c1b_to_c0a_col_c0a(ic0a,order)
-+            c1b_to_c0a_S_c0a(ic0a,1:c1b_to_c0a_nop(ic0a)) = c1b_to_c0a_S_c0a(ic0a,order)
++               ! Sort column
++               list = c1b_to_c0a_col_c0a(ic0a,1:c1b_to_c0a_nop(ic0a))
++               call qsort(c1b_to_c0a_nop(ic0a),list,order)
++
++               ! Reorder column and weight
++               c1b_to_c0a_col_c0a(ic0a,1:c1b_to_c0a_nop(ic0a)) = c1b_to_c0a_col_c0a(ic0a,order)
++               c1b_to_c0a_S_c0a(ic0a,1:c1b_to_c0a_nop(ic0a)) = c1b_to_c0a_S_c0a(ic0a,order)
++
++               ! Release memory
++               deallocate(list)
++               deallocate(order)
++            end do
++
++            ! Write variables
++            call geom%io%fld_write(mpl,nicas_cmp%hor(il1s)%levid,nicas_cmp%hor(il1s)%c1b_to_c0a_col_c0_id,c1b_to_c0a_col_c0a)
++            call geom%io%fld_write(mpl,nicas_cmp%hor(il1s)%levid,nicas_cmp%hor(il1s)%c1b_to_c0a_S_c0_id,c1b_to_c0a_S_c0a)
 +
 +            ! Release memory
-+            deallocate(list)
-+            deallocate(order)
-+         end do
-+
-+         ! Write variables
-+         call geom%io%fld_write(mpl,nicas_cmp%hor(il1s)%levid,nicas_cmp%hor(il1s)%c1b_to_c0a_col_c0_id,c1b_to_c0a_col_c0a)
-+         call geom%io%fld_write(mpl,nicas_cmp%hor(il1s)%levid,nicas_cmp%hor(il1s)%c1b_to_c0a_S_c0_id,c1b_to_c0a_S_c0a)
-+
-+         ! Release memory
-+         call io_c1%dealloc
-+         call io_c0%dealloc
-+         deallocate(c1b_to_c0a_nop)
-+         deallocate(c1b_to_c0a_col_c0a)
-+         deallocate(c1b_to_c0a_S_c0a)
++            call io_c0%dealloc
++            deallocate(c1b_to_c0a_nop)
++            deallocate(c1b_to_c0a_col_c0a)
++            deallocate(c1b_to_c0a_S_c0a)
++         end if
 +      end if
     end do
  
     ! Write convolution
-@@ -1951,6 +2151,7 @@
+@@ -1951,6 +2162,7 @@
     call io_s%fld_write(mpl,nicas_cmp%cmpid,nicas_cmp%inorm_s_id,nicas_cmp%inorm)
  
     ! Release memory
@@ -1058,7 +1073,7 @@
     deallocate(c_nop)
     deallocate(c_col_sa)
     deallocate(c_S_sa)
-@@ -2024,7 +2225,7 @@
+@@ -2024,7 +2236,7 @@
  type(mpl_type),intent(inout) :: mpl           !< MPI data
  
  ! Local variables
@@ -1067,7 +1082,7 @@
  integer :: lev_sb(nicas_cmp%nsb),lev_sc(nicas_cmp%nsc)
  real(kind_real) :: lon_sb(nicas_cmp%nsb),lon_sc(nicas_cmp%nsc)
  real(kind_real) :: lat_sb(nicas_cmp%nsb),lat_sc(nicas_cmp%nsc)
-@@ -2042,9 +2243,10 @@
+@@ -2042,9 +2254,10 @@
           isu = nicas_cmp%sb_to_su(isb)
           ic1u = nicas_cmp%su_to_c1u(isu)
           il1 = nicas_cmp%su_to_l1(isu)
@@ -1080,7 +1095,7 @@
           lev_sb(isb) = il0
        end do
     end if
-@@ -2053,9 +2255,10 @@
+@@ -2053,9 +2266,10 @@
           isu = nicas_cmp%sc_to_su(isc)
           ic1u = nicas_cmp%su_to_c1u(isu)
           il1 = nicas_cmp%su_to_l1(isu)
@@ -1093,7 +1108,7 @@
           lev_sc(isc) = il0
        end do
     end if
-@@ -2180,7 +2383,7 @@
+@@ -2180,7 +2394,7 @@
  type(geom_type),intent(in) :: geom               !< Geometry
  
  ! Local variables
@@ -1102,7 +1117,7 @@
  
  ! Set name
  @:set_name(nicas_cmp_compute_parameters)
-@@ -2250,7 +2453,8 @@
+@@ -2250,7 +2464,8 @@
        call mpl%flush
        write(mpl%test,'(a13,a,i8)') '','nl1 =                        ',nicas_cmp%nl1
        do il1=1,nicas_cmp%nl1
@@ -1112,7 +1127,7 @@
           call mpl%flush
        end do
        write(mpl%test,'(a13,a,i8)') '','ns =                         ',nicas_cmp%ns
-@@ -2264,7 +2468,8 @@
+@@ -2264,7 +2479,8 @@
        write(mpl%info,'(a13,a,a)') '','Interp. type =                     ',nicas_cmp%interp_type
        call mpl%flush
        do il1=1,nicas_cmp%nl1
@@ -1122,7 +1137,7 @@
           call mpl%flush
        end do
        write(mpl%test,'(a13,a,i8)') '','v%n_s =                      ',nicas_cmp%v%n_s
-@@ -2536,11 +2741,11 @@
+@@ -2536,21 +2752,22 @@
  type(geom_type),intent(in) :: geom               !< Geometry
  
  ! Local variables
@@ -1138,9 +1153,10 @@
  real(kind_real) :: nc1_real,resol_eff,lon,lat,alon,alat
  real(kind_real) :: rhs_min(nicas_cmp%nl0),rhs_max(nicas_cmp%nl0),rhs_avg(nicas_cmp%nl0),lonlat(2),g(3)
  real(kind_real),allocatable :: lon_c1(:),lat_c1(:),lon_s(:),lat_s(:),interpolation_radius(:)
-@@ -2548,9 +2753,10 @@
+ real(kind_real),allocatable :: fld_src_c1a(:),fld_src_c1b(:),fld_src_c1(:)
  real(kind_real),allocatable :: grad_ref_c1a(:,:),grad_ssrf_c1a(:,:),grad_op_c1a(:,:),grad_op_c1(:,:)
- logical :: valid
+-logical :: valid
++logical :: valid,compute_interp
  logical :: mask_hor_c0a(geom%nc0a),lcheck_c0b(geom%nc0u)
 -logical,allocatable :: gmask_c1(:),gmask_c1a(:)
 +logical,allocatable :: gmask_c1(:),gmask_c1a(:),lcheck_c1a(:)
@@ -1150,7 +1166,7 @@
  type(linop_type),allocatable :: grad(:)
  
  ! Set name
-@@ -2559,15 +2765,6 @@
+@@ -2559,15 +2776,6 @@
  ! Probe in
  @:probe_in()
  
@@ -1166,7 +1182,7 @@
  if (.not.nam%load_nicas_global) then
     ! Compute averaged horizontal support radius
     do il0=1,nicas_cmp%nl0
-@@ -2582,201 +2779,235 @@
+@@ -2582,201 +2790,227 @@
  
     ! Mask initialization
     mask_hor_c0a = geom%gmask_hor_c0a
@@ -1258,14 +1274,14 @@
 +         ! Compute nc1
 +         write(mpl%test,'(a16,a,f10.2,a,f10.2,a,f10.2,a)') '','Horizontal support radius: ',rhs_avg(il0s)*reqkm,' km (', &
 + & rhs_min(il0s)*reqkm,' km - ',rhs_max(il0s)*reqkm,' km)'
-          call mpl%flush(flush=nicas_cmp%verbosity)
--         call geom%initialize_sampling(mpl,rng,nam%sampling_method,geom%nc0a,geom%lon_c0a,geom%lat_c0a,mask_hor_c0a, &
-- & nicas_cmp%rhs(:,il0),geom%c0a_to_c0,geom%nc0u,geom%c0u_to_c0a,geom%tree_c0u,geom%mesh_c0u,ifmt,nicas_cmp%hor(il1)%nc1,c1_to_c0)
++         call mpl%flush(flush=nicas_cmp%verbosity)
 +         nc1_real = two*geom%area_ver_c0(il0s)*nicas_cmp%resol**2/(sqrt(three)*rhs_avg(il0s)**2)
 +         if (nc1_real>real(huge_int,kind_real)) call mpl%abort('${subr}$','estimated nc1 is too large for an integer')
 +         nicas_cmp%hor(il1s)%nc1 = floor(nc1_real)
 +         write(mpl%test,'(a16,a,i8)') '','Estimated nc1 from horizontal support radius: ',nicas_cmp%hor(il1s)%nc1
-+         call mpl%flush(flush=nicas_cmp%verbosity)
+          call mpl%flush(flush=nicas_cmp%verbosity)
+-         call geom%initialize_sampling(mpl,rng,nam%sampling_method,geom%nc0a,geom%lon_c0a,geom%lat_c0a,mask_hor_c0a, &
+- & nicas_cmp%rhs(:,il0),geom%c0a_to_c0,geom%nc0u,geom%c0u_to_c0a,geom%tree_c0u,geom%mesh_c0u,ifmt,nicas_cmp%hor(il1)%nc1,c1_to_c0)
 +         if (nicas_cmp%hor(il1s)%nc1>nicas_cmp%nc1max) then
 +            if (nicas_cmp%verbosity) call mpl%warning('${subr}$','required nc1 larger than nc1max, resetting to nc1max')
 +            nicas_cmp%hor(il1s)%nc1 = nicas_cmp%nc1max
@@ -1312,7 +1328,7 @@
 +            write(mpl%info,'(a16,a)') '','Compute horizontal subset Sc1:'
 +            call mpl%flush(flush=nicas_cmp%verbosity)
 +            call geom%initialize_sampling(mpl,rng,nam%sampling_method,geom%nc0a,geom%lon_c0a,geom%lat_c0a,mask_hor_c0a, &
-+ & nicas_cmp%rhs(:,il0s),geom%c0a_to_c0,geom%nc0u,geom%c0u_to_c0a,geom%tree_c0u,geom%mesh_c0u,ifmt,nicas_cmp%hor(il1s)%nc1,c1_to_c0)
++ & nicas_cmp%rhs(:,il0s),geom%c0a_to_c0,geom%nc0u,geom%c0u_to_c0a,geom%tree_c0u,geom%hull_c0u,ifmt,nicas_cmp%hor(il1s)%nc1,c1_to_c0)
  
 -         ! Release memory
 -         deallocate(c1_to_c0)
@@ -1389,10 +1405,7 @@
 +                  end do
                 end if
 +            end do
- 
--               if (valid) then
--                  ! Find nearest neighbor in universe
--                  call geom%tree_c0u%find_nearest_neighbors(lonlat(1),lonlat(2),1,nn_index)
++
 +            ! Release memory
 +            deallocate(c1_to_c0)
 +         case ('octahedral')
@@ -1400,6 +1413,10 @@
 +            write(mpl%info,'(a16,a)') '','Use an octahedral grid for subset Sc1 '
 +            call mpl%flush(flush=nicas_cmp%verbosity)
  
+-               if (valid) then
+-                  ! Find nearest neighbor in universe
+-                  call geom%tree_c0u%find_nearest_neighbors(lonlat(1),lonlat(2),1,nn_index)
+-
 -                  ! Check mask
 -                  ic0u = nn_index(1)
 -                  if (geom%gmask_hor_c0u(ic0u)) then
@@ -1418,17 +1435,11 @@
 +                  lonlat = agrid%lonlat(ix,iy)*deg2rad
 +
 +                  ! Check if the point is inside the universe
-+                  if (geom%mesh_c0u%n>0) then
-+                     call inside(mpl,geom%mesh_c0u%vbnd,lonlat(1),lonlat(2),valid)
-+                  else
-+                     valid = .false.
-+                  end if
- 
--                     ! Increment number of local points
--                     if (iproc==mpl%myproc) nicas_cmp%hor(il1)%nc1a = nicas_cmp%hor(il1)%nc1a+1
++                  call geom%hull_c0u%inside(mpl,lonlat(1),lonlat(2),valid)
++
 +                  if (valid) then
 +                     ! Find nearest neighbor in universe
-+                     call geom%tree_c0u%find_nearest_neighbors(lonlat(1),lonlat(2),1,nn_index)
++                     call geom%tree_c0u%find_nearest_neighbors(mpl,lonlat(1),lonlat(2),1,nn_index)
 +
 +                     ! Check mask
 +                     ic0u = nn_index(1)
@@ -1436,7 +1447,9 @@
 +                        ! Find processor
 +                        ic0 = geom%c0u_to_c0(ic0u)
 +                        iproc = geom%c0_to_proc(ic0)
-+
+ 
+-                     ! Increment number of local points
+-                     if (iproc==mpl%myproc) nicas_cmp%hor(il1)%nc1a = nicas_cmp%hor(il1)%nc1a+1
 +                        ! Increment number of local points
 +                        if (iproc==mpl%myproc) nicas_cmp%hor(il1s)%nc1a = nicas_cmp%hor(il1s)%nc1a+1
 +                     end if
@@ -1445,12 +1458,12 @@
 +               end do
              end do
 -         end do
--
+ 
 -         ! Allocation
 -         allocate(nicas_cmp%hor(il1)%lon_c1a(nicas_cmp%hor(il1)%nc1a))
 -         allocate(nicas_cmp%hor(il1)%lat_c1a(nicas_cmp%hor(il1)%nc1a))
 -         allocate(nicas_cmp%hor(il1)%vert_coord_c1a(nicas_cmp%hor(il1)%nc1a))
- 
+-
 -         ! Copy grid lon/lat and vert_coord
 -         ic1a = 0
 -         do iy=1,int(agrid%ny(),kind_int)
@@ -1475,21 +1488,7 @@
 -               if (valid) then
 -                  ! Find nearest neighbor in universe
 -                  call geom%tree_c0u%find_nearest_neighbors(lonlat(1),lonlat(2),1,nn_index)
-+            ! Copy grid lon/lat and vert_coord
-+            ic1a = 0
-+            do iy=1,int(agrid%ny(),kind_int)
-+               do ix=1,int(agrid%nx(iy),kind_int)
-+                  ! Get longitude/latitude
-+                  lonlat = agrid%lonlat(ix,iy)*deg2rad
-+                  call lonlatmod(lonlat(1),lonlat(2))
-+
-+                  ! Check if the point is inside the universe
-+                  if (geom%mesh_c0u%n>0) then
-+                     call inside(mpl,geom%mesh_c0u%vbnd,lonlat(1),lonlat(2),valid)
-+                  else
-+                     valid = .false.
-+                  end if
- 
+-
 -                  ! Check mask
 -                  ic0u = nn_index(1)
 -                  if (geom%gmask_hor_c0u(ic0u)) then
@@ -1506,9 +1505,20 @@
 -                        nicas_cmp%hor(il1)%lon_c1a(ic1a) = lonlat(1)
 -                        nicas_cmp%hor(il1)%lat_c1a(ic1a) = lonlat(2)
 -                        nicas_cmp%hor(il1)%vert_coord_c1a(ic1a) = geom%vert_coord_c0a(ic0a,il0)
++            ! Copy grid lon/lat and vert_coord
++            ic1a = 0
++            do iy=1,int(agrid%ny(),kind_int)
++               do ix=1,int(agrid%nx(iy),kind_int)
++                  ! Get longitude/latitude
++                  lonlat = agrid%lonlat(ix,iy)*deg2rad
++                  call lonlatmod(lonlat(1),lonlat(2))
++
++                  ! Check if the point is inside the universe
++                  call geom%hull_c0u%inside(mpl,lonlat(1),lonlat(2),valid)
++
 +                  if (valid) then
 +                     ! Find nearest neighbor in universe
-+                     call geom%tree_c0u%find_nearest_neighbors(lonlat(1),lonlat(2),1,nn_index)
++                     call geom%tree_c0u%find_nearest_neighbors(mpl,lonlat(1),lonlat(2),1,nn_index)
 +
 +                     ! Check mask
 +                     ic0u = nn_index(1)
@@ -1563,7 +1573,7 @@
              msg = 'effective resolution is too low, please increase resolution and/or max horizontal grid size parameters,' &
   & //' or decrease min effective resolution (risky)'
              call mpl%abort('${subr}$',msg)
-@@ -2784,315 +3015,333 @@
+@@ -2784,315 +3018,338 @@
              msg = 'effective resolution is very low, please increase resolution and/or max horizontal grid size parameters'
              call mpl%warning('${subr}$',msg)
           end if
@@ -1688,17 +1698,16 @@
 - & lon_c1,.true.)
 -   call mpl%loc_to_glb(nicas_cmp%hor(il1)%nc1a,nicas_cmp%hor(il1)%nc1,nicas_cmp%hor(il1)%c1a_to_c1,nicas_cmp%hor(il1)%lat_c1a, &
 - & lat_c1,.true.)
-+      if (nicas_cmp%compute_interp.or.nam%write_nicas_global) then
-+         ! Get global lon/lat
-+         write(mpl%info,'(a16,a)') '','Get global lon/lat'
-+         call mpl%flush(flush=nicas_cmp%verbosity)
++      ! Compute interpolation flag
++      compute_interp = ((.not.nam%load_nicas_global).or.(nam%load_nicas_global.and.(.not.nicas_cmp%interp_in_global_file)))
  
 -   ! Get global order
 -   write(mpl%info,'(a16,a)') '','Get global order'
 -   call mpl%flush(flush=nicas_cmp%verbosity)
-+         ! Allocation
-+         allocate(lon_c1(nicas_cmp%hor(il1s)%nc1))
-+         allocate(lat_c1(nicas_cmp%hor(il1s)%nc1))
++      if (compute_interp.or.nam%write_nicas_global) then
++         ! Get global lon/lat
++         write(mpl%info,'(a16,a)') '','Get global lon/lat'
++         call mpl%flush(flush=nicas_cmp%verbosity)
  
 -   ! Allocation
 -   allocate(order_c1(nicas_cmp%hor(il1)%nc1))
@@ -1720,47 +1729,39 @@
 -      nicas_cmp%hor(il1)%order_c1a(ic1a) = order_c1(ic1)
 -      nicas_cmp%hor(il1)%order_inv_c1a(ic1a) = order_inv_c1(ic1)
 -   end do
++         ! Allocation
++         allocate(lon_c1(nicas_cmp%hor(il1s)%nc1))
++         allocate(lat_c1(nicas_cmp%hor(il1s)%nc1))
+ 
+-   ! Release memory
+-   deallocate(order_c1)
+-   deallocate(order_inv_c1)
 +         ! Communication
 +         call mpl%loc_to_glb(nicas_cmp%hor(il1s)%nc1a,nicas_cmp%hor(il1s)%nc1,nicas_cmp%hor(il1s)%c1a_to_c1, &
 + & nicas_cmp%hor(il1s)%lon_c1a,lon_c1,.true.)
 +         call mpl%loc_to_glb(nicas_cmp%hor(il1s)%nc1a,nicas_cmp%hor(il1s)%nc1,nicas_cmp%hor(il1s)%c1a_to_c1, &
 + & nicas_cmp%hor(il1s)%lat_c1a,lat_c1,.true.)
-+
-+         if (nam%write_nicas_global) then
-+            ! Get global order
-+            write(mpl%info,'(a16,a)') '','Get global order'
-+            call mpl%flush(flush=nicas_cmp%verbosity)
- 
--   ! Release memory
--   deallocate(order_c1)
--   deallocate(order_inv_c1)
-+            ! Allocation
-+            allocate(order_c1(nicas_cmp%hor(il1s)%nc1))
-+            allocate(nicas_cmp%hor(il1s)%order_c1a(nicas_cmp%hor(il1s)%nc1a))
  
 -   ! Compute interpolation from subset Sc1 to subset Sc0
 -   write(mpl%info,'(a16,a)') '','Compute interpolation from subset Sc1 to subset Sc0'
 -   call mpl%flush(flush=nicas_cmp%verbosity)
-+            ! Order lon/lat for subset Sc1
-+            call qsort(nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,order_c1,.false.)
++         if (compute_interp) then
++            ! Allocation
++            allocate(gmask_c1(nicas_cmp%hor(il1s)%nc1))
  
 -   ! Allocation
 -   allocate(gmask_c1(nicas_cmp%hor(il1)%nc1))
 -   call nicas_cmp%hor(il1)%mesh_c1%alloc(nicas_cmp%hor(il1)%nc1)
 -   call nicas_cmp%hor(il1)%tree_c1%alloc(mpl,nicas_cmp%hor(il1)%nc1)
-+            ! Order on halo A
-+            do ic1a=1,nicas_cmp%hor(il1s)%nc1a
-+               ic1 = nicas_cmp%hor(il1s)%c1a_to_c1(ic1a)
-+               nicas_cmp%hor(il1s)%order_c1a(ic1a) = order_c1(ic1)
-+            end do
++            ! Setup mesh
++            call nicas_cmp%hor(il1s)%mesh_c1%init(mpl,rng,nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1)
  
 -   ! Initialization
 -   gmask_c1 = .true.
 -   call nicas_cmp%hor(il1)%mesh_c1%init(mpl,rng,lon_c1,lat_c1)
 -   call nicas_cmp%hor(il1)%tree_c1%init(lon_c1,lat_c1)
-+            ! Release memory
-+            deallocate(order_c1)
-+         end if
++            ! Setup tree
++            call nicas_cmp%hor(il1s)%tree_c1%init(nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1)
  
 -   ! Compute interpolation
 -   il0 = nicas_cmp%l1_to_l0(il1)
@@ -1786,59 +1787,30 @@
 -      call nicas_cmp%interp_c1b_to_c0a(il1)%interp(mpl,nam,il0,nicas_cmp%hor(il1)%nc1,lon_c1,lat_c1,gmask_c1, &
 - & nicas_cmp%hor(il1)%tree_c1,geom%nc0a,geom%lon_c0a,geom%lat_c0a,geom%gmask_c0a(:,il0),geom%mesh_c0u,ifmt,interpolation_radius)
 -   end select
-+         if (nicas_cmp%compute_interp) then
-+            ! Allocation
-+            allocate(gmask_c1(nicas_cmp%hor(il1s)%nc1))
-+            call nicas_cmp%hor(il1s)%mesh_c1%alloc(nicas_cmp%hor(il1s)%nc1)
-+            call nicas_cmp%hor(il1s)%tree_c1%alloc(nicas_cmp%hor(il1s)%nc1)
++            ! Initialization
++            gmask_c1 = .true.
++         end if
  
 -   ! Release memory
 -   deallocate(lon_c1)
 -   deallocate(lat_c1)
 -   deallocate(gmask_c1)
-+            ! Initialization
-+            gmask_c1 = .true.
-+            call nicas_cmp%hor(il1s)%mesh_c1%init(mpl,rng,lon_c1,lat_c1)
-+            call nicas_cmp%hor(il1s)%tree_c1%init(lon_c1,lat_c1)
-+         end if
-+      end if
++         if (nam%write_nicas_global) then
++            ! Get global order
++            write(mpl%info,'(a16,a)') '','Get global order'
++            call mpl%flush(flush=nicas_cmp%verbosity)
  
 -   ! Compute interpolation from subset Sc0 to subset Sc1
 -   write(mpl%info,'(a16,a)') '','Compute interpolation from subset Sc0 to subset Sc1'
 -   call mpl%flush(flush=nicas_cmp%verbosity)
-+      ! Compute interpolation from subset Sc1 to subset Sc0
-+      write(mpl%info,'(a16,a)') '','Compute interpolation from subset Sc1 to subset Sc0'
-+      call mpl%flush(flush=nicas_cmp%verbosity)
++            ! Allocation
++            allocate(order_c1(nicas_cmp%hor(il1s)%nc1))
++            allocate(nicas_cmp%hor(il1s)%order_c1a(nicas_cmp%hor(il1s)%nc1a))
  
 -   ! Allocation
 -   allocate(gmask_c1a(nicas_cmp%hor(il1)%nc1a))
-+      if (nicas_cmp%compute_interp) then
-+         ! Compute interpolation
-+         write(nicas_cmp%hor(il1s)%interp_c1b_to_c0a%prefix,'(a,i3.3)') 'interp_c1b_to_c0a_',il1s
-+         select case (nicas_cmp%interp_type)
-+         case ('c0')
-+            call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%interp(mpl,nam,il0s,nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,gmask_c1, &
-+ & nicas_cmp%hor(il1s)%mesh_c1,nicas_cmp%hor(il1s)%tree_c1, &
-+ & geom%nc0a,geom%lon_c0a,geom%lat_c0a,geom%gmask_c0a(:,il0s),geom%mesh_c0u,ifmt,.false.)
-+         case ('c1')
-+            call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%interp(mpl,nam,il0s,nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,gmask_c1, &
-+ & nicas_cmp%hor(il1s)%mesh_c1,nicas_cmp%hor(il1s)%tree_c1, &
-+ & geom%nc0a,geom%lon_c0a,geom%lat_c0a,geom%gmask_c0a(:,il0s),geom%mesh_c0u,ifmt,.true.)
-+         case ('si')
-+            allocate(interpolation_radius(geom%nc0a))
-+            interpolation_radius = nicas_cmp%rhs(:,il0s)
-+            do ic0a=1,geom%nc0a
-+               if (mpl%msv%isnot(interpolation_radius(ic0a))) interpolation_radius(ic0a) = interpolation_radius(ic0a)/four
-+            end do
-+            if (any((interpolation_radius>nam%universe_radius).and.geom%gmask_c0a(:,il0s))) then
-+               call mpl%warning('${subr}$','universe radius smaller than rhs for si interpolation')
-+               interpolation_radius = min(interpolation_radius,nam%universe_radius)
-+            end if
-+            call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%interp(mpl,nam,il0s,nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,gmask_c1, &
-+ & nicas_cmp%hor(il1s)%tree_c1,geom%nc0a,geom%lon_c0a,geom%lat_c0a,geom%gmask_c0a(:,il0s),geom%mesh_c0u,ifmt,interpolation_radius)
-+            deallocate(interpolation_radius)
-+         end select
-+      end if
++            ! Order lon/lat for subset Sc1
++            call qsort(nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,order_c1,.false.)
  
 -   ! Initialization
 -   gmask_c1a = .true.
@@ -1849,38 +1821,56 @@
 -   write(nicas_cmp%interp_c0b_to_c1a(il1)%prefix,'(a,i3.3)') 'interp_c0b_to_c1a_',il1
 -   call nicas_cmp%interp_c0b_to_c1a(il1)%interp(mpl,nam,0,geom%nc0u,geom%lon_c0u,geom%lat_c0u,geom%gmask_c0u(:,il0), &
 - & geom%tree_c0u,nicas_cmp%hor(il1)%nc1a,nicas_cmp%hor(il1)%lon_c1a,nicas_cmp%hor(il1)%lat_c1a,gmask_c1a,geom%mesh_c0u,ifmt)
-+      ! Release memory
-+      if (nicas_cmp%compute_interp.or.nam%write_nicas_global) then
-+         deallocate(lon_c1)
-+         deallocate(lat_c1)
-+         if (nicas_cmp%compute_interp) deallocate(gmask_c1)
-+      end if
++            ! Order on halo A
++            do ic1a=1,nicas_cmp%hor(il1s)%nc1a
++               ic1 = nicas_cmp%hor(il1s)%c1a_to_c1(ic1a)
++               nicas_cmp%hor(il1s)%order_c1a(ic1a) = order_c1(ic1)
++            end do
  
 -   ! Release memory
 -   deallocate(gmask_c1a)
-+      if (.not.nam%load_nicas_global) then
-+         ! Compute interpolation from subset Sc0 to subset Sc1
-+         write(mpl%info,'(a16,a)') '','Compute interpolation from subset Sc0 to subset Sc1'
-+         call mpl%flush(flush=nicas_cmp%verbosity)
++            ! Release memory
++            deallocate(order_c1)
++         end if
++      end if
  
 -   ! Define halo B, compute conversions and communications for subset Sc1
 -   write(mpl%info,'(a16,a)') '','Define halo B, compute conversions and communications for subset Sc1'
 -   call mpl%flush(flush=nicas_cmp%verbosity)
-+         ! Allocation
-+         allocate(gmask_c1a(nicas_cmp%hor(il1s)%nc1a))
++      ! Compute interpolation from subset Sc1 to subset Sc0
++      write(mpl%info,'(a16,a)') '','Compute interpolation from subset Sc1 to subset Sc0'
++      call mpl%flush(flush=nicas_cmp%verbosity)
  
 -   ! Allocation
 -   allocate(nicas_cmp%hor(il1)%lcheck_c1a(nicas_cmp%hor(il1)%nc1u))
 -   allocate(nicas_cmp%hor(il1)%lcheck_c1b(nicas_cmp%hor(il1)%nc1u))
-+         ! Initialization
-+         gmask_c1a = .true.
-+         ifmt = 0
-+         if (nicas_cmp%verbosity) ifmt = 19
-+
++      if (compute_interp) then
 +         ! Compute interpolation
-+         write(nicas_cmp%hor(il1s)%interp_c0b_to_c1a%prefix,'(a,i3.3)') 'interp_c0b_to_c1a_',il1s
-+         call nicas_cmp%hor(il1s)%interp_c0b_to_c1a%interp(mpl,nam,0,geom%nc0u,geom%lon_c0u,geom%lat_c0u,geom%gmask_c0u(:,il0s), &
-+ & geom%tree_c0u,nicas_cmp%hor(il1s)%nc1a,nicas_cmp%hor(il1s)%lon_c1a,nicas_cmp%hor(il1s)%lat_c1a,gmask_c1a,geom%mesh_c0u,ifmt)
++         write(nicas_cmp%hor(il1s)%interp_c1b_to_c0a%prefix,'(a,i3.3)') 'interp_c1b_to_c0a_',il1s
++         select case (nicas_cmp%interp_type)
++         case ('c0')
++            call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%interp(mpl,il0s,nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,gmask_c1, &
++ & nicas_cmp%hor(il1s)%mesh_c1,nicas_cmp%hor(il1s)%tree_c1, &
++ & geom%nc0a,geom%lon_c0a,geom%lat_c0a,geom%gmask_c0a(:,il0s),geom%bnda_c0u,ifmt,.false.)
++         case ('c1')
++            call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%interp(mpl,il0s,nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,gmask_c1, &
++ & nicas_cmp%hor(il1s)%mesh_c1,nicas_cmp%hor(il1s)%tree_c1, &
++ & geom%nc0a,geom%lon_c0a,geom%lat_c0a,geom%gmask_c0a(:,il0s),geom%bnda_c0u,ifmt,.true.)
++         case ('si')
++            allocate(interpolation_radius(geom%nc0a))
++            interpolation_radius = nicas_cmp%rhs(:,il0s)
++            do ic0a=1,geom%nc0a
++               if (mpl%msv%isnot(interpolation_radius(ic0a))) interpolation_radius(ic0a) = interpolation_radius(ic0a)/four
++            end do
++            if (any((interpolation_radius>nam%universe_radius).and.geom%gmask_c0a(:,il0s))) then
++               call mpl%warning('${subr}$','universe radius smaller than rhs for si interpolation')
++               interpolation_radius = min(interpolation_radius,nam%universe_radius)
++            end if
++            call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%interp(mpl,il0s,nicas_cmp%hor(il1s)%nc1,lon_c1,lat_c1,gmask_c1, &
++ & nicas_cmp%hor(il1s)%tree_c1,geom%nc0a,geom%lon_c0a,geom%lat_c0a,geom%gmask_c0a(:,il0s),geom%bnda_c0u,ifmt,interpolation_radius)
++            deallocate(interpolation_radius)
++         end select
++      end if
  
 -   ! Define halo A for subset Sc1
 -   nicas_cmp%hor(il1)%lcheck_c1a = .false.
@@ -1900,8 +1890,11 @@
 -         nicas_cmp%hor(il1)%lcheck_c1b(jc1u) = .true.
 -      else
 -         call mpl%abort('${subr}$','point of halo B out of universe (increase universe_radius)')
-+         ! Release memory
-+         deallocate(gmask_c1a)
++      ! Release memory
++      if (compute_interp.or.nam%write_nicas_global) then
++         deallocate(lon_c1)
++         deallocate(lat_c1)
++         if (compute_interp) deallocate(gmask_c1)
        end if
 -   end do
 -   nicas_cmp%hor(il1)%nc1b = zss_count(nicas_cmp%hor(il1)%lcheck_c1b)
@@ -1910,9 +1903,10 @@
 -   allocate(nicas_cmp%hor(il1)%c1b_to_c1(nicas_cmp%hor(il1)%nc1b))
 -   allocate(nicas_cmp%hor(il1)%c1b_to_c1u(nicas_cmp%hor(il1)%nc1b))
 -   allocate(nicas_cmp%hor(il1)%c1u_to_c1b(nicas_cmp%hor(il1)%nc1u))
-+      ! Define halo B, compute conversions and communications for subset Sc1
-+      write(mpl%info,'(a16,a)') '','Define halo B, compute conversions and communications for subset Sc1'
-+      call mpl%flush(flush=nicas_cmp%verbosity)
++      if (.not.nam%load_nicas_global) then
++         ! Compute interpolation from subset Sc0 to subset Sc1
++         write(mpl%info,'(a16,a)') '','Compute interpolation from subset Sc0 to subset Sc1'
++         call mpl%flush(flush=nicas_cmp%verbosity)
  
 -   ! Conversions
 -   nicas_cmp%hor(il1)%c1u_to_c1b = mpl%msv%vali
@@ -1924,11 +1918,23 @@
 -         nicas_cmp%hor(il1)%c1b_to_c1(ic1b) = ic1
 -         nicas_cmp%hor(il1)%c1b_to_c1u(ic1b) = ic1u
 -         nicas_cmp%hor(il1)%c1u_to_c1b(ic1u) = ic1b
--      end if
++         ! Allocation
++         allocate(gmask_c1a(nicas_cmp%hor(il1s)%nc1a))
++
++         ! Initialization
++         gmask_c1a = .true.
++         ifmt = 0
++         if (nicas_cmp%verbosity) ifmt = 19
++
++         ! Compute interpolation
++         write(nicas_cmp%hor(il1s)%interp_c0b_to_c1a%prefix,'(a,i3.3)') 'interp_c0b_to_c1a_',il1s
++         call nicas_cmp%hor(il1s)%interp_c0b_to_c1a%interp(mpl,0,geom%nc0u,geom%lon_c0u,geom%lat_c0u,geom%gmask_c0u(:,il0s), &
++ & geom%tree_c0u,nicas_cmp%hor(il1s)%nc1a,nicas_cmp%hor(il1s)%lon_c1a,nicas_cmp%hor(il1s)%lat_c1a,gmask_c1a,geom%bnda_c0u,ifmt)
++
++         ! Release memory
++         deallocate(gmask_c1a)
+       end if
 -   end do
-+      ! Allocation
-+      allocate(lcheck_c1a(nicas_cmp%hor(il1s)%nc1u))
-+      allocate(nicas_cmp%hor(il1s)%lcheck_c1b(nicas_cmp%hor(il1s)%nc1u))
  
 -   ! Local interpolation source and destination
 -   nicas_cmp%interp_c1b_to_c0a(il1)%n_src = nicas_cmp%hor(il1)%nc1b
@@ -1940,6 +1946,14 @@
 -         jc1b = nicas_cmp%hor(il1)%c1u_to_c1b(jc1u)
 -         if (mpl%msv%isnot(ic1b)) then
 -            nicas_cmp%interp_c1b_to_c0a(il1)%col(i_s) = jc1b
++      ! Define halo B, compute conversions and communications for subset Sc1
++      write(mpl%info,'(a16,a)') '','Define halo B, compute conversions and communications for subset Sc1'
++      call mpl%flush(flush=nicas_cmp%verbosity)
++
++      ! Allocation
++      allocate(lcheck_c1a(nicas_cmp%hor(il1s)%nc1u))
++      allocate(nicas_cmp%hor(il1s)%lcheck_c1b(nicas_cmp%hor(il1s)%nc1u))
++
 +      ! Define halo A for subset Sc1
 +      lcheck_c1a = .false.
 +      do ic1u=1,nicas_cmp%hor(il1s)%nc1u
@@ -2097,7 +2111,10 @@
 +               if (iproc==mpl%myproc) nc0own = nc0own+1
 +            end if
 +         end do
-+
+ 
+-   ! Setup communications
+-   call nicas_cmp%com_c0_AB(il1)%setup(mpl,'com_c0_AB',geom%nc0a,nicas_cmp%hor(il1)%nc0b,geom%nc0,geom%c0a_to_c0,c0b_to_c0, &
+- & c0own_to_c0)
 +         ! Allocation
 +         allocate(c0u_to_c0b(geom%nc0u))
 +         allocate(c0b_to_c0(nicas_cmp%hor(il1s)%nc0b))
@@ -2121,9 +2138,11 @@
 +            end if
 +         end do
  
--   ! Setup communications
--   call nicas_cmp%com_c0_AB(il1)%setup(mpl,'com_c0_AB',geom%nc0a,nicas_cmp%hor(il1)%nc0b,geom%nc0,geom%c0a_to_c0,c0b_to_c0, &
-- & c0own_to_c0)
+-   ! Release memory
+-   deallocate(c0u_to_c0b)
+-   deallocate(c0b_to_c0)
+-   deallocate(c0own_to_c0)
+-end do
 +         ! Local interpolation source
 +         nicas_cmp%hor(il1s)%interp_c0b_to_c1a%n_src = nicas_cmp%hor(il1s)%nc0b
 +         do i_s=1,nicas_cmp%hor(il1s)%interp_c0b_to_c1a%n_s
@@ -2136,17 +2155,12 @@
 +            end if
 +         end do
  
--   ! Release memory
--   deallocate(c0u_to_c0b)
--   deallocate(c0b_to_c0)
--   deallocate(c0own_to_c0)
--end do
+-! Release memory
+-if (nicas_cmp%interp_type=='si') deallocate(interpolation_radius)
 +         ! Setup communications
 +         call nicas_cmp%hor(il1s)%com_c0_AB%setup(mpl,'com_c0_AB',geom%nc0a,nicas_cmp%hor(il1s)%nc0b,geom%nc0,geom%c0a_to_c0, &
 + & c0b_to_c0,c0own_to_c0)
- 
--! Release memory
--if (nicas_cmp%interp_type=='si') deallocate(interpolation_radius)
++
 +         ! Release memory
 +         deallocate(c0u_to_c0b)
 +         deallocate(c0b_to_c0)
@@ -2159,11 +2173,11 @@
 +end do
  
 -if (nam%interp_test.and.(nicas_cmp%interp_type=='c1')) then
-+if (nam%interp_test.and.(nicas_cmp%interp_type=='c1').and.nicas_cmp%compute_interp) then
++if (nam%interp_test.and.(nicas_cmp%interp_type=='c1').and.compute_interp) then
     write(mpl%info,'(a16,a)') '','Horizontal C1 interpolation test:'
     call mpl%flush(flush=nicas_cmp%verbosity)
  
-@@ -3109,119 +3358,124 @@
+@@ -3109,119 +3366,124 @@
  
     ! Interpolation test
     do il1=1,nicas_cmp%nl1
@@ -2194,12 +2208,12 @@
 -
 -         ! X-derivative
 -         grad_ref_c1a(ic1a,1) = sin(alon*lon)*alon*cos(alat*lat)*sin(lon)+cos(alon*lon)*sin(alat*lat)*alat*sin(lat)*cos(lon)
+-
+-         ! Y-derivative
+-         grad_ref_c1a(ic1a,2) = -sin(alon*lon)*alon*cos(alat*lat)*cos(lon)+cos(alon*lon)*sin(alat*lat)*alat*sin(lat)*sin(lon)
 +      ! Base sublevel
 +      il1s = nicas_cmp%hor(il1)%il1s
  
--         ! Y-derivative
--         grad_ref_c1a(ic1a,2) = -sin(alon*lon)*alon*cos(alat*lat)*cos(lon)+cos(alon*lon)*sin(alat*lat)*alat*sin(lat)*sin(lon)
--
 -         ! Z-derivative
 -         grad_ref_c1a(ic1a,3) = -cos(alon*lon)*sin(alat*lat)*alat*cos(lat)
 -      end do
@@ -2397,7 +2411,7 @@
     end do
  end if
  
-@@ -3235,10 +3489,11 @@
+@@ -3235,10 +3497,11 @@
  nicas_cmp%nsb = 0
  nicas_cmp%nsu = 0
  do il1=1,nicas_cmp%nl1
@@ -2413,7 +2427,7 @@
  end do
  
  ! Allocation
-@@ -3260,9 +3515,10 @@
+@@ -3260,9 +3523,10 @@
  allocate(nicas_cmp%sb_to_su(nicas_cmp%nsb))
  allocate(nicas_cmp%su_to_sb(nicas_cmp%nsu))
  do il1=1,nicas_cmp%nl1
@@ -2427,7 +2441,7 @@
  end do
  allocate(nicas_cmp%lon_sa(nicas_cmp%nsa))
  allocate(nicas_cmp%lat_sa(nicas_cmp%nsa))
-@@ -3317,16 +3573,17 @@
+@@ -3317,16 +3581,17 @@
  nicas_cmp%lcheck_sa = .false.
  do iproc=1,mpl%nproc
     do il1=1,nicas_cmp%nl1
@@ -2449,7 +2463,7 @@
              nicas_cmp%su_to_c1u(isu) = ic1u
              nicas_cmp%su_to_l1(isu) = il1
              nicas_cmp%hor(il1)%c1u_to_su(ic1u) = isu
-@@ -3350,8 +3607,9 @@
+@@ -3350,8 +3615,9 @@
  isb = 0
  nicas_cmp%lcheck_sb = .false.
  do il1=1,nicas_cmp%nl1
@@ -2461,7 +2475,7 @@
           isb = isb+1
           isu = nicas_cmp%hor(il1)%c1u_to_su(ic1u)
           nicas_cmp%lcheck_sb(isu) = .true.
-@@ -3359,7 +3617,7 @@
+@@ -3359,7 +3625,7 @@
           sb_to_s(isb) = is
           nicas_cmp%sb_to_su(isb) = isu
           nicas_cmp%su_to_sb(isu) = isb
@@ -2470,7 +2484,7 @@
           nicas_cmp%hor(il1)%c1b_to_sb(ic1b) = isb
        end if
     end do
-@@ -3370,9 +3628,10 @@
+@@ -3370,9 +3636,10 @@
     do isa=1,nicas_cmp%nsa
        ic1a = nicas_cmp%sa_to_c1a(isa)
        il1 = nicas_cmp%sa_to_l1(isa)
@@ -2483,7 +2497,7 @@
        nicas_cmp%lev_sa(isa) = il0
     end do
  
-@@ -3437,7 +3696,7 @@
+@@ -3437,7 +3704,7 @@
  type(geom_type),intent(in) :: geom               !< Geometry
  
  ! Local variables
@@ -2492,7 +2506,7 @@
  integer,allocatable :: su_to_sc(:)
  real(kind_real),allocatable :: rh_c0b(:),H11_c0b(:),H22_c0b(:),H12_c0b(:),rv_c0b(:)
  real(kind_real),allocatable :: rh_c1a(:),H11_c1a(:),H22_c1a(:),H12_c1a(:),rv_c1a(:)
-@@ -3458,31 +3717,34 @@
+@@ -3458,31 +3725,34 @@
     call mpl%flush(flush=nicas_cmp%verbosity)
  
     do il1=1,nicas_cmp%nl1
@@ -2544,7 +2558,7 @@
        end if
  
        ! Interpolate fields on convolution grid
-@@ -3490,32 +3752,32 @@
+@@ -3490,32 +3760,32 @@
        call mpl%flush(flush=nicas_cmp%verbosity)
  
        ! Halo extension
@@ -2592,7 +2606,7 @@
        end if
  
        ! Release memory
-@@ -3682,7 +3944,7 @@
+@@ -3682,7 +3952,7 @@
  type(geom_type),intent(in) :: geom               !< Geometry
  
  ! Local variables
@@ -2601,7 +2615,7 @@
  integer,allocatable :: nn_index(:)
  real(kind_real) :: rv_th,distv,dx,dy,distv_min
  real(kind_real) :: rv_max(nicas_cmp%nl0),vert_coord_min(nicas_cmp%nl1),vert_coord_max(nicas_cmp%nl1)
-@@ -3712,30 +3974,32 @@
+@@ -3712,30 +3982,32 @@
  write(mpl%info,'(a13,a)') '','Count and find nearest neighbors, compute distances: '
  call mpl%flush(newl=.false.,flush=nicas_cmp%verbosity)
  if (nicas_cmp%verbosity) call mpl%prog_init(nicas_cmp%nsb)
@@ -2642,7 +2656,7 @@
           distv_min = max(vert_coord_min(il1)-vert_coord_max(jl1),zero)
        else
           distv_min = max(vert_coord_min(jl1)-vert_coord_max(il1),zero)
-@@ -3743,45 +4007,45 @@
+@@ -3743,83 +4015,85 @@
  
        if (infeq(distv_min,rv_max(il0)).or.(all(.not.(rv_max>zero)))) then
           ! Count nearest neighbors
@@ -2651,57 +2665,137 @@
 +         call nicas_cmp%hor(jl1s)%tree_c1%count_nearest_neighbors(nicas_cmp%hor(il1s)%lon_c1u(ic1u), &
 + & nicas_cmp%hor(il1s)%lat_c1u(ic1u),nicas_cmp%hor(il1)%rh_c1b(ic1b),nn)
  
-          ! Allocation
-          allocate(nn_index(nn))
-          allocate(nn_dist(nn))
+-         ! Allocation
+-         allocate(nn_index(nn))
+-         allocate(nn_dist(nn))
++         if (nn>0) then
++            ! Allocation
++            allocate(nn_index(nn))
++            allocate(nn_dist(nn))
  
-          ! Find nearest neighbors
+-         ! Find nearest neighbors
 -         call nicas_cmp%hor(jl1)%tree_c1%find_nearest_neighbors(nicas_cmp%hor(il1)%lon_c1u(ic1u), &
 - & nicas_cmp%hor(il1)%lat_c1u(ic1u),nn,nn_index,nn_dist)
-+         call nicas_cmp%hor(jl1s)%tree_c1%find_nearest_neighbors(nicas_cmp%hor(il1s)%lon_c1u(ic1u), &
-+ & nicas_cmp%hor(il1s)%lat_c1u(ic1u),nn,nn_index,nn_dist)
- 
-          ! Loop on nearest neighbors
-          do j=1,nn
-             jc1 = nn_index(j)
+-
+-         ! Loop on nearest neighbors
+-         do j=1,nn
+-            jc1 = nn_index(j)
 -            jc1u = nicas_cmp%c1_to_c1u(jc1,jl1)
-+            jc1u = nicas_cmp%c1_to_c1u(jc1,jl1s)
- 
-             if (jc1u>0) then
-                ! Check arc validity
-                valid = .true.
-                if (nam%mask_check) then
+-
+-            if (jc1u>0) then
+-               ! Check arc validity
+-               valid = .true.
+-               if (nam%mask_check) then
 -                  call geom%mesh_c0u%check_arc(mpl,nicas_cmp%hor(il1)%lon_c1u(ic1u), &
 - & nicas_cmp%hor(il1)%lat_c1u(ic1u),nicas_cmp%hor(jl1)%lon_c1u(jc1u),nicas_cmp%hor(jl1)%lat_c1u(jc1u),il0,valid)
 -                  if (il0/=jl0) call geom%mesh_c0u%check_arc(mpl,nicas_cmp%hor(il1)%lon_c1u(ic1u), &
 - & nicas_cmp%hor(il1)%lat_c1u(ic1u),nicas_cmp%hor(jl1)%lon_c1u(jc1u),nicas_cmp%hor(jl1)%lat_c1u(jc1u),jl0,valid)
-+                  call geom%mesh_c0u%check_arc(mpl,nicas_cmp%hor(il1s)%lon_c1u(ic1u), &
+-               end if
++            ! Find nearest neighbors
++            call nicas_cmp%hor(jl1s)%tree_c1%find_nearest_neighbors(mpl,nicas_cmp%hor(il1s)%lon_c1u(ic1u), &
++ & nicas_cmp%hor(il1s)%lat_c1u(ic1u),nn,nn_index,nn_dist)
++
++            ! Loop on nearest neighbors
++            do j=1,nn
++               jc1 = nn_index(j)
++               jc1u = nicas_cmp%c1_to_c1u(jc1,jl1s)
++
++               if (jc1u>0) then
++                  ! Check arc validity
++                  valid = .true.
++                  if (nam%mask_check) then
++                     call geom%bnda_c0u%check_arc(mpl,nicas_cmp%hor(il1s)%lon_c1u(ic1u), &
 + & nicas_cmp%hor(il1s)%lat_c1u(ic1u),nicas_cmp%hor(jl1s)%lon_c1u(jc1u),nicas_cmp%hor(jl1s)%lat_c1u(jc1u),il0,valid)
-+                  if (il0/=jl0) call geom%mesh_c0u%check_arc(mpl,nicas_cmp%hor(il1s)%lon_c1u(ic1u), &
++                     if (il0/=jl0) call geom%bnda_c0u%check_arc(mpl,nicas_cmp%hor(il1s)%lon_c1u(ic1u), &
 + & nicas_cmp%hor(il1s)%lat_c1u(ic1u),nicas_cmp%hor(jl1s)%lon_c1u(jc1u),nicas_cmp%hor(jl1s)%lat_c1u(jc1u),jl0,valid)
-                end if
++                  end if
  
-                if (valid) then
-                   ! Horizontal and vertical normalized distance, anisotropic coefficient
-                   if (nicas_cmp%anisotropic) then
+-               if (valid) then
+-                  ! Horizontal and vertical normalized distance, anisotropic coefficient
+-                  if (nicas_cmp%anisotropic) then
 -                     dx = nicas_cmp%hor(jl1)%lon_c1u(jc1u)-nicas_cmp%hor(il1)%lon_c1u(ic1u)
 -                     dy = nicas_cmp%hor(jl1)%lat_c1u(jc1u)-nicas_cmp%hor(il1)%lat_c1u(ic1u)
-+                     dx = nicas_cmp%hor(jl1s)%lon_c1u(jc1u)-nicas_cmp%hor(il1s)%lon_c1u(ic1u)
-+                     dy = nicas_cmp%hor(jl1s)%lat_c1u(jc1u)-nicas_cmp%hor(il1s)%lat_c1u(ic1u)
-                      call lonlatmod(dx,dy)
+-                     call lonlatmod(dx,dy)
 -                     dx = dx*cos(nicas_cmp%hor(il1)%lat_c1u(ic1u))
-+                     dx = dx*cos(nicas_cmp%hor(il1s)%lat_c1u(ic1u))
-                      hnd(jc1u) = sqrt(nicas_cmp%hor(il1)%H11_c1b(ic1b)*dx**2+nicas_cmp%hor(il1)%H22_c1b(ic1b)*dy**2 &
+-                     hnd(jc1u) = sqrt(nicas_cmp%hor(il1)%H11_c1b(ic1b)*dx**2+nicas_cmp%hor(il1)%H22_c1b(ic1b)*dy**2 &
++                  if (valid) then
++                     ! Horizontal and vertical normalized distance, anisotropic coefficient
++                     if (nicas_cmp%anisotropic) then
++                        dx = nicas_cmp%hor(jl1s)%lon_c1u(jc1u)-nicas_cmp%hor(il1s)%lon_c1u(ic1u)
++                        dy = nicas_cmp%hor(jl1s)%lat_c1u(jc1u)-nicas_cmp%hor(il1s)%lat_c1u(ic1u)
++                        call lonlatmod(dx,dy)
++                        dx = dx*cos(nicas_cmp%hor(il1s)%lat_c1u(ic1u))
++                        hnd(jc1u) = sqrt(nicas_cmp%hor(il1)%H11_c1b(ic1b)*dx**2+nicas_cmp%hor(il1)%H22_c1b(ic1b)*dy**2 &
   & +two*nicas_cmp%hor(il1)%H12_c1b(ic1b)*dx*dy)
-                      mnd(jc1u) = inf(hnd(jc1u),half)
-                   else
-                      if (nicas_cmp%hor(il1)%rh_c1b(ic1b)>zero) then
+-                     mnd(jc1u) = inf(hnd(jc1u),half)
+-                  else
+-                     if (nicas_cmp%hor(il1)%rh_c1b(ic1b)>zero) then
 -                        hnd(jc1u) = nn_dist(j)/nicas_cmp%hor(il1)%rh_c1b(ic1b)
-+                        hnd(jc1u) = nn_dist(j)/nicas_cmp%hor(il1s)%rh_c1b(ic1b)
                          mnd(jc1u) = inf(hnd(jc1u),half)
-                      elseif (.not.(nn_dist(j)>zero)) then
-                         hnd(jc1u) = zero
-@@ -3819,7 +4083,7 @@
+-                     elseif (.not.(nn_dist(j)>zero)) then
+-                        hnd(jc1u) = zero
+-                        mnd(jc1u) = .true.
+-                     end if
+-                  end if
+-                  if (nicas_cmp%smoother) then
+-                     if (il0==jl0) then
+-                        vnd(jc1u) = zero
+                      else
+-                        mnd(jc1u) = .false.
++                        if (nicas_cmp%hor(il1)%rh_c1b(ic1b)>zero) then
++                           hnd(jc1u) = nn_dist(j)/nicas_cmp%hor(il1s)%rh_c1b(ic1b)
++                           mnd(jc1u) = inf(hnd(jc1u),half)
++                        elseif (.not.(nn_dist(j)>zero)) then
++                           hnd(jc1u) = zero
++                           mnd(jc1u) = .true.
++                        end if
+                      end if
+-                  else
+-                     if (nam%from_gsi) then
+-                        distv = real(abs(il0-jl0),kind_real)
++                     if (nicas_cmp%smoother) then
++                        if (il0==jl0) then
++                           vnd(jc1u) = zero
++                        else
++                           mnd(jc1u) = .false.
++                        end if
+                      else
+-                        distv = abs(nicas_cmp%hor(il1)%vert_coord_c1u(ic1u)-nicas_cmp%hor(jl1)%vert_coord_c1u(jc1u))
+-                     end if
+-                     if (nicas_cmp%hor(il1)%rv_c1b(ic1b)>zero) then
+-                        vnd(jc1u) = distv/nicas_cmp%hor(il1)%rv_c1b(ic1b)
+-                        mnd(jc1u) = mnd(jc1u).and.inf(vnd(jc1u),half)
+-                     elseif (distv>zero) then
+-                        mnd(jc1u) = .false.
+-                     else
+-                        vnd(jc1u) = zero
++                        if (nam%from_gsi) then
++                           distv = real(abs(il0-jl0),kind_real)
++                        else
++                           distv = abs(nicas_cmp%hor(il1)%vert_coord_c1u(ic1u)-nicas_cmp%hor(jl1)%vert_coord_c1u(jc1u))
++                        end if
++                        if (nicas_cmp%hor(il1)%rv_c1b(ic1b)>zero) then
++                           vnd(jc1u) = distv/nicas_cmp%hor(il1)%rv_c1b(ic1b)
++                           mnd(jc1u) = mnd(jc1u).and.inf(vnd(jc1u),half)
++                        elseif (distv>zero) then
++                           mnd(jc1u) = .false.
++                        else
++                           vnd(jc1u) = zero
++                        end if
+                      end if
+                   end if
+                end if
+-            end if
+-         end do
++            end do
+ 
+-         ! Release memory
+-         deallocate(nn_index)
+-         deallocate(nn_dist)
++            ! Release memory
++            deallocate(nn_index)
++            deallocate(nn_dist)
++         end if
        end if
  
        ! Pack data
@@ -2710,7 +2804,7 @@
  
        ! Release memory
        deallocate(hnd)
-@@ -4021,13 +4285,13 @@
+@@ -4021,13 +4295,13 @@
  type(geom_type),intent(in) :: geom               !< Geometry
  
  ! Local variables
@@ -2729,7 +2823,7 @@
  
  ! Set name
  @:set_name(nicas_cmp_compute_normalization)
-@@ -4035,65 +4299,82 @@
+@@ -4035,65 +4309,82 @@
  ! Probe in
  @:probe_in()
  
@@ -2849,7 +2943,7 @@
  c_ind_sa = mpl%msv%vali
  c_S_sa = mpl%msv%valr
  inec_sa = 0
-@@ -4106,64 +4387,75 @@
+@@ -4106,64 +4397,75 @@
     c_ind_sa(isa,inec_sa(isa)) = js
     c_S_sa(isa,inec_sa(isa)) = nicas_cmp%c%S(i_s)
  end do
@@ -2948,7 +3042,7 @@
  
        ! Release memory
        deallocate(order)
-@@ -4183,14 +4475,22 @@
+@@ -4183,14 +4485,22 @@
        call mpl%flush(newl=.false.,flush=nicas_cmp%verbosity)
        if (nicas_cmp%verbosity) call mpl%prog_init(geom%nc0a)
  
@@ -2974,7 +3068,7 @@
              allocate(S_list_convol(nicas_cmp%nsu))
  
              ! Initialization
-@@ -4200,12 +4500,13 @@
+@@ -4200,12 +4510,13 @@
  
              ! Adjoint interpolation
              nlr = 0
@@ -2993,7 +3087,7 @@
                       if (nlr==0) then
                          ilr = 1
                          nlr = 1
-@@ -4224,9 +4525,9 @@
+@@ -4224,9 +4535,9 @@
              ! Convolution
              do ilr=1,nlr
                 isb = isb_list(ilr)
@@ -3006,7 +3100,7 @@
                 end do
              end do
  
-@@ -4251,15 +4552,20 @@
+@@ -4251,15 +4562,20 @@
  end do
  
  ! Release memory
@@ -3036,7 +3130,7 @@
  
  ! Probe out
  @:probe_out()
-@@ -4438,7 +4744,7 @@
+@@ -4438,7 +4754,7 @@
  call mpl%f_comm%allreduce(sums,fckit_mpi_sum())
  
  ! Adjoint horizontal interpolation
@@ -3045,7 +3139,7 @@
  
  ! Copy
  do ic1b=1,nicas_cmp%hor(1)%nc1b
-@@ -4462,7 +4768,7 @@
+@@ -4462,7 +4778,7 @@
  end do
  
  ! Horizontal interpolation
@@ -3054,7 +3148,7 @@
  
  ! Reset global sum
  sume = zss_sum(fld,mask=geom%gmask_c0a(:,il0))
-@@ -4837,7 +5143,7 @@
+@@ -4837,7 +5153,7 @@
  real(kind_real),intent(out) :: gamma(nicas_cmp%nc0a,nicas_cmp%nl1) !< Subset Sc0 field, subset of levels
  
  ! Local variables
@@ -3063,7 +3157,7 @@
  real(kind_real),allocatable :: beta(:)
  
  ! Set name
-@@ -4846,19 +5152,22 @@
+@@ -4846,19 +5162,22 @@
  ! Probe in
  @:probe_in()
  
@@ -3090,7 +3184,7 @@
  
     ! Release memory
     deallocate(beta)
-@@ -4885,7 +5194,7 @@
+@@ -4885,7 +5204,7 @@
  real(kind_real),intent(out) :: alpha(nicas_cmp%nsb)               !< Subgrid field
  
  ! Local variables
@@ -3099,7 +3193,7 @@
  real(kind_real),allocatable :: beta(:)
  
  ! Set name
-@@ -4894,16 +5203,19 @@
+@@ -4894,16 +5213,19 @@
  ! Probe in
  @:probe_in()
  
@@ -3123,7 +3217,7 @@
        isb = nicas_cmp%hor(il1)%c1b_to_sb(ic1b)
        alpha(isb) = beta(ic1b)
     end do
-@@ -5247,7 +5559,7 @@
+@@ -5247,7 +5569,7 @@
  call cv_cmp2%dealloc
  
  ! Reset random seed if necessary
@@ -3132,7 +3226,7 @@
  
  ! End associate
  end associate
-@@ -5329,7 +5641,7 @@
+@@ -5329,7 +5651,7 @@
  call mpl%flush(flush=nicas_cmp%verbosity)
  
  ! Reset random seed if necessary
@@ -3141,7 +3235,7 @@
  
  ! End associate
  end associate
-@@ -5412,14 +5724,14 @@
+@@ -5412,14 +5734,14 @@
  ! Function: nicas_cmp_c1_to_c1a
  !> Conversion from global to halo A on subset Sc1
  !----------------------------------------------------------------------
@@ -3158,7 +3252,7 @@
  
  ! Returned variable
  integer :: ic1a
-@@ -5434,10 +5746,10 @@
+@@ -5434,10 +5756,10 @@
  @:probe_in()
  
  ! Find processor
@@ -3171,7 +3265,7 @@
  
  ! Probe out
  @:probe_out()
-@@ -5448,14 +5760,14 @@
+@@ -5448,14 +5770,14 @@
  ! Function: nicas_cmp_c1_to_proc
  !> Conversion from global to processor on subset Sc1
  !----------------------------------------------------------------------
@@ -3188,7 +3282,7 @@
  
  ! Returned variable
  integer :: iproc
-@@ -5468,7 +5780,7 @@
+@@ -5468,7 +5790,7 @@
  
  ! Find processor
  do iproc=1,nicas_cmp%nproc-1
@@ -3197,7 +3291,7 @@
  @:probe_out()
        return
     end if
-@@ -5483,14 +5795,14 @@
+@@ -5483,14 +5805,14 @@
  ! Function: nicas_cmp_c1_to_c1u
  !> Conversion from global to universe on subset Sc1
  !----------------------------------------------------------------------
@@ -3214,7 +3308,7 @@
  
  ! Returned variable
  integer :: ic1u
-@@ -5505,16 +5817,16 @@
+@@ -5505,16 +5827,16 @@
  @:probe_in()
  
  ! Find processor

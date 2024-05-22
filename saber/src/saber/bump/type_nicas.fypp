@@ -811,7 +811,7 @@ if (nam%load_nicas_global) then
 
    do ig=1,nam%ng
       do icmp=1,nicas%blk(ig)%ncmp
-         if (nicas%blk(ig)%cmp(icmp)%compute_interp.and.(nam%nicas_interp_type(ig)=='si')) then
+         if ((.not.nicas%blk(ig)%cmp(icmp)%interp_in_global_file).and.(nam%nicas_interp_type(ig)=='si')) then
             ! Check whether cmat is allocated
             if (.not.cmat%allocated) call mpl%abort('${subr}$', &
  & 'rh should be specified in input fields for NICAS global reading with si interpolation (old global files)')
