@@ -382,6 +382,7 @@ class ErrorCovarianceToolbox : public oops::Application {
       // Print localization
       oops::Log::test() << "Localization(" << idL << ") diagnostics:" << std::endl;
       oops::Log::test() << "- Localization at zero separation:" << std::endl;
+
       print_value_at_positions(testConf.getSubConfiguration("dirac"), geom, dxo);
       if (testConf.has("diagnostic points")) {
         oops::Log::test() << "- Localization at diagnostic points:" << std::endl;

@@ -1,0 +1,46 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_7.ref.tmp	2024-05-22 11:25:08.034619259 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_7.ref	2024-05-22 10:50:40.359363237 +0200
+@@ -26,7 +26,7 @@
+   surface_pressure: 0.0000000000000000e+00
+        Independent levels:  1[4]
+           Subset Sc0 size:             3170
+-          Min. / max. longitudes: -175.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+@@ -39,11 +39,11 @@
+              Level   4 ~> -0.110E+02 vert. coord.
+           nc2 =       89
+ Adjoint test for block BUMP_VerticalBalance passed
+-Norm of input parameter StdDev: 3.2367672341785246e+08
++Norm of input parameter StdDev: 3.2367672341787118e+08
+ Adjoint test for block StdDev passed
+        Independent levels:  1[4]
+           Subset Sc0 size:             3170
+-          Min. / max. longitudes: -175.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+@@ -56,7 +56,7 @@
+              Level   4 ~> -0.110E+02 vert. coord.
+        Independent levels:  1[1]
+           Subset Sc0 size:             3170
+-          Min. / max. longitudes: -175.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+@@ -85,7 +85,7 @@
+   - vert_coord: [1.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  stream_function: 3.7655513961834290e+11
+-  velocity_potential: 3.5951161232672340e+10
+-  air_temperature: 5.1332249310555353e+03
+-  surface_pressure: 1.6043416473327667e+02
++  stream_function: 3.7603468638275055e+11
++  velocity_potential: 3.5922554128176384e+10
++  air_temperature: 5.1067234414223558e+03
++  surface_pressure: 1.6031253265338378e+02

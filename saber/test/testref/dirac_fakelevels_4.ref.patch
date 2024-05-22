@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fakelevels_4.ref.tmp	2024-05-22 11:25:08.862620704 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fakelevels_4.ref	2024-05-22 10:51:12.987421377 +0200
+@@ -25,7 +25,7 @@
+ Norm of output parameter weight: 8.5556998544817148e+01
+        Independent levels:  1[11]
+           Subset Sc0 size:             7082
+-          Min. / max. longitudes: -177.0 /   180.0
++          Min. / max. longitudes: -180.0 /   180.0
+           Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%

@@ -13,7 +13,7 @@ use fckit_mpi_module, only: fckit_mpi_sum,fckit_mpi_min,fckit_mpi_max
 !$ use omp_lib
 use tools_const, only: zero,hundredth,quarter,half,tenth,one,two,three,four,five,hundred,pi,req,reqkm,deg2rad,rad2deg
 use tools_fit, only: tensor_d2h
-use tools_func, only: lonlatmod,sphere_dist,inside,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_sum,zss_count
+use tools_func, only: lonlatmod,sphere_dist,convert_i2l,convert_l2i,zss_maxval,zss_minval,zss_sum,zss_count
 use tools_gc99, only: fit_func_sqrt
 use tools_kinds, only: kind_real
 use tools_netcdf, only: define_grp,inquire_grp,put_att,get_att,define_dim,inquire_dim,check_dim
@@ -25,7 +25,6 @@ use type_cv_blk, only: cv_blk_type
 use type_geom, only: geom_type
 use type_io, only: io_type
 use type_linop, only: linop_type
-use type_mesh, only: mesh_type
 use type_mpl, only: mpl_type
 use type_nam, only: nam_type
 use type_nicas_cmp, only: nicas_cmp_type
@@ -586,6 +585,7 @@ do icmp=1,nicas_blk%ncmp
    nicas_blk%cmp(icmp)%interp_type = nam%nicas_interp_type(ig)
    nicas_blk%cmp(icmp)%smoother = .false.
    nicas_blk%cmp(icmp)%compute_norm = (.not.allocated(nicas_blk%cmp(icmp)%norm))
+   nicas_blk%cmp(icmp)%interp_in_global_file = nam%interp_in_global_file
 
    ! Copy file ID
    nicas_blk%cmp(icmp)%ncid = nicas_blk%ncid
@@ -1106,9 +1106,7 @@ do il0i=1,nl0i
    nicas_blk%cmp(il0i)%interp_type = 'si'
    nicas_blk%cmp(il0i)%smoother = .true.
    nicas_blk%cmp(il0i)%compute_norm = .false.
-
-   ! Set interpolation computation flag
-   nicas_blk%cmp(il0i)%compute_interp = .true.
+   nicas_blk%cmp(il0i)%interp_in_global_file = .false.
 
    ! Set number of levels
    nicas_blk%cmp(il0i)%nl0 = geom%nl0
@@ -1175,15 +1173,15 @@ do icmp=1,nicas_blk%ncmp
    ! Set anisotropic parameter
    nicas_blk%cmp(icmp)%anisotropic = allocated(cmat_blk%D11).and.allocated(cmat_blk%D22).and.allocated(cmat_blk%D12)
 
+   ! Set interpolation computation flag
+   nicas_blk%cmp(icmp)%interp_in_global_file = nam%interp_in_global_file
+
    ! Set number of levels
    if (nam%same_horizontal) then
      nicas_blk%cmp(icmp)%nl0 = 1
    else
      nicas_blk%cmp(icmp)%nl0 = geom%nl0
    end if
-
-   ! Set interpolation computation flag
-   nicas_blk%cmp(icmp)%compute_interp = .true.
 
    ! Allocation
    allocate(nicas_blk%cmp(icmp)%vlev(nicas_blk%cmp(icmp)%nl0))

@@ -1,20 +1,20 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_8.ref.tmp	2024-05-06 14:16:31.163699908 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_8.ref	2024-05-06 13:02:15.303685406 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_8.ref.tmp	2024-05-22 11:25:08.562620181 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_8.ref	2024-05-22 10:51:00.819399350 +0200
 @@ -24,8 +24,8 @@
    stream_function: 3.0000000000000000e+00
    velocity_potential: 0.0000000000000000e+00
    surface_pressure: 3.0000000000000000e+00
 -Norm of input parameter rh: 6.4843947167090923e+06
 -Norm of input parameter rv: 1.1332077298912429e+03
-+Norm of input parameter rh: 6.4843841232056180e+06
-+Norm of input parameter rv: 1.1332074714369821e+03
++Norm of input parameter rh: 6.3043940812838720e+06
++Norm of input parameter rv: 1.1083090960834272e+03
      FastLAM interpolation accuracy test passed
      FastLAM interpolation adjoint test passed
      FastLAM interpolation accuracy test passed
-@@ -40,13 +40,13 @@
+@@ -38,13 +38,13 @@
      FastLAM interpolation adjoint test passed
- Norm of output parameter index i: 1.1644890209873171e+04
- Norm of output parameter index j: 8.7234826187710150e+03
+     FastLAM interpolation accuracy test passed
+     FastLAM interpolation adjoint test passed
 -Norm of output parameter normalized horizontal length-scale: 1.6992922050928357e+03
 -Norm of output parameter weight - 0: 5.1821246270964352e+01
 -Norm of output parameter weight - 1: 1.3660485222955450e+02
@@ -22,21 +22,22 @@
 -Norm of output parameter normalization - 0: 2.1701285379844464e+02
 -Norm of output parameter normalization - 1: 2.3177645116279072e+02
 -Norm of output parameter normalization - 2: 2.3173024180072034e+02
-+Norm of output parameter normalized horizontal length-scale: 1.6992904014677692e+03
-+Norm of output parameter weight - 0: 5.1820714978536387e+01
-+Norm of output parameter weight - 1: 1.3660493760492335e+02
-+Norm of output parameter weight - 2: 5.1115458635293521e+01
-+Norm of output parameter normalization - 0: 2.1701281757442695e+02
-+Norm of output parameter normalization - 1: 2.3177655540769845e+02
-+Norm of output parameter normalization - 2: 2.3173040601804917e+02
++Norm of output parameter normalized horizontal length-scale: 1.6404267734508073e+03
++Norm of output parameter weight - 0: 7.2930744333457682e+01
++Norm of output parameter weight - 1: 1.2620653673036158e+02
++Norm of output parameter weight - 2: 4.5290975324119849e+01
++Norm of output parameter normalization - 0: 2.1351287226377931e+02
++Norm of output parameter normalization - 1: 2.2559151288033380e+02
++Norm of output parameter normalization - 2: 2.3041565899377736e+02
  Adjoint test for block FastLAM passed
  Square-root test for block FastLAM passed
  Covariance(SABER) * Increment:
-@@ -72,6 +72,6 @@
+@@ -70,6 +70,6 @@
    - vert_coord: [1.0000000000000000e+00]
    Mask size: 100%
  Fields:
 -  stream_function: 1.3667526069849375e+01
-+  stream_function: 1.3667542480083757e+01
++  stream_function: 1.2835522825802885e+01
    velocity_potential: 0.0000000000000000e+00
-   surface_pressure: 1.1833883108358981e+01
+-  surface_pressure: 1.1833883108358981e+01
++  surface_pressure: 1.1190234305617500e+01

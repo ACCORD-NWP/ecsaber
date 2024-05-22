@@ -1,8 +1,25 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_5.ref.tmp	2024-05-06 14:16:31.319700330 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_5.ref	2024-05-06 13:02:21.523703371 +0200
-@@ -14,17 +14,11 @@
-                    Subgrid hash:   -540767041
-                 Final nc1:      581
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_5.ref.tmp	2024-05-22 11:25:08.750620508 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_nicas_5.ref	2024-05-22 10:51:08.267412785 +0200
+@@ -2,29 +2,23 @@
+           Subset Sc0 size:              875
+           Min. / max. longitudes:  100.0 /   170.0
+           Min. / max. latitudes:   -50.0 /   -10.0
+-          Domain area (% of Earth area): 0.616E+01%
++          Domain area (% of Earth area): 0.591E+01%
+              Level   1 ~> 100.0%
+              Level   2 ~> 100.0%
+              Level   1 ~>  0.100E+01 vert. coord.
+              Level   2 ~>  0.200E+01 vert. coord.
+              Effective levels:   1   2 
+                 Horizontal support radius:    1000.00 km (   1000.00 km -    1000.00 km)
+-                Estimated nc1 from horizontal support radius:      581
+-                   Decimate full grid, at least      581 points required,     875 valid points found
+-                   Subgrid hash:   -540767041
+-                Final nc1:      581
++                Estimated nc1 from horizontal support radius:      556
++                   Decimate full grid, at least      556 points required,     848 valid points found
++                   Subgrid hash:   1333588489
++                Final nc1:      556
                  Effective horizontal resolution:  4.00
 -                Horizontal support radius:    1000.00 km (   1000.00 km -    1000.00 km)
 -                Estimated nc1 from horizontal support radius:      581
@@ -10,12 +27,15 @@
 -                   Subgrid hash:   -873112754
 -                Final nc1:      581
 -                Effective horizontal resolution:  4.00
-              nc1(  1) =                        581
-              nc1(  2) =                        581
-              ns =                             1162
+-             nc1(  1) =                        581
+-             nc1(  2) =                        581
+-             ns =                             1162
++             nc1(  1) =                        556
++             nc1(  2) =                        556
++             ns =                             1112
               v%n_s =                             2
 -             c%n_s[global] =                 33490
-+             c%n_s[global] =                 33596
++             c%n_s[global] =                 31444
      Full NICAS adjoint test result:                        T
         Block NICAS adjoint test result:                    T
            Interpolation adjoint test (horizontal) result:  T

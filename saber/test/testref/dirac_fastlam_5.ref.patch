@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_5.ref.tmp	2024-05-06 14:16:30.735698751 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_5.ref	2024-05-06 13:01:59.083638367 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_5.ref.tmp	2024-05-22 11:25:07.986619175 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_5.ref	2024-05-22 10:50:38.695360351 +0200
 @@ -24,12 +24,12 @@
    stream_function: 3.0000000000000000e+00
    velocity_potential: 0.0000000000000000e+00
@@ -10,12 +10,12 @@
 -Norm of input parameter normalization_0: 2.1701285379844464e+02
 -Norm of input parameter normalization_1: 2.3177645116279072e+02
 -Norm of input parameter normalization_2: 2.3173024180072034e+02
-+Norm of input parameter weight_0: 5.1820714978536387e+01
-+Norm of input parameter weight_1: 1.3660493760492335e+02
-+Norm of input parameter weight_2: 5.1115458635293521e+01
-+Norm of input parameter normalization_0: 2.1701281757442695e+02
-+Norm of input parameter normalization_1: 2.3177655540769845e+02
-+Norm of input parameter normalization_2: 2.3173040601804917e+02
++Norm of input parameter weight_0: 7.2930744333457682e+01
++Norm of input parameter weight_1: 1.2620653673036158e+02
++Norm of input parameter weight_2: 4.5290975324119849e+01
++Norm of input parameter normalization_0: 2.1351287226377931e+02
++Norm of input parameter normalization_1: 2.2559151288033380e+02
++Norm of input parameter normalization_2: 2.3041565899377736e+02
      FastLAM interpolation accuracy test passed
      FastLAM interpolation adjoint test passed
      FastLAM redToRows test passed
@@ -26,6 +26,6 @@
 -  stream_function: 1.3667526069849375e+01
 -  velocity_potential: 1.3667526069849375e+01
 -  surface_pressure: 1.1557125009068081e+01
-+  stream_function: 1.3667542480083757e+01
-+  velocity_potential: 1.3667542480083757e+01
-+  surface_pressure: 1.1557139787865458e+01
++  stream_function: 1.2835522825802885e+01
++  velocity_potential: 1.2835522825802885e+01
++  surface_pressure: 1.0630106262942855e+01

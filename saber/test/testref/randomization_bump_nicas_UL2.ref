@@ -1,6 +1,6 @@
        Independent levels:  1[2]
           Subset Sc0 size:              173
-          Min. / max. longitudes: -167.7 /   180.0
+          Min. / max. longitudes: -180.0 /   180.0
           Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
@@ -306,7 +306,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 1.8954059335104482e+01
+  stream_function: 1.8954059335104478e+01
 Member 16: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -360,7 +360,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 1.5210781203387414e+01
+  stream_function: 1.5210781203387413e+01
 Member 19: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -450,7 +450,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 1.7660929366278832e+01
+  stream_function: 1.7660929366278829e+01
 Member 24: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:

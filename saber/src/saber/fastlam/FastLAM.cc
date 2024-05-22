@@ -51,23 +51,21 @@ FastLAM::FastLAM(const oops::GeometryData & gdata,
     fieldsMetaData_(params.fieldsMetaData.value())
 {
   oops::Log::trace() << classname() << "::FastLAM starting" << std::endl;
-
-  // Check geometry fields
-  ASSERT(gdata_.fieldSet().has("index_i"));
-  ASSERT(gdata_.fieldSet().has("index_j"));
-  ASSERT(gdata_.fieldSet().has("area"));
+  // Check function space type
+  ASSERT(gdata_.functionSpace().type() == "StructuredColumns");
 
   // Ghost points
   const auto ghostView = atlas::array::make_view<int, 1>(gdata_.functionSpace().ghost());
 
+  // Index fields
+  const atlas::functionspace::StructuredColumns fs(gdata_.functionSpace());
+  const auto indexI0View = atlas::array::make_view<int, 1>(fs.index_i());
+  const auto indexJ0View = atlas::array::make_view<int, 1>(fs.index_j());
+
   // Get grid size
   nx0_ = 0;
   ny0_ = 0;
-  atlas::Field fieldIndexI0 = gdata_.fieldSet()["index_i"];
-  atlas::Field fieldIndexJ0 = gdata_.fieldSet()["index_j"];
-  nodes0_ = fieldIndexI0.shape(0);
-  auto indexI0View = atlas::array::make_view<int, 1>(fieldIndexI0);
-  auto indexJ0View = atlas::array::make_view<int, 1>(fieldIndexJ0);
+  nodes0_ = fs.size();
   for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
     if (ghostView(jnode0) == 0) {
       nx0_ = std::max(nx0_, static_cast<size_t>(indexI0View(jnode0)));
@@ -1016,58 +1014,6 @@ std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> FastLAM::fie
     // Get parameter
     const std::string param = conf.getString("parameter");
 
-    if (param == "index i") {
-      // Create FieldSet3D
-      oops::FieldSet3D fset(validTime_, comm_);
-
-      // Copy field
-      atlas::Field fieldIndexI0 = gdata_.fieldSet()["index_i"];
-      auto indexI0View = atlas::array::make_view<int, 1>(fieldIndexI0);
-      for (const auto & var : activeVars_.variables()) {
-        const size_t nz0 = activeVars_.getLevels(var);
-        atlas::Field field = gdata_.functionSpace().createField<double>(
-          atlas::option::name(var) | atlas::option::levels(nz0));
-        auto view = atlas::array::make_view<double, 2>(field);
-        for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
-          if (ghostView(jnode0) == 0) {
-            for (size_t k0 = 0; k0 < nz0; ++k0) {
-              view(jnode0, k0) = static_cast<double>(indexI0View(jnode0));
-            }
-          }
-        }
-        fset.add(field);
-      }
-
-      // Add pair
-      fset.name() = param;
-      pairs.push_back(std::make_pair(file, fset));
-    }
-    if (param == "index j") {
-      // Create FieldSet3D
-      oops::FieldSet3D fset(validTime_, comm_);
-
-      // Copy field
-      atlas::Field fieldIndexJ0 = gdata_.fieldSet()["index_j"];
-      auto indexJ0View = atlas::array::make_view<int, 1>(fieldIndexJ0);
-      for (const auto & var : activeVars_.variables()) {
-        const size_t nz0 = activeVars_.getLevels(var);
-        atlas::Field field = gdata_.functionSpace().createField<double>(
-          atlas::option::name(var) | atlas::option::levels(nz0));
-        auto view = atlas::array::make_view<double, 2>(field);
-        for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
-          if (ghostView(jnode0) == 0) {
-            for (size_t k0 = 0; k0 < nz0; ++k0) {
-              view(jnode0, k0) = static_cast<double>(indexJ0View(jnode0));
-            }
-          }
-        }
-        fset.add(field);
-      }
-
-      // Add pair
-      fset.name() = param;
-      pairs.push_back(std::make_pair(file, fset));
-    }
     if (param == "normalized horizontal length-scale") {
       // Create FieldSet3D
       oops::FieldSet3D fset(validTime_, comm_);
@@ -1382,16 +1328,36 @@ void FastLAM::setupWeight() {
   // Ghost points
   const auto ghostView = atlas::array::make_view<int, 1>(gdata_.functionSpace().ghost());
 
+  // Get function space and grid
+  const atlas::functionspace::StructuredColumns fs(gdata_.functionSpace());
+  const atlas::StructuredGrid grid(fs.grid());
+
+  // Index fields
+  const auto indexI0View = atlas::array::make_view<int, 1>(fs.index_i());
+  const auto indexJ0View = atlas::array::make_view<int, 1>(fs.index_j());
+
+  // Normalize rh
   for (size_t jg = 0; jg < groups_.size(); ++jg) {
-    // Normalize rh
     atlas::Field rhField = (*rh_)[groups_[jg].name_];
     auto rhView = atlas::array::make_view<double, 2>(rhField);
-    auto areaView =
-      atlas::array::make_view<double, 2>(gdata_.fieldSet()["area"]);
+
     for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
       if (ghostView(jnode0) == 0) {
+        // Cell area
+        const int i0 = indexI0View(jnode0)-1;
+        const int j0 = indexJ0View(jnode0)-1;
+        const int im = std::min(std::max(i0-1, 0), static_cast<int>(nx0_-1));
+        const int ip = std::min(std::max(i0+1, 0), static_cast<int>(nx0_-1));
+        const int jm = std::min(std::max(j0-1, 0), static_cast<int>(ny0_-1));
+        const int jp = std::min(std::max(j0+1, 0), static_cast<int>(ny0_-1));
+        const double dx = atlas::util::Earth().distance(grid.lonlat(ip, j0), grid.lonlat(im, j0))
+          /static_cast<double>(ip-im);
+        const double dy = atlas::util::Earth().distance(grid.lonlat(i0, jp), grid.lonlat(i0, jm))
+          /static_cast<double>(jp-jm);
+
+        // Normalize rh with cell area square-root
         for (size_t k0 = 0; k0 < groups_[jg].nz0_; ++k0) {
-          rhView(jnode0, k0) = rhView(jnode0, k0)/std::sqrt(areaView(jnode0, 0));
+          rhView(jnode0, k0) = rhView(jnode0, k0)/std::sqrt(dx*dy);
         }
       }
     }
@@ -1422,33 +1388,44 @@ void FastLAM::setupWeight() {
 
     if (weight_.size() > 1) {
       // Prepare binning
-      double binWidth = (maxRh-minRh)/static_cast<double>(weight_.size()-1);
-      for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
-        data_[jg][jBin]->rh() = minRh+static_cast<double>(jBin)*binWidth;
-      }
+      if (minRh < maxRh) {
+        double binWidth = (maxRh-minRh)/static_cast<double>(weight_.size()-1);
+        for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
+          data_[jg][jBin]->rh() = minRh+static_cast<double>(jBin)*binWidth;
+        }
 
-      // Compute weight
-      for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
-        if (ghostView(jnode0) == 0) {
-          for (size_t k0 = 0; k0 < groups_[jg].nz0_; ++k0) {
-            // Raw weight (difference-based)
-            std::vector<double> weight(weight_.size());
-            double wgtSum = 0.0;
-            for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
-              atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
-              auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
-              const double diff = std::abs(rhView(jnode0, k0)-data_[jg][jBin]->rh())/(maxRh-minRh);
-              wgtView(jnode0, k0) = std::exp(-4.6*diff);  // Factor 4.6 => minimum weight ~0.01
-              wgtSum += wgtView(jnode0, k0);
-            }
+        // Compute weight
+        for (size_t jnode0 = 0; jnode0 < nodes0_; ++jnode0) {
+          if (ghostView(jnode0) == 0) {
+            for (size_t k0 = 0; k0 < groups_[jg].nz0_; ++k0) {
+              // Raw weight (difference-based)
+              std::vector<double> weight(weight_.size());
+              double wgtSum = 0.0;
+              for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
+                atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
+                auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
+                const double diff = std::abs(rhView(jnode0, k0)-data_[jg][jBin]->rh())
+                  /(maxRh-minRh);
+                wgtView(jnode0, k0) = std::exp(-4.6*diff);  // Factor 4.6 => minimum weight ~0.01
+                wgtSum += wgtView(jnode0, k0);
+              }
 
-            // Normalize weight
-            for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
-              atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
-              auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
-              wgtView(jnode0, k0) /= wgtSum;
+              // Normalize weight
+              for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
+                atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
+                auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
+                wgtView(jnode0, k0) /= wgtSum;
+              }
             }
           }
+        }
+      } else {
+        // Homogeneous rh, using equal weights for each bin
+        for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
+          data_[jg][jBin]->rh() = minRh;
+          atlas::Field fieldWgt = (*weight_[jBin])[groups_[jg].name_];
+          auto wgtView = atlas::array::make_view<double, 2>(fieldWgt);
+          wgtView.assign(1.0/static_cast<double>(weight_.size()));
         }
       }
     } else {

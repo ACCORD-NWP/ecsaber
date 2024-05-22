@@ -1,0 +1,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_1.ref.tmp	2024-05-22 11:25:08.590620229 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/error_covariance_training_bump_1.ref	2024-05-22 10:51:02.083401619 +0200
+@@ -1,7 +1,7 @@
+        Independent levels:  1[2]
+           Subset Sc0 size:              800
+-          Min. / max. longitudes: -171.0 /   180.0
+-          Min. / max. latitudes:   -83.3 /    83.3
++          Min. / max. longitudes: -180.0 /   180.0
++          Min. / max. latitudes:   -90.0 /    90.0
+           Domain area (% of Earth area): 0.100E+03%
+              Level   1 ~> 100.0%
+              Level   2 ~> 100.0%
+@@ -9,5 +9,4 @@
+              Level   2 ~>  0.200E+01 vert. coord.
+ Norm of output parameter lon - 1: 4.1595192029848831e+03
+ Norm of output parameter lat - 1: 2.0235095930003772e+03
+-Norm of output parameter area - 1: 2.5505057010389211e+13
+ Norm of output parameter vert_coord - 1: 6.3245553203367585e+01
