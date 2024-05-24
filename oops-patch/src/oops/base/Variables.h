@@ -23,7 +23,6 @@ namespace eckit {
 }
 
 namespace oops {
-namespace patch {
 
 // -----------------------------------------------------------------------------
 /// \brief Class to set an container of variable names and manipulate it.
@@ -34,31 +33,31 @@ namespace patch {
 ///
 ///        Most operators / methods do not affect/interact with the meta data.
 ///        The exceptions are:
-///         += Variables;  where it updates the metadata and appends extra metadata
-///                        from the right hand side Variables object.
-///         == Variables;  where it compares the metadata for metadata keys that
+///         += JediVariables;  where it updates the metadata and appends extra metadata
+///                        from the right hand side JediVariables object.
+///         == JediVariables;  where it compares the metadata for metadata keys that
 ///                        are internally consistent with the variable names.
 ///         .addMetaData(  that will either update a value or add a value within
 ///                        some metadata for a metadata (variable name) key.
-class Variables : public VariablesBase {
+class JediVariables : public VariablesBase {
  public:
-  static const std::string classname() {return "oops::Variables";}
+  static const std::string classname() {return "oops::JediVariables";}
 
-  Variables() = default;
-  Variables(const eckit::Configuration &, const std::string &);
-  explicit Variables(const std::vector<std::string> &);
-  Variables(const eckit::Configuration &, const std::vector<std::string> & vars);
+  JediVariables() = default;
+  JediVariables(const eckit::Configuration &, const std::string &);
+  explicit JediVariables(const std::vector<std::string> &);
+  JediVariables(const eckit::Configuration &, const std::vector<std::string> & vars);
 
-  Variables & operator+=(const Variables &);
-  Variables & operator-=(const Variables &);
-  Variables & operator-=(const std::string &);
+  JediVariables & operator+=(const JediVariables &);
+  JediVariables & operator-=(const JediVariables &);
+  JediVariables & operator-=(const std::string &);
 
-  bool operator==(const Variables &) const;
-  bool operator!=(const Variables &) const;
-  bool operator<=(const Variables &) const;
+  bool operator==(const JediVariables &) const;
+  bool operator!=(const JediVariables &) const;
+  bool operator<=(const JediVariables &) const;
 
-  /// make this Variables an intersection between this Variables and other variables
-  void intersection(const Variables & other);
+  /// make this JediVariables an intersection between this JediVariables and other variables
+  void intersection(const JediVariables & other);
 
   const eckit::Configuration & variablesMetaData() const {return varMetaData_;}
 
@@ -99,7 +98,7 @@ class Variables : public VariablesBase {
 // -----------------------------------------------------------------------------
 
 template<typename T>
-void Variables::addMetaData(const std::string & varname,
+void JediVariables::addMetaData(const std::string & varname,
                             const std::string & keyname,
                             const T & keyvalue) {
   setVariableSubKeyValue(varname, keyname, keyvalue, varMetaData_);
@@ -108,7 +107,7 @@ void Variables::addMetaData(const std::string & varname,
 // -----------------------------------------------------------------------------
 
 template<typename T>
-T Variables::getMetaData(const std::string & varname,
+T JediVariables::getMetaData(const std::string & varname,
                          const std::string & keyname) const {
   T keyvalue;
   getVariableSubKeyValue(varname, keyname, varMetaData_, keyvalue);
@@ -118,7 +117,7 @@ T Variables::getMetaData(const std::string & varname,
 // -----------------------------------------------------------------------------
 
 template<typename T>
-void Variables::getVariableSubKeyValue(const std::string & varname,
+void JediVariables::getVariableSubKeyValue(const std::string & varname,
                                        const std::string & keyname,
                                        const eckit::Configuration & variablesconf,
                                        T & keyvalue) const {
@@ -131,7 +130,7 @@ void Variables::getVariableSubKeyValue(const std::string & varname,
 // -----------------------------------------------------------------------------
 
 template<typename T>
-void Variables::setVariableSubKeyValue(const std::string & varname,
+void JediVariables::setVariableSubKeyValue(const std::string & varname,
                                        const std::string & keyname,
                                        const T & keyvalue,
                                        eckit::LocalConfiguration & variableslconf) {
@@ -144,7 +143,6 @@ void Variables::setVariableSubKeyValue(const std::string & varname,
 
 // -----------------------------------------------------------------------------
 
-}  // namespace patch
 }  // namespace oops
 
 #endif  // OOPS_BASE_VARIABLES_H_

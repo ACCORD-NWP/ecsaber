@@ -47,7 +47,7 @@
  
   public:
    Localization(const Geometry_ &,
--               const oops::patch::Variables &,
+-               const oops::JediVariables &,
 +               const Variables_ &,
                 const eckit::Configuration &);
    ~Localization();
@@ -67,7 +67,7 @@
  
  template<typename MODEL>
  Localization<MODEL>::Localization(const Geometry_ & geom,
--                                  const oops::patch::Variables & incVarsNoMeta,
+-                                  const oops::JediVariables & incVarsNoMeta,
 +                                  const Variables_ & incVarsNoMeta,
                                    const eckit::Configuration & conf)
    : loc_()
@@ -77,9 +77,9 @@
  
    // Initialize
 -  const std::vector<std::size_t> vlevs = geom.variableSizes(incVarsNoMeta);
--  oops::patch::Variables incVars(incVarsNoMeta);
+-  oops::JediVariables incVars(incVarsNoMeta);
 +  const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsNoMeta.variables());
-+  oops::patch::Variables incVars(incVarsNoMeta.variables().variablesList());
++  oops::JediVariables incVars(incVarsNoMeta.variables().variablesList());
    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
      incVars.addMetaData(incVars[i], "levels", vlevs[i]);
    }

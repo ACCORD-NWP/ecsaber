@@ -55,7 +55,7 @@ class InterpolationParameters : public SaberBlockParametersBase {
   oops::Parameter<bool> bypassGSI{"debugging bypass gsi", false, this};
 
   // Mandatory active variables
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ class Interpolation : public SaberOuterBlockBase {
   typedef InterpolationParameters Parameters_;
 
   Interpolation(const oops::GeometryData &,
-                const oops::patch::Variables &,
+                const oops::JediVariables &,
                 const eckit::Configuration &,
                 const Parameters_ &,
                 const oops::FieldSet3D &,
@@ -75,7 +75,7 @@ class Interpolation : public SaberOuterBlockBase {
   virtual ~Interpolation();
 
   const oops::GeometryData & innerGeometryData() const override {return *innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -84,7 +84,7 @@ class Interpolation : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   std::unique_ptr<const oops::GeometryData> innerGeometryData_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables innerVars_;
 
   // Interpolation object
   std::unique_ptr<UnstructuredInterpolation> interpolator_;

@@ -191,7 +191,7 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
 
   // Initialize outer variables
   const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
-  oops::patch::Variables outerVars(incVars_.variables().variablesList());
+  oops::JediVariables outerVars(incVars_.variables().variablesList());
   for (std::size_t i = 0; i < vlevs.size() ; ++i) {
     outerVars.addMetaData(outerVars[i], "levels", vlevs[i]);
   }
@@ -290,7 +290,7 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
       }
       for (const auto & cmp : hybridConf.getSubConfigurations("components")) {
         // Initialize component outer variables
-        const oops::patch::Variables cmpOuterVars(outerVars);
+        const oops::JediVariables cmpOuterVars(outerVars);
 
         // Set weight
         eckit::LocalConfiguration weightConf = cmp.getSubConfiguration("weight");

@@ -23,11 +23,11 @@ namespace vader {
 namespace {
 
 
-oops::patch::Variables createInnerVars(
+oops::JediVariables createInnerVars(
     const atlas::idx_t & innerVerticalLevels,
-    const oops::patch::Variables & activeVars,
-    const oops::patch::Variables & outerVars) {
-  oops::patch::Variables innerVars(outerVars);
+    const oops::JediVariables & activeVars,
+    const oops::JediVariables & outerVars) {
+  oops::JediVariables innerVars(outerVars);
   for (const std::string & s : activeVars.variables()) {
     innerVars.addMetaData(s, "levels", innerVerticalLevels);
   }
@@ -35,11 +35,11 @@ oops::patch::Variables createInnerVars(
 }
 
 
-void verticalInterpolationFromFullLevels(const oops::patch::Variables & activeVars,
+void verticalInterpolationFromFullLevels(const oops::JediVariables & activeVars,
                                          const atlas::FieldSet & fsetIn,
                                          atlas::FieldSet & fsetOut) {
   // winds are on half-levels
-  oops::patch::Variables windnames(std::vector<std::string>{"eastward_wind", "northward_wind"});
+  oops::JediVariables windnames(std::vector<std::string>{"eastward_wind", "northward_wind"});
 
   // inner stagger is full-levels
   for (const std::string & v : activeVars.variables()) {
@@ -71,11 +71,11 @@ void verticalInterpolationFromFullLevels(const oops::patch::Variables & activeVa
 }
 
 
-void mo_buggy_verticalInterpolationFromHalfLevels(const oops::patch::Variables & activeVars,
+void mo_buggy_verticalInterpolationFromHalfLevels(const oops::JediVariables & activeVars,
                                                   const atlas::FieldSet & fsetIn,
                                                   atlas::FieldSet & fsetOut) {
   // winds are on half-levels
-  oops::patch::Variables windnames(std::vector<std::string>{"eastward_wind", "northward_wind"});
+  oops::JediVariables windnames(std::vector<std::string>{"eastward_wind", "northward_wind"});
 
   // The Met Office bug unfortunately uses the interpolation weights needed for
   // going from full levels to half levels, when in fact we are wanting to interpolate
@@ -110,11 +110,11 @@ void mo_buggy_verticalInterpolationFromHalfLevels(const oops::patch::Variables &
 }
 
 
-void verticalInterpolationFromFullLevelsAD(const oops::patch::Variables & activeVars,
+void verticalInterpolationFromFullLevelsAD(const oops::JediVariables & activeVars,
                                            atlas::FieldSet & fsetIn,
                                            atlas::FieldSet & fsetOut) {
   // winds are on half-levels
-  oops::patch::Variables windnames(std::vector<std::string>{"eastward_wind", "northward_wind"});
+  oops::JediVariables windnames(std::vector<std::string>{"eastward_wind", "northward_wind"});
 
   for (const std::string & v : activeVars.variables()) {
     auto fldInView = atlas::array::make_view<double, 2>(fsetIn[v]);
@@ -157,11 +157,11 @@ void verticalInterpolationFromFullLevelsAD(const oops::patch::Variables & active
 }
 
 
-void mo_buggy_verticalInterpolationFromHalfLevelsAD(const oops::patch::Variables & activeVars,
+void mo_buggy_verticalInterpolationFromHalfLevelsAD(const oops::JediVariables & activeVars,
                                                     atlas::FieldSet & fsetIn,
                                                     atlas::FieldSet & fsetOut) {
   // winds are on half-levels
-  oops::patch::Variables windnames(std::vector<std::string>{"eastward_wind", "northward_wind"});
+  oops::JediVariables windnames(std::vector<std::string>{"eastward_wind", "northward_wind"});
 
   for (const std::string & v : activeVars.variables()) {
     auto fldInView = atlas::array::make_view<double, 2>(fsetIn[v]);
@@ -212,9 +212,9 @@ static SaberOuterBlockMaker<VertLocInterp>
 // -----------------------------------------------------------------------------
 // Note that this assumes that the variables in activevars
 //      exist in the variable level mappings of the inner and outer
-//      oops patch::Variables objects.
+//      oops JediVariables objects.
 VertLocInterp::VertLocInterp(const oops::GeometryData & outerGeometryData,
-                             const oops::patch::Variables & outerVars,
+                             const oops::JediVariables & outerVars,
                              const eckit::Configuration & covarConf,
                              const Parameters_ & params,
                              const oops::FieldSet3D & xb,

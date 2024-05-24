@@ -40,7 +40,7 @@ class SpectralAnalyticalFilterParameters : public SaberBlockParametersBase {
     oops::Parameter<eckit::LocalConfiguration> function{"function",
                                                         eckit::LocalConfiguration(), this};
 
-    oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+    oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ class SpectralAnalyticalFilter : public SaberOuterBlockBase {
   typedef SpectralAnalyticalFilterParameters Parameters_;
 
   SpectralAnalyticalFilter(const oops::GeometryData &,
-                           const oops::patch::Variables &,
+                           const oops::JediVariables &,
                            const eckit::Configuration &,
                            const Parameters_ &,
                            const oops::FieldSet3D &,
@@ -61,17 +61,17 @@ class SpectralAnalyticalFilter : public SaberOuterBlockBase {
   virtual ~SpectralAnalyticalFilter() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
   void leftInverseMultiply(oops::FieldSet3D &) const override;
 
   oops::FieldSet3D generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
-                                         const oops::patch::Variables & innerVars) const override;
+                                         const oops::JediVariables & innerVars) const override;
 
   oops::FieldSet3D generateOuterFieldSet(const oops::GeometryData & outerGeometryData,
-                                         const oops::patch::Variables & outerVars) const override;
+                                         const oops::JediVariables & outerVars) const override;
 
  private:
   void print(std::ostream &) const override;
@@ -79,11 +79,11 @@ class SpectralAnalyticalFilter : public SaberOuterBlockBase {
   /// Parameters
   Parameters_ params_;
   /// Active variables
-  const oops::patch::Variables activeVars_;
+  const oops::JediVariables activeVars_;
   /// inner Geometry Data for next block
   const oops::GeometryData & innerGeometryData_;
   /// inner variables for next block
-  const oops::patch::Variables innerVars_;
+  const oops::JediVariables innerVars_;
   /// Spectral FunctionSpace
   const atlas::functionspace::Spectral specFunctionSpace_;
   /// Filter in spectral space

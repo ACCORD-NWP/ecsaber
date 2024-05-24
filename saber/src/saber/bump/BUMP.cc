@@ -31,7 +31,7 @@ namespace bump {
 // -----------------------------------------------------------------------------
 
 BUMP::BUMP(const oops::GeometryData & geometryData,
-           const oops::patch::Variables & vars,
+           const oops::JediVariables & vars,
            const eckit::Configuration & covarConf,
            const BUMPParameters & params,
            const eckit::LocalConfiguration & fieldsMetaData,

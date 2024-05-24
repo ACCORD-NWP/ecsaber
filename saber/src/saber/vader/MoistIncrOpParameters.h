@@ -25,15 +25,15 @@ class AirTemperatureParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(AirTemperatureParameters, SaberBlockParametersBase)
 
  public:
-  oops::patch::Variables mandatoryActiveVars() const override {
-    return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {
+    return oops::JediVariables({
        "air_temperature",
        "exner_levels_minus_one",
        "potential_temperature"});
   }
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"potential_temperature",
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"potential_temperature",
                           "exner_levels_minus_one"});
     const int modelLevels = outerVars.getLevels("air_temperature");
     vars.addMetaData("potential_temperature", "levels", modelLevels);
@@ -41,8 +41,8 @@ class AirTemperatureParameters : public SaberBlockParametersBase {
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"air_temperature"});
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"air_temperature"});
     for (const auto & var : vars.variables()) {
       vars.addMetaData(var, "levels", outerVars.getLevels(var));
     }
@@ -57,15 +57,15 @@ class MoistIncrOpParameters : public SaberBlockParametersBase {
 
  public:
   oops::RequiredParameter<std::string> mio_file{"moisture incrementing operator file", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
     "air_temperature",
     "mass_content_of_cloud_ice_in_atmosphere_layer",
     "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
     "qt",
     "specific_humidity"});}
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"air_temperature",
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"air_temperature",
                           "qt"});
     const int modelLevels = outerVars.getLevels("specific_humidity");
     vars.addMetaData("air_temperature", "levels", modelLevels);
@@ -73,8 +73,8 @@ class MoistIncrOpParameters : public SaberBlockParametersBase {
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"mass_content_of_cloud_ice_in_atmosphere_layer",
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"mass_content_of_cloud_ice_in_atmosphere_layer",
                           "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
                           "specific_humidity"});
     for (const auto & var : vars.variables()) {
@@ -92,7 +92,7 @@ class SuperMoistIncrOpParameters : public SaberBlockParametersBase {
  public:
   AirTemperatureParameters airTemperature{this};
   MoistIncrOpParameters moistIncrOp{this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
     "exner_levels_minus_one",
     "potential_temperature",
     "mass_content_of_cloud_ice_in_atmosphere_layer",
@@ -100,8 +100,8 @@ class SuperMoistIncrOpParameters : public SaberBlockParametersBase {
     "qt",
     "specific_humidity"});}
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"exner_levels_minus_one",
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"exner_levels_minus_one",
                           "potential_temperature",
                           "qt"});
     const int modelLevels = outerVars.getLevels("specific_humidity");
@@ -115,8 +115,8 @@ class SuperMoistIncrOpParameters : public SaberBlockParametersBase {
   // It would have contained "mass_content_of_cloud_ice_in_atmosphere_layer",
   // "mass_content_of_cloud_liquid_water_in_atmosphere_layer" and "specific_humidity".
 
-  oops::patch::Variables intermediateTempVars(const oops::patch::Variables& outerVars) const {
-    oops::patch::Variables tempVars({"air_temperature"});
+  oops::JediVariables intermediateTempVars(const oops::JediVariables& outerVars) const {
+    oops::JediVariables tempVars({"air_temperature"});
     if (outerVars.has("air_temperature")) {
       throw eckit::UserError("air_temperature is a temporary variable of mo_super_mio"
                              " and should not be an outer variable of this block.",

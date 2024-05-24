@@ -29,9 +29,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -54,7 +52,7 @@ class VertLocParameters : public SaberBlockParametersBase {
  public:
   oops::RequiredParameter<VertLocCovarianceParameters>
     VertLocParams{"localization data", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
   oops::RequiredParameter<int> truncation{"number of vertical modes", this};
   oops::OptionalParameter<std::string> outputFileName{"output file name", this};
   oops::Parameter<bool> allowNonUnitDiagonal{"reproduce bug non-unit diagonal", false, this};
@@ -70,7 +68,7 @@ class VertLoc : public SaberOuterBlockBase {
   typedef VertLocParameters Parameters_;
 
   VertLoc(const oops::GeometryData &,
-          const oops::patch::Variables &,
+          const oops::JediVariables &,
           const eckit::Configuration &,
           const Parameters_ &,
           const oops::FieldSet3D &,
@@ -78,7 +76,7 @@ class VertLoc : public SaberOuterBlockBase {
   virtual ~VertLoc();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -97,10 +95,10 @@ class VertLoc : public SaberOuterBlockBase {
                          const Eigen::MatrixXd & localizationSquareRoot);
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables activeVars_;
+  const oops::JediVariables activeVars_;
   const int nlevs_;
   const int nmods_;
-  const oops::patch::Variables innerVars_;
+  const oops::JediVariables innerVars_;
   const std::string ncfilepath_;
   const std::string locfilepath_;
   const std::string locFieldName_;

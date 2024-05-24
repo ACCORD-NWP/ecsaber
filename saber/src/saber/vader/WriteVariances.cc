@@ -240,11 +240,11 @@ void WriteVariances::writeToFile(const eckit::mpi::Comm & comm,
   std::size_t root(0);
   // If the `fieldNames` list is empty, write out all fields in `fset`.
   atlas::FieldSet fsetWrite;
-  oops::patch::Variables variablesToWrite;
+  oops::JediVariables variablesToWrite;
   if (params_.fieldNames.value().empty()) {
-    variablesToWrite = oops::patch::Variables{fset.field_names()};
+    variablesToWrite = oops::JediVariables{fset.field_names()};
   } else {
-    variablesToWrite = oops::patch::Variables(params_.fieldNames.value());
+    variablesToWrite = oops::JediVariables(params_.fieldNames.value());
   }
   for (const auto & field : fset) {
     if (variablesToWrite.has(field.name())) {
@@ -342,7 +342,7 @@ void WriteVariances::diagnostics(const std::string & tag,
 // -----------------------------------------------------------------------------
 
 WriteVariances::WriteVariances(const oops::GeometryData & outerGeometryData,
-                               const oops::patch::Variables & outerVars,
+                               const oops::JediVariables & outerVars,
                                const eckit::Configuration & covarConfig,
                                const Parameters_ & params,
                                const oops::FieldSet3D & xb,

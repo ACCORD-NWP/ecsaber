@@ -41,7 +41,7 @@ static SaberCentralBlockMaker<HybridCovariance> makerHybridCovariance_("gsi hybr
 // -------------------------------------------------------------------------------------------------
 
 StaticCovariance::StaticCovariance(const oops::GeometryData & geometryData,
-                       const oops::patch::Variables & centralVars,
+                       const oops::JediVariables & centralVars,
                        const eckit::Configuration & covarConf,
                        const Parameters_ & params,
                        const oops::FieldSet3D & xb,

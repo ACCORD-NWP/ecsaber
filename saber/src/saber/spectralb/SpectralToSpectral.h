@@ -26,7 +26,7 @@ class SpectralToSpectralParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(SpectralToSpectralParameters, SaberBlockParametersBase)
  public:
   oops::RequiredParameter<int> inputTruncation{"input truncation", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 
@@ -37,7 +37,7 @@ class SpectralToSpectral : public SaberOuterBlockBase {
   typedef SpectralToSpectralParameters Parameters_;
 
   SpectralToSpectral(const oops::GeometryData &,
-                     const oops::patch::Variables &,
+                     const oops::JediVariables &,
                      const eckit::Configuration &,
                      const SpectralToSpectralParameters &,
                      const oops::FieldSet3D &,
@@ -46,7 +46,7 @@ class SpectralToSpectral : public SaberOuterBlockBase {
   virtual ~SpectralToSpectral() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return activeVars_;}
+  const oops::JediVariables & innerVars() const override {return activeVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -67,7 +67,7 @@ class SpectralToSpectral : public SaberOuterBlockBase {
   const atlas::functionspace::Spectral innerFunctionSpace_;
   const atlas::functionspace::Spectral outerFunctionSpace_;
   const oops::GeometryData innerGeometryData_;
-  const oops::patch::Variables activeVars_;
+  const oops::JediVariables activeVars_;
 };
 
 }  // namespace spectralb

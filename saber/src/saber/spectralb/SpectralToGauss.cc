@@ -27,7 +27,7 @@ namespace {
 // -----------------------------------------------------------------------------
 
 atlas::Field allocateGaussUVField(const atlas::FunctionSpace & gaussFS,
-                                  const oops::patch::Variables & innerVariables) {
+                                  const oops::JediVariables & innerVariables) {
   std::array<size_t, 2> lvls{{0, 0}};
   if (innerVariables.has("vorticity") && innerVariables.has("divergence")) {
     lvls[0] = innerVariables.getLevels("vorticity");
@@ -64,7 +64,7 @@ atlas::Field allocateGaussUVField(const atlas::FunctionSpace & gaussFS,
 
 atlas::FieldSet allocateSpectralVortDiv(
     const atlas::functionspace::Spectral & specfs,
-    const oops::patch::Variables & innerVariables) {
+    const oops::JediVariables & innerVariables) {
   std::array<size_t, 2> lvls{{0, 0}};
   if (innerVariables.has("vorticity") && innerVariables.has("divergence")) {
     lvls[0] = innerVariables.getLevels("vorticity");
@@ -192,10 +192,10 @@ atlas::Field convertFieldSetToUV(const atlas::FieldSet & fset) {
 
 // Create inner variables from outer variables.
 // Excludes meridional and zonal winds.
-oops::patch::Variables createInnerVars(const oops::patch::Variables & outerVars,
-                                const oops::patch::Variables & activeVars,
+oops::JediVariables createInnerVars(const oops::JediVariables & outerVars,
+                                const oops::JediVariables & activeVars,
                                 const bool & useWindTransform) {
-  oops::patch::Variables innerVars(outerVars);
+  oops::JediVariables innerVars(outerVars);
   if (useWindTransform) {
     const int levels = innerVars.getLevels("eastward_wind");
 
@@ -219,8 +219,8 @@ oops::patch::Variables createInnerVars(const oops::patch::Variables & outerVars,
 
 // -----------------------------------------------------------------------------
 
-void applyNtimesNplus1SpectralScaling(const oops::patch::Variables & innerNames,
-                                      const oops::patch::Variables & outerNames,
+void applyNtimesNplus1SpectralScaling(const oops::JediVariables & innerNames,
+                                      const oops::JediVariables & outerNames,
                                       const atlas::functionspace::Spectral & specFS,
                                       const atlas::idx_t & totalWavenumber,
                                       atlas::FieldSet & fSet,
@@ -282,7 +282,7 @@ static SaberOuterBlockMaker<SpectralToGauss> makerSpectralToGauss_("spectral to 
 // -----------------------------------------------------------------------------
 
 SpectralToGauss::SpectralToGauss(const oops::GeometryData & outerGeometryData,
-                                 const oops::patch::Variables & outerVars,
+                                 const oops::JediVariables & outerVars,
                                  const eckit::Configuration & covarConf,
                                  const Parameters_ & params,
                                  const oops::FieldSet3D & xb,
@@ -315,8 +315,8 @@ void SpectralToGauss::multiplyVectorFields(atlas::FieldSet & spectralWindFieldSe
       spectralWindFieldSet.has("velocity_potential")) {
     ASSERT(innerVars_.has("streamfunction") && innerVars_.has("velocity_potential"));
     const int N = specFunctionSpace_.truncation();
-    applyNtimesNplus1SpectralScaling(oops::patch::Variables({"streamfunction", "velocity_potential"}),
-                                     oops::patch::Variables({"vorticity", "divergence"}),
+    applyNtimesNplus1SpectralScaling(oops::JediVariables({"streamfunction", "velocity_potential"}),
+                                     oops::JediVariables({"vorticity", "divergence"}),
                                      specFunctionSpace_, N, spectralWindFieldSet);
   }
 
@@ -358,8 +358,8 @@ void SpectralToGauss::multiplyVectorFieldsAD(atlas::FieldSet & windFieldSet,
 
   if (innerVars_.has("streamfunction") && innerVars_.has("velocity_potential")) {
     const int N = specFunctionSpace_.truncation();
-    applyNtimesNplus1SpectralScaling(oops::patch::Variables({"vorticity", "divergence"}),
-                                     oops::patch::Variables({"streamfunction", "velocity_potential"}),
+    applyNtimesNplus1SpectralScaling(oops::JediVariables({"vorticity", "divergence"}),
+                                     oops::JediVariables({"streamfunction", "velocity_potential"}),
                                      specFunctionSpace_, N, spectralWindFieldSet);
   }
 
@@ -459,8 +459,8 @@ void SpectralToGauss::invertMultiplyVectorFields(const atlas::FieldSet & gaussFi
   if (innerVars_.has("streamfunction") && innerVars_.has("velocity_potential")) {
     const int N = specFunctionSpace_.truncation();
     const bool inverse = true;
-    applyNtimesNplus1SpectralScaling(oops::patch::Variables({"vorticity", "divergence"}),
-                                     oops::patch::Variables({"streamfunction", "velocity_potential"}),
+    applyNtimesNplus1SpectralScaling(oops::JediVariables({"vorticity", "divergence"}),
+                                     oops::JediVariables({"streamfunction", "velocity_potential"}),
                                      specFunctionSpace_, N, spectralWindFieldSet,
                                      inverse);
   }
@@ -584,7 +584,7 @@ void SpectralToGauss::directCalibration(const oops::FieldSets & fsetEns) {
 
 oops::FieldSet3D SpectralToGauss::generateInnerFieldSet(
   const oops::GeometryData & innerGeometryData,
-  const oops::patch::Variables & innerVars) const {
+  const oops::JediVariables & innerVars) const {
   oops::FieldSet3D fset(this->validTime(), innerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(innerGeometryData.comm(),
                                            innerGeometryData.functionSpace(),
@@ -596,7 +596,7 @@ oops::FieldSet3D SpectralToGauss::generateInnerFieldSet(
 
 oops::FieldSet3D SpectralToGauss::generateOuterFieldSet(
   const oops::GeometryData & outerGeometryData,
-  const oops::patch::Variables & outerVars) const {
+  const oops::JediVariables & outerVars) const {
   oops::FieldSet3D fset(this->validTime(), outerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(outerGeometryData.comm(),
                                            outerGeometryData.functionSpace(),

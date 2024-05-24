@@ -22,11 +22,11 @@ namespace interpolation {
 
 namespace {
 
-oops::patch::Variables createInnerVars(
+oops::JediVariables createInnerVars(
     const atlas::idx_t & innerVerticalLevels,
-    const oops::patch::Variables & activeVars,
-    const oops::patch::Variables & outerVars) {
-  oops::patch::Variables innerVars(outerVars);
+    const oops::JediVariables & activeVars,
+    const oops::JediVariables & outerVars) {
+  oops::JediVariables innerVars(outerVars);
   for (const std::string & s : activeVars.variables()) {
     if (!innerVars.has(s)) {
       innerVars.push_back(s);
@@ -89,7 +89,7 @@ static SaberOuterBlockMaker<VertProj> makerVertProj_("simple vertical projection
 //      exist in the variable level mappings of the inner and outer
 //      GeometryData objects.
 VertProj::VertProj(const oops::GeometryData & outerGeometryData,
-                   const oops::patch::Variables & outerVars,
+                   const oops::JediVariables & outerVars,
                    const eckit::Configuration & covarConf,
                    const Parameters_ & params,
                    const oops::FieldSet3D & xb,

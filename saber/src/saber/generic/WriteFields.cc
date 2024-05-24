@@ -32,11 +32,11 @@ void WriteFields::writeToFile(const oops::FieldSet3D & fset,
   // Select the fields to write out.
   // If the `fieldNames` list is empty, write out all fields in `fset`.
   oops::FieldSet3D fsetWrite(fset.validTime(), fset.commGeom());
-  oops::patch::Variables variablesToWrite;
+  oops::JediVariables variablesToWrite;
   if (params_.fieldNames.value().empty()) {
     variablesToWrite = fset.variables();
   } else {
-    variablesToWrite = oops::patch::Variables(params_.fieldNames.value());
+    variablesToWrite = oops::JediVariables(params_.fieldNames.value());
   }
   for (const auto & field : fset) {
     if (variablesToWrite.has(field.name())) {
@@ -89,7 +89,7 @@ void WriteFields::writeToFile(const oops::FieldSet3D & fset,
 // -----------------------------------------------------------------------------
 
 WriteFields::WriteFields(const oops::GeometryData & outerGeometryData,
-                         const oops::patch::Variables & outerVars,
+                         const oops::JediVariables & outerVars,
                          const eckit::Configuration & covarConfig,
                          const Parameters_ & params,
                          const oops::FieldSet3D & xb,

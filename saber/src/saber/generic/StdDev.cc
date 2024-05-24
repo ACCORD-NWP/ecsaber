@@ -36,7 +36,7 @@ static SaberOuterBlockMaker<StdDev> makerStdDev_("StdDev");
 // -----------------------------------------------------------------------------
 
 StdDev::StdDev(const oops::GeometryData & outerGeometryData,
-               const oops::patch::Variables & outerVars,
+               const oops::JediVariables & outerVars,
                const eckit::Configuration & covarConfig,
                const Parameters_ & params,
                const oops::FieldSet3D & xb,

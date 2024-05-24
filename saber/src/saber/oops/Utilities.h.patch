@@ -123,10 +123,10 @@
    // Check number of ensembles in yaml
    ASSERT(ensembleFound <= 1);
  
--  oops::patch::Variables vars(varConf.has("variables") ?
--    oops::patch::Variables{varConf.getStringVector("variables")} :
+-  oops::JediVariables vars(varConf.has("variables") ?
+-    oops::JediVariables{varConf.getStringVector("variables")} :
 -    modelvars);
-+  oops::patch::Variables vars(modelvars);
++  oops::JediVariables vars(modelvars);
  
    if (!iterativeEnsembleLoading) {
      // Full ensemble loading

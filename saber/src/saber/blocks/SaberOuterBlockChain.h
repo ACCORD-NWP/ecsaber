@@ -36,7 +36,7 @@ class SaberOuterBlockChain {
   /// @brief Standard constructor using MODEL geometry
   template<typename MODEL>
   SaberOuterBlockChain(const oops::Geometry<MODEL> & geom,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const oops::FieldSet4D & fset4dXb,
                        const oops::FieldSet4D & fset4dFg,
                        oops::FieldSets & fsetEns,
@@ -44,7 +44,7 @@ class SaberOuterBlockChain {
                        const std::vector<saber::SaberOuterBlockParametersWrapper> & params);
   /// @brief Simpler, limited constructor using only generic GeometryData
   SaberOuterBlockChain(const oops::GeometryData & outerGeometryData,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const oops::FieldSet4D & fset4dXb,
                        const oops::FieldSet4D & fset4dFg,
                        const eckit::LocalConfiguration & covarConf,
@@ -60,7 +60,7 @@ class SaberOuterBlockChain {
   std::vector<std::unique_ptr<SaberOuterBlockBase>> & outerBlocks() {return outerBlocks_;}
 
   /// @brief Returns inner-most variables.
-  const oops::patch::Variables & innerVars() const {
+  const oops::JediVariables & innerVars() const {
     return outerBlocks_.back()->innerVars();
   }
   /// @brief Returns inner-most geometry data.
@@ -116,12 +116,12 @@ class SaberOuterBlockChain {
   /// @brief Initialize outer block, and return tuple of current outer variables,
   ///        saber block parameters and active variables
   std::tuple<const SaberBlockParametersBase&,
-             oops::patch::Variables,
-             oops::patch::Variables>
+             oops::JediVariables,
+             oops::JediVariables>
      initBlock(const SaberOuterBlockParametersWrapper & saberOuterBlockParamWrapper,
                const eckit::LocalConfiguration & outerBlockConf,
                const oops::GeometryData & outerGeometryData,
-               const oops::patch::Variables & outerVars,
+               const oops::JediVariables & outerVars,
                const oops::FieldSet4D & fset4dXb,
                const oops::FieldSet4D & fset4dFg);
 
@@ -130,7 +130,7 @@ class SaberOuterBlockChain {
   void calibrateBlock(const eckit::LocalConfiguration & covarConf,
                       const oops::FieldSet4D & fset4dXb,
                       const oops::Geometry<MODEL> & geom,
-                      const oops::patch::Variables & outerVars,
+                      const oops::JediVariables & outerVars,
                       oops::FieldSets & fsetEns);
 
   /// @brief Left inverse multiply (used in calibration) by all outer blocks
@@ -149,9 +149,9 @@ class SaberOuterBlockChain {
 
   /// @brief Get inner geometry data and variables, and check consistency with
   ///        active variables. Used in constructors.
-  std::tuple<const oops::GeometryData &, const oops::patch::Variables &>
-        getInnerObjects(const oops::patch::Variables & activeVars,
-                        const oops::patch::Variables & outerVars) const;
+  std::tuple<const oops::GeometryData &, const oops::JediVariables &>
+        getInnerObjects(const oops::JediVariables & activeVars,
+                        const oops::JediVariables & outerVars) const;
 
   /// @brief Interpolate fields in background and first guess if inner and outer
   ///        geometryData are different. Used in constructors.
@@ -166,10 +166,10 @@ class SaberOuterBlockChain {
   void testLastOuterBlock(const eckit::LocalConfiguration & covarConf,
                           const SaberBlockParametersBase & saberOuterBlockParams,
                           const oops::GeometryData & outerGeometryData,
-                          const oops::patch::Variables & outerVars,
+                          const oops::JediVariables & outerVars,
                           const oops::GeometryData & innerGeometryData,
-                          const oops::patch::Variables & innerVars,
-                          const oops::patch::Variables & activeVars) const;
+                          const oops::JediVariables & innerVars,
+                          const oops::JediVariables & activeVars) const;
 
   /// @brief Vector of all outer blocks.
   /// TODO(AS): Need to expand this to create different outer blocks for different
@@ -182,7 +182,7 @@ class SaberOuterBlockChain {
 
 template<typename MODEL>
 SaberOuterBlockChain::SaberOuterBlockChain(const oops::Geometry<MODEL> & geom,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const oops::FieldSet4D & fset4dXb,
                        const oops::FieldSet4D & fset4dFg,
                        oops::FieldSets & fsetEns,
@@ -265,7 +265,7 @@ void SaberOuterBlockChain::calibrateBlock(
             const eckit::LocalConfiguration & covarConf,
             const oops::FieldSet4D & fset4dXb,
             const oops::Geometry<MODEL> & geom,
-            const oops::patch::Variables & outerVars,
+            const oops::JediVariables & outerVars,
             oops::FieldSets & fsetEns) {
   // Iterative ensemble loading flag
   const bool iterativeEnsembleLoading = covarConf.getBool("iterative ensemble loading");

@@ -32,12 +32,12 @@
 
 namespace {
 
-auto setInnerVars(const oops::patch::Variables & outerVars,
-                  const oops::patch::Variables & activeVars,
+auto setInnerVars(const oops::JediVariables & outerVars,
+                  const oops::JediVariables & activeVars,
                   const int nmods) {
   // Return variables which are a copy of outerVars, except for activeVars
   // which should have levels changed to nmods
-  oops::patch::Variables innerVars(outerVars);
+  oops::JediVariables innerVars(outerVars);
   for (auto & var : activeVars.variables()) {
     innerVars.addMetaData(var, "levels", nmods);
   }
@@ -56,7 +56,7 @@ static SaberOuterBlockMaker<VertLoc> makerVertLoc_("mo_vertical_localization");
 // -----------------------------------------------------------------------------
 
 VertLoc::VertLoc(const oops::GeometryData & outerGeometryData,
-                 const oops::patch::Variables & outerVars,
+                 const oops::JediVariables & outerVars,
                  const eckit::Configuration & covarConf,
                  const Parameters_ & params,
                  const oops::FieldSet3D & xb,

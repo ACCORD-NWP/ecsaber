@@ -22,7 +22,7 @@
    class FieldSet3D;
 @@ -278,13 +279,16 @@
      } else {
-       incVars.reset(new oops::patch::Variables(vars));
+       incVars.reset(new oops::JediVariables(vars));
      }
 -    oops::Increment<MODEL> dx(geom, *incVars, validTime_);
 +    oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
@@ -41,7 +41,7 @@
    this->setReadFields(fsetVec);
 @@ -314,10 +318,11 @@
      } else {
-       incVars.reset(new oops::patch::Variables(vars));
+       incVars.reset(new oops::JediVariables(vars));
      }
 -    oops::Increment<MODEL> dx(geom, *incVars, validTime_);
 +    oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));

@@ -48,7 +48,7 @@ SaberOuterBlockFactory::SaberOuterBlockFactory(const std::string & name) {
 
 std::unique_ptr<SaberOuterBlockBase> SaberOuterBlockFactory::create(
   const oops::GeometryData & outerGeometryData,
-  const oops::patch::Variables & outerVars,
+  const oops::JediVariables & outerVars,
   const eckit::Configuration & covarConfig,
   const SaberBlockParametersBase & params,
   const oops::FieldSet3D & xb,
@@ -81,9 +81,9 @@ SaberOuterBlockFactory::createParameters(const std::string &name) {
 // -----------------------------------------------------------------------------
 
 void SaberOuterBlockBase::adjointTest(const oops::GeometryData & outerGeometryData,
-                                      const oops::patch::Variables & outerVars,
+                                      const oops::JediVariables & outerVars,
                                       const oops::GeometryData & innerGeometryData,
-                                      const oops::patch::Variables & innerVars,
+                                      const oops::JediVariables & innerVars,
                                       const double & adjointTolerance) const {
   oops::Log::trace() << "SaberOuterBlockBase::adjointTest starting" << std::endl;
 
@@ -144,11 +144,11 @@ void SaberOuterBlockBase::adjointTest(const oops::GeometryData & outerGeometryDa
 // -----------------------------------------------------------------------------
 
 void SaberOuterBlockBase::inverseTest(const oops::GeometryData & innerGeometryData,
-                                      const oops::patch::Variables & innerVars,
+                                      const oops::JediVariables & innerVars,
                                       const oops::GeometryData & outerGeometryData,
-                                      const oops::patch::Variables & outerVars,
-                                      const oops::patch::Variables & innerVarsToCompare,
-                                      const oops::patch::Variables & outerVarsToCompare,
+                                      const oops::JediVariables & outerVars,
+                                      const oops::JediVariables & innerVarsToCompare,
+                                      const oops::JediVariables & outerVarsToCompare,
                                       const double & innerInverseTolerance,
                                       const double & outerInverseTolerance) const {
   oops::Log::trace() << "SaberOuterBlockBase::inverseTest starting" << std::endl;
@@ -172,8 +172,8 @@ void SaberOuterBlockBase::inverseTest(const oops::GeometryData & innerGeometryDa
   this->multiply(innerFset);
 
   // Check that the fieldsets contain the same fields
-  auto innerFieldNames = oops::patch::Variables(innerFset.field_names());
-  auto innerFieldNamesSave = oops::patch::Variables(innerFsetSave.field_names());
+  auto innerFieldNames = oops::JediVariables(innerFset.field_names());
+  auto innerFieldNamesSave = oops::JediVariables(innerFsetSave.field_names());
 
   if (innerFieldNames != innerFieldNamesSave) {
     throw eckit::Exception("Inner inverse test for block " + this->blockName()
@@ -181,7 +181,7 @@ void SaberOuterBlockBase::inverseTest(const oops::GeometryData & innerGeometryDa
   }
 
   // Check that the fieldsets are similar within tolerance
-  oops::patch::Variables outerVariablesToRemove(innerFieldNames);
+  oops::JediVariables outerVariablesToRemove(innerFieldNames);
   outerVariablesToRemove -= outerVarsToCompare;
 
   innerFset.removeFields(outerVariablesToRemove);
@@ -216,15 +216,15 @@ void SaberOuterBlockBase::inverseTest(const oops::GeometryData & innerGeometryDa
   this->leftInverseMultiply(outerFset);
 
   // Check that the fieldsets contain the same fields
-  auto outerFieldNames = oops::patch::Variables(outerFset.field_names());
-  auto outerFieldNamesSave = oops::patch::Variables(outerFsetSave.field_names());
+  auto outerFieldNames = oops::JediVariables(outerFset.field_names());
+  auto outerFieldNamesSave = oops::JediVariables(outerFsetSave.field_names());
   if (outerFieldNames != outerFieldNamesSave) {
     throw eckit::Exception("Outer inverse test for block " + this->blockName()
       + ": fieldsets content does not match", Here());
   }
 
   // Check that the fieldsets are similar within tolerance
-  oops::patch::Variables innerVariablesToRemove(outerFieldNames);
+  oops::JediVariables innerVariablesToRemove(outerFieldNames);
   innerVariablesToRemove -= innerVarsToCompare;
   outerFset.removeFields(innerVariablesToRemove);
   outerFsetSave.removeFields(innerVariablesToRemove);

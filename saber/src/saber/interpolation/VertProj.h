@@ -32,10 +32,10 @@ class VertProjParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(VertProjParameters, SaberBlockParametersBase)
 
  public:
-  oops::OptionalParameter<oops::patch::Variables> activeVariables{"active variables", this};
+  oops::OptionalParameter<oops::JediVariables> activeVariables{"active variables", this};
   oops::RequiredParameter<atlas::idx_t> innerVerticalLevels{"inner vertical levels",
     "inner number of vertical levels", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ class VertProj : public SaberOuterBlockBase {
   typedef VertProjParameters Parameters_;
 
   VertProj(const oops::GeometryData &,
-           const oops::patch::Variables &,
+           const oops::JediVariables &,
            const eckit::Configuration &,
            const Parameters_ &,
            const oops::FieldSet3D &,
@@ -56,7 +56,7 @@ class VertProj : public SaberOuterBlockBase {
 
   const oops::GeometryData & innerGeometryData()
     const override {return outerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -66,9 +66,9 @@ class VertProj : public SaberOuterBlockBase {
   void print(std::ostream &) const override;
 
   const oops::GeometryData & outerGeometryData_;
-  oops::patch::Variables outerVars_;
-  oops::patch::Variables activeVars_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables outerVars_;
+  oops::JediVariables activeVars_;
+  oops::JediVariables innerVars_;
 };
 
 }  // namespace interpolation

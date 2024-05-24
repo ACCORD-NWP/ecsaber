@@ -37,7 +37,7 @@ class GaussUVToGP : public SaberOuterBlockBase {
   typedef GaussUVToGPParameters Parameters_;
 
   GaussUVToGP(const oops::GeometryData &,
-              const oops::patch::Variables &,
+              const oops::JediVariables &,
               const eckit::Configuration &,
               const Parameters_ &,
               const oops::FieldSet3D &,
@@ -47,7 +47,7 @@ class GaussUVToGP : public SaberOuterBlockBase {
 
   const oops::GeometryData & innerGeometryData()
     const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -56,10 +56,10 @@ class GaussUVToGP : public SaberOuterBlockBase {
   void print(std::ostream &) const override;
 
   Parameters_ params_;
-  const oops::patch::Variables outerVars_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeOuterVars_;
-  const oops::patch::Variables innerOnlyVars_;
+  const oops::JediVariables outerVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
 
   /// Gaussian (outer) functionspace
   const atlas::functionspace::StructuredColumns gaussFunctionSpace_;

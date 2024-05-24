@@ -30,8 +30,8 @@ class VaderBlockParameters : public SaberBlockParametersBase {
 
  public:
   oops::Parameter<vader::VaderParameters> vader{"vader", {}, this};
-  oops::RequiredParameter<oops::patch::Variables> innerVars{"inner variables", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::RequiredParameter<oops::JediVariables> innerVars{"inner variables", this};
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -43,14 +43,14 @@ class VaderBlock : public SaberOuterBlockBase {
   typedef VaderBlockParameters Parameters_;
 
   VaderBlock(const oops::GeometryData &,
-             const oops::patch::Variables &,
+             const oops::JediVariables &,
              const eckit::Configuration &,
              const Parameters_ &,
              const oops::FieldSet3D &,
              const oops::FieldSet3D &);
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -58,9 +58,9 @@ class VaderBlock : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
 
-  const oops::patch::Variables outerVars_;
+  const oops::JediVariables outerVars_;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables innerVars_;
+  const oops::JediVariables innerVars_;
   vader::Vader vader_;
 };
 

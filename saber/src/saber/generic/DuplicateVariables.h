@@ -28,7 +28,7 @@ class VariableGroupParameters : public oops::Parameters {
 
  public:
   oops::RequiredParameter<std::string> groupVariableName{"group variable name", this};
-  oops::RequiredParameter<oops::patch::Variables> groupComponents{"group components", this};
+  oops::RequiredParameter<oops::JediVariables> groupComponents{"group components", this};
 };
 
 // -----------------------------------------------------------------------------
@@ -38,13 +38,13 @@ class DuplicateVariablesParameters : public SaberBlockParametersBase {
  public:
   oops::RequiredParameter<std::vector<VariableGroupParameters>>
    variableGroupParameters{"variable groupings", this};
-  /// patch::Variables groups
-  oops::patch::Variables mandatoryActiveVars() const override {
-    oops::patch::Variables vars;
+  /// JediVariables groups
+  oops::JediVariables mandatoryActiveVars() const override {
+    oops::JediVariables vars;
     std::vector<VariableGroupParameters> gp = variableGroupParameters.value();
     for (std::size_t i = 0; i < gp.size(); ++i) {
       std::string s = gp[i].groupVariableName.value();
-      oops::patch::Variables v = gp[i].groupComponents.value();
+      oops::JediVariables v = gp[i].groupComponents.value();
       vars.push_back(s);
       vars += v;
     }
@@ -61,7 +61,7 @@ class DuplicateVariables : public SaberOuterBlockBase {
   typedef DuplicateVariablesParameters Parameters_;
 
   DuplicateVariables(const oops::GeometryData &,
-                     const oops::patch::Variables &,
+                     const oops::JediVariables &,
                      const eckit::Configuration &,
                      const Parameters_ &,
                      const oops::FieldSet3D &,
@@ -70,7 +70,7 @@ class DuplicateVariables : public SaberOuterBlockBase {
   virtual ~DuplicateVariables() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -78,9 +78,9 @@ class DuplicateVariables : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   std::vector<VariableGroupParameters> groups_;
-  oops::patch::Variables outerVars_;
-  oops::patch::Variables activeVars_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables outerVars_;
+  oops::JediVariables activeVars_;
+  oops::JediVariables innerVars_;
   const oops::GeometryData & innerGeometryData_;
 };
 

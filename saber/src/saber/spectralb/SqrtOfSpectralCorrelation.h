@@ -29,7 +29,7 @@ class SqrtOfSpectralCorrelationParameters : public SaberBlockParametersBase {
 
  public:
   oops::OptionalParameter<spectralbReadParameters> readParams{"read", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ class SqrtOfSpectralCorrelation : public SaberOuterBlockBase {
   typedef SqrtOfSpectralCorrelationParameters Parameters_;
 
   SqrtOfSpectralCorrelation(const oops::GeometryData &,
-                            const oops::patch::Variables &,
+                            const oops::JediVariables &,
                             const eckit::Configuration &,
                             const Parameters_ &,
                             const oops::FieldSet3D &,
@@ -50,7 +50,7 @@ class SqrtOfSpectralCorrelation : public SaberOuterBlockBase {
   virtual ~SqrtOfSpectralCorrelation() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return outerVars_;}
+  const oops::JediVariables & innerVars() const override {return outerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -63,9 +63,9 @@ class SqrtOfSpectralCorrelation : public SaberOuterBlockBase {
   /// Parameters
   Parameters_ params_;
   /// Active variables
-  const oops::patch::Variables activeVars_;
+  const oops::JediVariables activeVars_;
   /// Outer variables
-  oops::patch::Variables outerVars_;
+  oops::JediVariables outerVars_;
 
   /// Covariance statistics
   atlas::FieldSet spectralCorrelUMatrices_;

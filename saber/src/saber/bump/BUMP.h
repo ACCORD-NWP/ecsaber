@@ -34,7 +34,7 @@ class BUMP {
 
   // Constructor
   BUMP(const oops::GeometryData &,
-       const oops::patch::Variables &,
+       const oops::JediVariables &,
        const eckit::Configuration &,
        const BUMPParameters &,
        const eckit::LocalConfiguration &,
@@ -91,7 +91,7 @@ class BUMP {
   eckit::Channel * infoChannel_;
   eckit::Channel * testChannel_;
   atlas::FunctionSpace fspace_;
-  const oops::patch::Variables vars_;
+  const oops::JediVariables vars_;
   const util::DateTime validTime_;
   eckit::LocalConfiguration covarConf_;
   eckit::LocalConfiguration bumpConf_;

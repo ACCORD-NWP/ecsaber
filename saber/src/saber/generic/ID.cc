@@ -22,7 +22,7 @@ static SaberCentralBlockMaker<IDCentral> makerIDCentral_("ID");
 // -----------------------------------------------------------------------------
 
 IDCentral::IDCentral(const oops::GeometryData & geometryData,
-                     const oops::patch::Variables & activeVars,
+                     const oops::JediVariables & activeVars,
                      const eckit::Configuration & covarConf,
                      const Parameters_ & params,
                      const oops::FieldSet3D & xb,
@@ -135,7 +135,7 @@ static SaberOuterBlockMaker<IDOuter> makerIDOuter_("ID");
 // -----------------------------------------------------------------------------
 
 IDOuter::IDOuter(const oops::GeometryData & outerGeometryData,
-                 const oops::patch::Variables & outerVars,
+                 const oops::JediVariables & outerVars,
                  const eckit::Configuration & covarConfig,
                  const Parameters_ & params,
                  const oops::FieldSet3D & xb,

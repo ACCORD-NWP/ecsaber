@@ -91,7 +91,7 @@ class HybridParameters : public SaberBlockParametersBase {
   // Switch to run components in parallel
   oops::Parameter<bool> runInParallel{"run in parallel", false, this};
 
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ class Hybrid : public SaberCentralBlockBase {
   typedef HybridParameters Parameters_;
 
   Hybrid(const oops::GeometryData &,
-         const oops::patch::Variables &,
+         const oops::JediVariables &,
          const eckit::Configuration &,
          const Parameters_ & params,
          const oops::FieldSet3D & xb,

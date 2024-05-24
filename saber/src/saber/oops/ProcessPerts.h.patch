@@ -95,7 +95,7 @@
 -  oops::RequiredParameter<eckit::LocalConfiguration> background{"background", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> background{"Background", this};
  
--  oops::RequiredParameter<oops::patch::Variables> inputVariables{"input variables", this};
+-  oops::RequiredParameter<oops::JediVariables> inputVariables{"input variables", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> inputVariables{"input variables", this};
  
    oops::RequiredParameter<std::vector<BandParameters_>> bands{"bands", this};
@@ -191,9 +191,9 @@
      // Setup time
      const util::DateTime time = xx[0].validTime();
  
--    oops::patch::Variables incVars = params.inputVariables;
+-    oops::JediVariables incVars = params.inputVariables;
 +    const Variables_ incVarsT(params.inputVariables);
-+    oops::patch::Variables incVars(incVarsT.variables().variablesList());
++    oops::JediVariables incVars(incVarsT.variables().variablesList());
  
      // Initialize outer variables
 -    const std::vector<std::size_t> vlevs = geom.variableSizes(incVars);

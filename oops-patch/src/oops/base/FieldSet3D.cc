@@ -77,7 +77,7 @@ FieldSet3D copyFieldSet3D(const util::DateTime & validTime,
 FieldSet3D randomFieldSet3D(const util::DateTime & validTime,
                             const eckit::mpi::Comm & comm,
                             const atlas::FunctionSpace & fspace,
-                            const patch::Variables & vars) {
+                            const JediVariables & vars) {
   FieldSet3D random(validTime, comm);
   random.randomInit(fspace, vars);
   return random;
@@ -153,14 +153,14 @@ void FieldSet3D::shallowCopy(const FieldSet3D & otherFset) {
 // -----------------------------------------------------------------------------
 
 void FieldSet3D::init(const atlas::FunctionSpace & fspace,
-                      const patch::Variables & vars) {
+                      const JediVariables & vars) {
   fset_ = util::createFieldSet(fspace, vars);
 }
 
 // -----------------------------------------------------------------------------
 
 void FieldSet3D::init(const atlas::FunctionSpace & fspace,
-                      const patch::Variables & vars,
+                      const JediVariables & vars,
                       const double & value) {
   fset_ = util::createFieldSet(fspace, vars, value);
 }
@@ -168,14 +168,14 @@ void FieldSet3D::init(const atlas::FunctionSpace & fspace,
 // -----------------------------------------------------------------------------
 
 void FieldSet3D::randomInit(const atlas::FunctionSpace & fspace,
-                            const patch::Variables & vars) {
+                            const JediVariables & vars) {
   fset_ = util::createRandomFieldSet(comm_, fspace, vars);
 }
 
 // -----------------------------------------------------------------------------
 
-patch::Variables FieldSet3D::currentVariables() const {
-  patch::Variables vars;
+JediVariables FieldSet3D::currentVariables() const {
+  JediVariables vars;
   for (const auto & field : fset_) {
     vars.push_back(field.name());
     vars.addMetaData(field.name(), "levels", field.shape(1));
@@ -185,7 +185,7 @@ patch::Variables FieldSet3D::currentVariables() const {
 
 // -----------------------------------------------------------------------------
 
-const oops::patch::Variables & FieldSet3D::variables() const {
+const oops::JediVariables & FieldSet3D::variables() const {
   vars_ = currentVariables();
   return vars_;
 }
@@ -233,13 +233,13 @@ FieldSet3D & FieldSet3D::operator/=(const FieldSet3D & other) {
 
 // -----------------------------------------------------------------------------
 
-double FieldSet3D::dot_product_with(const FieldSet3D & other, const patch::Variables & vars) const {
+double FieldSet3D::dot_product_with(const FieldSet3D & other, const JediVariables & vars) const {
   return util::dotProductFieldSets(fset_, other.fieldSet(), vars.variables(), comm_);
 }
 
 // -----------------------------------------------------------------------------
 
-double FieldSet3D::norm(const patch::Variables & vars) const {
+double FieldSet3D::norm(const JediVariables & vars) const {
   return util::normFieldSet(fset_, vars.variables(), comm_);
 }
 
@@ -252,7 +252,7 @@ void FieldSet3D::sqrt() {
 // -----------------------------------------------------------------------------
 
 void FieldSet3D::read(const atlas::FunctionSpace & fspace,
-                      const patch::Variables & vars,
+                      const JediVariables & vars,
                       const eckit::LocalConfiguration & conf) {
   util::readFieldSet(comm_, fspace, vars, conf, fset_);
 }
@@ -371,7 +371,7 @@ void FieldSet3D::deserialize(const std::vector<double> & vect, size_t & index) {
 
 // -----------------------------------------------------------------------------
 
-void FieldSet3D::removeFields(const patch::Variables & vars) {
+void FieldSet3D::removeFields(const JediVariables & vars) {
   util::removeFieldsFromFieldSet(fset_, vars.variables());
 }
 

@@ -115,7 +115,7 @@ FieldSet4D & FieldSet4D::operator*=(const double zz) {
 
 // -----------------------------------------------------------------------------
 
-double FieldSet4D::dot_product_with(const FieldSet4D & other, const oops::patch::Variables & vars) const {
+double FieldSet4D::dot_product_with(const FieldSet4D & other, const oops::JediVariables & vars) const {
   this->check_consistency(other);
   ASSERT(this->is_4d());
   double zz = 0.0;
@@ -129,7 +129,7 @@ double FieldSet4D::dot_product_with(const FieldSet4D & other, const oops::patch:
 // -----------------------------------------------------------------------------
 
 double FieldSet4D::dot_product_with(const FieldSets & other, const size_t iens,
-                                    const patch::Variables & vars) const {
+                                    const JediVariables & vars) const {
   double zz = 0.0;
   for (size_t itime = 0; itime < this->size(); ++itime) {
     zz += (*this)[itime].dot_product_with(other(itime, iens), vars);
