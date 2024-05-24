@@ -27,7 +27,7 @@ class WriteVariancesParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(WriteVariancesParameters, SaberBlockParametersBase)
 
  public:
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 
   /// Path of output file.
   oops::RequiredParameter<std::string> outputPath{"output path", this};
@@ -66,7 +66,7 @@ class WriteVariances : public SaberOuterBlockBase {
   typedef WriteVariancesParameters Parameters_;
 
   WriteVariances(const oops::GeometryData &,
-                 const oops::patch::Variables &,
+                 const oops::JediVariables &,
                  const eckit::Configuration &,
                  const Parameters_ &,
                  const oops::FieldSet3D &,
@@ -75,7 +75,7 @@ class WriteVariances : public SaberOuterBlockBase {
   virtual ~WriteVariances() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -92,7 +92,7 @@ class WriteVariances : public SaberOuterBlockBase {
                    const oops::FieldSet3D & fset) const;
 
   const oops::GeometryData & innerGeometryData_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables innerVars_;
   const Parameters_ params_;
   mutable size_t count_multiply_;
   mutable size_t count_multiplyad_;

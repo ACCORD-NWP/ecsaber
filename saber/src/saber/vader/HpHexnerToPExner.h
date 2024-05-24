@@ -26,9 +26,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -42,14 +40,14 @@ class HpHexnerToPExnerParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(HpHexnerToPExnerParameters, SaberBlockParametersBase)
 
  public:
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
     "air_pressure_levels",
     "exner_levels_minus_one",
     "hydrostatic_exner_levels",
     "hydrostatic_pressure_levels"});}
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"hydrostatic_exner_levels",
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"hydrostatic_exner_levels",
                           "hydrostatic_pressure_levels"});
     const int modelLevels = outerVars.getLevels("air_pressure_levels");
     vars.addMetaData("hydrostatic_exner_levels", "levels", modelLevels);
@@ -57,8 +55,8 @@ class HpHexnerToPExnerParameters : public SaberBlockParametersBase {
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"air_pressure_levels",
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"air_pressure_levels",
                           "exner_levels_minus_one"});
     for (const auto & var : vars.variables()) {
       vars.addMetaData(var, "levels", outerVars.getLevels(var));
@@ -79,7 +77,7 @@ class HpHexnerToPExner : public SaberOuterBlockBase {
   typedef HpHexnerToPExnerParameters Parameters_;
 
   HpHexnerToPExner(const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const eckit::Configuration &,
                    const Parameters_ &,
                    const oops::FieldSet3D &,
@@ -87,7 +85,7 @@ class HpHexnerToPExner : public SaberOuterBlockBase {
   virtual ~HpHexnerToPExner();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -96,9 +94,9 @@ class HpHexnerToPExner : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeOuterVars_;
-  const oops::patch::Variables innerOnlyVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
 };
 
 // -----------------------------------------------------------------------------

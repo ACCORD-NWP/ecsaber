@@ -29,12 +29,12 @@ namespace bump {
 // Elemental parameters (without default value)
 // -----------------------------------------------------------------------------
 
-// patch::Variables value or profile elemental parameters
+// JediVariables value or profile elemental parameters
 class VarsValueOrProfileParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(VarsValueOrProfileParameters, oops::Parameters)
 
  public:
-  // patch::Variables
+  // JediVariables
   oops::RequiredParameter<std::vector<std::string>> variables{"variables", this};
   // Value
   oops::OptionalParameter<double> value{"value", this};
@@ -64,7 +64,7 @@ class GroupsValueParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(GroupsValueParameters, oops::Parameters)
 
  public:
-  // patch::Variables
+  // JediVariables
   oops::RequiredParameter<std::vector<std::string>> groups{"groups", this};
   // Value
   oops::RequiredParameter<int> value{"value", this};
@@ -357,7 +357,7 @@ class ModelSection : public oops::Parameters {
  public:
   // Level for 2D variables ('first' or 'last')
   oops::Parameter<std::string> lev2d = param(def.lev2d, this);
-  // patch::Variables names
+  // JediVariables names
   oops::Parameter<std::vector<std::string>> variables{"variables", {}, this};
   // 2D variables names
   oops::Parameter<std::vector<std::string>> var2d{"2d variables", {}, this};

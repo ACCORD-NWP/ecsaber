@@ -23,9 +23,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -37,7 +35,7 @@ class DryAirDensityParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(DryAirDensityParameters, SaberBlockParametersBase)
 
  public:
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
     "dry_air_density_levels_minus_one",
     "air_pressure_levels",
     "potential_temperature",
@@ -45,8 +43,8 @@ class DryAirDensityParameters : public SaberBlockParametersBase {
     "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
     "mass_content_of_cloud_ice_in_atmosphere_layer"});}
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"air_pressure_levels",
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"air_pressure_levels",
                           "potential_temperature",
                           "specific_humidity",
                           "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
@@ -61,16 +59,16 @@ class DryAirDensityParameters : public SaberBlockParametersBase {
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"dry_air_density_levels_minus_one"});
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"dry_air_density_levels_minus_one"});
     for (const auto & var : vars.variables()) {
       vars.addMetaData(var, "levels", outerVars.getLevels(var));
     }
     return vars;
   }
 
-  oops::patch::Variables intermediateTempVars(const oops::patch::Variables& outerVars) const {
-    oops::patch::Variables tempVars({"air_pressure_levels_minus_one"});
+  oops::JediVariables intermediateTempVars(const oops::JediVariables& outerVars) const {
+    oops::JediVariables tempVars({"air_pressure_levels_minus_one"});
     if (outerVars.has("air_pressure_levels_minus_one")) {
       throw eckit::UserError("air_pressure_levels_minus_one is a "
                              "temporary variable of mo_dry_air_density "
@@ -92,7 +90,7 @@ class DryAirDensity : public SaberOuterBlockBase {
   typedef DryAirDensityParameters Parameters_;
 
   DryAirDensity(const oops::GeometryData &,
-                const oops::patch::Variables &,
+                const oops::JediVariables &,
                 const eckit::Configuration &,
                 const Parameters_ &,
                 const oops::FieldSet3D &,
@@ -100,7 +98,7 @@ class DryAirDensity : public SaberOuterBlockBase {
   virtual ~DryAirDensity();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -108,10 +106,10 @@ class DryAirDensity : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeOuterVars_;
-  const oops::patch::Variables innerOnlyVars_;
-  const oops::patch::Variables intermediateTempVars_;
+  oops::JediVariables innerVars_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
+  const oops::JediVariables intermediateTempVars_;
   atlas::FieldSet augmentedStateFieldSet_;
 };
 

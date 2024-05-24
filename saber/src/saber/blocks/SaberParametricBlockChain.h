@@ -38,7 +38,7 @@ class SaberParametricBlockChain : public SaberBlockChainBase {
   template<typename MODEL>
   SaberParametricBlockChain(const oops::Geometry<MODEL> & geom,
                             const oops::Geometry<MODEL> & dualResGeom,
-                            const oops::patch::Variables & outerVars,
+                            const oops::JediVariables & outerVars,
                             const oops::FieldSet4D & fset4dXb,
                             const oops::FieldSet4D & fset4dFg,
                             oops::FieldSets & fsetEns,
@@ -47,7 +47,7 @@ class SaberParametricBlockChain : public SaberBlockChainBase {
                             const eckit::Configuration & conf);
   /// @brief Simpler, limited constructor using only generic GeometryData
   SaberParametricBlockChain(const oops::GeometryData & outerGeometryData,
-                            const oops::patch::Variables & outerVars,
+                            const oops::JediVariables & outerVars,
                             const oops::FieldSet4D & fset4dXb,
                             const oops::FieldSet4D & fset4dFg,
                             const eckit::LocalConfiguration & covarConf,
@@ -71,12 +71,12 @@ class SaberParametricBlockChain : public SaberBlockChainBase {
   /// @brief Accessor to outer function space
   const atlas::FunctionSpace & outerFunctionSpace() const {return outerFunctionSpace_;}
   /// @brief Accessor to outer variables
-  const oops::patch::Variables & outerVariables() const {return outerVariables_;}
+  const oops::JediVariables & outerVariables() const {return outerVariables_;}
 
  private:
   /// @brief Initialize central block, central function space and central variables.
   ///        Used in constructors.
-  std::tuple<oops::patch::Variables, oops::patch::Variables>
+  std::tuple<oops::JediVariables, oops::JediVariables>
       initCentralBlock(const oops::GeometryData & outerGeom,
                        const eckit::Configuration & conf,
                        const eckit::LocalConfiguration & covarConf,
@@ -88,18 +88,18 @@ class SaberParametricBlockChain : public SaberBlockChainBase {
   void testCentralBlock(const eckit::LocalConfiguration & covarConf,
                         const SaberBlockParametersBase & saberCentralBlockParams,
                         const oops::GeometryData & outerGeom,
-                        const oops::patch::Variables & activeVars) const;
+                        const oops::JediVariables & activeVars) const;
 
   /// @brief Outer function space
   const atlas::FunctionSpace outerFunctionSpace_;
   /// @brief Outer variables
-  const oops::patch::Variables outerVariables_;
+  const oops::JediVariables outerVariables_;
   std::unique_ptr<SaberOuterBlockChain> outerBlockChain_;
   const bool crossTimeCov_;
   std::unique_ptr<SaberCentralBlockBase> centralBlock_;
   const eckit::mpi::Comm & timeComm_;
   size_t size4D_;
-  oops::patch::Variables centralVars_;
+  oops::JediVariables centralVars_;
   atlas::FunctionSpace centralFunctionSpace_;
   std::unique_ptr<oops::GeometryData> geomData_;
   std::unique_ptr<oops::GeometryData> dualResGeomData_;
@@ -110,7 +110,7 @@ class SaberParametricBlockChain : public SaberBlockChainBase {
 template<typename MODEL>
 SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL> & geom,
                        const oops::Geometry<MODEL> & dualResGeom,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const oops::FieldSet4D & fset4dXb,
                        const oops::FieldSet4D & fset4dFg,
                        // TODO(AS): read inside the block so there is no need to pass

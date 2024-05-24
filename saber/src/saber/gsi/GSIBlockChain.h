@@ -34,7 +34,7 @@ class SaberGSIBlockChain : public SaberBlockChainBase {
   template<typename MODEL>
   SaberGSIBlockChain(const oops::Geometry<MODEL> & geom,
                      const oops::Geometry<MODEL> & dualResGeom,
-                     const oops::patch::Variables & outerVars,
+                     const oops::JediVariables & outerVars,
                      const oops::FieldSet4D & fset4dXb,
                      const oops::FieldSet4D & fset4dFg,
                      oops::FieldSets & fsetEns,
@@ -63,20 +63,20 @@ class SaberGSIBlockChain : public SaberBlockChainBase {
   /// @brief Accessor to outer function space
   const atlas::FunctionSpace & outerFunctionSpace() const {return outerFunctionSpace_;}
   /// @brief Accessor to outer variables
-  const oops::patch::Variables & outerVariables() const {return outerVariables_;}
+  const oops::JediVariables & outerVariables() const {return outerVariables_;}
 
  private:
   /// @brief Outer function space
   const atlas::FunctionSpace outerFunctionSpace_;
   /// @brief Outer variables
-  const oops::patch::Variables outerVariables_;
+  const oops::JediVariables outerVariables_;
   /// Outer blocks (typically GSI interpolation, but not limited to that)
   std::unique_ptr<SaberOuterBlockChain> outerBlockChain_;
 
   // Fortran LinkedList key
   CovarianceKey keySelf_;
   // GSI variables
-  oops::patch::Variables centralVars_;
+  oops::JediVariables centralVars_;
   // GSI grid FunctionSpace
   atlas::FunctionSpace centralFunctionSpace_;
 };
@@ -86,7 +86,7 @@ class SaberGSIBlockChain : public SaberBlockChainBase {
 template<typename MODEL>
 SaberGSIBlockChain::SaberGSIBlockChain(const oops::Geometry<MODEL> & geom,
                        const oops::Geometry<MODEL> & dualResGeom,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const oops::FieldSet4D & fset4dXb,
                        const oops::FieldSet4D & fset4dFg,
                        oops::FieldSets & fsetEns,
@@ -117,7 +117,7 @@ SaberGSIBlockChain::SaberGSIBlockChain(const oops::Geometry<MODEL> & geom,
   }
 
   // Set outer variables and geometry data for central block (GSI covariance)
-  const oops::patch::Variables currentOuterVars = outerBlockChain_ ?
+  const oops::JediVariables currentOuterVars = outerBlockChain_ ?
                              outerBlockChain_->innerVars() : outerVariables_;
   const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
                              outerBlockChain_->innerGeometryData() : geom.generic();

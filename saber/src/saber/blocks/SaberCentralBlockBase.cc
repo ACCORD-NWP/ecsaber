@@ -52,7 +52,7 @@ SaberCentralBlockFactory::SaberCentralBlockFactory(const std::string & name) {
 
 std::unique_ptr<SaberCentralBlockBase> SaberCentralBlockFactory::create(
   const oops::GeometryData & geometryData,
-  const oops::patch::Variables & vars,
+  const oops::JediVariables & vars,
   const eckit::Configuration & covarConf,
   const SaberBlockParametersBase & params,
   const oops::FieldSet3D & xb,
@@ -86,7 +86,7 @@ SaberCentralBlockFactory::createParameters(const std::string &name) {
 // -----------------------------------------------------------------------------
 
 void SaberCentralBlockBase::adjointTest(const oops::GeometryData & geometryData,
-                                        const oops::patch::Variables & vars,
+                                        const oops::JediVariables & vars,
                                         const double & adjointTolerance) const {
   oops::Log::trace() << "SaberCentralBlockBase::adjointTest starting" << std::endl;
 
@@ -128,7 +128,7 @@ void SaberCentralBlockBase::adjointTest(const oops::GeometryData & geometryData,
 // -----------------------------------------------------------------------------
 
 void SaberCentralBlockBase::sqrtTest(const oops::GeometryData & geometryData,
-                                     const oops::patch::Variables & vars,
+                                     const oops::JediVariables & vars,
                                      const double & sqrtTolerance) const {
   oops::Log::trace() << "SaberOuterBlockBase::sqrtTest starting" << std::endl;
 

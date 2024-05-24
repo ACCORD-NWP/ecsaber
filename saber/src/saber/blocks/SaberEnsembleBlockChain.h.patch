@@ -21,7 +21,7 @@
  namespace saber {
 @@ -80,6 +81,9 @@
    /// TODO(AS): check whether this is needed or can be inferred from ensemble.
-   oops::patch::Variables vars_;
+   oops::JediVariables vars_;
    int seed_ = 7;  // For reproducibility
 +  /// @brief Geometry communicator.
 +  const eckit::mpi::Comm & comm_;
@@ -43,7 +43,7 @@
  
    // Check that there is an ensemble of at least 2 members.
 @@ -124,7 +130,7 @@
-   oops::patch::Variables currentOuterVars = outerBlockChain_ ?
+   oops::JediVariables currentOuterVars = outerBlockChain_ ?
                                       outerBlockChain_->innerVars() : outerVars;
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
 -                                     outerBlockChain_->innerGeometryData() : geom.generic();

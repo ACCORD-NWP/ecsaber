@@ -411,16 +411,16 @@ atlas::FieldSet allocateSpectralVortDiv(
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables removeOuterOnlyVar(const oops::patch::Variables & vars) {
-  oops::patch::Variables innerVars(vars);
+oops::JediVariables removeOuterOnlyVar(const oops::JediVariables & vars) {
+  oops::JediVariables innerVars(vars);
   innerVars -= "geostrophic_pressure_levels_minus_one";
   return innerVars;
 }
 
 // -----------------------------------------------------------------------------
 
-void applyRecipNtimesNplus1SpectralScaling(const oops::patch::Variables & innerNames,
-                                           const oops::patch::Variables & outerNames,
+void applyRecipNtimesNplus1SpectralScaling(const oops::JediVariables & innerNames,
+                                           const oops::JediVariables & outerNames,
                                            const atlas::functionspace::Spectral & specFS,
                                            const atlas::idx_t & totalWavenumber,
                                            atlas::FieldSet & fSet) {
@@ -477,7 +477,7 @@ static SaberOuterBlockMaker<GaussUVToGP>
 
 
 GaussUVToGP::GaussUVToGP(const oops::GeometryData & outerGeometryData,
-               const oops::patch::Variables & outerVars,
+               const oops::JediVariables & outerVars,
                const eckit::Configuration & covarConf,
                const Parameters_ & params,
                const oops::FieldSet3D & xb,
@@ -523,8 +523,8 @@ void GaussUVToGP::multiply(oops::FieldSet3D & fset) const {
   // apply inverse laplacian spectral scaling to spectral divergence
   const int N = specFunctionSpace_.truncation();
   applyRecipNtimesNplus1SpectralScaling(
-      oops::patch::Variables(std::vector<std::string>({"divergence"})),
-      oops::patch::Variables(std::vector<std::string>({"divergence"})),
+      oops::JediVariables(std::vector<std::string>({"divergence"})),
+      oops::JediVariables(std::vector<std::string>({"divergence"})),
       specFunctionSpace_, N, specfset);
 
   // apply inverse spectral transform to
@@ -556,8 +556,8 @@ void GaussUVToGP::multiplyAD(oops::FieldSet3D & fset) const {
   // apply inverse laplacian spectral scaling to spectral divergence
   const int N = specFunctionSpace_.truncation();
   applyRecipNtimesNplus1SpectralScaling(
-      oops::patch::Variables(std::vector<std::string>({"divergence"})),
-      oops::patch::Variables(std::vector<std::string>({"divergence"})),
+      oops::JediVariables(std::vector<std::string>({"divergence"})),
+      oops::JediVariables(std::vector<std::string>({"divergence"})),
       specFunctionSpace_, N, specfset);
 
   auto vortView = atlas::array::make_view<double, 2>(specfset["vorticity"]);

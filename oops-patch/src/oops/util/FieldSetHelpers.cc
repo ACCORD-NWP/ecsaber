@@ -1648,7 +1648,7 @@ void writeRank3FieldSet(const atlas::FieldSet & fset,
 // -----------------------------------------------------------------------------
 
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
-                               const oops::patch::Variables & vars) {
+                               const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
   for (const std::string & var : vars.variables()) {
     variableSizes.push_back(vars.getLevels(var));
@@ -1659,7 +1659,7 @@ atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
 // -----------------------------------------------------------------------------
 
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
-                               const oops::patch::Variables & vars,
+                               const oops::JediVariables & vars,
                                const double & initalizationValue) {
   std::vector<size_t> variableSizes;
   for (const std::string & var : vars.variables()) {
@@ -1672,7 +1672,7 @@ atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
 
 atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
                                      const atlas::FunctionSpace & fspace,
-                                     const oops::patch::Variables & vars) {
+                                     const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
   for (const std::string & var : vars.variables()) {
     variableSizes.push_back(vars.getLevels(var));
@@ -1684,7 +1684,7 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
 
 atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
                                      const atlas::FunctionSpace & fspace,
-                                     const oops::patch::Variables & vars) {
+                                     const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
   for (const std::string & var : vars.variables()) {
     variableSizes.push_back(vars.getLevels(var));
@@ -1696,7 +1696,7 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
 
 void readFieldSet(const eckit::mpi::Comm & comm,
                   const atlas::FunctionSpace & fspace ,
-                  const oops::patch::Variables & vars,
+                  const oops::JediVariables & vars,
                   const eckit::Configuration & config,
                   atlas::FieldSet & fset) {
   std::vector<size_t> variableSizes;

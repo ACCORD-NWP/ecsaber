@@ -60,7 +60,7 @@ class StdDevParameters : public SaberBlockParametersBase {
   // Calibration of block parameters
   oops::OptionalParameter<StdDevWriteParameters> calibrationParams{"calibration", this};
 
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -72,7 +72,7 @@ class StdDev : public SaberOuterBlockBase {
   typedef StdDevParameters Parameters_;
 
   StdDev(const oops::GeometryData &,
-         const oops::patch::Variables &,
+         const oops::JediVariables &,
          const eckit::Configuration &,
          const Parameters_ &,
          const oops::FieldSet3D &,
@@ -80,7 +80,7 @@ class StdDev : public SaberOuterBlockBase {
   virtual ~StdDev() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -105,7 +105,7 @@ class StdDev : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables innerVars_;
   Parameters_ params_;
   bool readFromAtlas_;
   bool readFromModel_;

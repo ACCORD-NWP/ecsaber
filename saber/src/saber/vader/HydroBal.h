@@ -23,9 +23,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -37,15 +35,15 @@ class HydroBalParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(HydroBalParameters, SaberBlockParametersBase)
 
  public:
-  oops::patch::Variables mandatoryActiveVars() const override {
-    return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {
+    return oops::JediVariables({
         "air_pressure_levels",
         "hydrostatic_exner_levels",
         "virtual_potential_temperature"});
   }
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"air_pressure_levels",
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"air_pressure_levels",
                           "hydrostatic_exner_levels"});
     const int modelLevels = outerVars.getLevels("virtual_potential_temperature");
     vars.addMetaData("air_pressure_levels", "levels", modelLevels + 1);
@@ -53,8 +51,8 @@ class HydroBalParameters : public SaberBlockParametersBase {
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"virtual_potential_temperature"});
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"virtual_potential_temperature"});
     for (const auto & var : vars.variables()) {
       vars.addMetaData(var, "levels", outerVars.getLevels(var));
     }
@@ -71,7 +69,7 @@ class HydroBal : public SaberOuterBlockBase {
   typedef HydroBalParameters Parameters_;
 
   HydroBal(const oops::GeometryData &,
-           const oops::patch::Variables &,
+           const oops::JediVariables &,
            const eckit::Configuration &,
            const Parameters_ &,
            const oops::FieldSet3D &,
@@ -79,7 +77,7 @@ class HydroBal : public SaberOuterBlockBase {
   virtual ~HydroBal();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -88,9 +86,9 @@ class HydroBal : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeOuterVars_;
-  const oops::patch::Variables innerOnlyVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
   atlas::FieldSet augmentedStateFieldSet_;
 };
 

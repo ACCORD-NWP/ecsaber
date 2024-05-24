@@ -36,7 +36,7 @@ static SaberCentralBlockMaker<FastLAM> makerFastLAM_("FastLAM");
 // -----------------------------------------------------------------------------
 
 FastLAM::FastLAM(const oops::GeometryData & gdata,
-                 const oops::patch::Variables & activeVars,
+                 const oops::JediVariables & activeVars,
                  const eckit::Configuration & covarConf,
                  const Parameters_ & params,
                  const oops::FieldSet3D & xb,
@@ -77,7 +77,7 @@ FastLAM::FastLAM(const oops::GeometryData & gdata,
   oops::Log::info() << "Info     : Regional grid size: " << nx0_ << "x" << ny0_ << std::endl;
 
   // Define 2d active variables
-  active2dVars_ = oops::patch::Variables();
+  active2dVars_ = oops::JediVariables();
   for (const auto & var : activeVars_.variables()) {
     if (activeVars_.getLevels(var) == 1) {
       active2dVars_.push_back(var);

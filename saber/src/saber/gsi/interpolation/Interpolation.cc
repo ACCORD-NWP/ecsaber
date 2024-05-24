@@ -33,7 +33,7 @@ static SaberOuterBlockMaker<Interpolation> makerInterpolation_("gsi interpolatio
 // -------------------------------------------------------------------------------------------------
 
 Interpolation::Interpolation(const oops::GeometryData & outerGeometryData,
-                             const oops::patch::Variables & outerVars,
+                             const oops::JediVariables & outerVars,
                              const eckit::Configuration & covarConf,
                              const Parameters_ & params,
                              const oops::FieldSet3D & xb,
@@ -53,7 +53,7 @@ Interpolation::Interpolation(const oops::GeometryData & outerGeometryData,
                                                   outerGeometryData.comm()));
 
   // Active variables
-  const oops::patch::Variables activeVars = getActiveVars(params, outerVars);
+  const oops::JediVariables activeVars = getActiveVars(params, outerVars);
   std::vector<size_t> activeVariableSizes;
   for (const std::string & var : activeVars.variables()) {
     activeVariableSizes.push_back(activeVars.getLevels(var));

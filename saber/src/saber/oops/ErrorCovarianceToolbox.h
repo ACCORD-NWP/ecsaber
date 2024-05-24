@@ -150,10 +150,10 @@ class ErrorCovarianceToolbox : public oops::Application {
     const std::vector<eckit::LocalConfiguration> stateConfs(params.background.value()
       .getSubConfigurations("state"));
     const Variables_ tmpVarsT(stateConfs[0]);
-    oops::patch::Variables tmpVars(tmpVarsT.variables().variablesList());
+    oops::JediVariables tmpVars(tmpVarsT.variables().variablesList());
     if (params.incrementVars.value() != boost::none) {
       const Variables_ incVarsT(*params.incrementVars.value());
-      const oops::patch::Variables incVars(incVarsT.variables().variablesList());
+      const oops::JediVariables incVars(incVarsT.variables().variablesList());
       if (incVars <= tmpVars) {
         tmpVars.intersection(incVars);
       } else {
@@ -161,7 +161,7 @@ class ErrorCovarianceToolbox : public oops::Application {
                                Here());
       }
     }
-    const oops::patch::Variables vars = tmpVars;
+    const oops::JediVariables vars = tmpVars;
     const Variables_ varsT(templatedVarsConf(vars));
 
     // Background error covariance parameters

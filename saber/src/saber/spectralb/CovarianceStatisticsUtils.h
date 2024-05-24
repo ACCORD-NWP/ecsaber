@@ -29,12 +29,12 @@ namespace specutils {
 void copySpectralFieldSet(const atlas::FieldSet &,
                           atlas::FieldSet &);
 
-atlas::FieldSet createCorrelUMatrices(const oops::patch::Variables &,
+atlas::FieldSet createCorrelUMatrices(const oops::JediVariables &,
                                       const atlas::FieldSet &,
                                       const atlas::FieldSet &,
                                       const atlas::FieldSet &);
 
-atlas::FieldSet createSpectralCorrelations(const oops::patch::Variables &,
+atlas::FieldSet createSpectralCorrelations(const oops::JediVariables &,
                                            const atlas::FieldSet &,
                                            const atlas::FieldSet &);
 
@@ -47,16 +47,16 @@ void createUMatrixFromSpectralCovarianceFile(const std::string &,
                                              const spectralbReadParameters &,
                                              atlas::Field &);
 
-atlas::FieldSet createSpectralCovariances(const oops::patch::Variables &,
+atlas::FieldSet createSpectralCovariances(const oops::JediVariables &,
                                           const std::vector<std::size_t> &,
                                           const std::size_t,
                                           const atlas::FieldSet &);
 
-atlas::FieldSet createUMatrices(const oops::patch::Variables &,
+atlas::FieldSet createUMatrices(const oops::JediVariables &,
                                 const std::vector<std::size_t> &,
                                 const spectralbReadParameters &);
 
-atlas::FieldSet createVerticalSD(const oops::patch::Variables &,
+atlas::FieldSet createVerticalSD(const oops::JediVariables &,
                                  const atlas::FieldSet &);
 
 void gatherSumSpectralFieldSet(const eckit::mpi::Comm &,
@@ -64,23 +64,23 @@ void gatherSumSpectralFieldSet(const eckit::mpi::Comm &,
                                atlas::FieldSet & spectralVerticalCovariances);
 
 std::vector<std::size_t> getNSpectralBinsFull(const spectralbReadParameters &,
-                                              const oops::patch::Variables &);
+                                              const oops::JediVariables &);
 
 void readSpectralCovarianceFromFile(const std::string &,
                                     const spectralbReadParameters &,
                                     atlas::Field &);
 
-void spectralVerticalConvolution(const oops::patch::Variables &,
+void spectralVerticalConvolution(const oops::JediVariables &,
                                  const atlas::functionspace::Spectral &,
                                  const atlas::FieldSet &,
                                  atlas::FieldSet &);
 
-void spectralVerticalConvolutionSqrt(const oops::patch::Variables &,
+void spectralVerticalConvolutionSqrt(const oops::JediVariables &,
                                      const atlas::functionspace::Spectral &,
                                      const atlas::FieldSet &,
                                      atlas::FieldSet &);
 
-void spectralVerticalConvolutionSqrtAD(const oops::patch::Variables &,
+void spectralVerticalConvolutionSqrtAD(const oops::JediVariables &,
                                        const atlas::functionspace::Spectral &,
                                        const atlas::FieldSet &,
                                        atlas::FieldSet &);

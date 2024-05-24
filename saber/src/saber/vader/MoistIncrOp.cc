@@ -46,7 +46,7 @@ static SaberOuterBlockMaker<MoistIncrOp> makerMoistIncrOp_("mo_moistincrop");
 // -----------------------------------------------------------------------------
 
 MoistIncrOp::MoistIncrOp(const oops::GeometryData & outerGeometryData,
-                         const oops::patch::Variables & outerVars,
+                         const oops::JediVariables & outerVars,
                          const eckit::Configuration & covarConf,
                          const Parameters_ & params,
                          const oops::FieldSet3D & xb,
@@ -166,7 +166,7 @@ void MoistIncrOp::leftInverseMultiply(oops::FieldSet3D & fset) const {
                            "within the mo_super_mio block.", Here());
   }
   //   Allocate inner-only variables except air temperature
-  oops::patch::Variables innerOnlyVarsForInversion(innerOnlyVars_);
+  oops::JediVariables innerOnlyVarsForInversion(innerOnlyVars_);
   innerOnlyVarsForInversion -= "air_temperature";
   checkFieldsAreNotAllocated(fset, innerOnlyVarsForInversion);
   allocateMissingFields(fset, innerOnlyVarsForInversion, innerOnlyVarsForInversion,

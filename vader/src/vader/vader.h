@@ -69,11 +69,11 @@ class Vader  : public util::Printable {
     std::vector<std::string> getPlanNames(vaderPlanType plan) const;
 
     /// Calculates as many variables in the list as possible
-    oops::patch::Variables changeVar(atlas::FieldSet &, oops::patch::Variables &,
+    oops::JediVariables changeVar(atlas::FieldSet &, oops::JediVariables &,
                               vaderPlanType plan = vaderPlanType()) const;
-    oops::patch::Variables changeVarTraj(atlas::FieldSet &, oops::patch::Variables &);
-    oops::patch::Variables changeVarTL(atlas::FieldSet &, oops::patch::Variables &) const;
-    oops::patch::Variables changeVarAD(atlas::FieldSet &, oops::patch::Variables &) const;
+    oops::JediVariables changeVarTraj(atlas::FieldSet &, oops::JediVariables &);
+    oops::JediVariables changeVarTL(atlas::FieldSet &, oops::JediVariables &) const;
+    oops::JediVariables changeVarAD(atlas::FieldSet &, oops::JediVariables &) const;
 
  private:
     std::map<std::string, std::vector<std::unique_ptr<RecipeBase>>> cookbook_;
@@ -88,10 +88,10 @@ class Vader  : public util::Printable {
                               std::vector<RecipeParametersWrapper>());
 
     bool planVariable(std::vector<std::string> &,
-                      oops::patch::Variables &,
+                      oops::JediVariables &,
                       const std::string,
                       bool,
-                      oops::patch::Variables &,
+                      oops::JediVariables &,
                       vaderPlanType &) const;
 
     void executePlanNL(atlas::FieldSet &, const vaderPlanType &) const;

@@ -92,7 +92,7 @@ auto createInverseInterpolation(const bool initializeInverseInterpolation,
  * -> gauss StructuredColumns FunctionSpace.
  */
 void inverseInterpolateMultiplePEs(
-        const oops::patch::Variables & variables,
+        const oops::JediVariables & variables,
         const CS2Gauss & inverseInterpolation,
         const atlas::functionspace::StructuredColumns & gaussFunctionSpace,
         const atlas::FieldSet & srcFieldSet,
@@ -134,7 +134,7 @@ void inverseInterpolateMultiplePEs(
 // -----------------------------------------------------------------------------
 
 void inverseInterpolateSinglePE(
-        const oops::patch::Variables & variables,
+        const oops::JediVariables & variables,
         const atlas::functionspace::NodeColumns & CSFunctionSpace,
         const atlas::functionspace::StructuredColumns & gaussFunctionSpace,
         const atlas::Grid & gaussGrid,
@@ -182,7 +182,7 @@ static SaberOuterBlockMaker<GaussToCS> makerGaussToCS_("gauss to cubed-sphere-du
 // In the future it might make sense to include an atlas grid (if available) from
 // the model in outerGeometryData.
 GaussToCS::GaussToCS(const oops::GeometryData & outerGeometryData,
-                     const oops::patch::Variables & outerVars,
+                     const oops::JediVariables & outerVars,
                      const eckit::Configuration & covarConf,
                      const Parameters_ & params,
                      const oops::FieldSet3D & xb,
@@ -340,7 +340,7 @@ void GaussToCS::leftInverseMultiply(oops::FieldSet3D & fieldSet) const {
 // -----------------------------------------------------------------------------
 
 oops::FieldSet3D GaussToCS::generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
-                                                  const oops::patch::Variables & innerVars) const {
+                                                  const oops::JediVariables & innerVars) const {
   oops::FieldSet3D fset(this->validTime(), innerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(innerGeometryData.comm(),
                                            innerGeometryData.functionSpace(),
@@ -351,7 +351,7 @@ oops::FieldSet3D GaussToCS::generateInnerFieldSet(const oops::GeometryData & inn
 // -----------------------------------------------------------------------------
 
 oops::FieldSet3D GaussToCS::generateOuterFieldSet(const oops::GeometryData & outerGeometryData,
-                                                  const oops::patch::Variables & outerVars) const {
+                                                  const oops::JediVariables & outerVars) const {
   oops::FieldSet3D fset(this->validTime(), outerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(outerGeometryData.comm(),
                                            outerGeometryData.functionSpace(),

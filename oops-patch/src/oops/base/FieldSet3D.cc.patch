@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSet3D.cc.tmp.bak	2024-04-04 09:52:14.788104238 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSet3D.cc	2024-04-04 09:52:48.260158806 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSet3D.cc.tmp.bak	2024-05-24 08:40:38.050815676 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/base/FieldSet3D.cc	2024-05-24 08:40:06.318739509 +0200
 @@ -16,10 +16,13 @@
  
  #include "eckit/exception/Exceptions.h"
@@ -14,6 +14,84 @@
  namespace oops {
  
  // -----------------------------------------------------------------------------
+@@ -74,7 +77,7 @@
+ FieldSet3D randomFieldSet3D(const util::DateTime & validTime,
+                             const eckit::mpi::Comm & comm,
+                             const atlas::FunctionSpace & fspace,
+-                            const JediVariables & vars) {
++                            const JediVariables & vars) {
+   FieldSet3D random(validTime, comm);
+   random.randomInit(fspace, vars);
+   return random;
+@@ -150,14 +153,14 @@
+ // -----------------------------------------------------------------------------
+ 
+ void FieldSet3D::init(const atlas::FunctionSpace & fspace,
+-                      const JediVariables & vars) {
++                      const JediVariables & vars) {
+   fset_ = util::createFieldSet(fspace, vars);
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+ void FieldSet3D::init(const atlas::FunctionSpace & fspace,
+-                      const JediVariables & vars,
++                      const JediVariables & vars,
+                       const double & value) {
+   fset_ = util::createFieldSet(fspace, vars, value);
+ }
+@@ -165,14 +168,14 @@
+ // -----------------------------------------------------------------------------
+ 
+ void FieldSet3D::randomInit(const atlas::FunctionSpace & fspace,
+-                            const JediVariables & vars) {
++                            const JediVariables & vars) {
+   fset_ = util::createRandomFieldSet(comm_, fspace, vars);
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-JediVariables FieldSet3D::currentVariables() const {
+-  JediVariables vars;
++JediVariables FieldSet3D::currentVariables() const {
++  JediVariables vars;
+   for (const auto & field : fset_) {
+     vars.push_back(field.name());
+     vars.addMetaData(field.name(), "levels", field.shape(1));
+@@ -182,7 +185,7 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-const oops::JediVariables & FieldSet3D::variables() const {
++const oops::JediVariables & FieldSet3D::variables() const {
+   vars_ = currentVariables();
+   return vars_;
+ }
+@@ -230,13 +233,13 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-double FieldSet3D::dot_product_with(const FieldSet3D & other, const JediVariables & vars) const {
++double FieldSet3D::dot_product_with(const FieldSet3D & other, const JediVariables & vars) const {
+   return util::dotProductFieldSets(fset_, other.fieldSet(), vars.variables(), comm_);
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-double FieldSet3D::norm(const JediVariables & vars) const {
++double FieldSet3D::norm(const JediVariables & vars) const {
+   return util::normFieldSet(fset_, vars.variables(), comm_);
+ }
+ 
+@@ -249,7 +252,7 @@
+ // -----------------------------------------------------------------------------
+ 
+ void FieldSet3D::read(const atlas::FunctionSpace & fspace,
+-                      const JediVariables & vars,
++                      const JediVariables & vars,
+                       const eckit::LocalConfiguration & conf) {
+   util::readFieldSet(comm_, fspace, vars, conf, fset_);
+ }
 @@ -274,7 +277,7 @@
  
  size_t FieldSet3D::serialSize() const {
@@ -49,3 +127,12 @@
    if (other_time != validTime_) {
      // All current use cases for this method are needed for fieldsets at different
      // times to handle 4D aspects in covariances: issue a warning that the dates are
+@@ -362,7 +371,7 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-void FieldSet3D::removeFields(const JediVariables & vars) {
++void FieldSet3D::removeFields(const JediVariables & vars) {
+   util::removeFieldsFromFieldSet(fset_, vars.variables());
+ }
+ 

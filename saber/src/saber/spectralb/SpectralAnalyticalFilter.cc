@@ -204,7 +204,7 @@ auto createSpectralFilter(const oops::GeometryData & geometryData,
 
 // -----------------------------------------------------------------------------
 SpectralAnalyticalFilter::SpectralAnalyticalFilter(const oops::GeometryData & geometryData,
-                                                   const oops::patch::Variables & outerVars,
+                                                   const oops::JediVariables & outerVars,
                                                    const eckit::Configuration & covarConf,
                                                    const Parameters_ & params,
                                                    const oops::FieldSet3D & xb,
@@ -309,7 +309,7 @@ void SpectralAnalyticalFilter::leftInverseMultiply(oops::FieldSet3D & fieldSet) 
 
 oops::FieldSet3D SpectralAnalyticalFilter::generateInnerFieldSet(
   const oops::GeometryData & innerGeometryData,
-  const oops::patch::Variables & innerVars) const {
+  const oops::JediVariables & innerVars) const {
   oops::FieldSet3D fset(this->validTime(), innerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(innerGeometryData.comm(),
                                            innerGeometryData.functionSpace(),
@@ -321,7 +321,7 @@ oops::FieldSet3D SpectralAnalyticalFilter::generateInnerFieldSet(
 
 oops::FieldSet3D SpectralAnalyticalFilter::generateOuterFieldSet(
   const oops::GeometryData & outerGeometryData,
-  const oops::patch::Variables & outerVars) const {
+  const oops::JediVariables & outerVars) const {
   oops::FieldSet3D fset(this->validTime(), outerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(outerGeometryData.comm(),
                                            outerGeometryData.functionSpace(),

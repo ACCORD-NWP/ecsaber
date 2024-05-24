@@ -29,7 +29,7 @@ UnstructuredInterpolation::UnstructuredInterpolation(
   const atlas::FunctionSpace & innerFuncSpace,
   const atlas::FunctionSpace & outerFuncSpace,
   const std::vector<size_t> & activeVariableSizes,
-  const oops::patch::Variables & activeVars)
+  const oops::JediVariables & activeVars)
   : innerFuncSpace_(innerFuncSpace), outerFuncSpace_(outerFuncSpace),
     activeVariableSizes_(activeVariableSizes), activeVars_(activeVars)
 {

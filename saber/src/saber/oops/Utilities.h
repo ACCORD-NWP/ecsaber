@@ -52,18 +52,18 @@ namespace saber {
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables getActiveVars(const SaberBlockParametersBase & params,
-                              const oops::patch::Variables & defaultVars);
+oops::JediVariables getActiveVars(const SaberBlockParametersBase & params,
+                              const oops::JediVariables & defaultVars);
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables getUnionOfInnerActiveAndOuterVars(const SaberBlockParametersBase & params,
-                                                  const oops::patch::Variables & outerVars);
+oops::JediVariables getUnionOfInnerActiveAndOuterVars(const SaberBlockParametersBase & params,
+                                                  const oops::JediVariables & outerVars);
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables getInnerOnlyVars(const SaberBlockParametersBase & params,
-                                 const oops::patch::Variables & outerVars);
+oops::JediVariables getInnerOnlyVars(const SaberBlockParametersBase & params,
+                                 const oops::JediVariables & outerVars);
 
 // -----------------------------------------------------------------------------
 
@@ -78,20 +78,20 @@ void setMPI(eckit::LocalConfiguration & conf,
 // -----------------------------------------------------------------------------
 
 void checkFieldsAreNotAllocated(const oops::FieldSet3D & fset,
-                                const oops::patch::Variables & vars);
+                                const oops::JediVariables & vars);
 
 // -----------------------------------------------------------------------------
 
 void allocateMissingFields(oops::FieldSet3D & fset,
-                           const oops::patch::Variables & varsToAllocate,
-                           const oops::patch::Variables & varsWithLevels,
+                           const oops::JediVariables & varsToAllocate,
+                           const oops::JediVariables & varsWithLevels,
                            const atlas::FunctionSpace & functionSpace);
 
 // -----------------------------------------------------------------------------
 
 template<typename MODEL>
 oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
-                             const oops::patch::Variables & modelvars,
+                             const oops::JediVariables & modelvars,
                              const oops::State4D<MODEL> & xb,
                              const oops::State4D<MODEL> & fg,
                              const eckit::LocalConfiguration & inputConf,
@@ -170,7 +170,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
   // Check number of ensembles in yaml
   ASSERT(ensembleFound <= 1);
 
-  oops::patch::Variables vars(modelvars);
+  oops::JediVariables vars(modelvars);
 
   if (!iterativeEnsembleLoading) {
     // Full ensemble loading
@@ -277,7 +277,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
 
 template<typename MODEL>
 void readHybridWeight(const oops::Geometry<MODEL> & geom,
-                      const oops::patch::Variables & vars,
+                      const oops::JediVariables & vars,
                       const util::DateTime & date,
                       const eckit::LocalConfiguration & conf,
                       oops::FieldSet3D & fset) {
@@ -307,7 +307,7 @@ void readHybridWeight(const oops::Geometry<MODEL> & geom,
 
 template<typename MODEL>
 void readEnsembleMember(const oops::Geometry<MODEL> & geom,
-                        const oops::patch::Variables & vars,
+                        const oops::JediVariables & vars,
                         const eckit::LocalConfiguration & conf,
                         const size_t & ie,
                         oops::FieldSet3D & fset) {

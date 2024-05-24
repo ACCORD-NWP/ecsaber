@@ -25,9 +25,7 @@
 
 namespace oops {
 
-namespace patch{
-class Variables;
-}
+class JediVariables;
 
 // -----------------------------------------------------------------------------
 
@@ -60,7 +58,7 @@ class DataSetBase : public util::Printable {
   const DATA & operator[](const int ii) const {return *dataset_[ii];}
 
   const GEOM & geometry() const {return dataset_[0]->geometry();}
-  const patch::Variables & variables() const {this->check_consistency(); return dataset_[0]->variables();}
+  const JediVariables & variables() const {this->check_consistency(); return dataset_[0]->variables();}
   const std::vector<util::DateTime> validTimes() const;
 
   const eckit::mpi::Comm & commEns() const {return commEns_;}

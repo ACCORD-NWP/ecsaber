@@ -16,10 +16,10 @@ namespace saber {
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables getActiveVars(const SaberBlockParametersBase & params,
-                              const oops::patch::Variables & defaultVars) {
+oops::JediVariables getActiveVars(const SaberBlockParametersBase & params,
+                              const oops::JediVariables & defaultVars) {
   oops::Log::trace() << "getActiveVars starting" << std::endl;
-  oops::patch::Variables activeVars;
+  oops::JediVariables activeVars;
   if (params.mandatoryActiveVars().size() == 0) {
     // No mandatory active variables for this block
     activeVars = params.activeVars.value().get_value_or(defaultVars);
@@ -35,7 +35,7 @@ oops::patch::Variables getActiveVars(const SaberBlockParametersBase & params,
     for (const std::string & var : activeVars.variables()) {
       varsconf = varsconf | atlas::util::Config(var, defvarsconf.getSubConfiguration(var));
     }
-    activeVars = oops::patch::Variables(varsconf, varsStrings);
+    activeVars = oops::JediVariables(varsconf, varsStrings);
   }
   return activeVars;
 }
@@ -44,9 +44,9 @@ oops::patch::Variables getActiveVars(const SaberBlockParametersBase & params,
 
 // Return inner variables as outer variables + inner active variables
 // Can be used to help define innerVars_ member in SABER outer blocks
-oops::patch::Variables getUnionOfInnerActiveAndOuterVars(const SaberBlockParametersBase & params,
-                                                  const oops::patch::Variables & outerVars) {
-  oops::patch::Variables innerVars(outerVars);
+oops::JediVariables getUnionOfInnerActiveAndOuterVars(const SaberBlockParametersBase & params,
+                                                  const oops::JediVariables & outerVars) {
+  oops::JediVariables innerVars(outerVars);
   innerVars += params.activeInnerVars(outerVars);
   return innerVars;
 }
@@ -54,9 +54,9 @@ oops::patch::Variables getUnionOfInnerActiveAndOuterVars(const SaberBlockParamet
 // -----------------------------------------------------------------------------
 
 // Return inner variables that are not outer variables
-oops::patch::Variables getInnerOnlyVars(const SaberBlockParametersBase & params,
-                                 const oops::patch::Variables & outerVars) {
-  oops::patch::Variables innerOnlyVars(getUnionOfInnerActiveAndOuterVars(params, outerVars));
+oops::JediVariables getInnerOnlyVars(const SaberBlockParametersBase & params,
+                                 const oops::JediVariables & outerVars) {
+  oops::JediVariables innerOnlyVars(getUnionOfInnerActiveAndOuterVars(params, outerVars));
   innerOnlyVars -= outerVars;
   return innerOnlyVars;
 }
@@ -94,7 +94,7 @@ void setMPI(eckit::LocalConfiguration & conf,
 // -----------------------------------------------------------------------------
 
 void checkFieldsAreNotAllocated(const oops::FieldSet3D & fset,
-                                const oops::patch::Variables & vars) {
+                                const oops::JediVariables & vars) {
   for (const auto& var : vars.variables()) {
     if (fset.has(var)) {
       throw eckit::UserError("Variable " + var + " is already allocated in FieldSet.",
@@ -106,8 +106,8 @@ void checkFieldsAreNotAllocated(const oops::FieldSet3D & fset,
 // -----------------------------------------------------------------------------
 
 void allocateMissingFields(oops::FieldSet3D & fset,
-                           const oops::patch::Variables & varsToAllocate,
-                           const oops::patch::Variables & varsWithLevels,
+                           const oops::JediVariables & varsToAllocate,
+                           const oops::JediVariables & varsWithLevels,
                            const atlas::FunctionSpace & functionSpace) {
   oops::Log::trace() << "allocateMissingFields starting" << std::endl;
   for (const auto& var : varsToAllocate.variables()) {

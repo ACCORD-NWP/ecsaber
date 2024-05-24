@@ -20,7 +20,7 @@ static SaberOuterBlockMaker<Interpolation> makerInterpolation_("interpolation");
 // -----------------------------------------------------------------------------
 
 Interpolation::Interpolation(const oops::GeometryData & outerGeometryData,
-                             const oops::patch::Variables & outerVars,
+                             const oops::JediVariables & outerVars,
                              const eckit::Configuration & covarConf,
                              const Parameters_ & params,
                              const oops::FieldSet3D & xb,
@@ -166,7 +166,7 @@ void Interpolation::leftInverseMultiply(oops::FieldSet3D & fieldSet) const {
 // -----------------------------------------------------------------------------
 
 oops::FieldSet3D Interpolation::generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
-                                                      const oops::patch::Variables & innerVars) const {
+                                                      const oops::JediVariables & innerVars) const {
   oops::FieldSet3D fset(this->validTime(), innerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(innerGeometryData.comm(),
                                            innerGeometryData.functionSpace(),
@@ -177,7 +177,7 @@ oops::FieldSet3D Interpolation::generateInnerFieldSet(const oops::GeometryData &
 // -----------------------------------------------------------------------------
 
 oops::FieldSet3D Interpolation::generateOuterFieldSet(const oops::GeometryData & outerGeometryData,
-                                                      const oops::patch::Variables & outerVars) const {
+                                                      const oops::JediVariables & outerVars) const {
   oops::FieldSet3D fset(this->validTime(), outerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(outerGeometryData.comm(),
                                            outerGeometryData.functionSpace(),

@@ -23,29 +23,28 @@
 
 // -----------------------------------------------------------------------------
 namespace oops {
-namespace patch {
 
 // -----------------------------------------------------------------------------
 
-Variables::Variables(const eckit::Configuration & conf, const std::string & name)
+JediVariables::JediVariables(const eckit::Configuration & conf, const std::string & name)
   : VariablesBase(conf, name) {
 }
 
 // -----------------------------------------------------------------------------
-Variables::Variables(const std::vector<std::string> & vars)
+JediVariables::JediVariables(const std::vector<std::string> & vars)
   : VariablesBase(vars) {
 }
 
 // -----------------------------------------------------------------------------
 
-Variables::Variables(const eckit::Configuration & conf, const std::vector<std::string> & vars)
+JediVariables::JediVariables(const eckit::Configuration & conf, const std::vector<std::string> & vars)
   : VariablesBase(vars), varMetaData_(conf)
 {
 }
 
 // -----------------------------------------------------------------------------
 
-Variables & Variables::operator+=(const Variables & rhs) {
+JediVariables & JediVariables::operator+=(const JediVariables & rhs) {
   vars_.insert(vars_.end(), rhs.vars_.begin(), rhs.vars_.end());
   // remove duplicated variables
   std::unordered_set<std::string> svars;
@@ -64,7 +63,7 @@ Variables & Variables::operator+=(const Variables & rhs) {
 
 // -----------------------------------------------------------------------------
 
-Variables & Variables::operator-=(const Variables & rhs) {
+JediVariables & JediVariables::operator-=(const JediVariables & rhs) {
   for (auto & var : rhs.vars_) {
     vars_.erase(std::remove(vars_.begin(), vars_.end(), var), vars_.end());
   }
@@ -73,7 +72,7 @@ Variables & Variables::operator-=(const Variables & rhs) {
 
 // -----------------------------------------------------------------------------
 
-bool Variables::operator==(const Variables & rhs) const {
+bool JediVariables::operator==(const JediVariables & rhs) const {
   if (vars_.size() != rhs.vars_.size()) {
     return false;
   } else {
@@ -104,20 +103,20 @@ bool Variables::operator==(const Variables & rhs) const {
 
 // -----------------------------------------------------------------------------
 
-Variables & Variables::operator-=(const std::string & var) {
+JediVariables & JediVariables::operator-=(const std::string & var) {
   vars_.erase(std::remove(vars_.begin(), vars_.end(), var), vars_.end());
   return *this;
 }
 
 // -----------------------------------------------------------------------------
 
-bool Variables::operator!=(const Variables & rhs) const {
+bool JediVariables::operator!=(const JediVariables & rhs) const {
   return (!(*this == rhs));
 }
 
 // -----------------------------------------------------------------------------
 
-bool Variables::operator<=(const Variables & rhs) const {
+bool JediVariables::operator<=(const JediVariables & rhs) const {
   bool is_in_rhs = true;
   for (size_t jj = 0; jj < vars_.size(); ++jj) {
     is_in_rhs = is_in_rhs && rhs.has(vars_[jj]);
@@ -127,7 +126,7 @@ bool Variables::operator<=(const Variables & rhs) const {
 
 // -----------------------------------------------------------------------------
 
-void Variables::intersection(const Variables & rhs) {
+void JediVariables::intersection(const JediVariables & rhs) {
   std::vector<std::string> myvars = this->asCanonical();
   std::vector<std::string> othervars = rhs.asCanonical();
   std::vector<std::string> commonvars;
@@ -138,13 +137,13 @@ void Variables::intersection(const Variables & rhs) {
 
 // -----------------------------------------------------------------------------
 
-void Variables::sort() {
+void JediVariables::sort() {
   std::sort(vars_.begin(), vars_.end());
 }
 
 // -----------------------------------------------------------------------------
 
-void Variables::print(std::ostream & os) const {
+void JediVariables::print(std::ostream & os) const {
   os << vars_.size() << " variables: ";
   for (size_t jj = 0; jj < vars_.size(); ++jj) {
     if (jj > 0) os << ", ";
@@ -155,7 +154,7 @@ void Variables::print(std::ostream & os) const {
 
 // -----------------------------------------------------------------------------
 
-bool Variables::hasMetaData(const std::string & varname,
+bool JediVariables::hasMetaData(const std::string & varname,
                             const std::string & keyname) const {
   bool has = false;
   if (!varMetaData_.empty()) {
@@ -169,12 +168,11 @@ bool Variables::hasMetaData(const std::string & varname,
 
 // -----------------------------------------------------------------------------
 
-int Variables::getLevels(const std::string & fieldname) const {
+int JediVariables::getLevels(const std::string & fieldname) const {
   int levels(-1);
   getVariableSubKeyValue(fieldname, "levels",
                          varMetaData_, levels);
   return levels;
 }
 
-}  // namespace patch
 }  // namespace oops

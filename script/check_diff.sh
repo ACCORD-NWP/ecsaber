@@ -25,13 +25,23 @@ cp -f ${srcPath} ${dstPath}.tmp
 srcFile=$(basename "${srcPath}")
 srcExt="${srcFile##*.}"
 
+
 if test "${srcExt}" = "h" -o "${srcExt}" = "cc"; then
   # Update content
-  sed -i -e s/"oops::Variables"/"oops::patch::Variables"/g ${dstPath}.tmp
-  sed -i -e s/" Variables"/" patch::Variables"/g ${dstPath}.tmp
-  sed -i -e s/"<Variables>"/"<patch::Variables>"/g ${dstPath}.tmp
-  sed -i -e s/"class patch::Variables;"/"namespace patch{\nclass Variables;\n}"/g ${dstPath}.tmp
-  sed -i -e s/"^Variables"/"patch::Variables"/g ${dstPath}.tmp
+  if test "${srcFile}" = "Variables.h"; then
+    sed -i -e s/"Variables"/"JediVariables"/g ${dstPath}.tmp
+    sed -i -e s/"JediVariablesBase"/"VariablesBase"/g ${dstPath}.tmp
+  elif test "${srcFile}" = "Variables.cc"; then
+    sed -i -e s/"Variables"/"JediVariables"/g ${dstPath}.tmp
+    sed -i -e s/"JediVariablesBase"/"VariablesBase"/g ${dstPath}.tmp
+    sed -i -e s/"\/JediVariables"/"\/Variables"/g ${dstPath}.tmp
+  else
+    sed -i -e s/"Variables::Variables"/"JediVariables::JediVariables"/g ${dstPath}.tmp
+    sed -i -e s/"oops::Variables"/"oops::JediVariables"/g ${dstPath}.tmp
+    sed -i -e s/" Variables"/" JediVariables"/g ${dstPath}.tmp
+    sed -i -e s/"<Variables>"/"<JediVariables>"/g ${dstPath}.tmp
+    sed -i -e s/"^Variables"/"JediVariables"/g ${dstPath}.tmp
+  fi
 fi
 
 # Check patch size

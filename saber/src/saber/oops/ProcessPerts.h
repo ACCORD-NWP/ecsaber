@@ -239,7 +239,7 @@ class ProcessPerts : public oops::Application {
     const util::DateTime time = xx[0].validTime();
 
     const Variables_ incVarsT(params.inputVariables);
-    oops::patch::Variables incVars(incVarsT.variables().variablesList());
+    oops::JediVariables incVars(incVarsT.variables().variablesList());
 
     // Initialize outer variables
     const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsT.variables());

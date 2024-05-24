@@ -39,7 +39,7 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
   template<typename MODEL>
   SaberEnsembleBlockChain(const oops::Geometry<MODEL> & geom,
                           const oops::Geometry<MODEL> & dualResGeom,
-                          const oops::patch::Variables & outerVars,
+                          const oops::JediVariables & outerVars,
                           const oops::FieldSet4D & fset4dXb,
                           const oops::FieldSet4D & fset4dFg,
                           oops::FieldSets & fsetEns,
@@ -62,13 +62,13 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
   /// @brief Accessor to outer function space
   const atlas::FunctionSpace & outerFunctionSpace() const {return outerFunctionSpace_;}
   /// @brief Accessor to outer variables
-  const oops::patch::Variables & outerVariables() const {return outerVariables_;}
+  const oops::JediVariables & outerVariables() const {return outerVariables_;}
 
  private:
   /// @brief Outer function space
   const atlas::FunctionSpace outerFunctionSpace_;
   /// @brief Outer variables
-  const oops::patch::Variables outerVariables_;
+  const oops::JediVariables outerVariables_;
   /// @brief Outer blocks (optional).
   std::unique_ptr<SaberOuterBlockChain> outerBlockChain_;
   /// @brief Localization block chain (optional).
@@ -77,9 +77,9 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
   oops::FieldSets ensemble_;
   /// @brief Control vector size.
   size_t ctlVecSize_;
-  /// @brief patch::Variables used in the ensemble covariance.
+  /// @brief JediVariables used in the ensemble covariance.
   /// TODO(AS): check whether this is needed or can be inferred from ensemble.
-  oops::patch::Variables vars_;
+  oops::JediVariables vars_;
   int seed_ = 7;  // For reproducibility
   /// @brief Geometry communicator.
   const eckit::mpi::Comm & comm_;
@@ -91,7 +91,7 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
 template<typename MODEL>
 SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & geom,
                        const oops::Geometry<MODEL> & dualResGeom,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const oops::FieldSet4D & fset4dXb,
                        const oops::FieldSet4D & fset4dFg,
                        // TODO(AS): remove as argument: this should be read inside the
@@ -127,7 +127,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
   }
 
   // Outer variables and geometry for the ensemble covariance
-  oops::patch::Variables currentOuterVars = outerBlockChain_ ?
+  oops::JediVariables currentOuterVars = outerBlockChain_ ?
                                      outerBlockChain_->innerVars() : outerVars;
   const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
                                      outerBlockChain_->innerGeometryData() : geomData_;
@@ -141,7 +141,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
                     << saberCentralBlockParams.saberBlockName.value() << std::endl;
 
   // Get active variables
-  const oops::patch::Variables activeVars = getActiveVars(saberCentralBlockParams, currentOuterVars);
+  const oops::JediVariables activeVars = getActiveVars(saberCentralBlockParams, currentOuterVars);
   vars_ += activeVars;
   // Check that active variables are present in variables
   for (const auto & var : activeVars.variables()) {

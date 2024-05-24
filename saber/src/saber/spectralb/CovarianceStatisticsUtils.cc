@@ -70,7 +70,7 @@ void copySpectralFieldSet(const atlas::FieldSet & otherFset,
 }
 
 
-atlas::FieldSet createCorrelUMatrices(const oops::patch::Variables & activeVars,
+atlas::FieldSet createCorrelUMatrices(const oops::JediVariables & activeVars,
                                       const atlas::FieldSet & spectralVerticalCovariances,
                                       const atlas::FieldSet & spectralUMatrices,
                                       const atlas::FieldSet & verticalSDs) {
@@ -107,7 +107,7 @@ atlas::FieldSet createCorrelUMatrices(const oops::patch::Variables & activeVars,
 }
 
 
-atlas::FieldSet createSpectralCorrelations(const oops::patch::Variables & activeVars,
+atlas::FieldSet createSpectralCorrelations(const oops::JediVariables & activeVars,
                                            const atlas::FieldSet & spectralVerticalCovariances,
                                            const atlas::FieldSet & verticalSDs) {
   atlas::FieldSet spectralCorrelations;
@@ -270,7 +270,7 @@ void createUMatrixFromSpectralCovarianceFile(const std::string & var,
 }
 
 
-atlas::FieldSet createSpectralCovariances(const oops::patch::Variables & activeVars,
+atlas::FieldSet createSpectralCovariances(const oops::JediVariables & activeVars,
                                           const std::vector<std::size_t> & nSpectralBinsFull,
                                           const std::size_t nSpectralBins,
                                           const atlas::FieldSet & spectralUMatrices)
@@ -312,7 +312,7 @@ atlas::FieldSet createSpectralCovariances(const oops::patch::Variables & activeV
 }
 
 atlas::FieldSet createUMatrices(
-    const oops::patch::Variables & activeVars,
+    const oops::JediVariables & activeVars,
     const std::vector<std::size_t> & nSpectralBinsFull,
     const spectralbReadParameters & params) {
   const auto & umatrixNetCDFParams = params.umatrixNetCDFNames.value();
@@ -330,7 +330,7 @@ atlas::FieldSet createUMatrices(
       spectralUMatrices.add(uMatrix);
     }
   } else {
-    oops::patch::Variables netCDFVars(umatrixNetCDFParams.value());
+    oops::JediVariables netCDFVars(umatrixNetCDFParams.value());
     for (std::size_t ivar = 0; ivar < activeVars.size(); ++ivar) {
       std::string var = activeVars[ivar];
       const int modelLevels = activeVars.getLevels(var);
@@ -369,7 +369,7 @@ atlas::FieldSet createUMatrices(
 }
 
 
-atlas::FieldSet createVerticalSD(const oops::patch::Variables & activeVars,
+atlas::FieldSet createVerticalSD(const oops::JediVariables & activeVars,
                                  const atlas::FieldSet & spectralVerticalCovariances) {
   atlas::FieldSet verticalSDs;
 
@@ -408,7 +408,7 @@ void gatherSumSpectralFieldSet(const eckit::mpi::Comm & comm,
 
 
 std::vector<std::size_t> getNSpectralBinsFull(const spectralbReadParameters & params,
-                                              const oops::patch::Variables & activeVars) {
+                                              const oops::JediVariables & activeVars) {
   const auto & umatrixNetCDFParams = params.umatrixNetCDFNames.value();
 
   std::vector<std::size_t> nSpectralBinsFull(activeVars.size());
@@ -444,7 +444,7 @@ std::vector<std::size_t> getNSpectralBinsFull(const spectralbReadParameters & pa
       }
     }
   } else {
-    const oops::patch::Variables vars(umatrixNetCDFParams.value());
+    const oops::JediVariables vars(umatrixNetCDFParams.value());
 
     for (std::size_t ivar = 0; ivar < vars.size(); ++ivar) {
       const std::string var = vars[ivar];
@@ -531,7 +531,7 @@ void readSpectralCovarianceFromFile(const std::string & var,
 }
 
 
-void spectralVerticalConvolution(const oops::patch::Variables & activeVars,
+void spectralVerticalConvolution(const oops::JediVariables & activeVars,
                                  const atlas::functionspace::Spectral & specFunctionSpace,
                                  const atlas::FieldSet & spectralVerticalStats,
                                  atlas::FieldSet & fieldSet) {
@@ -579,7 +579,7 @@ void spectralVerticalConvolution(const oops::patch::Variables & activeVars,
 }
 
 
-void spectralVerticalConvolutionSqrt(const oops::patch::Variables & activeVars,
+void spectralVerticalConvolutionSqrt(const oops::JediVariables & activeVars,
                                      const atlas::functionspace::Spectral & specFunctionSpace,
                                      const atlas::FieldSet & spectralVerticalStatsSqrt,
                                      atlas::FieldSet & fieldSet) {
@@ -623,7 +623,7 @@ void spectralVerticalConvolutionSqrt(const oops::patch::Variables & activeVars,
 }
 
 
-void spectralVerticalConvolutionSqrtAD(const oops::patch::Variables & activeVars,
+void spectralVerticalConvolutionSqrtAD(const oops::JediVariables & activeVars,
                                        const atlas::functionspace::Spectral & specFunctionSpace,
                                        const atlas::FieldSet & spectralVerticalStatsSqrt,
                                        atlas::FieldSet & fieldSet) {

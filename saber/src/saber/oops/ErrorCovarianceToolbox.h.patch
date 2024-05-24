@@ -86,7 +86,7 @@
    oops::Parameter<bool> parallel{"parallel subwindows", true, this};
  
    /// Outer variables parameters
--  oops::OptionalParameter<oops::patch::Variables> incrementVars{"increment variables", this};
+-  oops::OptionalParameter<oops::JediVariables> incrementVars{"increment variables", this};
 +  oops::OptionalParameter<eckit::LocalConfiguration> incrementVars{"increment variables", this};
  
    /// Dirac location/variables parameters.
@@ -207,17 +207,17 @@
 +    const State4D_ xx(params.background, geom, model);
  
      // Setup variables
--    oops::patch::Variables tmpVars = xx.variables();
+-    oops::JediVariables tmpVars = xx.variables();
 +    const std::vector<eckit::LocalConfiguration> stateConfs(params.background.value()
 +      .getSubConfigurations("state"));
 +    const Variables_ tmpVarsT(stateConfs[0]);
-+    oops::patch::Variables tmpVars(tmpVarsT.variables().variablesList());
++    oops::JediVariables tmpVars(tmpVarsT.variables().variablesList());
      if (params.incrementVars.value() != boost::none) {
 -      const auto & incrementVars = params.incrementVars.value().value();
 -      if (incrementVars <= tmpVars) {
 -        tmpVars.intersection(incrementVars);
 +      const Variables_ incVarsT(*params.incrementVars.value());
-+      const oops::patch::Variables incVars(incVarsT.variables().variablesList());
++      const oops::JediVariables incVars(incVarsT.variables().variablesList());
 +      if (incVars <= tmpVars) {
 +        tmpVars.intersection(incVars);
        } else {
@@ -225,7 +225,7 @@
                                 Here());
        }
      }
-     const oops::patch::Variables vars = tmpVars;
+     const oops::JediVariables vars = tmpVars;
 -
 -    // Setup time
 -    util::DateTime time = xx[0].validTime();
@@ -344,7 +344,7 @@
               const eckit::LocalConfiguration & testConf,
               std::string & id,
               const Geometry_ & geom,
--             const oops::patch::Variables & vars,
+-             const oops::JediVariables & vars,
 +             const Variables_ & vars,
               const State4D_ & xx,
               const Increment4D_ & dxi) const {
@@ -438,7 +438,7 @@
 -  void randomization(const ErrorCovarianceToolboxParameters_ & params,
 +  void randomization(const ErrorCovarianceToolboxParameters & params,
                       const Geometry_ & geom,
--                     const oops::patch::Variables & vars,
+-                     const oops::JediVariables & vars,
 +                     const Variables_ & vars,
                       const State4D_ & xx,
 -                     const std::unique_ptr<CovarianceBase_> & Bmat,

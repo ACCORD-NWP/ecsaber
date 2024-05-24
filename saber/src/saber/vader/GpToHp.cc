@@ -40,8 +40,8 @@ namespace vader {
 
 namespace {
 
-oops::patch::Variables removeOuterOnlyVar(const oops::patch::Variables & vars) {
-  oops::patch::Variables innerVars(vars);
+oops::JediVariables removeOuterOnlyVar(const oops::JediVariables & vars) {
+  oops::JediVariables innerVars(vars);
   innerVars -= "hydrostatic_pressure_levels";
   return innerVars;
 }
@@ -57,7 +57,7 @@ static SaberOuterBlockMaker<GpToHp>
 // -----------------------------------------------------------------------------
 
 GpToHp::GpToHp(const oops::GeometryData & outerGeometryData,
-               const oops::patch::Variables & outerVars,
+               const oops::JediVariables & outerVars,
                const eckit::Configuration & covarConf,
                const Parameters_ & params,
                const oops::FieldSet3D & xb,
@@ -70,7 +70,7 @@ GpToHp::GpToHp(const oops::GeometryData & outerGeometryData,
     augmentedStateFieldSet_()
 {
   oops::Log::trace() << classname() << "::GpToHp starting" << std::endl;
-  oops::patch::Variables activeVars = activeOuterVars_;
+  oops::JediVariables activeVars = activeOuterVars_;
   activeVars += innerOnlyVars_;
 
   // Covariance FieldSet
@@ -199,7 +199,7 @@ void GpToHp::leftInverseMultiply(oops::FieldSet3D & fset) const {
                            "within the mo_hydrostatic_pressure block.", Here());
   }
   //   Allocate inner-only variables except air temperature
-  oops::patch::Variables innerOnlyVarsForInversion(innerOnlyVars_);
+  oops::JediVariables innerOnlyVarsForInversion(innerOnlyVars_);
   innerOnlyVarsForInversion -= "geostrophic_pressure_levels_minus_one";
   checkFieldsAreNotAllocated(fset, innerOnlyVarsForInversion);
   allocateMissingFields(fset, innerOnlyVarsForInversion, innerOnlyVarsForInversion,

@@ -41,7 +41,7 @@ class HydrostaticExnerParameters : public SaberBlockParametersBase {
   oops::RequiredParameter<std::string> svp_file{"saturation vapour pressure file", this};
   oops::RequiredParameter<GpToHpCovarianceParameters>
     hydrostaticexnerParams{"covariance data", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
     "air_pressure_levels",
     "exner_levels_minus_one",
     "geostrophic_pressure_levels_minus_one",
@@ -49,8 +49,8 @@ class HydrostaticExnerParameters : public SaberBlockParametersBase {
     "hydrostatic_pressure_levels",
     "unbalanced_pressure_levels_minus_one"});}
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"geostrophic_pressure_levels_minus_one",
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"geostrophic_pressure_levels_minus_one",
                           "hydrostatic_exner_levels",
                           "hydrostatic_pressure_levels",
                           "unbalanced_pressure_levels_minus_one",
@@ -63,8 +63,8 @@ class HydrostaticExnerParameters : public SaberBlockParametersBase {
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"air_pressure_levels",
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({"air_pressure_levels",
                           "hydrostatic_exner_levels",
                           "hydrostatic_pressure_levels",
                           "exner_levels_minus_one",
@@ -92,7 +92,7 @@ class HydrostaticExner : public SaberOuterBlockBase {
   typedef HydrostaticExnerParameters Parameters_;
 
   HydrostaticExner(const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const eckit::Configuration &,
                    const Parameters_ &,
                    const oops::FieldSet3D &,
@@ -100,7 +100,7 @@ class HydrostaticExner : public SaberOuterBlockBase {
   virtual ~HydrostaticExner();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -109,9 +109,9 @@ class HydrostaticExner : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeOuterVars_;
-  const oops::patch::Variables innerOnlyVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
   atlas::FieldSet covFieldSet_;
   atlas::FieldSet augmentedStateFieldSet_;
 };

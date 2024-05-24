@@ -22,14 +22,14 @@ namespace saber {
 
 namespace {
 
-oops::patch::Variables createInnerVars(
-    const oops::patch::Variables & outerVars,
-    const oops::patch::Variables & innerActiveVarsWithoutMeta) {
+oops::JediVariables createInnerVars(
+    const oops::JediVariables & outerVars,
+    const oops::JediVariables & innerActiveVarsWithoutMeta) {
   // TO DO: Ideally we should get model levels of innerVars from vader.
   // For now we assume that
   // All vertical levels are the same in outerVars and that innerVars
   // has the same number of model levels
-  oops::patch::Variables innerActiveVarsWithMeta(innerActiveVarsWithoutMeta);
+  oops::JediVariables innerActiveVarsWithMeta(innerActiveVarsWithoutMeta);
   std::vector<int> modelLevels;
   for (const std::string & var : outerVars.variables()) {
     modelLevels.push_back(outerVars.getLevels(var));
@@ -57,7 +57,7 @@ static SaberOuterBlockMaker<VaderBlock> makerVaderBlock_("vader variable change"
 // -----------------------------------------------------------------------------
 
 VaderBlock::VaderBlock(const oops::GeometryData & outerGeometryData,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const eckit::Configuration & outerBlockConf,
                        const Parameters_ & params,
                        const oops::FieldSet3D & xb,
@@ -72,10 +72,10 @@ VaderBlock::VaderBlock(const oops::GeometryData & outerGeometryData,
 
   // Change variables in the background to inner variables
   // TODO(someone): perhaps this code will happen in the ErrorCovariance ctor?
-  oops::patch::Variables neededVars = innerVars_;
+  oops::JediVariables neededVars = innerVars_;
   atlas::FieldSet xb_inner = xb.fieldSet();
 
-  oops::patch::Variables varsVaderPopulates = vader_.changeVar(xb_inner, neededVars);
+  oops::JediVariables varsVaderPopulates = vader_.changeVar(xb_inner, neededVars);
   ASSERT_MSG(varsVaderPopulates == innerVars_, "VADER can not populate all "
              "inner variables for SABER block.");
   // Pass only inner variables to the vader TL/AD execution plan
@@ -97,7 +97,7 @@ VaderBlock::VaderBlock(const oops::GeometryData & outerGeometryData,
 
 void VaderBlock::multiply(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::multiply starting" << std::endl;
-  oops::patch::Variables vars = outerVars_;
+  oops::JediVariables vars = outerVars_;
   vader_.changeVarTL(fset.fieldSet(), vars);
   // copy only outer variables to the output fieldset (vader leaves both
   // output and input variables in the fieldset)
@@ -113,7 +113,7 @@ void VaderBlock::multiply(oops::FieldSet3D & fset) const {
 
 void VaderBlock::multiplyAD(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::multiplyAD starting" << std::endl;
-  oops::patch::Variables vars = outerVars_;
+  oops::JediVariables vars = outerVars_;
   vader_.changeVarAD(fset.fieldSet(), vars);
   // copy only inner variables to the output fieldset (vader leaves both
   // output and input variables in the fieldset)

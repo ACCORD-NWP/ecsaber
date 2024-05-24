@@ -101,22 +101,22 @@ void writeRank3FieldSet(const atlas::FieldSet &,
                         const double &);
 
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace &,
-                               const oops::patch::Variables &);
+                               const oops::JediVariables &);
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace &,
-                               const oops::patch::Variables &,
+                               const oops::JediVariables &,
                                const double &);
 atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm &,
                                      const atlas::FunctionSpace &,
-                                     const oops::patch::Variables &);
+                                     const oops::JediVariables &);
 /// Returns a fieldset with the same smooth field for all variables.
 /// Useful for testing interpolation.
 atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm &,
                                      const atlas::FunctionSpace &,
-                                     const oops::patch::Variables &);
+                                     const oops::JediVariables &);
 
 void readFieldSet(const eckit::mpi::Comm &,
                   const atlas::FunctionSpace &,
-                  const oops::patch::Variables &,
+                  const oops::JediVariables &,
                   const eckit::Configuration &,
                   atlas::FieldSet &);
 

@@ -58,7 +58,7 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
   virtual const oops::GeometryData & innerGeometryData() const = 0;
 
   // To inner variables
-  virtual const oops::patch::Variables & innerVars() const = 0;
+  virtual const oops::JediVariables & innerVars() const = 0;
 
   // Application methods
 
@@ -115,7 +115,7 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
 
   // Generate inner FieldSet (for the inverse test)
   virtual oops::FieldSet3D generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
-                                                 const oops::patch::Variables & innerVars) const
+                                                 const oops::JediVariables & innerVars) const
     {return oops::randomFieldSet3D(validTime_,
                                    innerGeometryData.comm(),
                                    innerGeometryData.functionSpace(),
@@ -123,7 +123,7 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
 
   // Generate outer FieldSet (for the inverse test)
   virtual oops::FieldSet3D generateOuterFieldSet(const oops::GeometryData & outerGeometryData,
-                                                 const oops::patch::Variables & outerVars) const
+                                                 const oops::JediVariables & outerVars) const
     {return oops::randomFieldSet3D(validTime_,
                                    outerGeometryData.comm(),
                                    outerGeometryData.functionSpace(),
@@ -152,27 +152,27 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
   // Read model fields
   template <typename MODEL>
   void read(const oops::Geometry<MODEL> &,
-            const oops::patch::Variables &);
+            const oops::JediVariables &);
 
   // Write model fields
   template <typename MODEL>
   void write(const oops::Geometry<MODEL> &,
-             const oops::patch::Variables &) const;
+             const oops::JediVariables &) const;
 
   // Adjoint test
   void adjointTest(const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const double &) const;
 
   // Left-inverse test
   void inverseTest(const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const oops::GeometryData &,
-                   const oops::patch::Variables &,
-                   const oops::patch::Variables &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
+                   const oops::JediVariables &,
+                   const oops::JediVariables &,
                    const double &,
                    const double &) const;
 
@@ -202,7 +202,7 @@ class SaberOuterBlockParametersWrapper : public oops::Parameters {
 class SaberOuterBlockFactory {
  public:
   static std::unique_ptr<SaberOuterBlockBase> create(const oops::GeometryData &,
-                                                     const oops::patch::Variables &,
+                                                     const oops::JediVariables &,
                                                      const eckit::Configuration &,
                                                      const SaberBlockParametersBase &,
                                                      const oops::FieldSet3D &,
@@ -221,7 +221,7 @@ class SaberOuterBlockFactory {
 
  private:
   virtual std::unique_ptr<SaberOuterBlockBase> make(const oops::GeometryData &,
-                                                    const oops::patch::Variables &,
+                                                    const oops::JediVariables &,
                                                     const eckit::Configuration &,
                                                     const SaberBlockParametersBase &,
                                                     const oops::FieldSet3D &,
@@ -242,7 +242,7 @@ class SaberOuterBlockMaker : public SaberOuterBlockFactory {
   typedef typename T::Parameters_ Parameters_;
 
   std::unique_ptr<SaberOuterBlockBase> make(const oops::GeometryData & outerGeometryData,
-                                            const oops::patch::Variables & outerVars,
+                                            const oops::JediVariables & outerVars,
                                             const eckit::Configuration & covarConf,
                                             const SaberBlockParametersBase & params,
                                             const oops::FieldSet3D & xb,
@@ -264,20 +264,20 @@ class SaberOuterBlockMaker : public SaberOuterBlockFactory {
 
 template <typename MODEL>
 void SaberOuterBlockBase::read(const oops::Geometry<MODEL> & geom,
-                               const oops::patch::Variables & vars) {
+                               const oops::JediVariables & vars) {
   oops::Log::trace() << "SaberOuterBlockBase::read starting" << std::endl;
 
   // Read fieldsets as increments
   std::vector<oops::FieldSet3D> fsetVec;
   for (const auto & input : this->getReadConfs()) {
     // Create increment
-    std::unique_ptr<oops::patch::Variables> incVars;
+    std::unique_ptr<oops::JediVariables> incVars;
     if (input.second.has("overriding variables")) {
       const std::vector<std::string> incVarsNames =
         input.second.getStringVector("overriding variables");
-      incVars.reset(new oops::patch::Variables(incVarsNames));
+      incVars.reset(new oops::JediVariables(incVarsNames));
     } else {
-      incVars.reset(new oops::patch::Variables(vars));
+      incVars.reset(new oops::JediVariables(vars));
     }
     oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
     oops::Increment<MODEL> dx(geom, varsT, validTime_);
@@ -300,7 +300,7 @@ void SaberOuterBlockBase::read(const oops::Geometry<MODEL> & geom,
 
 template <typename MODEL>
 void SaberOuterBlockBase::write(const oops::Geometry<MODEL> & geom,
-                                const oops::patch::Variables & vars) const {
+                                const oops::JediVariables & vars) const {
   oops::Log::trace() << "SaberOuterBlockBase::write starting" << std::endl;
 
   // Get vector of configuration/FieldSet pairs
@@ -310,13 +310,13 @@ void SaberOuterBlockBase::write(const oops::Geometry<MODEL> & geom,
   // Loop and write
   for (const auto & output : outputs) {
     // Create increment
-    std::unique_ptr<oops::patch::Variables> incVars;
+    std::unique_ptr<oops::JediVariables> incVars;
     if (output.first.has("overriding variables")) {
       const std::vector<std::string> incVarsNames =
         output.first.getStringVector("overriding variables");
-      incVars.reset(new oops::patch::Variables(incVarsNames));
+      incVars.reset(new oops::JediVariables(incVarsNames));
     } else {
-      incVars.reset(new oops::patch::Variables(vars));
+      incVars.reset(new oops::JediVariables(vars));
     }
     oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
     oops::Increment<MODEL> dx(geom, varsT, validTime_);

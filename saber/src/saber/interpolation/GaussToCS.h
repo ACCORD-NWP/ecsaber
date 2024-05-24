@@ -31,14 +31,14 @@ class GaussToCSParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(GaussToCSParameters, SaberBlockParametersBase)
 
  public:
-  oops::OptionalParameter<oops::patch::Variables> activeVariables{"active variables", this};
+  oops::OptionalParameter<oops::JediVariables> activeVariables{"active variables", this};
   // No parameters for now (in the future may add N as a parameter if it is possible
   // to use the one different from the one inferred from the gaussian grid
   oops::RequiredParameter<std::string> gaussGridUid{"gauss grid uid",
     "Gauss Grid UID", this};
   oops::Parameter<bool> initializeInverseInterpolation{"initialize inverse interpolator",
     true, this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ class GaussToCS : public SaberOuterBlockBase {
   typedef GaussToCSParameters Parameters_;
 
   GaussToCS(const oops::GeometryData &,
-            const oops::patch::Variables &,
+            const oops::JediVariables &,
             const eckit::Configuration &,
             const Parameters_ &,
             const oops::FieldSet3D &,
@@ -72,23 +72,23 @@ class GaussToCS : public SaberOuterBlockBase {
   virtual ~GaussToCS() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
   void leftInverseMultiply(oops::FieldSet3D &) const override;
 
   oops::FieldSet3D generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
-                                         const oops::patch::Variables & innerVars) const override;
+                                         const oops::JediVariables & innerVars) const override;
 
   oops::FieldSet3D generateOuterFieldSet(const oops::GeometryData & outerGeometryData,
-                                         const oops::patch::Variables & outerVars) const override;
+                                         const oops::JediVariables & outerVars) const override;
 
  private:
   void print(std::ostream &) const override;
 
-  oops::patch::Variables innerVars_;
-  oops::patch::Variables activeVars_;
+  oops::JediVariables innerVars_;
+  oops::JediVariables activeVars_;
 
   /// Cubed-sphere-dual NodeColumns space (outer) functionspace
   const atlas::functionspace::NodeColumns CSFunctionSpace_;

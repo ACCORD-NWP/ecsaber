@@ -135,8 +135,8 @@ std::vector<std::string> Vader::getPlanNames(const vaderPlanType plan) const {
 * \returns List of variables VADER was able to produce
 *
 */
-oops::patch::Variables Vader::changeVar(atlas::FieldSet & afieldset,
-                                 oops::patch::Variables & neededVars,
+oops::JediVariables Vader::changeVar(atlas::FieldSet & afieldset,
+                                 oops::JediVariables & neededVars,
                                  vaderPlanType plan) const {
     util::Timer timer(classname(), "changeVar");
     oops::Log::trace() << "entering Vader::changeVar " << std::endl;
@@ -145,7 +145,7 @@ oops::patch::Variables Vader::changeVar(atlas::FieldSet & afieldset,
 
     // onlyIngredientVars are the variables that Vader should NOT later return in varsProduced
     // (i.e. variables both in afieldset AND neededVars will be returned in varsProduced)
-    oops::patch::Variables onlyIngredientVars(afieldset.field_names());
+    oops::JediVariables onlyIngredientVars(afieldset.field_names());
     onlyIngredientVars -= neededVars;
     plan.clear();
 
@@ -168,7 +168,7 @@ oops::patch::Variables Vader::changeVar(atlas::FieldSet & afieldset,
                 " is no longer in the variable list neededVars. Moving on." << std::endl;
             continue;
         }
-        oops::patch::Variables excludedVars;
+        oops::JediVariables excludedVars;
         planVariable(ingredientNames, neededVars, targetVariable, recipesNeedTLAD,
                      excludedVars, plan);
     }
@@ -181,7 +181,7 @@ oops::patch::Variables Vader::changeVar(atlas::FieldSet & afieldset,
         oops::Log::info() << "Vader produced all requested variables."  << std::endl;
     }
 
-    oops::patch::Variables varsProduced(afieldset.field_names());
+    oops::JediVariables varsProduced(afieldset.field_names());
     varsProduced -= onlyIngredientVars;
     oops::Log::trace() << "leaving Vader::changeVar" << std::endl;
     return varsProduced;
@@ -198,8 +198,8 @@ oops::patch::Variables Vader::changeVar(atlas::FieldSet & afieldset,
 * \param[in,out] neededVars Names of variables to try to produce
 *
 */
-oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
-                      oops::patch::Variables & neededVars) {
+oops::JediVariables Vader::changeVarTraj(atlas::FieldSet & afieldset,
+                      oops::JediVariables & neededVars) {
     util::Timer timer(classname(), "changeVar");
     oops::Log::trace() << "entering Vader::changeVarTraj " << std::endl;
     oops::Log::info() << "Variables requested from Vader (Trajectory): " << neededVars.variables()
@@ -207,7 +207,7 @@ oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
 
     // onlyIngredientVars are the variables that Vader should NOT later return in varsProduced
     // (i.e. variables both in afieldset AND neededVars will be returned in varsProduced)
-    oops::patch::Variables onlyIngredientVars(afieldset.field_names());
+    oops::JediVariables onlyIngredientVars(afieldset.field_names());
     onlyIngredientVars -= neededVars;
 
     auto ingredientNames = afieldset.field_names();
@@ -229,7 +229,7 @@ oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
                 " is no longer in the variable list neededVars. Moving on." << std::endl;
             continue;
         }
-        oops::patch::Variables excludedVars;
+        oops::JediVariables excludedVars;
         planVariable(ingredientNames, neededVars, targetVariable, recipesNeedTLAD,
                      excludedVars, recipeExecutionPlan_);
     }
@@ -253,7 +253,7 @@ oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
     } else {
         oops::Log::info() << "Vader produced all requested variables."  << std::endl;
     }
-    oops::patch::Variables varsProduced(afieldset.field_names());
+    oops::JediVariables varsProduced(afieldset.field_names());
     varsProduced -= onlyIngredientVars;
     oops::Log::trace() << "leaving Vader::changeVarTraj" << std::endl;
     return varsProduced;
@@ -272,10 +272,10 @@ oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
 * \param[in,out] neededVars Names of variables to try to produce
 *
 */
-oops::patch::Variables Vader::changeVarTL(atlas::FieldSet & afieldset,
-                      oops::patch::Variables & neededVars) const {
+oops::JediVariables Vader::changeVarTL(atlas::FieldSet & afieldset,
+                      oops::JediVariables & neededVars) const {
     oops::Log::trace() << "entering Vader::changeVarTL" << std::endl;
-    oops::patch::Variables varsPopulated;
+    oops::JediVariables varsPopulated;
     executePlanTL(afieldset, recipeExecutionPlan_);
     for (auto varplan : recipeExecutionPlan_) {
         varsPopulated.push_back(varplan.first);
@@ -300,10 +300,10 @@ oops::patch::Variables Vader::changeVarTL(atlas::FieldSet & afieldset,
 * \param[in,out] varsToAdjoint Same vars as 'neededVars' in changeVarTraj and changeVarTL
 *
 */
-oops::patch::Variables Vader::changeVarAD(atlas::FieldSet & afieldset,
-                      oops::patch::Variables & varsToAdjoint) const {
+oops::JediVariables Vader::changeVarAD(atlas::FieldSet & afieldset,
+                      oops::JediVariables & varsToAdjoint) const {
     oops::Log::trace() << "entering Vader::changeVarAD" << std::endl;
-    oops::patch::Variables varsAdjointed;
+    oops::JediVariables varsAdjointed;
     executePlanAD(afieldset, recipeExecutionPlan_);
     for (auto varplan : recipeExecutionPlan_) {
         oops::Log::debug() << "Adding to varsAdjointed: " << varplan.first << std::endl;
@@ -334,10 +334,10 @@ oops::patch::Variables Vader::changeVarAD(atlas::FieldSet & afieldset,
 *
 */
 bool Vader::planVariable(std::vector<std::string> & ingredientNames,
-                         oops::patch::Variables & neededVars,
+                         oops::JediVariables & neededVars,
                          const std::string targetVariable,
                          const bool needsTLAD,
-                         oops::patch::Variables & excludedVars,
+                         oops::JediVariables & excludedVars,
                          vaderPlanType & plan) const {
     bool variablePlanned = false;
 

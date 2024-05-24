@@ -35,7 +35,7 @@ class StdDevParameters : public SaberBlockParametersBase {
   oops::OptionalParameter<BUMPParameters> readParams{"read", this};
   oops::OptionalParameter<BUMPParameters> calibrationParams{"calibration", this};
 
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ class StdDev : public SaberOuterBlockBase {
   typedef StdDevParameters Parameters_;
 
   StdDev(const oops::GeometryData &,
-         const oops::patch::Variables &,
+         const oops::JediVariables &,
          const eckit::Configuration &,
          const Parameters_ &,
          const oops::FieldSet3D &,
@@ -56,7 +56,7 @@ class StdDev : public SaberOuterBlockBase {
   virtual ~StdDev();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -80,8 +80,8 @@ class StdDev : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  oops::patch::Variables innerVars_;
-  oops::patch::Variables activeVars_;
+  oops::JediVariables innerVars_;
+  oops::JediVariables activeVars_;
   BUMPParameters bumpParams_;
   std::unique_ptr<BUMP> bump_;
   size_t memberIndex_;

@@ -11,7 +11,7 @@ namespace saber {
 
 // -----------------------------------------------------------------------------
 
-eckit::LocalConfiguration templatedVarsConf(const oops::patch::Variables & vars) {
+eckit::LocalConfiguration templatedVarsConf(const oops::JediVariables & vars) {
   eckit::LocalConfiguration varConf;
   varConf.set("variables list", vars.variables());
   return varConf;

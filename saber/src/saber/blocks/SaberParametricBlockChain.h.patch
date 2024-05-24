@@ -2,7 +2,7 @@
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2024-05-06 14:01:45.101116262 +0200
 @@ -101,6 +101,8 @@
    size_t size4D_;
-   oops::patch::Variables centralVars_;
+   oops::JediVariables centralVars_;
    atlas::FunctionSpace centralFunctionSpace_;
 +  std::unique_ptr<oops::GeometryData> geomData_;
 +  std::unique_ptr<oops::GeometryData> dualResGeomData_;

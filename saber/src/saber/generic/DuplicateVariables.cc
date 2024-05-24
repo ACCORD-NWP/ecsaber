@@ -21,12 +21,12 @@ namespace generic {
 
 namespace {
 
-oops::patch::Variables createActiveVars(const std::vector<VariableGroupParameters> & gps,
-                                 const oops::patch::Variables & outerVars)  {
-  oops::patch::Variables activeVars;
+oops::JediVariables createActiveVars(const std::vector<VariableGroupParameters> & gps,
+                                 const oops::JediVariables & outerVars)  {
+  oops::JediVariables activeVars;
   for (const VariableGroupParameters & gp : gps) {
     std::string key = gp.groupVariableName.value();
-    oops::patch::Variables v = gp.groupComponents.value();
+    oops::JediVariables v = gp.groupComponents.value();
     activeVars += v;
     for (const std::string & s : v.variables()) {
       activeVars.addMetaData(s, "levels", outerVars.getLevels(s));
@@ -39,10 +39,10 @@ oops::patch::Variables createActiveVars(const std::vector<VariableGroupParameter
 }
 
 
-oops::patch::Variables createInnerVars(const oops::patch::Variables & outerVars,
-                                const oops::patch::Variables & activeVars,
+oops::JediVariables createInnerVars(const oops::JediVariables & outerVars,
+                                const oops::JediVariables & activeVars,
                                 const std::vector<VariableGroupParameters> & gps) {
-  oops::patch::Variables innerVars;
+  oops::JediVariables innerVars;
   for (const std::string & var : outerVars.variables()) {
     if (!activeVars.has(var)) {
       innerVars.push_back(var);
@@ -65,7 +65,7 @@ void copyFields(const std::vector<VariableGroupParameters> & gps,
                 atlas::FieldSet & fsetOut) {
   for (const VariableGroupParameters & gp : gps) {
     std::string key = gp.groupVariableName.value();
-    oops::patch::Variables v = gp.groupComponents.value();
+    oops::JediVariables v = gp.groupComponents.value();
     auto otherView = atlas::array::make_view<double, 2>(fsetIn[key]);
     for (const std::string & component : v.variables()) {
       auto view = atlas::array::make_view<double, 2>(fsetOut[component]);
@@ -80,7 +80,7 @@ void gatherFields(const std::vector<VariableGroupParameters> & gps,
                   atlas::FieldSet & fsetOut) {
   for (const VariableGroupParameters & gp : gps) {
     std::string key = gp.groupVariableName.value();
-    oops::patch::Variables v = gp.groupComponents.value();
+    oops::JediVariables v = gp.groupComponents.value();
     auto otherView = atlas::array::make_view<double, 2>(fsetOut[key]);
     for (const std::string & component : v.variables()) {
       auto view = atlas::array::make_view<double, 2>(fsetIn[component]);
@@ -105,7 +105,7 @@ static SaberOuterBlockMaker<DuplicateVariables>
 // -----------------------------------------------------------------------------
 
 DuplicateVariables::DuplicateVariables(const oops::GeometryData & outerGeometryData,
-                                       const oops::patch::Variables & outerVars,
+                                       const oops::JediVariables & outerVars,
                                        const eckit::Configuration & covarConfig,
                                        const Parameters_ & params,
                                        const oops::FieldSet3D & xb,
@@ -130,7 +130,7 @@ void DuplicateVariables::multiply(oops::FieldSet3D & fset) const {
   atlas::FieldSet fsetOut = atlas::FieldSet();
 
   for (const VariableGroupParameters & gp : groups_) {
-    oops::patch::Variables v = gp.groupComponents.value();
+    oops::JediVariables v = gp.groupComponents.value();
     for (const std::string& component : v.variables()) {
       const size_t nlev = activeVars_.getLevels(component);
       atlas::Field field =
