@@ -2,7 +2,7 @@ Input Dirac increment:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: structured
-- size: 3763
+- size: 14805
 Regional grid detected
 Partitioner:
 - type: checkerboard
@@ -15,57 +15,20 @@ Groups:
   - number: 10
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00,3.0000000000000000e+00,4.0000000000000000e+00,5.0000000000000000e+00,6.0000000000000000e+00,7.0000000000000000e+00,8.0000000000000000e+00,9.0000000000000000e+00,1.0000000000000000e+01]
   Mask size: 100%
-- Group 1:
-  Vertical levels: 
-  - number: 1
-  - vert_coord: [1.0000000000000000e+00]
-  Mask size: 100%
 Fields:
   stream_function: 3.0000000000000000e+00
-  velocity_potential: 0.0000000000000000e+00
-  surface_pressure: 3.0000000000000000e+00
-Norm of input parameter rh: 6.4843841232056180e+06
-Norm of input parameter rv: 1.1332074714369821e+03
+Adjoint test for block interpolation passed
     FastLAM interpolation accuracy test passed
     FastLAM interpolation adjoint test passed
     FastLAM redToRows test passed
     FastLAM rowsToCols test passed
-    FastLAM interpolation accuracy test passed
-    FastLAM interpolation adjoint test passed
-    FastLAM redToRows test passed
-    FastLAM rowsToCols test passed
-    FastLAM interpolation accuracy test passed
-    FastLAM interpolation adjoint test passed
-    FastLAM redToRows test passed
-    FastLAM rowsToCols test passed
-    FastLAM interpolation accuracy test passed
-    FastLAM interpolation adjoint test passed
-    FastLAM redToRows test passed
-    FastLAM rowsToCols test passed
-    FastLAM interpolation accuracy test passed
-    FastLAM interpolation adjoint test passed
-    FastLAM redToRows test passed
-    FastLAM rowsToCols test passed
-    FastLAM interpolation accuracy test passed
-    FastLAM interpolation adjoint test passed
-    FastLAM redToRows test passed
-    FastLAM rowsToCols test passed
-Norm of output parameter index i: 1.1644890209873171e+04
-Norm of output parameter index j: 8.7234826187710150e+03
-Norm of output parameter normalized horizontal length-scale: 1.6992904014677692e+03
-Norm of output parameter weight - 0: 5.1820714978536387e+01
-Norm of output parameter weight - 1: 1.3660493760492335e+02
-Norm of output parameter weight - 2: 5.1115458635293521e+01
-Norm of output parameter normalization - 0: 2.1701281757442695e+02
-Norm of output parameter normalization - 1: 2.3198796947823189e+02
-Norm of output parameter normalization - 2: 2.3209694874474047e+02
 Adjoint test for block FastLAM passed
 Square-root test for block FastLAM passed
 Covariance(SABER) * Increment:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: structured
-- size: 3763
+- size: 14805
 Regional grid detected
 Partitioner:
 - type: checkerboard
@@ -78,12 +41,5 @@ Groups:
   - number: 10
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00,3.0000000000000000e+00,4.0000000000000000e+00,5.0000000000000000e+00,6.0000000000000000e+00,7.0000000000000000e+00,8.0000000000000000e+00,9.0000000000000000e+00,1.0000000000000000e+01]
   Mask size: 100%
-- Group 1:
-  Vertical levels: 
-  - number: 1
-  - vert_coord: [1.0000000000000000e+00]
-  Mask size: 100%
 Fields:
-  stream_function: 1.3472869175132985e+01
-  velocity_potential: 0.0000000000000000e+00
-  surface_pressure: 1.1665714838303463e+01
+  stream_function: 2.9109113568372248e+01

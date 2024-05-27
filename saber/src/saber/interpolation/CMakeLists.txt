@@ -9,10 +9,13 @@ AtlasInterpWrapper.cc
 AtlasInterpWrapper.h
 
 # Interpolation block
-#Geometry.cc
-#Geometry.h
-#Interpolation.cc
-#Interpolation.h
+Geometry.cc
+Geometry.h
+InterpElement.h
+Interpolation.cc
+Interpolation.h
+RegionalInterpolation.cc
+RegionalInterpolation.h
 
 # VertProj block
 VertProj.cc

@@ -1,7 +1,5 @@
        Independent levels:  1[2]
           Subset Sc0 size:             1106
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   2 ~> 100.0%
@@ -19,8 +17,6 @@
           Norm of stream_function:  0.37543224E+02
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   2 ~> 100.0%
@@ -120,5 +116,5 @@
                 Level:   2 ~> hybrid coefficients: 0.31 / 0.64
 Norm of output parameter loc_rh - 1: 4.8989794855663562e+08
 Norm of output parameter loc_rv - 1: 9.7979589711327122e+01
-Norm of output parameter hyb_coef_ens - 1: 1.8190635496140519e+01
+Norm of output parameter hyb_coef_ens - 1: 1.8190635496140523e+01
 Norm of output parameter hyb_coef_sta - 1: 2.3595758402804162e+01

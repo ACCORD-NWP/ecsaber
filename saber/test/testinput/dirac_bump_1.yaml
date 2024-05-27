@@ -124,6 +124,15 @@ background error:
         pattern: '%mem%'
         nmembers: 25
         zero padding: 6
+      inflation value: 1.2
+      inflation field:
+        filepath: testdata/randomization_bump_nicas_L10L2/_MPI_-_OMP__member_000001 # Does not make sense scientifically, just for technical testing
+      ensemble transform:
+        variables:
+        - eastward_wind
+        - northward_wind
+        atlas file:
+          filepath: testdata/randomization_bump_nicas_L10L2/_MPI_-_OMP__member_000002 # Does not make sense scientifically, just for technical testing
       localization:
         localization method: SABER
         saber central block:

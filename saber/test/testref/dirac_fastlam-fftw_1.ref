@@ -24,8 +24,8 @@ Fields:
   stream_function: 3.0000000000000000e+00
   velocity_potential: 0.0000000000000000e+00
   surface_pressure: 3.0000000000000000e+00
-Norm of input parameter rh: 6.3043940812838720e+06
-Norm of input parameter rv: 1.1083090960834272e+03
+Norm of input parameter rh: 6.3918837541357242e+06
+Norm of input parameter rv: 1.1133066497566087e+03
     FastLAM interpolation accuracy test passed
     FastLAM interpolation adjoint test passed
     FastLAM redToRows test passed
@@ -50,13 +50,13 @@ Norm of input parameter rv: 1.1083090960834272e+03
     FastLAM interpolation adjoint test passed
     FastLAM redToRows test passed
     FastLAM rowsToCols test passed
-Norm of output parameter normalized horizontal length-scale: 1.6404267734508073e+03
-Norm of output parameter weight - 0: 7.2930744333457682e+01
-Norm of output parameter weight - 1: 1.2620653673036158e+02
-Norm of output parameter weight - 2: 4.5290975324119849e+01
-Norm of output parameter normalization - 0: 2.1351287226377931e+02
-Norm of output parameter normalization - 1: 2.2580271655209117e+02
-Norm of output parameter normalization - 2: 2.3078651775088360e+02
+Norm of output parameter normalized horizontal length-scale: 1.6624060523026046e+03
+Norm of output parameter weight - 0: 4.7721413951189433e+01
+Norm of output parameter weight - 1: 1.3392201895439860e+02
+Norm of output parameter weight - 2: 6.2879396764473356e+01
+Norm of output parameter normalization - 0: 2.1503835991342174e+02
+Norm of output parameter normalization - 1: 2.3028628298057725e+02
+Norm of output parameter normalization - 2: 2.2947693490501271e+02
 Adjoint test for block FastLAM passed
 Square-root test for block FastLAM passed
 Covariance(SABER) * Increment:
@@ -82,6 +82,6 @@ Groups:
   - vert_coord: [1.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 1.2634142388160136e+01
+  stream_function: 1.2827432027886605e+01
   velocity_potential: 0.0000000000000000e+00
-  surface_pressure: 1.1014275822958110e+01
+  surface_pressure: 1.1226206259476543e+01

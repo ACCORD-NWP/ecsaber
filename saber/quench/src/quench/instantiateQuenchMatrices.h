@@ -1,0 +1,23 @@
+/*
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
+ */
+
+#pragma once
+
+#include "oops/interface/GenericMatrix.h"
+
+#include "quench/HybridWeight.h"
+#include "quench/Traits.h"
+
+namespace quench {
+
+// -----------------------------------------------------------------------------
+
+void instantiateQuenchMatrices() {
+  static oops::GenericMatrixMaker<quench::Traits, HybridWeight> makerEnsWgt_("hybrid_weight");
+}
+
+// -----------------------------------------------------------------------------
+
+}  // namespace quench

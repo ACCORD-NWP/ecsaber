@@ -7,6 +7,7 @@
 
 #include "atlas/grid/detail/partitioner/MatchingMeshPartitionerCubedSphere.h"
 #include "atlas/grid/detail/partitioner/TransPartitioner.h"
+#include "atlas/meshgenerator.h"
 #include "atlas/parallel/mpi/mpi.h"
 #include "atlas/util/Config.h"
 
@@ -244,7 +245,6 @@ void GaussToCS::multiply(oops::FieldSet3D & fieldSet) const {
   }
 
   // Interpolate to cubed sphere
-  gaussFieldSet.haloExchange();
   interp_.execute(gaussFieldSet, csFieldSet);
   csFieldSet.set_dirty();  // atlas interpolation produces dirty halos
 
@@ -290,8 +290,6 @@ void GaussToCS::multiplyAD(oops::FieldSet3D & fieldSet) const {
 
   // Adjoint of interpolation from gauss to dual cubed sphere
   interp_.executeAdjoint(gaussFieldSet, csFieldSet);
-  gaussFieldSet.adjointHaloExchange();
-  gaussFieldSet.set_dirty();
 
   for (const auto & fieldname : activeVars_.variables()) {
     newFields.add(gaussFieldSet[fieldname]);
