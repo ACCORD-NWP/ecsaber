@@ -24,6 +24,7 @@
 #include "saber/blocks/SaberBlockParametersBase.h"
 #include "saber/blocks/SaberOuterBlockBase.h"
 #include "saber/interpolation/Geometry.h"
+#include "saber/interpolation/RegionalInterpolation.h"
 
 namespace saber {
 namespace interpolation {
@@ -77,10 +78,13 @@ class Interpolation : public SaberOuterBlockBase {
   const oops::GeometryData & outerGeomData_;
   const oops::JediVariables innerVars_;
   const oops::JediVariables activeVars_;
+  bool regionalGrid_;
   // pointers for delayed initialization
   std::unique_ptr<oops::GeometryData> innerGeomData_;
   std::unique_ptr<oops::GlobalInterpolator> interp_;
+  std::unique_ptr<RegionalInterpolation> regInterp_;
   mutable std::unique_ptr<oops::GlobalInterpolator> inverseInterp_;
+  mutable std::unique_ptr<RegionalInterpolation> regInverseInterp_;
 };
 
 }  // namespace interpolation

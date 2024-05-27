@@ -1,27 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/tools_atlas.fypp.tmp	2024-05-22 11:25:06.954617377 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/tools_atlas.fypp	2024-05-22 10:49:56.131289327 +0200
-@@ -11,14 +11,18 @@
- 
- use atlas_module, only: atlas_structuredgrid,atlas_regionalgrid,atlas_field,atlas_integer,atlas_real,atlas_functionspace, &
-  & atlas_functionspace_nodecolumns,atlas_functionspace_pointcloud,atlas_functionspace_structuredcolumns
--use tools_const, only: zero,quarter,half,rad2deg
-+use tools_const, only: zero,quarter,half,three,deg2rad,rad2deg
- use tools_kinds, only: kind_int,kind_real
--use tools_func, only: sphere_dist,convert_i2l,convert_l2i
-+use tools_func, only: lonlatmod,lonlat2xyz,xyz2lonlat,sphere_dist,convert_i2l,convert_l2i,vector_product
-+use tools_repro, only: inf
- use type_mpl, only: mpl_type
- @:use_probe()
- 
- implicit none
- 
-+interface get_corners
-+   module procedure atlas_get_corners
-+end interface
- interface get_grid
-    module procedure atlas_get_global_grid
-    module procedure atlas_get_regional_grid
-@@ -41,12 +45,86 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/tools_atlas.fypp.tmp.bak	2024-05-27 15:33:45.086530510 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/tools_atlas.fypp	2024-05-27 15:34:20.990628969 +0200
+@@ -42,12 +42,86 @@
  end interface
  
  private

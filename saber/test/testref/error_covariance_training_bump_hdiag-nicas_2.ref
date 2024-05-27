@@ -1,7 +1,5 @@
        Independent levels:  1[1]  2[1]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.660E+02%
              Level   1 ~>  66.0%
              Level   2 ~>  65.9%
@@ -79,6 +77,6 @@ Norm of output parameter dirac_mom - 1: 7.6031933250648365e+00
 Norm of output parameter dirac_diag_loc - 1: 2.8598407545512212e+00
 Norm of output parameter cor_rh - 1: 1.4488510959768248e+08
 Norm of output parameter cor_rv - 1: 1.2834046182974191e+02
-Norm of output parameter loc_rh - 1: 2.5164899583477384e+08
+Norm of output parameter loc_rh - 1: 2.5164899583477381e+08
 Norm of output parameter loc_rv - 1: 2.3645305135106170e+02
 Norm of output parameter nicas_norm - 1: 4.1865914288153412e+01

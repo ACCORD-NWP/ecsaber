@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-05-22 11:25:05.898615538 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-05-22 10:49:20.487234184 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp	2024-05-27 16:09:09.284421580 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-05-24 08:41:35.386951213 +0200
 @@ -1,38 +1,30 @@
  /*
 - * (C) Copyright 2021-2023 UCAR
@@ -423,15 +423,7 @@
  
        // Update ID
        std::string idL(id);
-@@ -388,6 +382,7 @@
-       // Print localization
-       oops::Log::test() << "Localization(" << idL << ") diagnostics:" << std::endl;
-       oops::Log::test() << "- Localization at zero separation:" << std::endl;
-+
-       print_value_at_positions(testConf.getSubConfiguration("dirac"), geom, dxo);
-       if (testConf.has("diagnostic points")) {
-         oops::Log::test() << "- Localization at diagnostic points:" << std::endl;
-@@ -406,11 +401,11 @@
+@@ -407,11 +401,11 @@
      }
    }
  // -----------------------------------------------------------------------------
@@ -446,7 +438,7 @@
                       const size_t & ntasks) const {
      if (Bmat->randomizationSize() > 0) {
        oops::Log::info() << "Info     : " << std::endl;
-@@ -418,9 +413,9 @@
+@@ -419,9 +413,9 @@
        oops::Log::info() << "Info     : -----------------------" << std::endl;
  
        // Create increments
@@ -459,7 +451,7 @@
  
        // Initialize variance
        variance.zero();
-@@ -445,7 +440,9 @@
+@@ -446,7 +440,9 @@
  
          // Square perturbation
          dxsq = dx;
@@ -470,7 +462,7 @@
  
          // Update variance
          variance += dxsq;
-@@ -461,8 +458,8 @@
+@@ -462,8 +458,8 @@
  
            if (outputPerturbations != boost::none) {
              // Update config
@@ -481,7 +473,7 @@
              setMPI(outputPerturbationsUpdated, ntasks);
  
              // Write perturbation
-@@ -471,8 +468,8 @@
+@@ -472,8 +468,8 @@
  
            if (outputStates != boost::none) {
              // Update config

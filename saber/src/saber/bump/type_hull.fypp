@@ -8,10 +8,7 @@
 !----------------------------------------------------------------------
 module type_hull
 
-use atlas_module, only: atlas_functionspace
-!$ use omp_lib
-use tools_atlas, only: get_corners
-use tools_const, only: zero,two,three,deg2rad,pi
+use tools_const, only: zero,two,three,pi
 use tools_func, only: lonlat2xyz,xyz2lonlat,sphere_dist,vector_product
 use tools_kinds, only: kind_real
 use tools_repro, only: inf,infeq
@@ -22,18 +19,16 @@ implicit none
 
 ! Hull derived type
 type hull_type
-   ! Global hull
+   ! Boundar points-based hull
+   integer :: nb                            !< Number of nodes
+   real(kind_real),allocatable :: vbnd(:,:) !< Hull vertices
+
+   ! Centroid/radius-based hull
    real(kind_real) :: lon                   !< Centroid longitude
    real(kind_real) :: lat                   !< Centroid latitude
    real(kind_real) :: radius                !< Radius
-
-   ! Regional hull
-   integer :: nb                            !< Number of nodes
-   real(kind_real),allocatable :: vbnd(:,:) !< Hull vertices
 contains
-   procedure :: hull_init_global
-   procedure :: hull_init_regional
-   generic :: init => hull_init_global,hull_init_regional
+   procedure :: init => hull_init
    procedure :: dealloc => hull_dealloc
    procedure :: inside => hull_inside
 end type hull_type
@@ -44,10 +39,10 @@ public :: hull_type
 contains
 
 !----------------------------------------------------------------------
-! Subroutine: hull_init_global
+! Subroutine: hull_init
 !> Allocation
 !----------------------------------------------------------------------
-subroutine hull_init_global(hull,mpl,n,lon,lat)
+subroutine hull_init(hull,mpl,n,lon,lat)
 
 implicit none
 
@@ -64,7 +59,7 @@ real(kind_real) :: dist
 real(kind_real) :: cd(3),v(3)
 
 ! Set name
-@:set_name(hull_init_global)
+@:set_name(hull_init)
 
 ! Probe in
 @:probe_in()
@@ -106,38 +101,7 @@ end if
 ! Probe out
 @:probe_out()
 
-end subroutine hull_init_global
-
-!----------------------------------------------------------------------
-! Subroutine: hull_init_regional
-!> Intialization
-!----------------------------------------------------------------------
-subroutine hull_init_regional(hull,mpl,afunctionspace)
-
-implicit none
-
-! Passed variables
-class(hull_type),intent(inout) :: hull                 !< Hull
-type(mpl_type),intent(inout) :: mpl                    !< MPI data
-type(atlas_functionspace),intent(in) :: afunctionspace !< ATLAS function space
-
-! Set name
-@:set_name(hull_init_regional)
-
-! Probe in
-@:probe_in()
-
-! Allocation
-hull%nb = 4
-allocate(hull%vbnd(3,hull%nb))
-
-! Get corners
-call get_corners(mpl,afunctionspace,hull%vbnd)
-
-! Probe out
-@:probe_out()
-
-end subroutine hull_init_regional
+end subroutine hull_init
 
 !----------------------------------------------------------------------
 ! Subroutine: hull_dealloc
@@ -191,7 +155,7 @@ real(kind_real) :: vp(3),v1(3),v2(3),cp(3),cd(3)
 @:probe_in()
 
 if (allocated(hull%vbnd)) then
-   ! Regional hull
+   ! Boundary points-based hull
 
    ! Transform to cartesian coordinates
    call lonlat2xyz(mpl,lon,lat,vp(1),vp(2),vp(3))
@@ -222,9 +186,9 @@ if (allocated(hull%vbnd)) then
       end if
    end do
 else
-   ! Global hull
+   ! Centroid/radius-based hull
    if (mpl%msv%is(hull%radius)) then
-      ! Global universe
+      ! Undefined universe
       inside_hull = .true.
    else if (hull%radius>zero) then
       ! Limited universe

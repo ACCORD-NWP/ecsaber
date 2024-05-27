@@ -26,8 +26,6 @@ Fields:
   surface_pressure: 0.0000000000000000e+00
        Independent levels:  1[4]
           Subset Sc0 size:             3170
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   2 ~> 100.0%
@@ -43,8 +41,6 @@ Norm of input parameter StdDev: 3.2367672341787118e+08
 Adjoint test for block StdDev passed
        Independent levels:  1[4]
           Subset Sc0 size:             3170
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   2 ~> 100.0%
@@ -56,8 +52,6 @@ Adjoint test for block StdDev passed
              Level   4 ~> -0.110E+02 vert. coord.
        Independent levels:  1[1]
           Subset Sc0 size:             3170
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
