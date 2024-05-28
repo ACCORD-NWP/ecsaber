@@ -26,7 +26,7 @@ else()
 endif()
 
 # Default test selection variables (TIER-independent)
-set( SABER_TEST_VALGRIND 0 )
+set( SABER_TEST_VALGRIND 0 )	
 set( SABER_TEST_FASTLAM 1 )
 set( SABER_TEST_GSI_GEOS 0 )
 if( gsibec_FOUND )
@@ -145,9 +145,10 @@ foreach( test ${saber_test_full} )
     file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
 
     # Link to yaml file
-    execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-                     ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
-                     ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
+    execute_process(COMMAND ${Python3_EXECUTABLE}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_yaml_update.py
+                    ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
+                    ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
 
     # Link to reference file
     if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )

@@ -1,0 +1,104 @@
+/*
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
+ */
+
+#pragma once
+
+#include <map>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <vector>
+
+#include "atlas/util/Point.h"
+
+#include "eckit/mpi/Comm.h"
+
+#include "util/DateTime.h"
+#include "util/ObjectCounter.h"
+#include "util/Printable.h"
+
+namespace eckit {
+  class Configuration;
+}
+
+namespace quench {
+  class GeoVaLs;
+  class ObsVec;
+  class Geometry;
+
+// -----------------------------------------------------------------------------
+/// ObsSpace class
+
+class ObsSpace : public util::Printable,
+                 private util::ObjectCounter<ObsSpace> {
+ public:
+  static const std::string classname()
+    {return "quench::ObsSpace";}
+
+  enum Write : bool {
+    Screened = true,
+    Original = false
+  };
+
+  ObsSpace(const eckit::Configuration &,
+           const Geometry &,
+           const util::DateTime &,
+           const util::DateTime &,
+           const bool lscreened = false);
+  ~ObsSpace();
+
+  const eckit::mpi::Comm & getComm() const
+    {return comm_;}
+
+  void putdb(const std::string &,
+             const std::vector<double> &) const;
+  void getdb(const std::string &,
+             std::vector<double> &) const;
+
+  std::vector<atlas::Point3> locations(const util::DateTime &,
+                                       const util::DateTime &) const;
+  std::vector<size_t> timeSelect(const util::DateTime &,
+                                 const util::DateTime &) const;
+  void generateDistribution(const eckit::Configuration &);
+  void printJo(const ObsVec &,
+               const ObsVec &);
+  const size_t & size() const
+    {return nobsGlb_;}
+  const size_t & sizeLoc() const
+    {return nobsLoc_;}
+  const std::vector<size_t> & sizeVec() const
+    {return nobsLocVec_;}
+  const std::vector<size_t> & order() const
+    {return order_;}
+  void screenObservations(const ObsVec &,
+                          const GeoVaLs &) const;
+  void saveObservations() const {}
+
+ private:
+  void print(std::ostream &) const;
+  void read(const std::string &);
+  void write(const std::string &,
+             const bool &) const;
+
+  const util::DateTime winbgn_;
+  const util::DateTime winend_;
+  const bool lscreened_;
+  const eckit::mpi::Comm & comm_;
+  const std::shared_ptr<const Geometry> geom_;
+  mutable std::vector<util::DateTime> times_;
+  mutable std::vector<atlas::Point3> locs_;
+  mutable std::map<std::string, std::vector<double> > data_;
+  mutable std::vector<util::DateTime> screenedTimes_;
+  mutable std::vector<atlas::Point3> screenedLocations_;
+  mutable std::map<std::string, std::vector<double> > screenedData_;
+  std::string nameIn_;
+  std::string nameOut_;
+  size_t nobsLoc_;
+  size_t nobsGlb_;
+  std::vector<size_t> nobsLocVec_;
+  std::vector<size_t> order_;
+};
+// -----------------------------------------------------------------------------
+}  // namespace quench

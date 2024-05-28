@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp	2024-05-27 17:08:14.591693574 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-05-27 17:07:29.131551090 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-05-28 09:21:06.222715639 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-05-28 09:18:36.270004483 +0200
 @@ -7,9 +7,6 @@
  # Tests activated
  message( STATUS "SABER tests activated:" )
@@ -10,3 +10,26 @@
  # Default SABER_TEST_TIER
  set( SABER_TEST_TIER 1 )
  
+@@ -29,7 +26,7 @@
+ endif()
+ 
+ # Default test selection variables (TIER-independent)
+-set( SABER_TEST_VALGRIND 0 )
++set( SABER_TEST_VALGRIND 0 )	
+ set( SABER_TEST_FASTLAM 1 )
+ set( SABER_TEST_GSI_GEOS 0 )
+ if( gsibec_FOUND )
+@@ -148,9 +145,10 @@
+     file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
+ 
+     # Link to yaml file
+-    execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+-                     ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
+-                     ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
++    execute_process(COMMAND ${Python3_EXECUTABLE}
++                    ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_yaml_update.py
++                    ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
++                    ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
+ 
+     # Link to reference file
+     if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
