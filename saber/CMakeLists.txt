@@ -11,24 +11,18 @@ cmake_minimum_required( VERSION 3.12 )
 
 project( saber VERSION 1.9.0 LANGUAGES CXX Fortran )
 
-# Remove update summary
-file( REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-
 # Copy and update source from SABER
-check_diff_recursively( cmake "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( src "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( test "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( tools "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( COPYING "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( CPPLINT.cfg "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( LICENSE.md "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( README.md "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( saber-import.cmake.in "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-
-# Check update summary
-if( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt")
-    message( FATAL_ERROR "Merge required:\n bash ${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-endif()
+patch_init( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( cmake "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( src "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( test "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( tools "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( COPYING "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( CPPLINT.cfg "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( LICENSE.md "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( README.md "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( saber-import.cmake.in "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+patch_apply( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
 
 option(OPENMP "Build saber with OpenMP support" ON)
 
@@ -73,7 +67,7 @@ find_package( oops-patch REQUIRED )
 # Optionals
 find_package( FFTW 3.3.8 QUIET )
 find_package( gsibec 1.2.1 QUIET )
-find_package( vader 1.7.0 QUIET )
+find_package( vader QUIET )
 
 # Optional SABER blocks
 if( gsibec_FOUND )

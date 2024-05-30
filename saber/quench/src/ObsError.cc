@@ -23,11 +23,11 @@ ObsError::ObsError(const ObsSpace & obsSpace,
   oops::Log::trace() << classname() << "::ObsError starting" << std::endl;
 
 /// Setup R
-  stddev_.reset(new ObsVec(obsSpace));
+  stddev_.reset(new ObsVector(obsSpace));
   const std::string col = config.getString("obserror");
   stddev_->read(col);
 
-  inverseVariance_.reset(new ObsVec(*stddev_));
+  inverseVariance_.reset(new ObsVector(*stddev_));
   *inverseVariance_ *= *inverseVariance_;
   inverseVariance_->invert();
 
@@ -36,7 +36,7 @@ ObsError::ObsError(const ObsSpace & obsSpace,
     lvarqc_ = true;
     cleft_ = config.getDouble("varqc.cleft");
     cright_ = config.getDouble("varqc.cright");
-    wghtsqrt_.reset(new ObsVec(obsSpace));
+    wghtsqrt_.reset(new ObsVector(obsSpace));
   }
 
   oops::Log::trace() << classname() << "::ObsError done" << std::endl;
@@ -44,7 +44,7 @@ ObsError::ObsError(const ObsSpace & obsSpace,
 
 // -----------------------------------------------------------------------------
 
-void ObsError::setupWeights(const ObsVec & dy) {
+void ObsError::setupWeights(const ObsVector & dy) {
   oops::Log::trace() << classname() << "::setupWeights starting" << std::endl;
 
   if (lvarqc_) {
@@ -78,10 +78,10 @@ void ObsError::setupWeights(const ObsVec & dy) {
 
 // -----------------------------------------------------------------------------
 
-ObsVec * ObsError::multiply(const ObsVec & dy) const {
+ObsVector * ObsError::multiply(const ObsVector & dy) const {
   oops::Log::trace() << classname() << "::multiply starting" << std::endl;
 
-  ObsVec * res = new ObsVec(dy);
+  ObsVector * res = new ObsVector(dy);
   *res /= *inverseVariance_;
 
   oops::Log::trace() << classname() << "::multiply done" << std::endl;
@@ -90,10 +90,10 @@ ObsVec * ObsError::multiply(const ObsVec & dy) const {
 
 // -----------------------------------------------------------------------------
 
-ObsVec * ObsError::inverseMultiply(const ObsVec & dy) const {
+ObsVector * ObsError::inverseMultiply(const ObsVector & dy) const {
   oops::Log::trace() << classname() << "::inverseMultiply starting" << std::endl;
 
-  ObsVec * res = new ObsVec(dy);
+  ObsVector * res = new ObsVector(dy);
   *res *= *inverseVariance_;
 
   oops::Log::trace() << classname() << "::inverseMultiply done" << std::endl;
@@ -102,10 +102,10 @@ ObsVec * ObsError::inverseMultiply(const ObsVec & dy) const {
 
 // -----------------------------------------------------------------------------
 
-ObsVec * ObsError::multiplyWghtSqrt(const ObsVec & dy) const {
+ObsVector * ObsError::multiplyWghtSqrt(const ObsVector & dy) const {
   oops::Log::trace() << classname() << "::multiplyWghtSqrt starting" << std::endl;
 
-  ObsVec * res = new ObsVec(dy);
+  ObsVector * res = new ObsVector(dy);
   if (lvarqc_) {
     *res *= *wghtsqrt_;
   }
@@ -116,7 +116,7 @@ ObsVec * ObsError::multiplyWghtSqrt(const ObsVec & dy) const {
 
 // -----------------------------------------------------------------------------
 
-void ObsError::randomize(ObsVec & dy) const {
+void ObsError::randomize(ObsVector & dy) const {
   oops::Log::trace() << classname() << "::randomize starting" << std::endl;
 
   dy.random();

@@ -13,7 +13,8 @@
 #include "oops/interface/ObsAuxControlBase.h"
 #include "oops/interface/ObsErrorBase.h"
 
-#include "src/Traits.h"
+#include "src/ObsVector.h"
+#include "src/TraitsFwd.h"
 
 namespace eckit {
   class Configuration;
@@ -40,26 +41,26 @@ class ObsError : public oops::ObsErrorBase<Traits> {
     {}
 
 /// Linearize and reset for inner loop
-  void linearize(const ObsVec &)
+  void linearize(const ObsVector &)
     {}
   void linearize(const ObsAuxControlPtrMap_ &,
-                 const ObsVec &dy)
+                 const ObsVector &dy)
     {}
 
 /// Setup VarQC weights
-  void setupWeights(const ObsVec &);
+  void setupWeights(const ObsVector &);
 
 /// Multiply a Departure by \f$R\f$
-  ObsVec * multiply(const ObsVec &) const;
+  ObsVector * multiply(const ObsVector &) const;
 
 /// Multiply a Departure by \f$R^{-1}\f$
-  ObsVec * inverseMultiply(const ObsVec &) const;
+  ObsVector * inverseMultiply(const ObsVector &) const;
 
 /// Multiply a Departure by \f$W^1/2\f$
-  ObsVec * multiplyWghtSqrt(const ObsVec &) const;
+  ObsVector * multiplyWghtSqrt(const ObsVector &) const;
 
 /// Generate random perturbation
-  void randomize(ObsVec &) const;
+  void randomize(ObsVector &) const;
 
 /// Get mean error for Jo table
   double getRMSE() const
@@ -71,9 +72,9 @@ class ObsError : public oops::ObsErrorBase<Traits> {
   mutable bool lvarqc_;
   mutable double cleft_;
   mutable double cright_;
-  std::unique_ptr<ObsVec> stddev_;
-  std::unique_ptr<ObsVec> inverseVariance_;
-  std::unique_ptr<ObsVec> wghtsqrt_;
+  std::unique_ptr<ObsVector> stddev_;
+  std::unique_ptr<ObsVector> inverseVariance_;
+  std::unique_ptr<ObsVector> wghtsqrt_;
 };
 
 // -----------------------------------------------------------------------------

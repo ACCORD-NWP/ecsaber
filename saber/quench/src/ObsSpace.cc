@@ -35,7 +35,7 @@
 
 #include "src/Geometry.h"
 #include "src/GeoVaLs.h"
-#include "src/ObsVec.h"
+#include "src/ObsVector.h"
 
 #define ERR(e) {throw eckit::Exception(nc_strerror(e), Here());}
 
@@ -319,8 +319,8 @@ void ObsSpace::generateDistribution(const eckit::Configuration & config) {
 
 // -----------------------------------------------------------------------------
 
-void ObsSpace::printJo(const ObsVec &,
-                       const ObsVec &) {
+void ObsSpace::printJo(const ObsVector &,
+                       const ObsVector &) {
   oops::Log::trace() << classname() << "::printJo starting" << std::endl;
 
   oops::Log::info() << "ObsSpace::printJo not implemented" << std::endl;
@@ -330,7 +330,7 @@ void ObsSpace::printJo(const ObsVec &,
 
 // -----------------------------------------------------------------------------
 
-void ObsSpace::screenObservations(const ObsVec & dep,
+void ObsSpace::screenObservations(const ObsVector & dep,
                                   const GeoVaLs & gv) const {
   oops::Log::trace() << classname() << "::screenObservations starting" << std::endl;
 

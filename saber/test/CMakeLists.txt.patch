@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-05-28 09:21:06.222715639 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-05-28 09:18:36.270004483 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-05-30 11:24:44.952650527 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-05-30 11:24:14.868580601 +0200
 @@ -7,9 +7,6 @@
  # Tests activated
  message( STATUS "SABER tests activated:" )
@@ -10,15 +10,6 @@
  # Default SABER_TEST_TIER
  set( SABER_TEST_TIER 1 )
  
-@@ -29,7 +26,7 @@
- endif()
- 
- # Default test selection variables (TIER-independent)
--set( SABER_TEST_VALGRIND 0 )
-+set( SABER_TEST_VALGRIND 0 )	
- set( SABER_TEST_FASTLAM 1 )
- set( SABER_TEST_GSI_GEOS 0 )
- if( gsibec_FOUND )
 @@ -148,9 +145,10 @@
      file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
@@ -33,3 +24,14 @@
  
      # Link to reference file
      if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
+@@ -217,8 +215,8 @@
+                 endif()
+ 
+                 # Special check for 4D tests
+-                string( FIND ${test} "_4d" fourd_result )
+-                if( fourd_result EQUAL -1 OR ( fourd_result GREATER_EQUAL 0 AND ${mpi} GREATER 1 ) )
++                string( FIND ${test} "_4d" found_result )
++                if( found_result EQUAL -1 )
+                     set( 4dCheck true CACHE BOOL "" FORCE )
+                 else()
+                     set( 4dCheck false CACHE BOOL "" FORCE )

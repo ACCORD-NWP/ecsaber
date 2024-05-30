@@ -9,19 +9,16 @@
 
 #include <ostream>
 #include <string>
+#include <boost/noncopyable.hpp>
 
+#include "eckit/config/Configuration.h"
 #include "eckit/exception/Exceptions.h"
-#include "eckit/memory/NonCopyable.h"
 
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
 #include "src/Increment.h"
 #include "src/IncrModCtlVec.h"
-
-namespace eckit {
-  class Configuration;
-}
 
 namespace quench {
   class Geometry;
@@ -31,7 +28,7 @@ namespace quench {
 /// Covariance class
 
 class Covariance : public util::Printable,
-                   private eckit::NonCopyable,
+                   private boost::noncopyable,
                    private util::ObjectCounter<Covariance> {
  public:
   static const std::string classname()
@@ -42,6 +39,7 @@ class Covariance : public util::Printable,
   Covariance(const Geometry &,
              const Variables &,
              const eckit::Configuration &,
+             const State &,
              const State &)
     {}
   ~Covariance()

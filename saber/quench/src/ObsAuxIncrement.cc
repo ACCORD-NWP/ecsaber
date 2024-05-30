@@ -13,6 +13,7 @@
 
 #include "src/ObsAuxControl.h"
 #include "src/ObsAuxCovariance.h"
+#include "src/ObsSpace.h"
 
 #include "util/Logger.h"
 

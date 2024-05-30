@@ -19,6 +19,7 @@
 #include "oops/util/DateTime.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
+#include "oops/util/Serializable.h"
 
 #include "src/Fields.h"
 #include "src/IncrementECInc.h"
@@ -31,7 +32,7 @@ namespace quench {
 /// Increment class
 
 class Increment : public util::Printable,
-                  public oops::GeneralizedDepartures,
+                  public util::Serializable,
                   private util::ObjectCounter<Increment> {
  public:
   static const std::string classname()
@@ -100,7 +101,8 @@ class Increment : public util::Printable,
   void accumul(const double & zz,
                const State & xx)
     {fields_->axpy(zz, xx.fields());}
-  const Variables & variables() const {return fields_->variables();}
+  const Variables & variables() const
+    {return fields_->variables();}
 
 // Serialization
   size_t serialSize() const

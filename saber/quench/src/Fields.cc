@@ -737,10 +737,10 @@ void Fields::toFieldSet(atlas::FieldSet & fset) const {
   // Share internal fieldset
   fset.clear();
   fset = util::shareFields(fset_);
-  for (auto field_external : fset) {
-    field_external.metadata().set("interp_type", "default");
+  for (auto field : fset) {
+    field.metadata().set("interp_type", "default");
+    field.set_dirty(fset_[field.name()].dirty());
   }
-  fset.set_dirty(false);
 
   oops::Log::trace() << classname() << "::toFieldSet done" << std::endl;
 }
@@ -818,6 +818,12 @@ void Fields::read(const eckit::Configuration & config) {
   // Set FieldsIO
   std::unique_ptr<FieldsIOBase> fieldsIO(FieldsIOFactory::create(ioFormat));
 
+  // Create variableSizes
+  std::vector<size_t> variableSizes;
+  for (const auto & var : vars_.variables()) {
+    variableSizes.push_back(geom_->levels(var));
+  }
+
   // Update variables names
   std::vector<std::string> variableNames;
   for (const auto & var : vars_.variables()) {
@@ -834,7 +840,7 @@ void Fields::read(const eckit::Configuration & config) {
   Variables vars(variableNames);
 
   // Read fields
-  fieldsIO->read(*geom_, vars, config, fset_);
+  fieldsIO->read(*geom_, vars, variableSizes, config, fset_);
 
   // Rename fields
   for (auto & field : fset_) {
@@ -1031,7 +1037,7 @@ std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geomet
 
 // -----------------------------------------------------------------------------
 
-#include "src/FieldsECImp.cc"
+#include "src/FieldsECImp.h"
 
 // -----------------------------------------------------------------------------
 

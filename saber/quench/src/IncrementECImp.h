@@ -1,3 +1,10 @@
+/*
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
+ */
+
+#pragma once
+
 // -----------------------------------------------------------------------------
 
 Increment::Increment(const Geometry & resol,

@@ -11,7 +11,7 @@
 
 #include "oops/interface/GenericMatrix.h"
 
-#include "src/Traits.h"
+#include "src/TraitsFwd.h"
 
 #include "util/ObjectCounter.h"
 

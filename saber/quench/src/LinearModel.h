@@ -11,7 +11,7 @@
 
 #include "oops/interface/LinearModelBase.h"
 
-#include "src/Traits.h"
+#include "src/TraitsFwd.h"
 
 #include "util/Duration.h"
 #include "util/ObjectCounter.h"
@@ -22,6 +22,7 @@ namespace eckit {
 }
 
 namespace quench {
+  class State;
 
 // -----------------------------------------------------------------------------
 /// LinearModel class

@@ -55,8 +55,8 @@ ObsOperator.cc
 ObsOperator.h
 ObsSpace.cc
 ObsSpace.h
-ObsVec.cc
-ObsVec.h
+ObsVector.cc
+ObsVector.h
 State.cc
 State.h
 Traits.h

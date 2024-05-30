@@ -1,3 +1,10 @@
+/*
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
+ */
+
+#pragma once
+
 #include "atlas/grid.h"
 #include "atlas/mesh.h"
 #include "atlas/meshgenerator.h"

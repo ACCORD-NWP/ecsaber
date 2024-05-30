@@ -1,3 +1,17 @@
+/*
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
+ */
+
+#pragma once
+
+#include <algorithm>
+#include <limits>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 // -----------------------------------------------------------------------------
 
 double Fields::min(const Variables & vars) const {
@@ -80,7 +94,8 @@ void Fields::interpolate(const Locations & locs,
       const auto obsView = atlas::array::make_view<double, 2>(obsFieldSet[var]);
       auto gvView = atlas::array::make_view<double, 1>(gv.fieldSet()[var]);
       gvView.assign(0.0);
-      const std::vector<interp::InterpElement> & verInterp = interpolation->verticalInterpolation(var);
+      const std::vector<interp::InterpElement> & verInterp
+        = interpolation->verticalInterpolation(var);
       for (int jo = 0; jo < locs.size(); ++jo) {
         for (const auto & operation : verInterp[jo].operations()) {
           gvView(jo) += operation.second*obsView(jo, operation.first);
@@ -115,7 +130,8 @@ void Fields::interpolateAD(const Locations & locs,
       const auto gvView = atlas::array::make_view<double, 1>(gv.fieldSet()[var]);
       auto obsView = atlas::array::make_view<double, 2>(obsFieldSet[var]);
       obsView.assign(0.0);
-      const std::vector<interp::InterpElement> & verInterp = interpolation->verticalInterpolation(var);
+      const std::vector<interp::InterpElement> & verInterp
+        = interpolation->verticalInterpolation(var);
       for (int jo = 0; jo < locs.size(); ++jo) {
         for (const auto & operation : verInterp[jo].operations()) {
           obsView(jo, operation.first) += operation.second*gvView(jo);

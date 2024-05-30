@@ -1,3 +1,13 @@
+/*
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
+ */
+
+#pragma once
+
+#include <string>
+#include <vector>
+
  public:
   const eckit::mpi::Comm & timeComm() const
     {return eckit::mpi::self();}

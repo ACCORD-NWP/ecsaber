@@ -14,7 +14,7 @@
 
 #include "util/ObjectCounter.h"
 
-#include "src/Traits.h"
+#include "src/TraitsFwd.h"
 #include "src/Variables.h"
 
 namespace eckit {
@@ -34,7 +34,7 @@ namespace quench {
   class GeoVaLs;
   class ObsAuxControl;
   class ObsSpace;
-  class ObsVec;
+  class ObsVector;
 
 // -----------------------------------------------------------------------------
 /// ObsOperator class
@@ -53,10 +53,12 @@ class ObsOperator : public oops::ObsOperatorBase<Traits>,
   ~ObsOperator()
     {}
 
-  void obsEquiv(const GeoVaLs &, ObsVec &,
+  void obsEquiv(const GeoVaLs &,
+                ObsVector &,
                 const ObsAuxControlPtrMap_ &) const;
 
-  void obsBiasEquiv(const GeoVaLs &, ObsVec &,
+  void obsBiasEquiv(const GeoVaLs &,
+                    ObsVector &,
                     const ObsAuxControlPtrMap_ &) const
     {}
 

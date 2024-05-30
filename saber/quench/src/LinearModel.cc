@@ -3,9 +3,9 @@
  * 
  */
 
+#include "src/Increment.h"
 #include "src/LinearModel.h"
-
-#include "src/Traits.h"
+#include "src/TraitsFwd.h"
 
 #include "util/Logger.h"
 

@@ -3,7 +3,7 @@
  *
  */
 
-#include "src/ObsVec.h"
+#include "src/ObsVector.h"
 
 #include <math.h>
 #include <limits>
@@ -22,21 +22,21 @@ namespace quench {
 
 // -----------------------------------------------------------------------------
 
-ObsVec::ObsVec(const ObsSpace & obsSpace)
+ObsVector::ObsVector(const ObsSpace & obsSpace)
   : comm_(obsSpace.getComm()), obsSpace_(obsSpace), data_(obsSpace.sizeLoc()) {
-  oops::Log::trace() << classname() << "::ObsVec starting" << std::endl;
+  oops::Log::trace() << classname() << "::ObsVector starting" << std::endl;
 
   zero();
 
-  oops::Log::trace() << classname() << "::ObsVec done" << std::endl;
+  oops::Log::trace() << classname() << "::ObsVector done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-ObsVec::ObsVec(const ObsVec & other,
-               const bool copy)
+ObsVector::ObsVector(const ObsVector & other,
+                     const bool copy)
   : comm_(other.comm_), obsSpace_(other.obsSpace_), data_(other.data_.size()) {
-  oops::Log::trace() << classname() << "::ObsVec starting" << std::endl;
+  oops::Log::trace() << classname() << "::ObsVector starting" << std::endl;
 
   if (copy) {
     data_ = other.data_;
@@ -44,12 +44,12 @@ ObsVec::ObsVec(const ObsVec & other,
     zero();
   }
 
-  oops::Log::trace() << classname() << "::ObsVec done" << std::endl;
+  oops::Log::trace() << classname() << "::ObsVector done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-ObsVec & ObsVec::operator= (const ObsVec & rhs) {
+ObsVector & ObsVector::operator= (const ObsVector & rhs) {
   oops::Log::trace() << classname() << "::operator= starting" << std::endl;
 
   ASSERT(data_.size() == rhs.data_.size());
@@ -61,7 +61,7 @@ ObsVec & ObsVec::operator= (const ObsVec & rhs) {
 
 // -----------------------------------------------------------------------------
 
-ObsVec & ObsVec::operator*= (const double & zz) {
+ObsVector & ObsVector::operator*= (const double & zz) {
   oops::Log::trace() << classname() << "::operator*= starting" << std::endl;
 
   for (double & val : data_) {
@@ -74,7 +74,7 @@ ObsVec & ObsVec::operator*= (const double & zz) {
 
 // -----------------------------------------------------------------------------
 
-ObsVec & ObsVec::operator+= (const ObsVec & rhs) {
+ObsVector & ObsVector::operator+= (const ObsVector & rhs) {
   oops::Log::trace() << classname() << "::operator+= starting" << std::endl;
 
   ASSERT(data_.size() == rhs.data_.size());
@@ -88,7 +88,7 @@ ObsVec & ObsVec::operator+= (const ObsVec & rhs) {
 
 // -----------------------------------------------------------------------------
 
-ObsVec & ObsVec::operator-= (const ObsVec & rhs) {
+ObsVector & ObsVector::operator-= (const ObsVector & rhs) {
   oops::Log::trace() << classname() << "::operator-= starting" << std::endl;
 
   ASSERT(data_.size() == rhs.data_.size());
@@ -102,7 +102,7 @@ ObsVec & ObsVec::operator-= (const ObsVec & rhs) {
 
 // -----------------------------------------------------------------------------
 
-ObsVec & ObsVec::operator*= (const ObsVec & rhs) {
+ObsVector & ObsVector::operator*= (const ObsVector & rhs) {
   oops::Log::trace() << classname() << "::operator*= starting" << std::endl;
 
   ASSERT(data_.size() == rhs.data_.size());
@@ -116,7 +116,7 @@ ObsVec & ObsVec::operator*= (const ObsVec & rhs) {
 
 // -----------------------------------------------------------------------------
 
-ObsVec & ObsVec::operator/= (const ObsVec & rhs) {
+ObsVector & ObsVector::operator/= (const ObsVector & rhs) {
   oops::Log::trace() << classname() << "::operator/= starting" << std::endl;
 
   ASSERT(data_.size() == rhs.data_.size());
@@ -130,7 +130,7 @@ ObsVec & ObsVec::operator/= (const ObsVec & rhs) {
 
 // -----------------------------------------------------------------------------
 
-void ObsVec::zero() {
+void ObsVector::zero() {
   oops::Log::trace() << classname() << "::zero starting" << std::endl;
 
   for (double & val : data_) {
@@ -142,7 +142,7 @@ void ObsVec::zero() {
 
 // -----------------------------------------------------------------------------
 
-void ObsVec::invert() {
+void ObsVector::invert() {
   oops::Log::trace() << classname() << "::invert starting" << std::endl;
 
   for (double & val : data_) {
@@ -154,8 +154,8 @@ void ObsVec::invert() {
 
 // -----------------------------------------------------------------------------
 
-void ObsVec::axpy(const double & zz,
-                  const ObsVec & rhs) {
+void ObsVector::axpy(const double & zz,
+                     const ObsVector & rhs) {
   oops::Log::trace() << classname() << "::axpy starting" << std::endl;
 
   ASSERT(data_.size() == rhs.data_.size());
@@ -168,7 +168,7 @@ void ObsVec::axpy(const double & zz,
 
 // -----------------------------------------------------------------------------
 
-void ObsVec::random() {
+void ObsVector::random() {
   oops::Log::trace() << classname() << "::random starting" << std::endl;
 
   // Global vector
@@ -212,7 +212,7 @@ void ObsVec::random() {
 
 // -----------------------------------------------------------------------------
 
-double ObsVec::dot_product_with(const ObsVec & other) const {
+double ObsVector::dot_product_with(const ObsVector & other) const {
   oops::Log::trace() << classname() << "::dot_product_with starting" << std::endl;
 
   ASSERT(data_.size() == other.data_.size());
@@ -228,7 +228,7 @@ double ObsVec::dot_product_with(const ObsVec & other) const {
 
 // -----------------------------------------------------------------------------
 
-double ObsVec::rms() const {
+double ObsVector::rms() const {
   oops::Log::trace() << classname() << "::rms starting" << std::endl;
 
   double zz = 0.0;
@@ -246,7 +246,7 @@ double ObsVec::rms() const {
 
 // -----------------------------------------------------------------------------
 
-void ObsVec::print(std::ostream & os) const {
+void ObsVector::print(std::ostream & os) const {
   oops::Log::trace() << classname() << "::print starting" << std::endl;
 
   double zmin = std::numeric_limits<double>::max();

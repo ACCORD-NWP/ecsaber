@@ -16,8 +16,8 @@
 
 #include "src/GeoVaLs.h"
 #include "src/ObsAuxControl.h"
-#include "src/ObsVec.h"
-#include "src/Traits.h"
+#include "src/ObsVector.h"
+#include "src/TraitsFwd.h"
 #include "src/Variables.h"
 
 namespace quench {
@@ -36,7 +36,8 @@ ObsOperator::ObsOperator(const ObsSpace & obsSpace,
 
 // -----------------------------------------------------------------------------
 
-void ObsOperator::obsEquiv(const GeoVaLs & gv, ObsVec & ovec,
+void ObsOperator::obsEquiv(const GeoVaLs & gv,
+                           ObsVector & ovec,
                            const ObsAuxControlPtrMap_ & bias) const {
   oops::Log::trace() << classname() << "::obsEquiv starting" << std::endl;
 

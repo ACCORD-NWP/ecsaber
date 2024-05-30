@@ -105,6 +105,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
   // Fill output configuration and set ensemble size
   size_t nens = 0;
   size_t ensembleFound = 0;
+  eckit::LocalConfiguration varConf;
 
   // Ensemble of states, perturbation using the mean
   std::vector<eckit::LocalConfiguration> ensembleConf;
@@ -116,6 +117,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     }
     nens = ensembleConf[0].getInt("members");
     outputConf.set("ensemble", ensembleConf);
+    varConf = ensembleConf[0];
     ++ensembleFound;
   }
 
@@ -129,6 +131,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     }
     nens = ensemblePert[0].getInt("members");
     outputConf.set("ensemble", ensemblePert);
+    varConf = ensemblePert[0];
     ++ensembleFound;
   }
 
@@ -148,6 +151,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     if (ensemblePertOtherGeom.has("members")) {
       const auto members = ensemblePertOtherGeom.getSubConfigurations("members");
       nens = members.size();
+      varConf = members[0];
     }
 
     if (ensemblePertOtherGeom.has("members from template")) {
@@ -156,6 +160,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       ASSERT(members.has("pattern"));
       ASSERT(members.has("template"));
       nens = members.getInt("nmembers");
+      varConf = members.getSubConfiguration("template");
     }
 
     outputConf.set("ensemble pert on other geometry", ensemblePertOtherGeom);
@@ -170,7 +175,9 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
   // Check number of ensembles in yaml
   ASSERT(ensembleFound <= 1);
 
-  oops::JediVariables vars(modelvars);
+  oops::JediVariables vars(varConf.has("variables") ?
+    oops::JediVariables{varConf.getStringVector("variables")} :
+    modelvars);
 
   if (!iterativeEnsembleLoading) {
     // Full ensemble loading
