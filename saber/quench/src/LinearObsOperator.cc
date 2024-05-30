@@ -13,7 +13,7 @@
 #include "src/GeoVaLs.h"
 #include "src/ObsAuxIncrement.h"
 #include "src/ObsSpace.h"
-#include "src/ObsVec.h"
+#include "src/ObsVector.h"
 #include "src/Variables.h"
 
 namespace quench {
@@ -32,7 +32,8 @@ LinearObsOperator::LinearObsOperator(const ObsSpace &,
 
 // -----------------------------------------------------------------------------
 
-void LinearObsOperator::obsEquivTL(const GeoVaLs & gv, ObsVec & ovec,
+void LinearObsOperator::obsEquivTL(const GeoVaLs & gv,
+                                   ObsVector & ovec,
                                    const ObsAuxIncrementPtrMap_ & bias) const {
   oops::Log::trace() << classname() << "::obsEquivTL starting" << std::endl;
 
@@ -64,7 +65,8 @@ void LinearObsOperator::obsEquivTL(const GeoVaLs & gv, ObsVec & ovec,
 
 // -----------------------------------------------------------------------------
 
-void LinearObsOperator::obsEquivAD(GeoVaLs & gv, const ObsVec & ovec,
+void LinearObsOperator::obsEquivAD(GeoVaLs & gv,
+                                   const ObsVector & ovec,
                                    ObsAuxIncrementPtrMap_ & bias) const {
   oops::Log::trace() << classname() << "::obsEquivAD starting" << std::endl;
 

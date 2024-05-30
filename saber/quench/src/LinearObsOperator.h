@@ -14,7 +14,7 @@
 
 #include "util/ObjectCounter.h"
 
-#include "src/Traits.h"
+#include "src/TraitsFwd.h"
 
 namespace eckit {
   class Configuration;
@@ -25,14 +25,14 @@ namespace quench {
   class ObsAuxControl;
   class ObsAuxIncrement;
   class ObsSpace;
-  class ObsVec;
+  class ObsVector;
   class Variables;
 
 // -----------------------------------------------------------------------------
 /// LinearObsOperator class
 
 class LinearObsOperator : public oops::LinearObsOperBase<Traits>,
-                        private util::ObjectCounter<LinearObsOperator> {
+                          private util::ObjectCounter<LinearObsOperator> {
   using ObsAuxControlPtrMap_ =
     typename std::map<std::string,
                       std::unique_ptr<oops::ObsAuxControlBase<Traits>> >;
@@ -54,27 +54,31 @@ class LinearObsOperator : public oops::LinearObsOperBase<Traits>,
 
 // Trajectory
   void setTrajectory(const GeoVaLs &,
-                     const ObsAuxControlPtrMap_ &)
+                     const ObsAuxControlPtrMap_ &) override
     {}
 
 // Obs. equivalents
-  void obsEquivTL(const GeoVaLs &, ObsVec &,
+  void obsEquivTL(const GeoVaLs &,
+                  ObsVector &,
                   const ObsAuxIncrementPtrMap_ &) const;
-  void obsEquivAD(GeoVaLs &, const ObsVec &,
+  void obsEquivAD(GeoVaLs &,
+                  const ObsVector &,
                   ObsAuxIncrementPtrMap_ &) const;
-  void obsBiasEquivTL(const GeoVaLs &, ObsVec &,
+  void obsBiasEquivTL(const GeoVaLs &,
+                      ObsVector &,
                       const ObsAuxIncrementPtrMap_ &) const
     {}
-  void obsBiasEquivAD(const GeoVaLs &, const ObsVec &,
+  void obsBiasEquivAD(const GeoVaLs &,
+                      const ObsVector &,
                       ObsAuxIncrementPtrMap_ &) const
     {}
 
 // Variables accessor
-  std::shared_ptr<const Variables> variables() const
+  std::shared_ptr<const Variables> variables() const override
     {return inputs_;}
 
  private:
-  void print(std::ostream &) const;
+  void print(std::ostream &) const override;
 
   std::shared_ptr<const Variables> inputs_;
 };

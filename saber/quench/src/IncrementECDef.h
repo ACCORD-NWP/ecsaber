@@ -1,3 +1,12 @@
+/*
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
+ */
+
+#pragma once
+
+#include <algorithm>
+
  public:
   Increment(const Geometry &,
             const Variables &,

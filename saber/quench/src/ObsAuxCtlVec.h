@@ -12,7 +12,7 @@
 #include "oops/interface/ObsAuxCtlVecBase.h"
 #include "util/Printable.h"
 
-#include "src/Traits.h"
+#include "src/TraitsFwd.h"
 
 namespace oops {
   template <typename MODEL>

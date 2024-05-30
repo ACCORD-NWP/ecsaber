@@ -1,3 +1,13 @@
+/*
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
+ */
+
+#pragma once
+
+#include <algorithm>
+#include <vector>
+
  public:
   double min(const Variables &) const;
   double max(const Variables &) const;

@@ -88,7 +88,7 @@ class GroupParameters : public oops::Parameters {
   oops::Parameter<std::string> maskType{"mask type", "none", this};
 
   /// Mask path
-  oops::Parameter<std::string> maskPath{"mask path", "../src/data/landsea.nc", this};
+  oops::Parameter<std::string> maskPath{"mask path", "../quench/data/landsea.nc", this};
 };
 
 // -----------------------------------------------------------------------------

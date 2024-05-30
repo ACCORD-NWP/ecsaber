@@ -8,7 +8,7 @@
 #include "oops/interface/GenericMatrix.h"
 
 #include "src/HybridWeight.h"
-#include "src/Traits.h"
+#include "src/TraitsFwd.h"
 
 namespace quench {
 

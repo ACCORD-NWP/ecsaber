@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-05-22 16:04:46.844371513 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-05-22 13:09:28.688445832 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-05-29 07:56:56.281084915 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-05-29 07:58:00.159482038 +0200
 @@ -23,15 +23,14 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -41,11 +41,8 @@
  void setMPI(eckit::LocalConfiguration & conf,
              const int & mpi);
  
-@@ -100,46 +105,30 @@
-   // Fill output configuration and set ensemble size
-   size_t nens = 0;
-   size_t ensembleFound = 0;
--  eckit::LocalConfiguration varConf;
+@@ -103,43 +108,30 @@
+   eckit::LocalConfiguration varConf;
  
    // Ensemble of states, perturbation using the mean
 -  oops::IncrementEnsembleFromStatesParameters<MODEL> ensembleParams;
@@ -63,6 +60,7 @@
 +    nens = ensembleConf[0].getInt("members");
      outputConf.set("ensemble", ensembleConf);
 -    varConf = ensembleParams.states.getStateConfig(0, 0);
++    varConf = ensembleConf[0];
      ++ensembleFound;
    }
  
@@ -100,36 +98,11 @@
 +    }
 +    nens = ensemblePert[0].getInt("members");
 +    outputConf.set("ensemble", ensemblePert);
++    varConf = ensemblePert[0];
      ++ensembleFound;
    }
  
-@@ -159,7 +148,6 @@
-     if (ensemblePertOtherGeom.has("members")) {
-       const auto members = ensemblePertOtherGeom.getSubConfigurations("members");
-       nens = members.size();
--      varConf = members[0];
-     }
- 
-     if (ensemblePertOtherGeom.has("members from template")) {
-@@ -168,7 +156,6 @@
-       ASSERT(members.has("pattern"));
-       ASSERT(members.has("template"));
-       nens = members.getInt("nmembers");
--      varConf = members.getSubConfiguration("template");
-     }
- 
-     outputConf.set("ensemble pert on other geometry", ensemblePertOtherGeom);
-@@ -183,44 +170,47 @@
-   // Check number of ensembles in yaml
-   ASSERT(ensembleFound <= 1);
- 
--  oops::JediVariables vars(varConf.has("variables") ?
--    oops::JediVariables{varConf.getStringVector("variables")} :
--    modelvars);
-+  oops::JediVariables vars(modelvars);
- 
-   if (!iterativeEnsembleLoading) {
-     // Full ensemble loading
+@@ -192,35 +184,40 @@
      oops::Log::info() << "Info     : Read full ensemble" << std::endl;
  
      // Ensemble of states, perturbation using the mean
@@ -191,7 +164,7 @@
        return fsetEns;
      }
  
-@@ -272,15 +262,15 @@
+@@ -272,15 +269,15 @@
        // Read perturbations into oops::FieldSets
        oops::FieldSets fsetEns(fspace, vars, xb.times(),
                                ensemblePertOtherGeom,
@@ -210,7 +183,7 @@
  }
  
  // -------------------------------------------------------------------------------------------------
-@@ -298,14 +288,17 @@
+@@ -298,14 +295,17 @@
    // Local copy
    eckit::LocalConfiguration localConf(conf);
  
@@ -230,7 +203,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -325,54 +318,42 @@
+@@ -325,54 +325,42 @@
    // Fill FieldSet
    size_t ensembleFound = 0;
  

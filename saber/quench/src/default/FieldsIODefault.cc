@@ -24,15 +24,10 @@ static FieldsIOMaker<FieldsIODefault> makerDefault_("default");
 
 void FieldsIODefault::read(const Geometry & geom,
                            const Variables & vars,
+                           const std::vector<size_t> & variableSizes,
                            const eckit::Configuration & conf,
                            atlas::FieldSet & fset) const {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
-
-  // Create variableSizes
-  std::vector<size_t> variableSizes;
-  for (const auto & var : vars.variables()) {
-    variableSizes.push_back(geom.levels(var));
-  }
 
   // Read fieldset
   util::readFieldSet(geom.getComm(),

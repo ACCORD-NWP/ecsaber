@@ -1,18 +1,35 @@
 /*
- * (C) Copyright 2023 Meteorologisk Institutt
- * 
+ * (C) Copyright 2022 UCAR.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
 #include "src/State.h"
 
 #include <vector>
 
+#include "eckit/exception/Exceptions.h"
+
+#include "oops/util/Logger.h"
+
 #include "src/Fields.h"
 #include "src/Increment.h"
 
-#include "util/Logger.h"
-
 namespace quench {
+
+// -----------------------------------------------------------------------------
+
+State::State(const Geometry & resol,
+                   const Variables & vars,
+                   const util::DateTime & vt)
+  : fields_(new Fields(resol, vars, vt)) {
+  oops::Log::trace() << classname() << "::State starting" << std::endl;
+
+  fields_->zero();
+
+  oops::Log::trace() << classname() << "::State done" << std::endl;
+}
 
 // -----------------------------------------------------------------------------
 
@@ -21,7 +38,9 @@ State::State(const Geometry & resol,
   : fields_() {
   oops::Log::trace() << classname() << "::State starting" << std::endl;
 
-  const Variables vars(file);
+  const std::vector<std::string> varNames = file.has("state variables") ?
+    file.getStringVector("state variables") : file.getStringVector("variables");
+  const Variables vars(varNames);
   fields_.reset(new Fields(resol, vars, util::DateTime()));
   if (file.has("filepath")) {
     oops::Log::info() << "Info     : Create state from file" << std::endl;

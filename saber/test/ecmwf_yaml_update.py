@@ -136,13 +136,19 @@ def add_ensemble_variables(config):
             for i4D in range(0, n4D):
                 conf3D = {}
                 conf3D["state"] = ensemble[i4D]
-                conf3D["variables"] = ensemble[0][0]["variables"]
+                if "variables" in ensemble[0][0]:
+                    conf3D["variables"] = ensemble[0][0]["variables"]
+                else:
+                    conf3D["variables"] = variables
                 conf3D["members"] = len(ensemble[0])
                 config["ensemble"].append(conf3D)
         else:
             covariance["state"] = ensemble
             covariance["date"] = date
-            covariance["variables"] = ensemble[0]["variables"]
+            if "variables" in ensemble[0]:
+                covariance["variables"] = ensemble[0]["variables"]
+            else:
+                covariance["variables"] = nvariables
             covariance["members"] = len(ensemble)
 
     if "ensemble pert" in config:
@@ -150,7 +156,10 @@ def add_ensemble_variables(config):
         ensemble = covariance["members"]
         covariance["state"] = ensemble
         covariance["date"] = date
-        covariance["variables"] = variables
+        if "variables" in ensemble[0]:
+            covariance["variables"] = ensemble[0]["variables"]
+        else:
+            covariance["variables"] = variables
         covariance.pop("members")
         covariance["members"] = len(ensemble)
 
@@ -162,7 +171,10 @@ def add_ensemble_variables(config):
             ensemble = covariance["members"]
             covariance["state"] = ensemble
             covariance["date"] = date
-            covariance["variables"] = variables
+            if "variables" in ensemble[0]:
+                covariance["variables"] = ensemble[0]["variables"]
+            else:
+                covariance["variables"] = variables
             covariance.pop("members")
             covariance["members"] = len(ensemble)
 
@@ -171,7 +183,10 @@ def add_ensemble_variables(config):
             ensemble = covariance["members"]
             covariance["state"] = ensemble
             covariance["date"] = date
-            covariance["variables"] = variables
+            if "variables" in ensemble[0]:
+                covariance["variables"] = ensemble[0]["variables"]
+            else:
+                covariance["variables"] = variables
             covariance.pop("members")
             covariance["members"] = len(ensemble)
 

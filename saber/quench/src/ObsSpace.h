@@ -25,7 +25,7 @@ namespace eckit {
 
 namespace quench {
   class GeoVaLs;
-  class ObsVec;
+  class ObsVector;
   class Geometry;
 
 // -----------------------------------------------------------------------------
@@ -62,8 +62,8 @@ class ObsSpace : public util::Printable,
   std::vector<size_t> timeSelect(const util::DateTime &,
                                  const util::DateTime &) const;
   void generateDistribution(const eckit::Configuration &);
-  void printJo(const ObsVec &,
-               const ObsVec &);
+  void printJo(const ObsVector &,
+               const ObsVector &);
   const size_t & size() const
     {return nobsGlb_;}
   const size_t & sizeLoc() const
@@ -72,7 +72,7 @@ class ObsSpace : public util::Printable,
     {return nobsLocVec_;}
   const std::vector<size_t> & order() const
     {return order_;}
-  void screenObservations(const ObsVec &,
+  void screenObservations(const ObsVector &,
                           const GeoVaLs &) const;
   void saveObservations() const {}
 

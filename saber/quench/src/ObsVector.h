@@ -17,33 +17,33 @@
 namespace quench {
 
 // -----------------------------------------------------------------------------
-/// ObsVec class
+/// ObsVector class
 
-class ObsVec : public util::Printable,
-               private util::ObjectCounter<ObsVec> {
+class ObsVector : public util::Printable,
+                  private util::ObjectCounter<ObsVector> {
  public:
   static const std::string classname()
-    {return "quench::ObsVec";}
+    {return "quench::ObsVector";}
 
-  explicit ObsVec(const ObsSpace & obsSpace);
-  ObsVec(const ObsVec &,
+  explicit ObsVector(const ObsSpace & obsSpace);
+  ObsVector(const ObsVector &,
          const bool copy = true);
-  ~ObsVec()
+  ~ObsVector()
     {}
 
-  ObsVec & operator= (const ObsVec &);
-  ObsVec & operator*= (const double &);
-  ObsVec & operator+= (const ObsVec &);
-  ObsVec & operator-= (const ObsVec &);
-  ObsVec & operator*= (const ObsVec &);
-  ObsVec & operator/= (const ObsVec &);
+  ObsVector & operator= (const ObsVector &);
+  ObsVector & operator*= (const double &);
+  ObsVector & operator+= (const ObsVector &);
+  ObsVector & operator-= (const ObsVector &);
+  ObsVector & operator*= (const ObsVector &);
+  ObsVector & operator/= (const ObsVector &);
 
   void zero();
   void axpy(const double &,
-            const ObsVec &);
+            const ObsVector &);
   void invert();
   void random();
-  double dot_product_with(const ObsVec &) const;
+  double dot_product_with(const ObsVector &) const;
   double rms() const;
 
   size_t size() const

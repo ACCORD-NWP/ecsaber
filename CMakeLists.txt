@@ -14,6 +14,13 @@ if( DEFINED ENV{ECSABER_UPDATE} )
 endif()
 
 # Update functions
+function( patch_init commandPath )
+    if( ECSABER_UPDATE )
+        file( REMOVE ${commandPath} )
+        file( WRITE ${commandPath} "#!/usr/bin/env bash\n" )
+    endif()
+endfunction()
+
 function( check_diff projectName srcPath dstPath commandPath )
     if( ECSABER_UPDATE )
         execute_process( COMMAND ${CMAKE_SOURCE_DIR}/ecsaber/script/check_diff.sh ${srcPath} ${dstPath} ${commandPath} )
@@ -23,6 +30,14 @@ endfunction()
 function( check_diff_recursively input commandPath )
     if( ECSABER_UPDATE )
         execute_process( COMMAND ${CMAKE_SOURCE_DIR}/ecsaber/script/check_diff_recursively.sh ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${input} ${commandPath} )
+    endif()
+endfunction()
+
+function( patch_apply commandPath )
+    if( ECSABER_UPDATE )
+        execute_process( COMMAND bash ${commandPath}
+                         COMMAND_ERROR_IS_FATAL ANY )
+        file( REMOVE ${commandPath} )
     endif()
 endfunction()
 

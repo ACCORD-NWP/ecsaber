@@ -144,7 +144,7 @@ void Increment::print(std::ostream & os) const {
 
 // -----------------------------------------------------------------------------
 
-#include "src/IncrementECImp.cc"
+#include "src/IncrementECImp.h"
 
 // -----------------------------------------------------------------------------
 

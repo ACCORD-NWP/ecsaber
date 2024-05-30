@@ -103,20 +103,19 @@ util/stringFunctions.h
 util/TypeTraits.h
 )
 
-# Remove update summary
-file( REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-
+# Copy and update source from OOPS
+patch_init( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
 foreach( src_file ${oops_jedi_src_files} )
     check_diff( "oops"
                 ${CMAKE_CURRENT_SOURCE_DIR}/../../../oops-jedi/src/oops/${src_file}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${src_file}
-                ${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt )
+                ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
 endforeach()
+patch_apply( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
 
 # Check update summary
-if( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt")
-    message( FATAL_ERROR "Merge required:\n bash ${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-endif()
+add_custom_command( OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/update_result.sh"
+                    COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/update_patch.sh" )
 
 list( APPEND oops_ecmwf_src_files
 util/abor1_cpp.h
