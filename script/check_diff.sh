@@ -4,6 +4,7 @@
 srcPath=$1
 dstPath=$2
 commandPath=$3
+jediPrefix=$4
 
 # Initial check
 if test -f "${dstPath}"; then
@@ -27,20 +28,27 @@ srcExt="${srcFile##*.}"
 
 
 if test "${srcExt}" = "h" -o "${srcExt}" = "cc"; then
-  # Update content
-  if test "${srcFile}" = "Variables.h"; then
-    sed -i -e s/"Variables"/"JediVariables"/g ${dstPath}.tmp
-    sed -i -e s/"JediVariablesBase"/"VariablesBase"/g ${dstPath}.tmp
-  elif test "${srcFile}" = "Variables.cc"; then
-    sed -i -e s/"Variables"/"JediVariables"/g ${dstPath}.tmp
-    sed -i -e s/"JediVariablesBase"/"VariablesBase"/g ${dstPath}.tmp
-    sed -i -e s/"\/JediVariables"/"\/Variables"/g ${dstPath}.tmp
+  if test "${jediPrefix}" = "ON"; then
+    # Update content
+    if test "${srcFile}" = "Variables.h"; then
+      sed -i -e s/"Variables"/"JediVariables"/g ${dstPath}.tmp
+      sed -i -e s/"JediVariablesBase"/"VariablesBase"/g ${dstPath}.tmp
+    elif test "${srcFile}" = "Variables.cc"; then
+      sed -i -e s/"Variables"/"JediVariables"/g ${dstPath}.tmp
+      sed -i -e s/"JediVariablesBase"/"VariablesBase"/g ${dstPath}.tmp
+      sed -i -e s/"\/JediVariables"/"\/Variables"/g ${dstPath}.tmp
+    else
+      sed -i -e s/"Variables::Variables"/"JediVariables::JediVariables"/g ${dstPath}.tmp
+      sed -i -e s/"oops::Variables"/"oops::JediVariables"/g ${dstPath}.tmp
+      sed -i -e s/" Variables"/" JediVariables"/g ${dstPath}.tmp
+      sed -i -e s/"<Variables>"/"<JediVariables>"/g ${dstPath}.tmp
+      sed -i -e s/"^Variables"/"JediVariables"/g ${dstPath}.tmp
+    fi
+  elif test "${jediPrefix}" = "OFF"; then
+    sed -i -e s/"oops::Variables"/"Variables"/g ${dstPath}.tmp
   else
-    sed -i -e s/"Variables::Variables"/"JediVariables::JediVariables"/g ${dstPath}.tmp
-    sed -i -e s/"oops::Variables"/"oops::JediVariables"/g ${dstPath}.tmp
-    sed -i -e s/" Variables"/" JediVariables"/g ${dstPath}.tmp
-    sed -i -e s/"<Variables>"/"<JediVariables>"/g ${dstPath}.tmp
-    sed -i -e s/"^Variables"/"JediVariables"/g ${dstPath}.tmp
+    echo "Wrong JEDIPREFIX: "${JEDIPREFIX}
+    exit 1
   fi
 fi
 

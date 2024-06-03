@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.h.tmp	2024-06-03 16:18:03.253814065 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.h	2024-06-03 10:52:10.181156363 +0200
+@@ -21,6 +21,7 @@
+ #include "oops/util/Printable.h"
+ #include "oops/util/Serializable.h"
+ 
++#include "src/FieldsECInc.h"
+ #include "src/Interpolation.h"
+ 
+ namespace quench {
+@@ -115,6 +116,9 @@
+ 
+   // Fieldset
+   mutable atlas::FieldSet fset_;
++
++/// ECSABER-specific definitions
++#include "src/FieldsECDef.h"
+ };
+ 
+ // -----------------------------------------------------------------------------

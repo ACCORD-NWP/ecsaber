@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Increment.h.tmp	2024-06-03 16:18:03.493814715 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Increment.h	2024-06-03 10:56:21.201881997 +0200
+@@ -22,6 +22,7 @@
+ #include "oops/util/Serializable.h"
+ 
+ #include "src/Fields.h"
++#include "src/IncrementECInc.h"
+ #include "src/State.h"
+ 
+ namespace quench {
+@@ -116,6 +117,9 @@
+ 
+   // Fields
+   std::unique_ptr<Fields> fields_;
++
++/// ECSABER-specific definitions
++#include "src/IncrementECDef.h"
+ };
+ 
+ // -----------------------------------------------------------------------------

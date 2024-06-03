@@ -1,0 +1,64 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/TraitsFwd.h.tmp	2024-06-03 16:18:03.233814010 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/TraitsFwd.h	2024-05-30 10:58:43.849124694 +0200
+@@ -13,11 +13,24 @@
+ 
+ class Covariance;
+ class Geometry;
++class GeoVaLs;
++class HorizScaleDecomposition;
+ class Increment;
+-class LinearVariableChange;
+-class ModelData;
++class IncrEnsCtlVec;
++class IncrModCtlVec;
++class Interpolator;
++class LocalizationMatrix;
++class Locations;
++class Model;
++class ModelAuxControl;
++class ModelAuxControlEstimator;
++class ModelAuxCovariance;
++class ModelAuxCtlVec;
++class ModelAuxIncrement;
++class ObsSpace;
++class ObsVector;
+ class State;
+-class VariableChange;
++class Variables;
+ 
+ struct Traits {
+   static std::string name()
+@@ -25,13 +38,26 @@
+   static std::string nameCovar()
+     {return "quenchCovariance";}
+ 
+-  typedef quench::Covariance           Covariance;
+-  typedef quench::Geometry             Geometry;
+-  typedef quench::Increment            Increment;
+-  typedef quench::LinearVariableChange LinearVariableChange;
+-  typedef quench::ModelData            ModelData;
+-  typedef quench::State                State;
+-  typedef quench::VariableChange       VariableChange;
++  using Covariance = quench::Covariance;
++  using Geometry = quench::Geometry;
++  using GeoVaLs = quench::GeoVaLs;
++  using HorizScaleDecomposition = quench::HorizScaleDecomposition;
++  using Increment = quench::Increment;
++  using IncrEnsCtlVec = quench::IncrEnsCtlVec;
++  using IncrModCtlVec = quench::IncrModCtlVec;
++  using Interpolator = quench::Interpolator;
++  using LocalizationMatrix = quench::LocalizationMatrix;
++  using Locations = quench::Locations;
++  using Model = quench::Model;
++  using ModelAuxControl = quench::ModelAuxControl;
++  using ModelAuxControlEstimator = quench::ModelAuxControlEstimator;
++  using ModelAuxCovariance = quench::ModelAuxCovariance;
++  using ModelAuxCtlVec = quench::ModelAuxCtlVec;
++  using ModelAuxIncrement = quench::ModelAuxIncrement;
++  using ObsSpace = quench::ObsSpace;
++  using ObsVector = quench::ObsVector;
++  using State = quench::State;
++  using Variables = quench::Variables;
+ };
+ 
+ }  // namespace quench

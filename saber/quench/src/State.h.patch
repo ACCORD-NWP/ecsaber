@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h.tmp	2024-06-03 16:12:41.068928437 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h	2024-06-03 10:55:21.541709439 +0200
+@@ -17,6 +17,7 @@
+ #include "oops/util/Printable.h"
+ 
+ #include "src/Fields.h"
++#include "src/StateECInc.h"
+ 
+ namespace eckit {
+   class Configuration;
+@@ -106,6 +107,9 @@
+ 
+   // Fields
+   std::unique_ptr<Fields> fields_;
++
++/// ECSABER-specific definitions
++#include "src/StateECDef.h"
+ };
+ 
+ // -----------------------------------------------------------------------------

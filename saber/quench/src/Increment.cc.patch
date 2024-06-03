@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Increment.cc.tmp	2024-06-03 16:18:03.477814671 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Increment.cc	2024-05-28 13:29:37.475390206 +0200
+@@ -144,4 +144,8 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
++#include "src/IncrementECImp.h"
++
++// -----------------------------------------------------------------------------
++
+ }  // namespace quench

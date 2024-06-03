@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc.tmp	2024-06-03 16:18:03.517814780 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc	2024-06-03 13:46:35.749161855 +0200
+@@ -1037,4 +1037,8 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
++#include "src/FieldsECImp.h"
++
++// -----------------------------------------------------------------------------
++
+ }  // namespace quench

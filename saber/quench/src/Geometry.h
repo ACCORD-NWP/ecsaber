@@ -146,7 +146,8 @@ class GeometryParameters : public oops::Parameters {
 class Geometry : public util::Printable,
                  private util::ObjectCounter<Geometry> {
  public:
-  static const std::string classname() {return "quench::Geometry";}
+  static const std::string classname()
+    {return "quench::Geometry";}
 
   // Constructors
   Geometry(const eckit::Configuration &,
