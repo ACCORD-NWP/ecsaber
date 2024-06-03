@@ -64,7 +64,6 @@ Fields::Fields(const Geometry & geom,
     fset_.add(field);
   }
 
-
   // Set interpolation type
   for (auto field : fset_) {
     field.metadata().set("interp_type", "default");
@@ -804,6 +803,7 @@ void Fields::fromFieldSet(const atlas::FieldSet & fset) {
       }
     }
   }
+
   oops::Log::trace() << classname() << "::fromFieldSet done" << std::endl;
 }
 

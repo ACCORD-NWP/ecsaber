@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2024-03-07 14:56:02.504891362 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2024-03-07 12:56:50.205485640 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2024-06-03 11:14:57.985479627 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2024-06-03 11:24:02.115263235 +0200
 @@ -1,8 +1,6 @@
  /*
 - * (C) Copyright 2021 UCAR
@@ -72,7 +72,7 @@
                                    const eckit::Configuration & conf)
    : loc_()
  {
-@@ -64,21 +75,29 @@
+@@ -64,21 +75,17 @@
    util::DateTime dummyTime(1977, 5, 25, 0, 0, 0);
  
    // Initialize
@@ -88,39 +88,28 @@
 -  const State_ xb_state(geom, incVars, dummyTime);
 -  oops::FieldSet3D xb(dummyTime, geom.getComm());
 -  xb.shallowCopy(xb_state.fieldSet());
+-  oops::FieldSet4D xb4d(xb);
 -  const State_ fg_state(geom, incVars, dummyTime);
 -  oops::FieldSet3D fg(dummyTime, geom.getComm());
 -  fg.shallowCopy(fg_state.fieldSet());
+-  oops::FieldSet4D fg4d(fg);
 +  oops::FieldSet3D fset3d(dummyTime, eckit::mpi::comm());
 +  fset3d.deepCopy(util::createFieldSet(geom.geometry().functionSpace(), incVars, 0.0));
 +  oops::FieldSet4D fset4dXb(fset3d);
 +  oops::FieldSet4D fset4dFg(fset3d);
-+
-+  // Add variables metadata
-+  for (const auto & var : incVars.variables()) {
-+    if (fset3d[var].metadata().has("vert_coord")) {
-+      incVars.addMetaData(var, "vert_coord", fset3d[var].metadata().getString("vert_coord"));
-+    }
-+    if (fset3d[var].metadata().has("gmask")) {
-+      incVars.addMetaData(var, "gmask", fset3d[var].metadata().getString("gmask"));
-+    }
-+  }
  
--  oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
-+  oops::FieldSets emptyFsetEns({}, eckit::mpi::self(), {}, eckit::mpi::self());
+   oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
    // TODO(AS): revisit what configuration needs to be passed to SaberParametricBlockChain.
-   eckit::LocalConfiguration covarConf;
-   eckit::LocalConfiguration ensembleConf;
-@@ -97,7 +116,7 @@
+@@ -99,7 +106,7 @@
    covarConf.set("time covariance", "univariate");
    // Initialize localization blockchain
    loc_ = std::make_unique<SaberParametricBlockChain>(geom, geom,
--              incVars, oops::FieldSet4D(xb), oops::FieldSet4D(fg),
+-              incVars, xb4d, fg4d,
 +              incVars, fset4dXb, fset4dFg,
                emptyFsetEns, emptyFsetEns, covarConf, conf);
  
    oops::Log::trace() << "Localization:Localization done" << std::endl;
-@@ -113,18 +132,35 @@
+@@ -115,18 +122,35 @@
  // -----------------------------------------------------------------------------
  
  template<typename MODEL>
@@ -163,7 +152,7 @@
  }
  
  // -----------------------------------------------------------------------------
-@@ -134,12 +170,12 @@
+@@ -136,12 +160,12 @@
    oops::Log::trace() << "Localization:multiply starting" << std::endl;
  
    // SABER block chain multiplication

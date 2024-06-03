@@ -15,10 +15,10 @@
 
 #include "atlas/functionspace.h"
 
-#include "oops/generic/GlobalInterpolator.h"
 #include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
 
+#include "saber/interpolation/AtlasInterpWrapper.h"
 #include "saber/interpolation/InterpElement.h"
 #include "saber/interpolation/RegionalInterpolation.h"
 
@@ -41,6 +41,7 @@ class Interpolation {
   static const std::string classname()
     {return "quench::interpolation::Interpolation";}
 
+  // Constructor/destructor
   Interpolation(const eckit::mpi::Comm &,
                 const atlas::grid::Partitioner &,
                 const atlas::FunctionSpace &,
@@ -48,16 +49,19 @@ class Interpolation {
                 const atlas::FunctionSpace &);
   ~Interpolation() {}
 
+  // Horizontal interpolation and adjoint
   void execute(const atlas::FieldSet &,
                atlas::FieldSet &) const;
   void executeAdjoint(atlas::FieldSet &,
                       const atlas::FieldSet &) const;
 
+  // Vertical interpolation
   void insertVerticalInterpolation(const std::string &,
                                    const std::vector<interp::InterpElement> &);
   std::vector<interp::InterpElement> & verticalInterpolation(const std::string & var)
     {return verInterps_[var];}
 
+  // Accessors
   const std::string & srcUid() const
     {return srcUid_;}
   const std::string & dstUid() const
@@ -66,9 +70,6 @@ class Interpolation {
     {return dstFspace_;}
 
  private:
-  // Communicator
-  const eckit::mpi::Comm & comm_;
-
   // Grids UID
   std::string srcUid_;
   std::string dstUid_;
@@ -84,7 +85,7 @@ class Interpolation {
   std::shared_ptr<interp::RegionalInterpolation> regionalInterpolation_;
 
   // Global interpolation
-  std::shared_ptr<oops::GlobalInterpolator> globalInterpolation_;
+  std::shared_ptr<interp::AtlasInterpWrapper> globalInterpolation_;
 
   // Vertical interpolations
   std::unordered_map<std::string, std::vector<interp::InterpElement>> verInterps_;

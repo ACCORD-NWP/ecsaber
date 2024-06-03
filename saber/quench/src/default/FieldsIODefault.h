@@ -27,7 +27,7 @@ class FieldsIODefault : public FieldsIOBase {
   static const std::string classname()
     {return "quench::FieldsIODefault";}
 
-  // Constructor
+  // Constructor/destructor
   explicit FieldsIODefault(const std::string & ioFormat)
     : FieldsIOBase(ioFormat) {}
   ~FieldsIODefault() = default;

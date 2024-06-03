@@ -87,17 +87,7 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
   oops::FieldSet4D fset4dXb(fset3d);
   oops::FieldSet4D fset4dFg(fset3d);
 
-  // Add variables metadata
-  for (const auto & var : incVars.variables()) {
-    if (fset3d[var].metadata().has("vert_coord")) {
-      incVars.addMetaData(var, "vert_coord", fset3d[var].metadata().getString("vert_coord"));
-    }
-    if (fset3d[var].metadata().has("gmask")) {
-      incVars.addMetaData(var, "gmask", fset3d[var].metadata().getString("gmask"));
-    }
-  }
-
-  oops::FieldSets emptyFsetEns({}, eckit::mpi::self(), {}, eckit::mpi::self());
+  oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
   // TODO(AS): revisit what configuration needs to be passed to SaberParametricBlockChain.
   eckit::LocalConfiguration covarConf;
   eckit::LocalConfiguration ensembleConf;

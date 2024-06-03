@@ -1,6 +1,7 @@
 [submodule "saber-jedi"]
 	path = saber-jedi
-	url = https://github.com/JCSDA/saber
+#	url = https://github.com/JCSDA/saber
+	url = https://git.ecmwf.int/scm/sab/saber.git
 [submodule "vader-jedi"]
 	path = vader-jedi
 	url = https://github.com/JCSDA/vader

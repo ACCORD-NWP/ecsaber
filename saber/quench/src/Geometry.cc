@@ -30,7 +30,7 @@
 
 #include "src/Fields.h"
 
-#define ERR(e) {throw eckit::Exception(nc_strerror(e), Here());}
+#define ERR(e, msg) {std::string s(nc_strerror(e)); throw eckit::Exception(s + ": " + msg, Here());}
 
 namespace quench {
 
@@ -85,6 +85,7 @@ Geometry::Geometry(const eckit::Configuration & config,
     const std::string vert_coordName = "vert_coord_" + std::to_string(groupIndex);
     group.vert_coord_ = functionSpace_.createField<double>(
       atlas::option::name(vert_coordName) | atlas::option::levels(group.levels_));
+    group.vert_coord_.metadata().set("interp_type", "default");
     auto vert_coordView = atlas::array::make_view<double, 2>(group.vert_coord_);
     if (vert_coordParams != boost::none) {
       // From a vector of doubles (one for each level)
@@ -385,13 +386,13 @@ void Geometry::readSeaMask(const std::string & maskPath,
 
   if (comm_.rank() == 0) {
     // Open NetCDF file
-    if ((retval = nc_open(maskPath.c_str(), NC_NOWRITE, &ncid))) ERR(retval);
+    if ((retval = nc_open(maskPath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, maskPath);
 
     // Get lon/lat sizes
-    if ((retval = nc_inq_dimid(ncid, "lon", &nlon_id))) ERR(retval);
-    if ((retval = nc_inq_dimid(ncid, "lat", &nlat_id))) ERR(retval);
-    if ((retval = nc_inq_dimlen(ncid, nlon_id, &nlon))) ERR(retval);
-    if ((retval = nc_inq_dimlen(ncid, nlat_id, &nlat))) ERR(retval);
+    if ((retval = nc_inq_dimid(ncid, "lon", &nlon_id))) ERR(retval, "lon");
+    if ((retval = nc_inq_dimid(ncid, "lat", &nlat_id))) ERR(retval, "lat");
+    if ((retval = nc_inq_dimlen(ncid, nlon_id, &nlon))) ERR(retval, "lon");
+    if ((retval = nc_inq_dimlen(ncid, nlat_id, &nlat))) ERR(retval, "lat");
   }
 
   // Broadcast lon/lat sizes
@@ -405,17 +406,17 @@ void Geometry::readSeaMask(const std::string & maskPath,
 
   if (comm_.rank() == 0) {
     // Get lon/lat
-    if ((retval = nc_inq_varid(ncid, "lon", &lon_id))) ERR(retval);
-    if ((retval = nc_inq_varid(ncid, "lat", &lat_id))) ERR(retval);
-    if ((retval = nc_inq_varid(ncid, "LSMASK", &lsm_id))) ERR(retval);
+    if ((retval = nc_inq_varid(ncid, "lon", &lon_id))) ERR(retval, "lon");
+    if ((retval = nc_inq_varid(ncid, "lat", &lat_id))) ERR(retval, "lat");
+    if ((retval = nc_inq_varid(ncid, "LSMASK", &lsm_id))) ERR(retval, "LMASK");
 
     // Read data
     std::vector<float> zlon(nlon);
     std::vector<float> zlat(nlat);
     std::vector<uint8_t> zlsm(nlat*nlon);
-    if ((retval = nc_get_var_float(ncid, lon_id, zlon.data()))) ERR(retval);
-    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval);
-    if ((retval = nc_get_var_ubyte(ncid, lsm_id, zlsm.data()))) ERR(retval);
+    if ((retval = nc_get_var_float(ncid, lon_id, zlon.data()))) ERR(retval, "lon");
+    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lon");
+    if ((retval = nc_get_var_ubyte(ncid, lsm_id, zlsm.data()))) ERR(retval, "LMASK");
 
     // Copy data
     for (size_t ilon = 0; ilon < nlon; ++ilon) {
@@ -431,7 +432,7 @@ void Geometry::readSeaMask(const std::string & maskPath,
     }
 
     // Close file
-    if ((retval = nc_close(ncid))) ERR(retval);
+    if ((retval = nc_close(ncid))) ERR(retval, maskPath);
   }
 
   // Broadcast coordinates and land-sea mask

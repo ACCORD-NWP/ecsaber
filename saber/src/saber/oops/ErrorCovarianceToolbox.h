@@ -23,8 +23,9 @@
 #include "oops/interface/State.h"
 #include "oops/interface/Variables.h"
 #include "oops/runs/Application.h"
-#include "oops/util/abor1_cpp.h"
+#include "oops/util/AtlasArrayUtil.h"
 #include "oops/util/ConfigFunctions.h"
+#include "oops/util/ConfigHelpers.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
@@ -35,6 +36,8 @@
 
 #include "saber/oops/instantiateCovarFactory.h"
 #include "saber/oops/ECUtilities.h"
+#include "saber/oops/Utilities.h"
+#include "saber/util/FieldSetHelpers.h"
 
 namespace saber {
 
@@ -194,10 +197,7 @@ class ErrorCovarianceToolbox : public oops::Application {
       // Update parameters
       auto outputDiracUpdated(*outputDirac);
       setMPI(outputDiracUpdated, ntasks);
-
-      // Add output Dirac configuration
-      eckit::LocalConfiguration outputConf(outputDiracUpdated);
-      testConf.set("output dirac", outputConf);
+      testConf.set("output dirac", outputDiracUpdated);
 
       // Apply B matrix components recursively
       std::string id;
@@ -249,7 +249,7 @@ class ErrorCovarianceToolbox : public oops::Application {
     // Get diagnostic values
     for (int jj = data.first(); jj <= data.last(); ++jj) {
       util::printDiagValues(oops::mpi::myself(),
-                            eckit::mpi::comm(),
+                            geom.geometry().getComm(),
                             geom.geometry().functionSpace(),
                             data[jj].increment().fieldSet(),
                             diagPoints[jj].increment().fieldSet());
@@ -257,6 +257,153 @@ class ErrorCovarianceToolbox : public oops::Application {
 
     oops::Log::trace() << appname() << "::print_value_at_position done" << std::endl;
   }
+// -----------------------------------------------------------------------------
+// The passed geometry should be consistent with the passed increment
+  void extract_1d_covariances(const eckit::LocalConfiguration & diracConf,
+                              const eckit::LocalConfiguration & profileConf,
+                              const Geometry_ & geom,
+                              const Increment4D_ & data) const {
+  oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
+
+  if (data.last()-data.first()+1 > 1) {
+    throw eckit::NotImplemented("Not implemented for 4D covariances", Here());
+  }
+
+  // Create dirac field
+  Increment4D_ diracPoints(data);
+  dirac4D(diracConf, diracPoints);
+
+  // Read maximum length input
+  const double maxLength = profileConf.getDouble("maximum distance",
+                                            std::numeric_limits<double>::infinity());
+
+  // Boolean flag to remove duplicate points (is isotropy for instance)
+  const bool removeDuplicates = profileConf.getBool("remove duplicates distances",
+                                                    false);
+
+  // Get values as a function of separation distance
+  auto[distances, covariances, levs, fieldIndex] =
+      util::sortBySeparationDistance(geom.geometry().getComm(),
+                                     geom.geometry().functionSpace(),
+                                     data[0].increment().fieldSet(),
+                                     diracPoints[0].increment().fieldSet(),
+                                     maxLength,
+                                     removeDuplicates);
+
+  // Write to file or to test Log
+  const auto & names = data[0].increment().fieldSet().field_names();
+  if (profileConf.has("output filepath")) {
+    // Write to file
+    const auto outputPath = profileConf.getString("output filepath");
+    write_1d_covariances(geom.geometry().getComm(),
+                         distances,
+                         covariances,
+                         levs,
+                         fieldIndex,
+                         names,
+                         outputPath);
+  } else {
+    // Output to test log
+    for (size_t i=0; i < distances.size(); i++) {
+        oops::Log::test() << "Covariance profile for variable " << names[fieldIndex[i]]
+                          << ", at level " << levs[i] << ": " << std::endl;
+        oops::Log::test() << "Separation distance: " << distances[i] << std::endl;
+        oops::Log::test() << "Covariance: " << covariances[i] << std::endl;
+    }
+  }
+
+  oops::Log::trace() << appname() << "::extract_1d_covariances done" << std::endl;
+}
+// -----------------------------------------------------------------------------
+void  write_1d_covariances(const eckit::mpi::Comm & comm,
+                           const std::vector<std::vector<double>> & distances,
+                           const std::vector<std::vector<double>> & covariances,
+                           const std::vector<size_t> & levs,
+                           const std::vector<size_t> & fieldIndex,
+                           const std::vector<std::string> & names,
+                           const std::string & filePath) const {
+  oops::Log::trace() << appname() << "::write_1d_covariances starting" << std::endl;
+
+  // This function assumes everything has already been gathered on root PE.
+
+  // There is no guarantee that the vectors in `distances` or `covariances` have
+  // common dimensions. We need to define an independent dimension for each of them.
+
+  if (comm.rank() == 0) {
+    // Define variables and dimensions
+    size_t nProfiles = distances.size();
+    std::vector<std::string> dimNames(nProfiles);
+    std::vector<atlas::idx_t> dimSizes(nProfiles);
+    std::vector<std::string> variableNames(2 * nProfiles);
+    std::vector<std::vector<std::string>> dimNamesForEveryVar(2 * nProfiles);
+    std::vector<std::vector<atlas::idx_t>> dimSizesForEveryVar(2 * nProfiles);
+    size_t ivar = 0;
+    for (size_t iProfile = 0; iProfile < nProfiles; iProfile++) {
+      // Dimension
+      dimNames[iProfile] = "nx" + std::to_string(iProfile);;
+      dimSizes[iProfile] = distances[iProfile].size();
+
+      // Distance variable
+      variableNames[ivar] = names[fieldIndex[iProfile]]
+                               + "_lev" + std::to_string(levs[iProfile])
+                               + "_distances";
+      dimNamesForEveryVar[ivar] = {dimNames.back()};
+      dimSizesForEveryVar[ivar] = {dimSizes.back()};
+      ivar++;
+
+      // Covariance variable
+      variableNames[ivar] = names[fieldIndex[iProfile]]
+                              + "_lev" + std::to_string(levs[iProfile])
+                              + "_covariances";
+      dimNamesForEveryVar[ivar] = {dimNames.back()};
+      dimSizesForEveryVar[ivar] = {dimSizes.back()};
+      ivar++;
+    }
+
+    // Write Header
+    std::vector<int> netcdfGeneralIDs;
+    std::vector<int> netcdfDimIDs;
+    std::vector<int> netcdfVarIDs;
+    std::vector<std::vector<int>> netcdfDimVarIDs;
+    util::atlasArrayWriteHeader(filePath,
+                                dimNames,
+                                dimSizes,
+                                variableNames,
+                                dimNamesForEveryVar,
+                                netcdfGeneralIDs,
+                                netcdfDimIDs,
+                                netcdfVarIDs,
+                                netcdfDimVarIDs);
+
+    // Write Data
+    ivar = 0;
+    for (size_t iProfile = 0; iProfile < nProfiles; iProfile++) {
+      auto array = atlas::array::Array::create<double>(distances[iProfile].size());
+      auto view = atlas::array::make_view<double, 1>(*array);
+
+      for (atlas::idx_t jnode = 0; jnode < view.shape(0); jnode++) {
+        view(jnode) = distances[iProfile][jnode];
+      }
+      auto cview = atlas::array::make_view<const double, 1>(*array);
+      util::atlasArrayWriteData(netcdfGeneralIDs, netcdfVarIDs[ivar++], cview);
+
+      for (atlas::idx_t jnode = 0; jnode < view.shape(0); jnode++) {
+        view(jnode) = covariances[iProfile][jnode];
+      }
+      util::atlasArrayWriteData(netcdfGeneralIDs, netcdfVarIDs[ivar++], cview);
+    }
+
+    oops::Log::info() << "Info     : covariance profiles written to file "
+                      << filePath << std::endl;
+
+    int retval;
+    if ((retval = nc_close(netcdfGeneralIDs[0]))) {
+      throw eckit::Exception("NetCDF closing error", Here());
+    }
+  }
+
+  oops::Log::trace() << appname() << "::write_1d_covariances done" << std::endl;
+}
 // -----------------------------------------------------------------------------
 // The passed geometry/variables should be consistent with the passed increment
   void dirac(const eckit::LocalConfiguration & covarConf,
@@ -304,6 +451,15 @@ class ErrorCovarianceToolbox : public oops::Application {
       // Print covariances
       oops::Log::test() << "- Covariances at diagnostic points:" << std::endl;
       print_value_at_positions(testConf.getSubConfiguration("diagnostic points"), geom, dxo);
+    }
+
+    if (testConf.has("covariance profile")) {
+      oops::Log::test() << "Extracting covariances as a function of separation distance"
+                        << std::endl;
+      extract_1d_covariances(testConf.getSubConfiguration("dirac"),
+                             testConf.getSubConfiguration("covariance profile"),
+                             geom,
+                             dxo);
     }
 
     // Copy configuration
