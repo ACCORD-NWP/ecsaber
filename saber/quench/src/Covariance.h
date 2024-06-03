@@ -17,8 +17,8 @@
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
+#include "src/CovarianceECInc.h"
 #include "src/Increment.h"
-#include "src/IncrModCtlVec.h"
 
 namespace quench {
   class Geometry;
@@ -34,8 +34,7 @@ class Covariance : public util::Printable,
   static const std::string classname()
     {return "quench::Covariance";}
 
-/// OOPS interface
-
+  // Constructor/destructor
   Covariance(const Geometry &,
              const Variables &,
              const eckit::Configuration &,
@@ -45,17 +44,22 @@ class Covariance : public util::Printable,
   ~Covariance()
     {}
 
+  // Multiply and inverse multiply (identity)
   void multiply(const Increment & dxi,
                 Increment & dxo) const
     {dxo = dxi;}
   void inverseMultiply(const Increment & dxi,
                        Increment & dxo) const
     {dxo = dxi;}
+
+  // Randomization
   void randomize(Increment & dxo) const
     {dxo.random();}
 
  private:
-  void print(std::ostream & os) const {os << "Covariance";}
+  // Print
+  void print(std::ostream & os) const
+    {os << "Covariance";}
 
 /// ECSABER-specific definitions
 #include "src/CovarianceECDef.h"

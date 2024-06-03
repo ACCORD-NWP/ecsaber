@@ -38,9 +38,7 @@ class Increment : public util::Printable,
   static const std::string classname()
     {return "quench::Increment";}
 
-/// OOPS interface
-
-// Constructors/destructor
+  // Constructors/destructor
   Increment(const Geometry &,
             const Variables &,
             const util::DateTime &);
@@ -49,7 +47,7 @@ class Increment : public util::Printable,
   Increment(const Increment &,
             const bool);
 
-// Basic operators
+  // Basic operators
   void diff(const State &,
             const State &);
   void zero()
@@ -71,7 +69,7 @@ class Increment : public util::Printable,
   void random()
     {fields_->random();}
 
-// I/O and diagnostics
+  // I/O and diagnostics
   void read(const eckit::Configuration & config)
     {fields_->read(config);}
   void write(const eckit::Configuration & config) const
@@ -83,13 +81,13 @@ class Increment : public util::Printable,
   void updateTime(const util::Duration & dt)
     {fields_->time() += dt;}
 
-// ATLAS FieldSet accessor
+  // ATLAS FieldSet accessor
   void toFieldSet(atlas::FieldSet & fset) const
     {fields_->toFieldSet(fset);}
   void fromFieldSet(const atlas::FieldSet & fset)
     {fields_->fromFieldSet(fset);}
 
-// Access to fields
+  // Access to fields
   Fields & fields()
     {return *fields_;}
   const Fields & fields() const
@@ -97,14 +95,14 @@ class Increment : public util::Printable,
   std::shared_ptr<const Geometry> geometry() const
     {return fields_->geometry();}
 
-// Other
+  // Other
   void accumul(const double & zz,
                const State & xx)
     {fields_->axpy(zz, xx.fields());}
   const Variables & variables() const
     {return fields_->variables();}
 
-// Serialization
+  // Serialization
   size_t serialSize() const
     {return fields_->serialSize();}
   void serialize(std::vector<double> & vect) const
@@ -114,8 +112,10 @@ class Increment : public util::Printable,
     {fields_->deserialize(vect, index);}
 
  private:
+  // Print
   void print(std::ostream &) const;
 
+  // Fields
   std::unique_ptr<Fields> fields_;
 
 /// ECSABER-specific definitions

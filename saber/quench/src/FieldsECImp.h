@@ -347,9 +347,11 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
         double top = -std::numeric_limits<double>::max();
         for (size_t k = 0; k < geom_->levels(var); ++k) {
           bottom = std::min(bottom, vert_coordView(jo, k));
+std::cout << "TATA: " << k << " : " << vert_coordView(jo, k) << std::endl;
           top = std::max(top, vert_coordView(jo, k));
         }
         ASSERT(z >= bottom);
+std::cout << "tOTO: " << z << " / " << top << std::endl;
         ASSERT(z <= top);
         double zinf = -std::numeric_limits<double>::max();
         double zsup = std::numeric_limits<double>::max();

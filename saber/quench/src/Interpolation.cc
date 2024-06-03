@@ -11,7 +11,6 @@
 
 #include "eckit/exception/Exceptions.h"
 
-#include "oops/base/GeometryData.h"
 #include "oops/util/FieldSetHelpers.h"
 
 // -----------------------------------------------------------------------------
@@ -25,7 +24,7 @@ Interpolation::Interpolation(const eckit::mpi::Comm & comm,
                              const atlas::FunctionSpace & srcFspace,
                              const atlas::Grid & dstGrid,
                              const atlas::FunctionSpace & dstFspace)
-  : comm_(comm), srcUid_(util::getGridUid(srcFspace)), dstUid_(dstGrid.uid()),
+  : srcUid_(util::getGridUid(srcFspace)), dstUid_(dstGrid.uid()),
   dstFspace_(dstFspace), regionalInterpolation_(), globalInterpolation_() {
   oops::Log::trace() << classname() << "::Interpolation starting" << std::endl;
 
@@ -45,29 +44,8 @@ Interpolation::Interpolation(const eckit::mpi::Comm & comm,
   if (regionalSrcGrid_) {
     regionalInterpolation_ = std::make_shared<interp::RegionalInterpolation>(srcFspace, dstFspace);
   } else {
-    // Configuration
-    eckit::LocalConfiguration conf;
-    if (regionalDstGrid_) {
-      // Use OOPS unstructured interpolator
-      conf.set("local interpolator type", "oops unstructured grid interpolator");
-    } else {
-      // Use ATLAS interpolator
-      conf.set("local interpolator type", "atlas interpolator");
-      eckit::LocalConfiguration interpMethodConf;
-      interpMethodConf.set("type", "structured-linear2D");
-      interpMethodConf.set("adjoint", true);
-      conf.set("interpolation method", interpMethodConf);
-    }
-
-    // Empty fieldset
-    atlas::FieldSet fset;
-
-    // Geometry data
-    oops::GeometryData geomData(srcFspace, fset, true, comm_);
-
-    // Interpolator
-    globalInterpolation_ = std::make_shared<oops::GlobalInterpolator>(conf, geomData, dstFspace,
-      comm_);
+    globalInterpolation_ = std::make_shared<interp::AtlasInterpWrapper>(srcPartitioner, srcFspace,
+      dstGrid, dstFspace);
   }
 
   // Test interpolation accuracy
@@ -115,13 +93,13 @@ Interpolation::Interpolation(const eckit::mpi::Comm & comm,
         locMax = {lon, lat};
       }
     }
-    std::vector<double> accuracyPerTask(comm_.size());
-    comm_.allGather(accuracy, accuracyPerTask.begin(), accuracyPerTask.end());
+    std::vector<double> accuracyPerTask(comm.size());
+    comm.allGather(accuracy, accuracyPerTask.begin(), accuracyPerTask.end());
     size_t maxTask = std::distance(accuracyPerTask.begin(), std::max_element(
       accuracyPerTask.begin(), accuracyPerTask.end()));
-    comm_.broadcast(maxVal, maxTask);
-    comm_.broadcast(maxRefVal, maxTask);
-    comm_.broadcast(locMax, maxTask);
+    comm.broadcast(maxVal, maxTask);
+    comm.broadcast(maxRefVal, maxTask);
+    comm.broadcast(locMax, maxTask);
     oops::Log::info() << std::setprecision(6) << "Info     :     Interpolation test accuracy: "
       << accuracy << " at " << locMax << " : " << std::setprecision(12) << maxVal << " != "
       << maxRefVal << std::endl;
@@ -139,7 +117,7 @@ void Interpolation::execute(const atlas::FieldSet & srcFieldSet,
   if (regionalSrcGrid_) {
     regionalInterpolation_->execute(srcFieldSet, targetFieldSet);
   } else {
-    globalInterpolation_->apply(srcFieldSet, targetFieldSet);
+    globalInterpolation_->execute(srcFieldSet, targetFieldSet);
   }
 
   oops::Log::trace() << classname() << "::execute done" << std::endl;
@@ -154,7 +132,7 @@ void Interpolation::executeAdjoint(atlas::FieldSet & srcFieldSet,
   if (regionalSrcGrid_) {
     regionalInterpolation_->executeAdjoint(srcFieldSet, targetFieldSet);
   } else {
-    globalInterpolation_->applyAD(srcFieldSet, targetFieldSet);
+    globalInterpolation_->executeAdjoint(srcFieldSet, targetFieldSet);
   }
 
   oops::Log::trace() << classname() << "::executeAdjoint done" << std::endl;

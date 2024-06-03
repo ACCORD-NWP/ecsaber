@@ -36,7 +36,7 @@ class State : public util::Printable,
   static const std::string classname()
     {return "quench::State";}
 
-/// Constructor, destructor
+  // Constructors
   State(const Geometry &,
         const Variables &,
         const util::DateTime &);
@@ -51,13 +51,13 @@ class State : public util::Printable,
   State(const State & other)
     : fields_(new Fields(*other.fields_)) {}
 
-/// Assignment
+  // Assignment
   State & operator=(const State &);
 
-/// Interactions with Increment
+  // Interactions with Increment
   State & operator+=(const Increment &);
 
-/// I/O and diagnostics
+  // I/O and diagnostics
   void read(const eckit::Configuration & config)
     {fields_->read(config);}
   void write(const eckit::Configuration & config) const
@@ -69,7 +69,7 @@ class State : public util::Printable,
   util::DateTime & validTime()
     {return fields_->time();}
 
-/// Access to fields
+  // Access to fields
   Fields & fields()
     {return *fields_;}
   const Fields & fields() const
@@ -77,13 +77,13 @@ class State : public util::Printable,
   std::shared_ptr<const Geometry> geometry() const
     {return fields_->geometry();}
 
-/// ATLAS FieldSet accessor
+  // ATLAS FieldSet accessor
   void toFieldSet(atlas::FieldSet & fset) const
     {fields_->toFieldSet(fset);}
   void fromFieldSet(const atlas::FieldSet & fset)
     {fields_->fromFieldSet(fset);}
 
-/// Other
+  // Other
   void zero()
     {fields_->zero();}
   void accumul(const double & zz,
@@ -92,7 +92,7 @@ class State : public util::Printable,
   const Variables & variables() const
     {return fields_->variables();}
 
-// Serialization
+  // Serialization
   size_t serialSize() const
     {return fields_->serialSize();}
   void serialize(std::vector<double> & vect) const
@@ -102,8 +102,10 @@ class State : public util::Printable,
     {fields_->deserialize(vect, index);}
 
  private:
+  // Print
   void print(std::ostream &) const;
 
+  // Fields
   std::unique_ptr<Fields> fields_;
 
 /// ECSABER-specific definitions

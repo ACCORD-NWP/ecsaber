@@ -42,16 +42,17 @@ contains
 ! Subroutine: hull_init
 !> Allocation
 !----------------------------------------------------------------------
-subroutine hull_init(hull,mpl,n,lon,lat)
+subroutine hull_init(hull,mpl,n,lon,lat,min_radius)
 
 implicit none
 
 ! Passed variables
-class(hull_type),intent(inout) :: hull !< Hull
-type(mpl_type),intent(inout) :: mpl    !< MPI data
-integer,intent(in) :: n                !< Size
-real(kind_real),intent(in) :: lon(n)   !< Longitudes
-real(kind_real),intent(in) :: lat(n)   !< Latitudes
+class(hull_type),intent(inout) :: hull   !< Hull
+type(mpl_type),intent(inout) :: mpl      !< MPI data
+integer,intent(in) :: n                  !< Size
+real(kind_real),intent(in) :: lon(n)     !< Longitudes
+real(kind_real),intent(in) :: lat(n)     !< Latitudes
+real(kind_real),intent(in) :: min_radius !< Minimum radius
 
 ! Local variables
 integer :: i
@@ -93,6 +94,9 @@ if (n>0) then
       hull%lat = zero
       hull%radius = two*pi
    end if
+
+   ! Enforce minimum radius
+   hull%radius = max(hull%radius,min_radius)
 else
    ! Empty universe
    hull%radius = zero

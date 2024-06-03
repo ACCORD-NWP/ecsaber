@@ -70,7 +70,8 @@ void readSpectralCovarianceFromFile(const std::string &,
                                     const spectralbReadParameters &,
                                     atlas::Field &);
 
-void spectralVerticalConvolution(const oops::JediVariables &,
+void spectralVerticalConvolution(const bool skipVerticalConv,
+                                 const oops::JediVariables &,
                                  const atlas::functionspace::Spectral &,
                                  const atlas::FieldSet &,
                                  atlas::FieldSet &);

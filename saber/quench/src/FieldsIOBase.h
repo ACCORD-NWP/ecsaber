@@ -28,7 +28,7 @@ class FieldsIOBase : private eckit::NonCopyable {
   static const std::string classname()
     {return "quench::FieldsIOBase";}
 
-  // Constructor
+  // Constructor/destructor
   explicit FieldsIOBase(const std::string &)
     {}
 

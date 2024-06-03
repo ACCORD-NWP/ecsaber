@@ -42,19 +42,19 @@ class OrographyParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(OrographyParameters, Parameters)
 
  public:
-  /// Top longitude [degrees]
+  // Top longitude [degrees]
   oops::RequiredParameter<double> topLon{"top longitude", this};
 
-  /// Top latitude [degrees]
+  // Top latitude [degrees]
   oops::RequiredParameter<double> topLat{"top latitude", this};
 
-  /// Zonal length [m]
+  // Zonal length [m]
   oops::RequiredParameter<double> zonalLength{"zonal length", this};
 
-  /// Meridional length [m]
+  // Meridional length [m]
   oops::RequiredParameter<double> meridionalLength{"meridional length", this};
 
-  /// Height (% of the bottom layer thickness, or absolute value if one level only)
+  // Height (% of the bottom layer thickness, or absolute value if one level only)
   oops::RequiredParameter<double> height{"height", this};
 };
 
@@ -65,29 +65,29 @@ class GroupParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(GroupParameters, Parameters)
 
  public:
-  /// Variables
+  // Variables
   oops::RequiredParameter<std::vector<std::string>> variables{"variables", this};
 
-  /// Number of levels
+  // Number of levels
   oops::Parameter<size_t> levels{"levels", 1, this};
 
-  /// Corresponding level for 2D variables (first or last)
+  // Corresponding level for 2D variables (first or last)
   oops::Parameter<std::string> lev2d{"lev2d", "first", this};
 
-  /// Orography
+  // Orography
   oops::OptionalParameter<OrographyParameters> orography{"orography", this};
 
-  /// Vertical coordinate
+  // Vertical coordinate
   oops::OptionalParameter<std::vector<double>> vert_coord{"vert_coord", this};
 
-  /// Vertical coordinate from file
+  // Vertical coordinate from file
   oops::OptionalParameter<eckit::LocalConfiguration> vert_coordFromFile{"vert_coord from file",
     this};
 
-  /// Mask type
+  // Mask type
   oops::Parameter<std::string> maskType{"mask type", "none", this};
 
-  /// Mask path
+  // Mask path
   oops::Parameter<std::string> maskPath{"mask path", "../quench/data/landsea.nc", this};
 };
 
@@ -111,28 +111,28 @@ class GeometryParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(GeometryParameters, Parameters)
 
  public:
-  /// Function space
+  // Function space
   oops::RequiredParameter<std::string> functionSpace{"function space", this};
 
-  /// Grid
+  // Grid
   oops::RequiredParameter<eckit::LocalConfiguration> grid{"grid", this};
 
-  /// Partitioner
+  // Partitioner
   oops::Parameter<std::string> partitioner{"partitioner", "equal_regions", this};
 
-  /// Variables groups
+  // Variables groups
   oops::RequiredParameter<std::vector<GroupParameters>> groups{"groups", this};
 
-  /// Halo size
+  // Halo size
   oops::Parameter<size_t> halo{"halo", 0, this};
 
-  /// No point on last task
+  // No point on last task
   oops::Parameter<bool> noPointOnLastTask{"no point on last task", false, this};
 
-  /// Levels top-down
+  // Levels top-down
   oops::Parameter<bool> levelsAreTopDown{"levels are top down", true, this};
 
-  /// Model data
+  // Model data
   oops::Parameter<eckit::LocalConfiguration> modelData{"model data", eckit::LocalConfiguration(),
     this};
 
@@ -148,18 +148,19 @@ class Geometry : public util::Printable,
  public:
   static const std::string classname() {return "quench::Geometry";}
 
-/// OOPS interface
-
+  // Constructors
   Geometry(const eckit::Configuration &,
            const eckit::mpi::Comm & comm = oops::mpi::world());
   Geometry(const Geometry &);
 
+  // Variables sizes
   std::vector<size_t> variableSizes(const Variables & vars) const;
+
+  // Levels direction
   bool levelsAreTopDown() const
     {return levelsAreTopDown_;}
 
-/// Local
-
+  // Accessors
   const eckit::mpi::Comm & getComm() const
     {return comm_;}
   const size_t halo() const
@@ -184,23 +185,46 @@ class Geometry : public util::Printable,
     {return groups_.size();}
   size_t groupIndex(const std::string & var) const
     {return groupIndex_.at(var);}
-  const eckit::LocalConfiguration & modelData() const {return modelData_;}
-  const std::vector<eckit::LocalConfiguration> & alias() const {return alias_;}
+  const eckit::LocalConfiguration & modelData() const
+    {return modelData_;}
+  const std::vector<eckit::LocalConfiguration> & alias() const
+    {return alias_;}
 
  private:
+  // Print
   void print(std::ostream &) const;
+
+  // Read land-sea mask
   void readSeaMask(const std::string &,
                    const size_t &,
                    const std::string &,
                    atlas::Field &) const;
+
+  // Communicator
   const eckit::mpi::Comm & comm_;
+
+  // Halo size
   size_t halo_;
+
+  // ATLAS grid
   atlas::Grid grid_;
+
+  // ATLAS grid type
   std::string gridType_;
+
+  // ATLAS grid partitioner
   atlas::grid::Partitioner partitioner_;
+
+  // ATLAS mesh
   atlas::Mesh mesh_;
+
+  // ATLAS function space
   atlas::FunctionSpace functionSpace_;
+
+  // Group name to group index mapping
   std::unordered_map<std::string, size_t> groupIndex_;
+
+  // Group data structure
   struct groupData {
     size_t levels_;
     std::string lev2d_;
@@ -208,10 +232,20 @@ class Geometry : public util::Printable,
     std::vector<double> vert_coord_avg_;
     double gmaskSize_;
   };
+
+  // Geometry fields
   atlas::FieldSet fields_;
+
+  // Groups
   std::vector<groupData> groups_;
+
+  // Levels direction
   bool levelsAreTopDown_;
+
+  // Model data configuration
   eckit::LocalConfiguration modelData_;
+
+  // Aliases
   std::vector<eckit::LocalConfiguration> alias_;
 
 /// ECSABER-specific interface

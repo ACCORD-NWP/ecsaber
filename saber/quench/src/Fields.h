@@ -31,14 +31,13 @@ namespace quench {
 /// Fields class
 
 class Fields : public util::Printable,
+               public util::Serializable,
                private util::ObjectCounter<Fields> {
  public:
   static const std::string classname()
     {return "quench::Fields";}
 
-/// OOPS interface
-
-// Constructors/destructor
+  // Constructors/destructor
   Fields(const Geometry &,
          const Variables &,
          const util::DateTime &);
@@ -50,7 +49,7 @@ class Fields : public util::Printable,
   ~Fields()
     {}
 
-// Basic operators
+  // Basic operators
   void zero();
   void constantValue(const double &);
   void constantValue(const eckit::Configuration &);
@@ -67,7 +66,7 @@ class Fields : public util::Printable,
   void diff(const Fields &,
             const Fields &);
 
-// ATLAS FieldSet
+  // ATLAS FieldSet
   void toFieldSet(atlas::FieldSet &) const;
   void fromFieldSet(const atlas::FieldSet &);
   const atlas::FieldSet & fieldSet() const
@@ -75,7 +74,7 @@ class Fields : public util::Printable,
   atlas::FieldSet & fieldSet()
     {return fset_;}
 
-// Utilities
+  // Utilities
   void read(const eckit::Configuration &);
   void write(const eckit::Configuration &) const;
   double norm() const;
@@ -90,24 +89,32 @@ class Fields : public util::Printable,
   void updateTime(const util::Duration & dt)
     {time_ += dt;}
 
-/// Serialization
+  // Serialization
   size_t serialSize() const;
   void serialize(std::vector<double> &) const;
   void deserialize(const std::vector<double> &,
                    size_t &);
 
-  atlas::FieldSet & fields() {return fset_;}
-
-/// Grid interpolations
+  // Grid interpolations
   static std::vector<quench::Interpolation>& interpolations();
 
  private:
+  // Print
   void print(std::ostream &) const;
+
+  // Return grid interpolation
   std::vector<quench::Interpolation>::iterator setupGridInterpolation(const Geometry &) const;
 
+  // Geometry
   std::shared_ptr<const Geometry> geom_;
+
+  // Variables
   Variables vars_;
+
+  // Time
   util::DateTime time_;
+
+  // Fieldset
   mutable atlas::FieldSet fset_;
 
 /// ECSABER-specific definitions

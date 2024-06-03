@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp	2024-05-27 16:09:09.284421580 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-05-24 08:41:35.386951213 +0200
-@@ -1,38 +1,30 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-06-03 12:29:55.818362381 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-06-03 12:22:30.981228408 +0200
+@@ -1,9 +1,6 @@
  /*
 - * (C) Copyright 2021-2023 UCAR
   * (C) Copyright 2023 Meteorologisk Institutt
@@ -10,17 +10,15 @@
   */
  
  #pragma once
- 
- #include <omp.h>
- 
-+#include <limits>
- #include <memory>
- #include <sstream>
+@@ -16,24 +13,15 @@
  #include <string>
  #include <vector>
  
+-#include "atlas/array.h"
+-
  #include "eckit/config/Configuration.h"
 -#include "eckit/exception/Exceptions.h"
+-#include "eckit/mpi/Comm.h"
  
 -#include "oops/base/Geometry.h"
 -#include "oops/base/Increment.h"
@@ -40,22 +38,18 @@
 +#include "oops/interface/State.h"
 +#include "oops/interface/Variables.h"
  #include "oops/runs/Application.h"
-+#include "oops/util/abor1_cpp.h"
+ #include "oops/util/AtlasArrayUtil.h"
  #include "oops/util/ConfigFunctions.h"
--#include "oops/util/ConfigHelpers.h"
- #include "oops/util/DateTime.h"
- #include "oops/util/FieldSetHelpers.h"
- #include "oops/util/Logger.h"
-@@ -41,35 +33,33 @@
+@@ -46,6 +34,8 @@
  #include "oops/util/parameters/Parameters.h"
  #include "oops/util/parameters/RequiredParameter.h"
  
--#include "saber/oops/Utilities.h"
 +#include "saber/oops/instantiateCovarFactory.h"
 +#include "saber/oops/ECUtilities.h"
+ #include "saber/oops/Utilities.h"
+ #include "saber/util/FieldSetHelpers.h"
  
- namespace saber {
- 
+@@ -54,28 +44,25 @@
  // -----------------------------------------------------------------------------
  
  /// \brief Top-level options taken by the ErrorCovarianceToolbox application.
@@ -91,7 +85,15 @@
  
    /// Dirac location/variables parameters.
    oops::OptionalParameter<eckit::LocalConfiguration> dirac{"dirac", this};
-@@ -93,72 +83,35 @@
+@@ -95,80 +82,39 @@
+ 
+   /// Where to write the output of randomized variance.
+   oops::OptionalParameter<eckit::LocalConfiguration> outputVariance{"output variance", this};
+-
+-  /// Whether and how to compute unidimensional covariance profiles for isotropic cases
+-  oops::OptionalParameter<eckit::LocalConfiguration> covarianceProfile{
+-                                    "covariance profile", this};
+ };
  
  // -----------------------------------------------------------------------------
  
@@ -182,7 +184,7 @@
  
      // Get number of MPI tasks and OpenMP threads
      size_t ntasks = commSpace->size();
-@@ -176,38 +129,51 @@
+@@ -186,38 +132,51 @@
      util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
      params.deserialize(fullConfigUpdated);
  
@@ -193,16 +195,16 @@
      // Setup geometry
 -    const Geometry_ geom(params.geometry, *commSpace, *commTime);
 +    const Geometry_ geom(params.geometry);
- 
--    // Setup background
--    const State4D_ xx(geom, params.background.value(), *commTime);
++
 +    // Setup model
 +    eckit::LocalConfiguration modelConf;
 +    if (fullConfigUpdated.has("model")) {
 +      modelConf = fullConfigUpdated.getSubConfiguration("model");
 +    }
 +    const Model_ model(geom, modelConf);
-+
+ 
+-    // Setup background
+-    const State4D_ xx(geom, params.background.value(), *commTime);
 +    // Setup background state
 +    const State4D_ xx(params.background, geom, model);
  
@@ -248,7 +250,7 @@
        oops::Log::test() << "Input Dirac increment:" << dxi << std::endl;
  
        // Test configuration
-@@ -222,39 +188,49 @@
+@@ -232,45 +191,46 @@
          testConf.set("diagnostic points", *diagnostic);
        }
  
@@ -260,12 +262,14 @@
 +      // Update parameters
 +      auto outputDiracUpdated(*outputDirac);
        setMPI(outputDiracUpdated, ntasks);
--      testConf.set("output dirac", outputDiracUpdated);
-+
-+      // Add output Dirac configuration
-+      eckit::LocalConfiguration outputConf(outputDiracUpdated);
-+      testConf.set("output dirac", outputConf);
+       testConf.set("output dirac", outputDiracUpdated);
  
+-      // Add covariance profile configuration
+-      const auto & profileConfig = params.covarianceProfile.value();
+-      if (profileConfig != boost::none) {
+-        testConf.set("covariance profile", *profileConfig);
+-      }
+-
        // Apply B matrix components recursively
        std::string id;
 -      dirac(covarParams.toConfiguration(), testConf, id, geom, vars, xx, dxi);
@@ -317,7 +321,7 @@
   private:
    std::string appname() const override {
      return "oops::ErrorCovarianceToolbox<" + MODEL::name() + ">";
-@@ -268,15 +244,15 @@
+@@ -284,15 +244,15 @@
  
      // Create diagnostic field
      Increment4D_ diagPoints(data);
@@ -333,14 +337,56 @@
 -                            diagPoints[jj].fieldSet().fieldSet());
 +    for (int jj = data.first(); jj <= data.last(); ++jj) {
 +      util::printDiagValues(oops::mpi::myself(),
-+                            eckit::mpi::comm(),
++                            geom.geometry().getComm(),
 +                            geom.geometry().functionSpace(),
 +                            data[jj].increment().fieldSet(),
 +                            diagPoints[jj].increment().fieldSet());
      }
  
      oops::Log::trace() << appname() << "::print_value_at_position done" << std::endl;
-@@ -287,15 +263,29 @@
+@@ -305,13 +265,13 @@
+                               const Increment4D_ & data) const {
+   oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
+ 
+-  if (data.size() > 1) {
++  if (data.last()-data.first()+1 > 1) {
+     throw eckit::NotImplemented("Not implemented for 4D covariances", Here());
+   }
+ 
+   // Create dirac field
+   Increment4D_ diracPoints(data);
+-  diracPoints.dirac(diracConf);
++  dirac4D(diracConf, diracPoints);
+ 
+   // Read maximum length input
+   const double maxLength = profileConf.getDouble("maximum distance",
+@@ -323,19 +283,19 @@
+ 
+   // Get values as a function of separation distance
+   auto[distances, covariances, levs, fieldIndex] =
+-      util::sortBySeparationDistance(geom.getComm(),
+-                                     geom.functionSpace(),
+-                                     data[0].fieldSet().fieldSet(),
+-                                     diracPoints[0].fieldSet().fieldSet(),
++      util::sortBySeparationDistance(geom.geometry().getComm(),
++                                     geom.geometry().functionSpace(),
++                                     data[0].increment().fieldSet(),
++                                     diracPoints[0].increment().fieldSet(),
+                                      maxLength,
+                                      removeDuplicates);
+ 
+   // Write to file or to test Log
+-  const auto & names = data[0].fieldSet().fieldSet().field_names();
++  const auto & names = data[0].increment().fieldSet().field_names();
+   if (profileConf.has("output filepath")) {
+     // Write to file
+     const auto outputPath = profileConf.getString("output filepath");
+-    write_1d_covariances(geom.getComm(),
++    write_1d_covariances(geom.geometry().getComm(),
+                          distances,
+                          covariances,
+                          levs,
+@@ -450,15 +410,29 @@
               const eckit::LocalConfiguration & testConf,
               std::string & id,
               const Geometry_ & geom,
@@ -373,7 +419,7 @@
  
      // Multiply
      Bmat->multiply(dxi, dxo);
-@@ -327,17 +317,13 @@
+@@ -499,17 +473,13 @@
      oops::Log::test() << "Covariance(" << id << ") * Increment:" << dxo << std::endl;
  
      // Look for hybrid or ensemble covariance models
@@ -397,7 +443,7 @@
      }
      if (covarianceModel == "SABER") {
        const std::string saberCentralBlockName =
-@@ -351,7 +337,7 @@
+@@ -523,7 +493,7 @@
            for (const auto & conf : confs) {
              std::string idC(id + std::to_string(componentIndex));
              eckit::LocalConfiguration componentConfig(conf, "covariance");
@@ -406,7 +452,7 @@
              if (covarConf.has("adjoint test")) {
                componentConfig.set("adjoint test", covarConf.getBool("adjoint test"));
              }
-@@ -379,7 +365,15 @@
+@@ -551,7 +521,15 @@
        Localization_ Lmat(geom, vars, locConfig);
  
        // Apply localization
@@ -423,7 +469,7 @@
  
        // Update ID
        std::string idL(id);
-@@ -407,11 +401,11 @@
+@@ -579,11 +557,11 @@
      }
    }
  // -----------------------------------------------------------------------------
@@ -438,7 +484,7 @@
                       const size_t & ntasks) const {
      if (Bmat->randomizationSize() > 0) {
        oops::Log::info() << "Info     : " << std::endl;
-@@ -419,9 +413,9 @@
+@@ -591,9 +569,9 @@
        oops::Log::info() << "Info     : -----------------------" << std::endl;
  
        // Create increments
@@ -451,7 +497,7 @@
  
        // Initialize variance
        variance.zero();
-@@ -446,7 +440,9 @@
+@@ -618,7 +596,9 @@
  
          // Square perturbation
          dxsq = dx;
@@ -462,7 +508,7 @@
  
          // Update variance
          variance += dxsq;
-@@ -462,8 +458,8 @@
+@@ -634,8 +614,8 @@
  
            if (outputPerturbations != boost::none) {
              // Update config
@@ -473,7 +519,7 @@
              setMPI(outputPerturbationsUpdated, ntasks);
  
              // Write perturbation
-@@ -472,8 +468,8 @@
+@@ -644,8 +624,8 @@
  
            if (outputStates != boost::none) {
              // Update config

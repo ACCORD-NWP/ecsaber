@@ -365,7 +365,7 @@ call geom%tree_c0u%init(geom%nc0u,geom%lon_c0u,geom%lat_c0u)
 ! Setup hull
 write(mpl%info,'(a7,a)') '','Setup hull'
 call mpl%flush
-call geom%hull_c0u%init(mpl,geom%nc0u,geom%lon_c0u,geom%lat_c0u)
+call geom%hull_c0u%init(mpl,geom%nc0u,geom%lon_c0u,geom%lat_c0u,nam%universe_radius)
 
 if (nam%mask_check) then
    ! Setup boundaries
@@ -631,9 +631,9 @@ else
       if (.not.aconfig_domain%get("type",domain_type)) call mpl%abort('${subr}$','missing domain type')
       if (trim(domain_type)/="rectangular") call mpl%abort('${subr}$','only rectangular domains allowed')
       if (.not.aconfig_domain%get("xmin",geom%xmin)) call mpl%abort('${subr}$','missing domain xmin')
-      if (.not.aconfig_domain%get("xmax",geom%xmax)) call mpl%abort('${subr}$','missing domain xmin')
-      if (.not.aconfig_domain%get("ymin",geom%ymin)) call mpl%abort('${subr}$','missing domain xmin')
-      if (.not.aconfig_domain%get("ymax",geom%ymax)) call mpl%abort('${subr}$','missing domain xmin')
+      if (.not.aconfig_domain%get("xmax",geom%xmax)) call mpl%abort('${subr}$','missing domain xmax')
+      if (.not.aconfig_domain%get("ymin",geom%ymin)) call mpl%abort('${subr}$','missing domain ymin')
+      if (.not.aconfig_domain%get("ymax",geom%ymax)) call mpl%abort('${subr}$','missing domain ymax')
 
       ! Get projection
       if (.not.aconfig_grid%get("projection",aconfig_proj)) call mpl%abort('${subr}$','missing projection')
