@@ -84,4 +84,4 @@ add_custom_target(quench_headers ALL COMMAND ${CMAKE_COMMAND} -E make_directory 
 add_dependencies(quench quench_headers)
 target_include_directories(quench PUBLIC $<BUILD_INTERFACE:${QUENCH_BUILD_DIR_INCLUDE_PATH}>
                                          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
-                                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../..>)
+                                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>)

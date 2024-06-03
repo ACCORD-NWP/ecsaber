@@ -1,0 +1,21 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h.tmp	2024-06-03 16:18:03.269814108 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h	2024-06-03 16:18:49.225939370 +0200
+@@ -27,6 +27,8 @@
+ #include "oops/util/parameters/RequiredParameter.h"
+ #include "oops/util/Printable.h"
+ 
++#include "src/Variables.h"
++
+ namespace eckit {
+   class Configuration;
+ }
+@@ -246,6 +248,9 @@
+ 
+   // Aliases
+   std::vector<eckit::LocalConfiguration> alias_;
++
++/// ECSABER-specific interface
++#include "src/GeometryECDef.h"
+ };
+ 
+ // -----------------------------------------------------------------------------

@@ -1,0 +1,21 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt.tmp	2024-06-03 16:11:23.504682907 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt	2024-06-03 16:12:14.352843868 +0200
+@@ -30,3 +30,18 @@
+                         LIBS    quench
+                                 ${vader_LIBRARIES}
+                                 saber )
++
++ecbuild_add_executable( TARGET  saber_quench_hofx.x
++                        SOURCES quenchHofX.cc
++                        LIBS    quench )
++
++ecbuild_add_executable( TARGET  saber_quench_makeobs.x
++                        SOURCES quenchMakeObs.cc
++                        LIBS    quench )
++
++ecbuild_add_executable( TARGET  saber_quench_variational.x
++                        SOURCES quenchVariational.cc
++                        LIBS    quench
++                                ${vader_LIBRARIES}
++                                ${gsibec_LIBRARIES}
++                                saber )

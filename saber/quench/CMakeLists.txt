@@ -4,8 +4,8 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 # Add subdirectories
-add_subdirectory( mains )
 add_subdirectory( src )
+add_subdirectory( mains )
 
 # Coding norms
 ecbuild_add_test( TARGET saber_coding_norms_quench
