@@ -38,7 +38,7 @@ class TestRecipeParameters : public RecipeParametersBase {
 class Test_VarA_from_B : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef TestRecipeParameters Parameters_;
 
@@ -46,8 +46,10 @@ class Test_VarA_from_B : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override {return "TestVarA";}
-    std::vector<std::string> ingredients() const override {return {"TestVarB"};}
+    oops::Variable product() const override {return oops::Variable{"TestVarA"};}
+    oops::JediVariables ingredients() const override {
+      return oops::JediVariables{std::vector<std::string>{"TestVarB"}};
+    }
     size_t productLevels(const atlas::FieldSet &) const override {return 0;}
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override
                                 {return atlas::functionspace::PointCloud({
@@ -69,7 +71,7 @@ class Test_VarA_from_B : public RecipeBase {
 class Test_VarA_from_C_D : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef TestRecipeParameters Parameters_;
 
@@ -77,8 +79,10 @@ class Test_VarA_from_C_D : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override {return "TestVarA";}
-    std::vector<std::string> ingredients() const override {return {"TestVarC", "TestVarD"};}
+    oops::Variable product() const override {return oops::Variable{"TestVarA"};}
+    oops::JediVariables ingredients() const override {
+      return oops::JediVariables{std::vector<std::string>{"TestVarC", "TestVarD"}};
+    }
     size_t productLevels(const atlas::FieldSet &) const override {return 0;}
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override
                                 {return atlas::functionspace::PointCloud({
@@ -100,7 +104,7 @@ class Test_VarA_from_C_D : public RecipeBase {
 class Test_VarB_from_E : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef TestRecipeParameters Parameters_;
 
@@ -108,8 +112,10 @@ class Test_VarB_from_E : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override {return "TestVarB";}
-    std::vector<std::string> ingredients() const override {return {"TestVarE"};}
+    oops::Variable product() const override {return oops::Variable{"TestVarB"};}
+    oops::JediVariables ingredients() const override {
+      return oops::JediVariables{std::vector<std::string>{"TestVarE"}};
+    }
     size_t productLevels(const atlas::FieldSet &) const override {return 0;}
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override
                                 {return atlas::functionspace::PointCloud({
@@ -133,7 +139,7 @@ class Test_VarB_from_E : public RecipeBase {
 class Test_VarB_from_A : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef TestRecipeParameters Parameters_;
 
@@ -141,8 +147,10 @@ class Test_VarB_from_A : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override {return "TestVarB";}
-    std::vector<std::string> ingredients() const override {return {"TestVarA"};}
+    oops::Variable product() const override {return oops::Variable{"TestVarB"};}
+    oops::JediVariables ingredients() const override {
+      return oops::JediVariables{std::vector<std::string>{"TestVarA"}};
+    }
     size_t productLevels(const atlas::FieldSet &) const override {return 0;}
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override
                                 {return atlas::functionspace::PointCloud({
@@ -163,7 +171,7 @@ class Test_VarB_from_A : public RecipeBase {
 class Test_VarC_from_F : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef TestRecipeParameters Parameters_;
 
@@ -171,8 +179,10 @@ class Test_VarC_from_F : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override {return "TestVarC";}
-    std::vector<std::string> ingredients() const override {return {"TestVarF"};}
+    oops::Variable product() const override {return oops::Variable{"TestVarC"};}
+    oops::JediVariables ingredients() const override {
+      return oops::JediVariables{std::vector<std::string>{"TestVarF"}};
+    }
     size_t productLevels(const atlas::FieldSet &) const override {return 0;}
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override
                                 {return atlas::functionspace::PointCloud({

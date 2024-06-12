@@ -70,11 +70,17 @@ void SpectralCorrelation::randomize(oops::FieldSet3D & fieldSet) const {
 void SpectralCorrelation::multiply(oops::FieldSet3D & fieldSet) const {
   oops::Log::trace() << classname() << "::multiply starting" << std::endl;
 
-  specutils::spectralVerticalConvolution(params_.skipVerticalConv.value(),
-                                         activeVars_,
-                                         specFunctionSpace_,
-                                         spectralVerticalCorrelations_,
-                                         fieldSet.fieldSet());
+  if (params_.skipVerticalConv.value()) {
+    specutils::spectralHorizontalFilter(activeVars_,
+                                        specFunctionSpace_,
+                                        spectralVerticalCorrelations_,
+                                        fieldSet.fieldSet());
+  } else {
+    specutils::spectralVerticalConvolution(activeVars_,
+                                           specFunctionSpace_,
+                                           spectralVerticalCorrelations_,
+                                           fieldSet.fieldSet());
+  }
 
   oops::Log::trace() << classname() << "::multiply done" << std::endl;
 }
@@ -105,23 +111,23 @@ void SpectralCorrelation::read() {
   const int nSpectralBins = specFunctionSpace_.truncation() + 1;  // 2N
   atlas::FieldSet spectralVerticalCovariances;
 
-  for (std::size_t i = 0; i < activeVars_.variables().size(); ++i) {
+  for (std::size_t i = 0; i < activeVars_.size(); ++i) {
     //  allocate vert cov field based on activeVars and spectralfunctionspace_
     auto spectralVertCov =
-      atlas::Field(activeVars_[i],
+      atlas::Field(activeVars_[i].name(),
                    atlas::array::make_datatype<double>(),
                    atlas::array::make_shape(nSpectralBins,
-                                            activeVars_.getLevels(activeVars_[i]),
-                                            activeVars_.getLevels(activeVars_[i])));
+                                            activeVars_[i].getLevels(),
+                                            activeVars_[i].getLevels()));
     if (umatrixNetCDFParams != boost::none) {
       const oops::JediVariables netCDFVars(umatrixNetCDFParams.value());
-      specutils::createSpectralCovarianceFromUMatrixFile(activeVars_[i],
-                                                         netCDFVars[i],
+      specutils::createSpectralCovarianceFromUMatrixFile(activeVars_[i].name(),
+                                                         netCDFVars[i].name(),
                                                          sparams,
                                                          spectralVertCov);
 
     } else {
-      specutils::readSpectralCovarianceFromFile(activeVars_[i],
+      specutils::readSpectralCovarianceFromFile(activeVars_[i].name(),
                                                 sparams,
                                                 spectralVertCov);
     }

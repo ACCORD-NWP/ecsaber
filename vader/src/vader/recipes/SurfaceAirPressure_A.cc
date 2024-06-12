@@ -20,7 +20,8 @@ namespace vader
 
 // Static attribute initialization
 const char SurfaceAirPressure_A::Name[] = "SurfaceAirPressure_A";
-const std::vector<std::string> SurfaceAirPressure_A::Ingredients = {"air_pressure_thickness"};
+const oops::JediVariables SurfaceAirPressure_A::Ingredients{
+      std::vector<std::string>{"air_pressure_thickness"}};
 
 // Register the maker
 static RecipeMaker<SurfaceAirPressure_A> makerSurfaceAirPressure_A_(SurfaceAirPressure_A::Name);
@@ -42,13 +43,13 @@ std::string SurfaceAirPressure_A::name() const {
 
 // -------------------------------------------------------------------------------------------------
 
-std::string SurfaceAirPressure_A::product() const {
-    return "surface_pressure";
+oops::Variable SurfaceAirPressure_A::product() const {
+    return oops::Variable{"surface_pressure"};
 }
 
 // -------------------------------------------------------------------------------------------------
 
-std::vector<std::string> SurfaceAirPressure_A::ingredients() const {
+oops::JediVariables SurfaceAirPressure_A::ingredients() const {
     return SurfaceAirPressure_A::Ingredients;
 }
 

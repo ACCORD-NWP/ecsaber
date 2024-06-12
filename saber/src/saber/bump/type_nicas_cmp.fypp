@@ -1120,9 +1120,12 @@ if (any(nicas_cmp%vlev)) then
 
    ! interp_c1b_to_c0a
    do il1=1,nicas_cmp%nl1
-      call nicas_cmp%hor(il1)%interp_c1b_to_c0a%buffer_size(nnbufi,nnbufr)
-      nbufi = nbufi+nnbufi
-      nbufr = nbufr+nnbufr
+      il1s = nicas_cmp%hor(il1)%il1s
+      if (il1==il1s) then
+         call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%buffer_size(nnbufi,nnbufr)
+         nbufi = nbufi+nnbufi
+         nbufr = nbufr+nnbufr
+      end if
    end do
 
    ! v
@@ -1260,10 +1263,14 @@ if (any(nicas_cmp%vlev)) then
 
    ! interp_c1b_to_c0a
    do il1=1,nicas_cmp%nl1
-      call nicas_cmp%hor(il1)%interp_c1b_to_c0a%buffer_size(nnbufi,nnbufr)
-      call nicas_cmp%hor(il1)%interp_c1b_to_c0a%serialize(mpl,nnbufi,nnbufr,bufi(ibufi+1:ibufi+nnbufi),bufr(ibufr+1:ibufr+nnbufr))
-      ibufi = ibufi+nnbufi
-      ibufr = ibufr+nnbufr
+      il1s = nicas_cmp%hor(il1)%il1s
+      if (il1==il1s) then
+         call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%buffer_size(nnbufi,nnbufr)
+         call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%serialize(mpl,nnbufi,nnbufr,bufi(ibufi+1:ibufi+nnbufi), &
+ & bufr(ibufr+1:ibufr+nnbufr))
+         ibufi = ibufi+nnbufi
+         ibufr = ibufr+nnbufr
+      end if
    end do
 
    ! v
@@ -1423,12 +1430,16 @@ if (any(nicas_cmp%vlev)) then
 
    ! interp_c1b_to_c0a
    do il1=1,nicas_cmp%nl1
-      write(nicas_cmp%hor(il1)%interp_c1b_to_c0a%prefix,'(a,i3.3)') 'interp_c1b_to_c0a_',il1
-      nnbufi = bufi(ibufi+1)
-      nnbufr = bufi(ibufi+2)
-      call nicas_cmp%hor(il1)%interp_c1b_to_c0a%deserialize(mpl,nnbufi,nnbufr,bufi(ibufi+1:ibufi+nnbufi),bufr(ibufr+1:ibufr+nnbufr))
-      ibufi = ibufi+nnbufi
-      ibufr = ibufr+nnbufr
+      il1s = nicas_cmp%hor(il1)%il1s
+      if (il1==il1s) then
+         write(nicas_cmp%hor(il1s)%interp_c1b_to_c0a%prefix,'(a,i3.3)') 'interp_c1b_to_c0a_',il1s
+         nnbufi = bufi(ibufi+1)
+         nnbufr = bufi(ibufi+2)
+         call nicas_cmp%hor(il1s)%interp_c1b_to_c0a%deserialize(mpl,nnbufi,nnbufr,bufi(ibufi+1:ibufi+nnbufi), &
+ & bufr(ibufr+1:ibufr+nnbufr))
+         ibufi = ibufi+nnbufi
+         ibufr = ibufr+nnbufr
+      end if
    end do
 
    ! v
@@ -1548,6 +1559,7 @@ if (any(nicas_cmp%vlev)) then
 
       ! Get similar level
       call get_att(mpl,nicas_cmp%hor(il1)%levid,0,'il1s',il1s,il1)
+      if (mpl%iobcast) call mpl%f_comm_iobcast%broadcast(il1s,mpl%rootproc-1)
       nicas_cmp%hor(il1)%il1s = il1s
 
       if (il1==il1s) then

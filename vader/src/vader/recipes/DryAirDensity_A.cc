@@ -20,8 +20,8 @@ namespace vader
 
 // Static attribute initialization
 const char DryAirDensity_A::Name[] = "DryAirDensity_A";
-const std::vector<std::string> DryAirDensity_A::
-    Ingredients = {"air_temperature", "air_pressure"};
+const oops::JediVariables DryAirDensity_A::
+    Ingredients{std::vector<std::string>{"air_temperature", "air_pressure"}};
 
 // Register the maker
 static RecipeMaker<DryAirDensity_A>
@@ -41,12 +41,12 @@ std::string DryAirDensity_A::name() const
     return DryAirDensity_A::Name;
 }
 
-std::string DryAirDensity_A::product() const
+oops::Variable DryAirDensity_A::product() const
 {
-    return "dry_air_density";
+    return oops::Variable("dry_air_density");
 }
 
-std::vector<std::string> DryAirDensity_A::ingredients() const
+oops::JediVariables DryAirDensity_A::ingredients() const
 {
     return DryAirDensity_A::Ingredients;
 }

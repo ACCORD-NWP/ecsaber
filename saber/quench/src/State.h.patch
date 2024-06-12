@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h.tmp	2024-06-03 16:12:41.068928437 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h	2024-06-03 10:55:21.541709439 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h.tmp.bak	2024-06-12 17:37:23.235547196 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h	2024-06-12 17:41:53.853910752 +0200
 @@ -17,6 +17,7 @@
  #include "oops/util/Printable.h"
  
@@ -8,7 +8,7 @@
  
  namespace eckit {
    class Configuration;
-@@ -106,6 +107,9 @@
+@@ -108,6 +109,9 @@
  
    // Fields
    std::unique_ptr<Fields> fields_;

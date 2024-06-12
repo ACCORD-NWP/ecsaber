@@ -9,8 +9,11 @@
 !----------------------------------------------------------------------
 module type_geom
 
-use atlas_module, only: atlas_field,atlas_functionspace,atlas_functionspace_nodecolumns,atlas_functionspace_pointcloud, &
- & atlas_functionspace_structuredcolumns,atlas_mesh_nodes,atlas_structuredgrid,atlas_config,atlas_projection
+use atlas_module, only: atlas_config,atlas_connectivity,atlas_field,atlas_functionspace, &
+ & atlas_functionspace_nodecolumns,atlas_functionspace_pointcloud,atlas_functionspace_structuredcolumns,atlas_mesh, &
+ & atlas_mesh_nodes,atlas_projection,atlas_structuredgrid
+! TODO(Benjamin): This should be removed once spack-stack uses the ATLAS version where this interface is merged
+use atlas_buildnode2cellconnectivity, only: atlas_build_node_to_cell_connectivity
 use fckit_mpi_module, only: fckit_mpi_sum,fckit_mpi_min,fckit_mpi_max,fckit_mpi_status
 !$ use omp_lib
 use tools_atlas, only: get_grid,field_to_array,get_atlas_functionspace_size
@@ -43,8 +46,8 @@ type geom_type
    ! Input metadata
    logical,allocatable :: owned_mga(:,:)              !< Owned vs Halo/BC
 
-   ! Global grid flag
-   logical :: global                                  !< Global grid (regional if false)
+   ! Grid/function space type
+   character(len=1024) :: grid_type                   !< Grid type ('global','regional_structuredcolumns','regional_nodecolumns')
 
    ! Regional grid parameters
    type(atlas_projection) :: aproj                    !< ATLAS projection
@@ -132,7 +135,8 @@ type geom_type
    ! Boundaries
    type(bnda_type) :: bnda_c0u                        !< Boundaries on subset Sc0, universe
 
-   ! Hull
+   ! Hulls
+   type(hull_type) :: hull_mg                         !< Domain hull on model grid, global
    type(hull_type) :: hull_c0u                        !< Domain hull on subset Sc0, universe
 
    ! Dirac fields for variables
@@ -365,7 +369,11 @@ call geom%tree_c0u%init(geom%nc0u,geom%lon_c0u,geom%lat_c0u)
 ! Setup hull
 write(mpl%info,'(a7,a)') '','Setup hull'
 call mpl%flush
-call geom%hull_c0u%init(mpl,geom%nc0u,geom%lon_c0u,geom%lat_c0u,nam%universe_radius)
+if ((geom%grid_type=='global').and.all(geom%myuniverse)) then
+   geom%hull_c0u%radius = mpl%msv%valr
+else
+   call geom%hull_c0u%init(mpl,geom%nc0u,geom%lon_c0u,geom%lat_c0u,nam%universe_radius)
+end if
 
 if (nam%mask_check) then
    ! Setup boundaries
@@ -486,17 +494,21 @@ type(atlas_functionspace),intent(in) :: afunctionspace !< ATLAS function space
 type(fieldset_type),intent(in),optional :: fieldset    !< Fieldset
 
 ! Local variables
-integer :: il0,imga,ny,nx_inf,nx_sup,ib,ix,iy
+integer :: il0,imga,ny,nx_inf,nx_sup,ib,ix,iy,icorner,jcorner,ncorner,iproc
+integer :: imga_bnd(4),proc_to_ncorner(mpl%nproc),opposite_index(1)
+integer,pointer :: ghost(:)
 real(kind_real) :: lon0,lat0,dist,maxdist,xcen,ycen,area_124,area_234
-real(kind_real) :: lonlat(2),lonlat_bnd(2,4),vbnd(3,4),vp(3),v1(3),v2(3),cp(3),cd(3)
+real(kind_real) :: lonlat(2),lonlat_bnd(2,4),vbnd(3,4),vp(3),v1(3),v2(3),cp(3),cd(3),vtmp(3),vbnd_cen(3),dist_with_1(3)
 real(kind_real),pointer :: real_ptr(:,:)
 type(atlas_config) :: aconfig_grid,aconfig_domain,aconfig_proj
-type(atlas_field) :: afield,afield_lonlat
+type(atlas_field) :: afield,afield_lonlat,afield_ghost
 type(atlas_functionspace_nodecolumns) :: afunctionspace_nc
 type(atlas_functionspace_pointcloud) :: afunctionspace_pc
 type(atlas_functionspace_structuredcolumns) :: afunctionspace_sc
 type(atlas_structuredgrid) :: agrid_sc
+type(atlas_mesh) :: amesh
 type(atlas_mesh_nodes) :: anodes
+type(atlas_connectivity) :: aconnectivity
 character(len=:),allocatable :: domain_type
 
 ! Set name
@@ -555,7 +567,7 @@ end if
 select case (afunctionspace%name())
 case ('NodeColumns')
    ! Get node columns function space
-   afunctionspace_nc = atlas_functionspace_nodecolumns(afunctionspace%c_ptr())
+   afunctionspace_nc = afunctionspace
 
    ! Get lon/lat field
    anodes = afunctionspace_nc%nodes()
@@ -567,7 +579,7 @@ case ('NodeColumns')
    end if
 case ('PointCloud')
    ! Get point cloud function space
-   afunctionspace_pc = atlas_functionspace_pointcloud(afunctionspace%c_ptr())
+   afunctionspace_pc = afunctionspace
 
    ! Get lon/lat field
    afield_lonlat = afunctionspace_pc%lonlat()
@@ -578,7 +590,7 @@ case ('PointCloud')
    end if
 case ('StructuredColumns')
    ! Get structured columns function space
-   afunctionspace_sc = atlas_functionspace_structuredcolumns(afunctionspace%c_ptr())
+   afunctionspace_sc = afunctionspace
 
    ! Get lon/lat
    afield_lonlat = afunctionspace_sc%xy()
@@ -596,7 +608,7 @@ do imga=1,geom%nmga
    if (geom%owned_mga(imga,1)) call lonlatmod(geom%lon_mga(imga),geom%lat_mga(imga))
 end do
 
-! Get domain type
+! Get other grid properties
 if (mpl%main) then
    lon0 = geom%lon_mga(1)
    lat0 = geom%lat_mga(1)
@@ -611,16 +623,20 @@ do imga=1,geom%nmga
    end if
 end do
 call mpl%f_comm%allreduce(maxdist,fckit_mpi_max())
-geom%global = supeq(maxdist,half*pi)
-
-! Get other grid properties
-if (geom%global) then
+if (supeq(maxdist,half*pi)) then
+   ! Global domain
+   geom%grid_type = 'global'
    geom%area = four*pi
+   geom%hull_mg%radius = mpl%msv%valr
 else
+   ! Regional domain
    select case (afunctionspace%name())
    case ('StructuredColumns')
+      ! StructuredColumns function space
+      geom%grid_type = 'regional_structuredcolumns'
+ 
       ! Get structured columns function space
-      afunctionspace_sc = atlas_functionspace_structuredcolumns(afunctionspace%c_ptr())
+      afunctionspace_sc = afunctionspace
 
       ! Get structured grid
       agrid_sc = afunctionspace_sc%grid()
@@ -657,30 +673,103 @@ else
       lonlat_bnd(:,2) = agrid_sc%lonlat(nx_inf,1)*deg2rad
       lonlat_bnd(:,3) = agrid_sc%lonlat(nx_sup,ny)*deg2rad
       lonlat_bnd(:,4) = agrid_sc%lonlat(1,ny)*deg2rad
-      do ib=1,4
-         ! Transform to cartesian coordinates
-         call lonlat2xyz(mpl,lonlat_bnd(1,ib),lonlat_bnd(2,ib),vbnd(1,ib),vbnd(2,ib),vbnd(3,ib))
+   case ('NodeColumns')
+      ! NodeColumns function space
+      geom%grid_type = 'regional_nodecolumns'
+
+      ! Get node columns function space
+      afunctionspace_nc = afunctionspace
+
+      ! Get mesh
+      amesh = afunctionspace_nc%mesh()
+
+      ! Create node to cell connectivity
+      call atlas_build_node_to_cell_connectivity(amesh)
+
+      ! Get connectivity
+      aconnectivity = anodes%cell_connectivity()
+
+      ! Get ghost field
+      afield_ghost = anodes%ghost()
+      call afield_ghost%data(ghost)
+
+      ! Loop over nodes to find corners
+      ncorner = 0
+      do imga=1,aconnectivity%rows()
+         if ((ghost(imga)==0).and.(aconnectivity%cols(imga)==1)) then
+            ncorner = ncorner+1
+            imga_bnd(ncorner) = imga
+         end if
       end do
 
-      ! Check order
-      v1 = vbnd(:,2)-vbnd(:,1)
-      v2 = vbnd(:,3)-vbnd(:,1)
-      call vector_product(v1,v2,cp)
-      cd = (vbnd(:,1)+vbnd(:,2)+vbnd(:,3))/three
-      if (inf(sum(cp*cd),zero)) then
-         ! Switch vectors 2 and 4
-         v2 = vbnd(:,2)
-         vbnd(:,2) = vbnd(:,4)
-         vbnd(:,4) = v2
-      end if
+      ! Communication
+      call mpl%f_comm%allgather(ncorner,proc_to_ncorner)
 
-      ! Compute area as the sum of two spherical triangles
-      call area(vbnd(:,1),vbnd(:,2),vbnd(:,4),area_124)
-      call area(vbnd(:,2),vbnd(:,3),vbnd(:,4),area_234)
-      geom%area = area_124+area_234
+      ! Define corners coordinates
+      jcorner = 1
+      lonlat_bnd = zero
+      do iproc=1,mpl%nproc
+         do icorner=1,proc_to_ncorner(iproc)
+            if (iproc==mpl%myproc) then
+               lonlat_bnd(1,jcorner) = geom%lon_mga(imga_bnd(icorner))
+               lonlat_bnd(2,jcorner) = geom%lat_mga(imga_bnd(icorner))
+            end if
+            jcorner = jcorner+1
+         end do
+      end do
+      call mpl%f_comm%allreduce(lonlat_bnd,fckit_mpi_sum())
    case default
       call mpl%abort('${subr}$','wrong function space: '//afunctionspace%name())
    end select
+
+   ! Enforce proper bounds
+   do ib=1,4
+      call lonlatmod(lonlat_bnd(1,ib),lonlat_bnd(2,ib))
+   end do
+
+   ! Transform to cartesian coordinates
+   do ib=1,4
+      call lonlat2xyz(mpl,lonlat_bnd(1,ib),lonlat_bnd(2,ib),vbnd(1,ib),vbnd(2,ib),vbnd(3,ib))
+   end do
+
+   if (geom%grid_type=='regional_nodecolumns') then
+      ! Get domain center
+      vbnd_cen = quarter*sum(vbnd,dim=2)
+      vbnd_cen = vbnd_cen/sqrt(sum(vbnd_cen**2))
+      call xyz2lonlat(mpl,vbnd_cen(1),vbnd_cen(2),vbnd_cen(3),geom%lon_center,geom%lat_center)
+   end if
+
+   ! Re-order corners to ensure the order of corners is circular
+   call sphere_dist(lonlat_bnd(1,1),lonlat_bnd(2,1),lonlat_bnd(1,2),lonlat_bnd(2,2),dist_with_1(1))
+   call sphere_dist(lonlat_bnd(1,1),lonlat_bnd(2,1),lonlat_bnd(1,3),lonlat_bnd(2,3),dist_with_1(2))
+   call sphere_dist(lonlat_bnd(1,1),lonlat_bnd(2,1),lonlat_bnd(1,4),lonlat_bnd(2,4),dist_with_1(3))
+   opposite_index = maxloc(dist_with_1)+1
+   if (opposite_index(1)/=3) then
+      ! Make sure oppsite corner is number 3
+      vtmp = vbnd(:,opposite_index(1))
+      vbnd(:,opposite_index(1)) = vbnd(:,3)
+      vbnd(:,3) = vtmp
+   end if
+   
+   ! Re-order corners to ensure the order of corners is positive
+   v1 = vbnd(:,2)-vbnd(:,1)
+   v2 = vbnd(:,3)-vbnd(:,1)
+   call vector_product(v1,v2,cp)
+   cd = (vbnd(:,1)+vbnd(:,2)+vbnd(:,3))/three
+   if (inf(sum(cp*cd),zero)) then
+      ! Switch corners 2 and 4
+      vtmp = vbnd(:,2)
+      vbnd(:,2) = vbnd(:,4)
+      vbnd(:,4) = vtmp
+   end if
+
+   ! Compute area as the sum of two spherical triangles
+   call area(vbnd(:,1),vbnd(:,2),vbnd(:,4),area_124)
+   call area(vbnd(:,2),vbnd(:,3),vbnd(:,4),area_234)
+   geom%area = area_124+area_234
+
+   ! Initialize domain hull
+   call geom%hull_mg%init(mpl,4,vbnd)
 end if
 
 ! Probe out
@@ -1661,11 +1750,11 @@ lnr = 0
 ! Loop
 do while (.not.valid)
    ! Generate random lon/lat
-   if (geom%global) then
+   if (geom%grid_type=='global') then
       call rng%rand(-pi,pi,lon)
       call rng%rand(-one,one,lat)
       lat = asin(lat)
-   else
+   elseif (geom%grid_type=='regional_structuredcolumns') then
       call rng%rand(zero,one,x)
       call rng%rand(zero,one,y)
       x = geom%xmin+x*(geom%xmax-geom%xmin)
@@ -1673,6 +1762,14 @@ do while (.not.valid)
       call geom%aproj%xy2lonlat(x,y,lon,lat)
       lon = lon*deg2rad
       lat = lat*deg2rad
+   elseif (geom%grid_type=='regional_nodecolumns') then
+      ! Sub-optimal, but the projection is not available
+      do while (.not.valid)
+         call rng%rand(-pi,pi,lon)
+         call rng%rand(-one,one,lat)
+         lat = asin(lat)
+         call geom%hull_mg%inside(mpl,lon,lat,valid)
+      end do
    end if
 
    ! Get index from lon/lat
@@ -1778,7 +1875,7 @@ else
    if (ifmt>0) call mpl%flush(newl=.false.)
 
    ! Compute corrected length-scale
-   if (geom%global) then
+   if ((geom%grid_type=='global').or.(geom%grid_type=='regional_nodecolumns')) then
       rhc_cxa = rh_cxa
    else
       do icxa=1,ncxa
@@ -1801,11 +1898,11 @@ else
          ! Update nfac
          nfac = 2*nfac
 
-         if (geom%global) then
-            ! Global grid
+         if ((geom%grid_type=='global').or.(geom%grid_type=='regional_nodecolumns')) then
+            ! Global grid or regional grid with NodeColumns function space (sub-optimal)
             call get_grid(mpl,floor(real(nfac*ns,kind_real)*four*pi/geom%area_max_c0*(one+repro_th)),agrid,nss)
-         else
-            ! Regional grid
+         elseif (geom%grid_type=='regional_structuredcolumns') then
+            ! Regional grid, StructuredColumns function space
             call get_grid(mpl,nfac*ns,geom%aproj,geom%lon_center,geom%lat_center,geom%xmin,geom%xmax,geom%ymin,geom%ymax,agrid,nss)
          end if
 
@@ -1820,18 +1917,23 @@ else
                lonlat = agrid%lonlat(ix,iy)*deg2rad
                call lonlatmod(lonlat(1),lonlat(2))
 
-               ! Check if point is inside the hull
-               call hull_cxu%inside(mpl,lonlat(1),lonlat(2),valid)
+               ! Check if point is inside the domain hull
+               call geom%hull_mg%inside(mpl,lonlat(1),lonlat(2),valid)
 
                if (valid) then
-                  ! Find nearest neighbor in universe
-                  call tree_cxu%find_nearest_neighbors(mpl,lonlat(1),lonlat(2),1,nn_index(1:1))
-                  icxa = cxu_to_cxa(nn_index(1))
+                  ! Check if point is inside the universe hull
+                  call hull_cxu%inside(mpl,lonlat(1),lonlat(2),valid)
 
-                  ! Keep valid points on each processor
-                  if (mpl%msv%isnot(icxa)) then
-                     lmask_cxa(icxa) = mask_cxa(icxa)
-                     cxa_to_node(icxa) = inode
+                  if (valid) then
+                     ! Find nearest neighbor in universe
+                     call tree_cxu%find_nearest_neighbors(mpl,lonlat(1),lonlat(2),1,nn_index(1:1))
+                     icxa = cxu_to_cxa(nn_index(1))
+
+                     ! Keep valid points on each processor
+                     if (mpl%msv%isnot(icxa)) then
+                        lmask_cxa(icxa) = mask_cxa(icxa)
+                        cxa_to_node(icxa) = inode
+                     end if
                   end if
                end if
             end do
@@ -2040,11 +2142,13 @@ else
          end if
 
          ! Define starting point
-         if (geom%global) then
+         if (geom%grid_type=='global') then
+            ! Global grid
             x_start = zero
             y_start = zero
             z_start = one
          else
+            ! Regional grid
             call lonlat2xyz(mpl,geom%lon_center,geom%lat_center,x_start,y_start,z_start)
          end if
 
@@ -2064,6 +2168,7 @@ else
          do issa=1,nssa
             indist_ssa(issa) = indist(potential(issa),valmin)
          end do
+         if (count(indist_ssa)<1) call mpl%abort('${subr}$','cannot find minimum')
          nodemin = mpl%msv%vali
          xmin = mpl%msv%valr
          ymin = mpl%msv%valr

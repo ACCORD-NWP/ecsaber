@@ -322,8 +322,8 @@ std::vector<size_t> Geometry::variableSizes(const Variables & vars) const {
   oops::Log::trace() << classname() << "::variableSizes starting" << std::endl;
 
   std::vector<size_t> sizes;
-  for (const auto & var : vars.variables()) {
-    sizes.push_back(levels(var));
+  for (const auto & var : vars) {
+    sizes.push_back(levels(var.name()));
   }
 
   oops::Log::trace() << classname() << "::variableSizes done" << std::endl;

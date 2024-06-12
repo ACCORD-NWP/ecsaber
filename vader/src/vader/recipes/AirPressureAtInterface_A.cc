@@ -21,7 +21,8 @@ namespace vader {
 
 // Static attribute initialization
 const char AirPressureAtInterface_A::Name[] = "AirPressureAtInterface_A";
-const std::vector<std::string> AirPressureAtInterface_A::Ingredients = {"surface_pressure"};
+const oops::JediVariables AirPressureAtInterface_A::Ingredients{
+      std::vector<std::string>{"surface_pressure"}};
 
 // -------------------------------------------------------------------------------------------------
 
@@ -50,13 +51,13 @@ std::string AirPressureAtInterface_A::name() const {
 
 // -------------------------------------------------------------------------------------------------
 
-std::string AirPressureAtInterface_A::product() const {
-    return "air_pressure_levels";
+oops::Variable AirPressureAtInterface_A::product() const {
+    return oops::Variable("air_pressure_levels");
 }
 
 // -------------------------------------------------------------------------------------------------
 
-std::vector<std::string> AirPressureAtInterface_A::ingredients() const {
+oops::JediVariables AirPressureAtInterface_A::ingredients() const {
     return AirPressureAtInterface_A::Ingredients;
 }
 

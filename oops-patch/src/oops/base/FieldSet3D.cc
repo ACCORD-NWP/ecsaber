@@ -17,6 +17,7 @@
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/util/dateFunctions.h"
+#include "oops/base/Variable.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/Logger.h"
@@ -177,8 +178,9 @@ void FieldSet3D::randomInit(const atlas::FunctionSpace & fspace,
 JediVariables FieldSet3D::currentVariables() const {
   JediVariables vars;
   for (const auto & field : fset_) {
-    vars.push_back(field.name());
-    vars.addMetaData(field.name(), "levels", field.shape(1));
+    eckit::LocalConfiguration conf;
+    conf.set("levels", field.shape(1));
+    vars.push_back(Variable(field.name(), conf));
   }
   return vars;
 }

@@ -40,15 +40,15 @@ class SurfaceAirPressure_A : public RecipeBase
 {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef SurfaceAirPressure_AParameters Parameters_;
 
     SurfaceAirPressure_A(const Parameters_ &, const VaderConfigVars &);
 
     std::string name() const override;
-    std::string product() const override;
-    std::vector<std::string> ingredients() const override;
+    oops::Variable product() const override;
+    oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
     bool executeNL(atlas::FieldSet &) override;

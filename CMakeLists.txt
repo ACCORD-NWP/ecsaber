@@ -8,7 +8,7 @@
 ################################################################################
 
 # Update flag
-set( ECSABER_UPDATE ON )
+set( ECSABER_UPDATE OFF )
 if( DEFINED ENV{ECSABER_UPDATE} )
     set( ECSABER_UPDATE $ENV{ECSABER_UPDATE} )
 endif()
@@ -62,9 +62,9 @@ function( patch_apply commandPath )
 endfunction()
 
 # QUENCH compilation
-set( ENABLE_QUENCH ON )
-if( DEFINED ENV{ENABLE_QUENCH} )
-    set( ENABLE_QUENCH $ENV{ENABLE_QUENCH} )
+set( ENABLE_QUENCHXX ON )
+if( DEFINED ENV{ENABLE_QUENCHXX} )
+    set( ENABLE_QUENCHXX $ENV{ENABLE_QUENCHXX} )
 endif()
 
 # Add subdirectories
@@ -72,7 +72,7 @@ if( ECSABER )
     add_subdirectory( oops-patch )
     add_subdirectory( vader )
     add_subdirectory( saber )
-    if( ENABLE_QUENCH )
-        add_subdirectory( quench )
+    if( ENABLE_QUENCHXX )
+        add_subdirectory( quenchxx_test )
     endif()
 endif()

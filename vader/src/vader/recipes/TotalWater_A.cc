@@ -20,10 +20,10 @@ namespace vader
 
 // Static attribute initialization
 const char TotalWater_A::Name[] = "TotalWater_A";
-const std::vector<std::string> TotalWater_A::
-    Ingredients = {"specific_humidity",
-                   "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
-                   "mass_content_of_cloud_ice_in_atmosphere_layer"};
+const oops::JediVariables TotalWater_A::
+    Ingredients{std::vector<std::string>{"specific_humidity",
+                    "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
+                    "mass_content_of_cloud_ice_in_atmosphere_layer"}};
 
 // Register the maker
 static RecipeMaker<TotalWater_A> makerTotalWater_A_(TotalWater_A::Name);
@@ -40,12 +40,12 @@ std::string TotalWater_A::name() const
     return TotalWater_A::Name;
 }
 
-std::string TotalWater_A::product() const
+oops::Variable TotalWater_A::product() const
 {
-    return "qt";
+    return oops::Variable{"qt"};
 }
 
-std::vector<std::string> TotalWater_A::ingredients() const
+oops::JediVariables TotalWater_A::ingredients() const
 {
     return TotalWater_A::Ingredients;
 }

@@ -20,8 +20,8 @@ namespace vader
 // Static attribute initialization
 const char WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::Name[] =
                         "WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A";
-const std::vector<std::string> WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::
-    Ingredients = {"m_v", "m_t"};
+const oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::
+    Ingredients{std::vector<std::string>{"m_v", "m_t"}};
 
 // Register the maker
 static RecipeMaker<WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A> makerTotalWater_A_(
@@ -41,12 +41,12 @@ std::string WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::name() const
     return WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::Name;
 }
 
-std::string WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::product() const
+oops::Variable WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::product() const
 {
-    return "specific_humidity";
+    return oops::Variable{"specific_humidity"};
 }
 
-std::vector<std::string> WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::ingredients() const
+oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::ingredients() const
 {
     return WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::Ingredients;
 }

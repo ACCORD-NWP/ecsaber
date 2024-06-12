@@ -57,10 +57,13 @@ Fields::Fields(const Geometry & geom,
   // Reset ATLAS fieldset
   fset_ = atlas::FieldSet();
 
-  for (const auto & var : vars_.variables()) {
+  for (auto & var : vars_) {
+    // Set number of levels
+    var.setLevels(geom_->levels(var.name()));
+
     // Create field
     atlas::Field field = geom_->functionSpace().createField<double>(
-      atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
+      atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
     fset_.add(field);
   }
 
@@ -86,9 +89,9 @@ Fields::Fields(const Fields & other,
   fset_ = atlas::FieldSet();
 
   // Check number of levels
-  for (const auto & var : vars_.variables()) {
-    if (geom_->levels(var) != geom.levels(var)) {
-      throw eckit::Exception("Different number of levels for variable " + var
+  for (const auto & var : vars_) {
+    if (geom_->levels(var.name()) != geom.levels(var.name())) {
+      throw eckit::Exception("Different number of levels for variable " + var.name()
         + ", cannot interpolate", Here());
     }
   }
@@ -101,9 +104,9 @@ Fields::Fields(const Fields & other,
     const auto & interpolation = setupGridInterpolation(*other.geom_);
 
     // Create fieldset
-    for (const auto & var : vars_.variables()) {
+    for (const auto & var : vars_) {
       atlas::Field field = geom_->functionSpace().createField<double>(
-        atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
+        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
       fset_.add(field);
     }
 
@@ -129,10 +132,10 @@ Fields::Fields(const Fields & other,
   // Reset ATLAS fieldset
   fset_ = atlas::FieldSet();
 
-  for (const auto & var : vars_.variables()) {
+  for (const auto & var : vars_) {
     // Create field
     atlas::Field field = geom_->functionSpace().createField<double>(
-      atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
+      atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
     fset_.add(field);
   }
 
@@ -146,9 +149,9 @@ Fields::Fields(const Fields & other,
 
   // Copy if necessary
   if (copy) {
-    for (const auto & var : vars_.variables()) {
-      atlas::Field field = fset_[var];
-      const atlas::Field fieldOther = other.fset_[var];
+    for (const auto & var : vars_) {
+      atlas::Field field = fset_[var.name()];
+      const atlas::Field fieldOther = other.fset_[var.name()];
       if (field.rank() == 2) {
         auto view = atlas::array::make_view<double, 2>(field);
         const auto viewOther = atlas::array::make_view<double, 2>(fieldOther);
@@ -174,11 +177,11 @@ Fields::Fields(const Fields & other)
   fset_ = atlas::FieldSet();
 
   // Create fields and copy data
-  for (const auto & var : vars_.variables()) {
+  for (const auto & var : vars_) {
     // Create field
     atlas::Field field = geom_->functionSpace().createField<double>(
-      atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
-    const atlas::Field fieldOther = other.fset_[var];
+      atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
+    const atlas::Field fieldOther = other.fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       const auto viewOther = atlas::array::make_view<double, 2>(fieldOther);
@@ -204,8 +207,8 @@ Fields::Fields(const Fields & other)
 void Fields::zero() {
   oops::Log::trace() << classname() << "::zero starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       view.assign(0.0);
@@ -221,9 +224,9 @@ void Fields::zero() {
 void Fields::constantValue(const double & value) {
   oops::Log::trace() << classname() << "::constantValue starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
@@ -235,6 +238,7 @@ void Fields::constantValue(const double & value) {
       }
     }
   }
+  fset_.set_dirty(false);
 
   oops::Log::trace() << classname() << "::constantValue end" << std::endl;
 }
@@ -242,15 +246,14 @@ void Fields::constantValue(const double & value) {
 // -----------------------------------------------------------------------------
 
 void Fields::constantValue(const eckit::Configuration & config) {
-  oops::Log::trace() << classname() << "::constantValue starting" << std::endl;
-
+  oops::Log::trace() << "Fields::constantValue starting" << std::endl;
   for (const auto & group : config.getSubConfigurations("constant group-specific value")) {
     const std::vector<std::string> vars = group.getStringVector("variables");
     const double value = group.getDouble("constant value");
-    for (const auto & var : vars_.variables()) {
-      if (std::find(vars.begin(), vars.end(), var) != vars.end()) {
-        atlas::Field field = fset_[var];
-        const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+    for (const auto & var : vars_) {
+      if (std::find(vars.begin(), vars.end(), var.name()) != vars.end()) {
+        atlas::Field field = fset_[var.name()];
+        const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
         const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
         if (field.rank() == 2) {
           auto view = atlas::array::make_view<double, 2>(field);
@@ -264,6 +267,7 @@ void Fields::constantValue(const eckit::Configuration & config) {
       }
     }
   }
+  fset_.set_dirty(false);
 
   oops::Log::trace() << classname() << "::constantValue end" << std::endl;
 }
@@ -311,11 +315,11 @@ Fields & Fields::operator+=(const Fields & rhs) {
     fsetRhs = util::copyFieldSet(rhsInterp.fset_);
   }
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldRhs = fsetRhs[var];
+    atlas::Field fieldRhs = fsetRhs[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
@@ -339,11 +343,11 @@ Fields & Fields::operator+=(const Fields & rhs) {
 Fields & Fields::operator-=(const Fields & rhs) {
   oops::Log::trace() << classname() << "::operator-= starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldRhs = rhs.fset_[var];
+    atlas::Field fieldRhs = rhs.fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
@@ -367,9 +371,9 @@ Fields & Fields::operator-=(const Fields & rhs) {
 Fields & Fields::operator*=(const double & zz) {
   oops::Log::trace() << classname() << "::operator*= starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
@@ -393,11 +397,11 @@ void Fields::axpy(const double & zz,
                   const Fields & rhs) {
   oops::Log::trace() << classname() << "::axpy starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldRhs = rhs.fset_[var];
+    atlas::Field fieldRhs = rhs.fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
@@ -422,11 +426,11 @@ double Fields::dot_product_with(const Fields & fld2) const {
 
   double zz = 0;
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field1 = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+  for (const auto & var : vars_) {
+    atlas::Field field1 = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field field2 = fld2.fset_[var];
+    atlas::Field field2 = fld2.fset_[var.name()];
     if (field1.rank() == 2) {
       auto view1 = atlas::array::make_view<double, 2>(field1);
       auto view2 = atlas::array::make_view<double, 2>(field2);
@@ -449,11 +453,11 @@ double Fields::dot_product_with(const Fields & fld2) const {
 void Fields::schur_product_with(const Fields & dx) {
   oops::Log::trace() << classname() << "::schur_product_with starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldDx = dx.fset_[var];
+    atlas::Field fieldDx = dx.fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       auto viewDx = atlas::array::make_view<double, 2>(fieldDx);
@@ -486,9 +490,9 @@ void Fields::random() {
     // Total size
     size_t n = 0;
     std::vector<std::string> groupVars;
-    for (const auto & var : vars_.variables()) {
-      if (geom_->groupIndex(var) == groupIndex) {
-        groupVars.push_back(var);
+    for (const auto & var : vars_) {
+      if (geom_->groupIndex(var.name()) == groupIndex) {
+        groupVars.push_back(var.name());
       }
     }
     for (const auto & var : groupVars) {
@@ -520,10 +524,11 @@ void Fields::random() {
 
     // Global data
     atlas::FieldSet globalData;
-    for (const auto & var : vars_.variables()) {
-      if (geom_->groupIndex(var) == groupIndex) {
-        atlas::Field field = geom_->functionSpace().createField<double>(atlas::option::name(var)
-          | atlas::option::levels(geom_->levels(var)) | atlas::option::global());
+    for (const auto & var : vars_) {
+      if (geom_->groupIndex(var.name()) == groupIndex) {
+        atlas::Field field = geom_->functionSpace().createField<double>(
+          atlas::option::name(var.name())
+          | atlas::option::levels(geom_->levels(var.name())) | atlas::option::global());
         globalData.add(field);
       }
     }
@@ -556,9 +561,9 @@ void Fields::random() {
       // Copy random values
       n = 0;
       const auto ghostView = atlas::array::make_view<int, 1>(globalMasks["ghost"]);
-      for (const auto & var : vars_.variables()) {
-        if (geom_->groupIndex(var) == groupIndex) {
-          atlas::Field field = globalData[var];
+      for (const auto & var : vars_) {
+        if (geom_->groupIndex(var.name()) == groupIndex) {
+          atlas::Field field = globalData[var.name()];
           const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
           const auto gmaskView = atlas::array::make_view<int, 2>(globalMasks[gmaskName]);
           if (field.rank() == 2) {
@@ -578,10 +583,10 @@ void Fields::random() {
 
     // Local data
     atlas::FieldSet localData;
-    for (const auto & var : vars_.variables()) {
-      if (geom_->groupIndex(var) == groupIndex) {
-        atlas::Field field = geom_->functionSpace().createField<double>(atlas::option::name(var)
-          | atlas::option::levels(geom_->levels(var)));
+    for (const auto & var : vars_) {
+      if (geom_->groupIndex(var.name()) == groupIndex) {
+        atlas::Field field = geom_->functionSpace().createField<double>(
+          atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
         localData.add(field);
       }
     }
@@ -608,9 +613,9 @@ void Fields::random() {
     }
 
     // Copy data
-    for (const auto & var : vars_.variables()) {
-      if (geom_->groupIndex(var) == groupIndex) {
-        fset_.add(localData[var]);
+    for (const auto & var : vars_) {
+      if (geom_->groupIndex(var.name()) == groupIndex) {
+        fset_.add(localData[var.name()]);
       }
     }
   }
@@ -704,12 +709,12 @@ void Fields::diff(const Fields & x1,
                   const Fields & x2) {
   oops::Log::trace() << classname() << "::diff starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldx1 = x1.fset_[var];
-    atlas::Field fieldx2 = x2.fset_[var];
+    atlas::Field fieldx1 = x1.fset_[var.name()];
+    atlas::Field fieldx2 = x2.fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       auto viewx1 = atlas::array::make_view<double, 2>(fieldx1);
@@ -758,6 +763,9 @@ void Fields::fromFieldSet(const atlas::FieldSet & fset) {
 
   // Reset variables
   vars_ = Variables(fset_.field_names());
+  for (const auto & field : fset_) {
+    vars_[field.name()].setLevels(field.shape(1));
+  }
 
   if (geom_->gridType() == "regular_lonlat") {
     // Reset poles points
@@ -825,22 +833,23 @@ void Fields::read(const eckit::Configuration & config) {
   }
 
   // Update variables names
-  std::vector<std::string> variableNames;
-  for (const auto & var : vars_.variables()) {
-    std::string newVar = var;
+  Variables vars_in_file;
+  for (const auto & var : vars_) {
+    std::string newVar = var.name();
     for (const auto & item : geom_->alias()) {
-      if (item.getString("in code") == var) {
+      if (item.getString("in code") == var.name()) {
         newVar = item.getString("in file");
       }
     }
-    variableNames.push_back(newVar);
+    vars_in_file.push_back({newVar, var.metaData(), var.getLevels()});
   }
 
-  // Create variables
-  Variables vars(variableNames);
-
-  // Read fields
-  fieldsIO->read(*geom_, vars, variableSizes, config, fset_);
+  // Read fieldset
+  util::readFieldSet(geom_->getComm(),
+                     geom_->functionSpace(),
+                     vars_in_file,
+                     config,
+                     fset_);
 
   // Rename fields
   for (auto & field : fset_) {
@@ -927,11 +936,11 @@ void Fields::print(std::ostream & os) const {
   }
   os << prefix << "Fields:";
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
-  for (const auto & var : vars_.variables()) {
+  for (const auto & var : vars_) {
     os << std::endl;
     double zz = 0.0;
-    atlas::Field field = fset_[var];
-    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var));
+    atlas::Field field = fset_[var.name()];
+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
@@ -945,7 +954,7 @@ void Fields::print(std::ostream & os) const {
     }
     geom_->getComm().allReduceInPlace(zz, eckit::mpi::sum());
     zz = sqrt(zz);
-    os << prefix << "  " << var << ": " << zz;
+    os << prefix << "  " << var.name() << ": " << zz;
   }
 
   oops::Log::trace() << classname() << "::print done" << std::endl;
@@ -957,8 +966,8 @@ size_t Fields::serialSize() const {
   oops::Log::trace() << classname() << "::serialSize starting" << std::endl;
 
   size_t nn = 0;
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
     if (field.rank() == 2) {
       nn += field.shape(0)*field.shape(1);
     }
@@ -973,8 +982,8 @@ size_t Fields::serialSize() const {
 void Fields::serialize(std::vector<double> & vect)  const {
   oops::Log::trace() << classname() << "::serialize starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    const atlas::Field field = fset_[var];
+  for (const auto & var : vars_) {
+    const atlas::Field field = fset_[var.name()];
     if (field.rank() == 2) {
       const auto view = atlas::array::make_view<double, 2>(field);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
@@ -994,8 +1003,8 @@ void Fields::deserialize(const std::vector<double> & vect,
                          size_t & index) {
   oops::Log::trace() << classname() << "::deserialize starting" << std::endl;
 
-  for (const auto & var : vars_.variables()) {
-    atlas::Field field = fset_[var];
+  for (const auto & var : vars_) {
+    atlas::Field field = fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {

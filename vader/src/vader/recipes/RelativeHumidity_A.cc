@@ -22,10 +22,10 @@ namespace vader
 
 // Static attribute initialization
 const char RelativeHumidity_A::Name[] = "RelativeHumidity_A";
-const std::vector<std::string> RelativeHumidity_A::Ingredients = {"air_temperature",
+const oops::JediVariables RelativeHumidity_A::Ingredients{std::vector<std::string>{"air_temperature",
                                                                   "dlsvpdT",
                                                                   "specific_humidity",
-                                                                  "qsat"};
+                                                                  "qsat"}};
 
 // Register the maker
 static RecipeMaker<RelativeHumidity_A> makerRelativeHumidity_(RelativeHumidity_A::Name);
@@ -42,12 +42,12 @@ std::string RelativeHumidity_A::name() const
     return RelativeHumidity_A::Name;
 }
 
-std::string RelativeHumidity_A::product() const
+oops::Variable RelativeHumidity_A::product() const
 {
-    return "relative_humidity";
+    return oops::Variable{"relative_humidity"};
 }
 
-std::vector<std::string> RelativeHumidity_A::ingredients() const
+oops::JediVariables RelativeHumidity_A::ingredients() const
 {
     return RelativeHumidity_A::Ingredients;
 }

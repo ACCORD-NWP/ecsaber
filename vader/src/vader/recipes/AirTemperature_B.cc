@@ -21,8 +21,8 @@ namespace vader
 
 // Static attribute initialization
 const char AirTemperature_B::Name[] = "AirTemperature_B";
-const std::vector<std::string> AirTemperature_B::Ingredients = {"virtual_temperature",
-                                                                "specific_humidity"};
+const oops::JediVariables AirTemperature_B::Ingredients{std::vector<std::string>{"virtual_temperature",
+                                                                "specific_humidity"}};
 
 // Register the maker
 static RecipeMaker<AirTemperature_B> makerAirTemperature_B_(AirTemperature_B::Name);
@@ -39,12 +39,12 @@ std::string AirTemperature_B::name() const
     return AirTemperature_B::Name;
 }
 
-std::string AirTemperature_B::product() const
+oops::Variable AirTemperature_B::product() const
 {
-    return "air_temperature";
+    return oops::Variable{"air_temperature"};
 }
 
-std::vector<std::string> AirTemperature_B::ingredients() const
+oops::JediVariables AirTemperature_B::ingredients() const
 {
     return AirTemperature_B::Ingredients;
 }

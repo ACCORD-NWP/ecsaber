@@ -74,7 +74,7 @@ class StaticCovariance : public SaberCentralBlockBase {
   // Parameters
   Parameters_ params_;
   // JediVariables
-  std::vector<std::string> variables_;
+  oops::JediVariables variables_;
   // GSI grid FunctionSpace
   atlas::FunctionSpace gsiGridFuncSpace_;
   // Communicator

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2024-06-03 11:14:57.985479627 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2024-06-03 11:24:02.115263235 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2024-06-12 18:30:30.621788997 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2024-06-12 18:22:28.564179769 +0200
 @@ -1,8 +1,6 @@
  /*
 - * (C) Copyright 2021 UCAR
@@ -81,7 +81,7 @@
 +  const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsNoMeta.variables());
 +  oops::JediVariables incVars(incVarsNoMeta.variables().variablesList());
    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
-     incVars.addMetaData(incVars[i], "levels", vlevs[i]);
+     incVars[i].setLevels(vlevs[i]);
    }
  
    // Create dummy xb and fg

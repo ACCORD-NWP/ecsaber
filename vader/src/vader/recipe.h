@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -18,6 +17,11 @@
 #include "atlas/functionspace/FunctionSpace.h"
 #include "oops/util/Printable.h"
 #include "vader/RecipeBase.h"
+
+namespace oops {
+  class Variable;
+  class JediVariables;
+}
 
 namespace vader {
 
@@ -32,8 +36,8 @@ class Recipe  : public util::Printable,
     Recipe(const std::string, const Parameters_ &, const VaderConfigVars &);
 
     std::string name() const;
-    std::string product() const;
-    std::vector<std::string> ingredients() const;
+    const oops::Variable product() const;
+    const oops::JediVariables ingredients() const;
     size_t productLevels(const atlas::FieldSet &) const;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const;
     bool requiresSetup() const;

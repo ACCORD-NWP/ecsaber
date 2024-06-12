@@ -24,12 +24,12 @@ Fields:
   stream_function: 3.0000000000000000e+00
   velocity_potential: 0.0000000000000000e+00
   surface_pressure: 0.0000000000000000e+00
-Norm of input parameter weight_0: 4.7721413951189433e+01
-Norm of input parameter weight_1: 1.3392201895439860e+02
-Norm of input parameter weight_2: 6.2879396764473356e+01
-Norm of input parameter normalization_0: 2.1503835991342174e+02
-Norm of input parameter normalization_1: 2.3009995211475311e+02
-Norm of input parameter normalization_2: 2.2913405485409021e+02
+Norm of input parameter weight_0: 5.8292064313359489e+01
+Norm of input parameter weight_1: 1.3333950118261592e+02
+Norm of input parameter weight_2: 5.1430243007336770e+01
+Norm of input parameter normalization_0: 2.1640997347677538e+02
+Norm of input parameter normalization_1: 2.3202886586717395e+02
+Norm of input parameter normalization_2: 2.3182790015625676e+02
     FastLAM interpolation accuracy test passed
     FastLAM interpolation adjoint test passed
     FastLAM redToRows test passed
@@ -67,6 +67,6 @@ Groups:
   - vert_coord: [1.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 1.3035321855721582e+01
-  velocity_potential: 1.3035321855721582e+01
-  surface_pressure: 1.0801582040940421e+01
+  stream_function: 1.3009709987755159e+01
+  velocity_potential: 1.3009709987755159e+01
+  surface_pressure: 1.0939422498569305e+01

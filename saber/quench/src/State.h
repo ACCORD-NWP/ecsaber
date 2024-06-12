@@ -68,6 +68,8 @@ class State : public util::Printable,
     {return fields_->time();}
   util::DateTime & validTime()
     {return fields_->time();}
+  void updateTime(const util::Duration & dt)
+    {fields_->time() += dt;}
 
   // Access to fields
   Fields & fields()

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-05-29 07:56:56.281084915 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-05-29 07:58:00.159482038 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-06-12 17:37:22.007534645 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-06-12 17:40:25.537217501 +0200
 @@ -23,15 +23,14 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -164,7 +164,7 @@
        return fsetEns;
      }
  
-@@ -272,15 +269,15 @@
+@@ -271,15 +268,15 @@
        // Read perturbations into oops::FieldSets
        oops::FieldSets fsetEns(fspace, vars, xb.times(),
                                ensemblePertOtherGeom,
@@ -183,7 +183,7 @@
  }
  
  // -------------------------------------------------------------------------------------------------
-@@ -298,14 +295,17 @@
+@@ -297,14 +294,17 @@
    // Local copy
    eckit::LocalConfiguration localConf(conf);
  
@@ -203,7 +203,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -325,54 +325,42 @@
+@@ -324,54 +324,42 @@
    // Fill FieldSet
    size_t ensembleFound = 0;
  

@@ -21,8 +21,8 @@ namespace vader
 
 // Static attribute initialization
 const char AirPotentialTemperature_B::Name[] = "AirPotentialTemperature_B";
-const std::vector<std::string> AirPotentialTemperature_B::Ingredients = {"air_temperature",
-                                                                         "air_pressure_to_kappa"};
+const oops::JediVariables AirPotentialTemperature_B::Ingredients{
+      std::vector<std::string>{"air_temperature", "air_pressure_to_kappa"}};
 
 // -------------------------------------------------------------------------------------------------
 
@@ -45,13 +45,13 @@ std::string AirPotentialTemperature_B::name() const {
 
 // -------------------------------------------------------------------------------------------------
 
-std::string AirPotentialTemperature_B::product() const {
-    return "potential_temperature";
+oops::Variable AirPotentialTemperature_B::product() const {
+    return oops::Variable("potential_temperature");
 }
 
 // -------------------------------------------------------------------------------------------------
 
-std::vector<std::string> AirPotentialTemperature_B::ingredients() const {
+oops::JediVariables AirPotentialTemperature_B::ingredients() const {
     return AirPotentialTemperature_B::Ingredients;
 }
 
