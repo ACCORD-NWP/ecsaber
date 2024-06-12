@@ -1,20 +1,72 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Covariance.h.tmp	2024-06-03 16:18:03.357814346 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Covariance.h.tmp.bak	2024-06-12 18:33:07.026319567 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Covariance.h	2024-06-03 10:49:46.064740347 +0200
-@@ -17,6 +17,7 @@
+@@ -17,35 +17,54 @@
  #include "oops/util/ObjectCounter.h"
  #include "oops/util/Printable.h"
  
+-#include "src/Geometry.h"
 +#include "src/CovarianceECInc.h"
- #include "src/Increment.h"
++#include "src/Increment.h"
  
  namespace quench {
-@@ -59,6 +60,9 @@
-   // Print
-   void print(std::ostream & os) const
-     {os << "Covariance";}
+-  class Increment;
++  class Geometry;
+   class State;
+ 
+ // -----------------------------------------------------------------------------
+-/// Background error covariance matrix for quench model.
++/// Covariance class
+ 
+ class Covariance : public util::Printable,
+                    private boost::noncopyable,
+                    private util::ObjectCounter<Covariance> {
+  public:
+-  static const std::string classname() {return "quench::Covariance";}
++  static const std::string classname()
++    {return "quench::Covariance";}
+ 
+-  Covariance(const Geometry &, const Variables &,
+-             const eckit::Configuration &, const State &, const State &)
+-    {throw eckit::NotImplemented(Here());}
+-
+-  void multiply(const Increment &, Increment &) const
+-    {throw eckit::NotImplemented(Here());}
+-  void inverseMultiply(const Increment &, Increment &) const
+-    {throw eckit::NotImplemented(Here());}
+-  void randomize(Increment &) const
+-    {throw eckit::NotImplemented(Here());}
++  // Constructor/destructor
++  Covariance(const Geometry &,
++             const Variables &,
++             const eckit::Configuration &,
++             const State &,
++             const State &)
++    {}
++  ~Covariance()
++    {}
++
++  // Multiply and inverse multiply (identity)
++  void multiply(const Increment & dxi,
++                Increment & dxo) const
++    {dxo = dxi;}
++  void inverseMultiply(const Increment & dxi,
++                       Increment & dxo) const
++    {dxo = dxi;}
++
++  // Randomization
++  void randomize(Increment & dxo) const
++    {dxo.random();}
+ 
+  private:
+-  void print(std::ostream & os) const {os << "Covariance";}
++  // Print
++  void print(std::ostream & os) const
++    {os << "Covariance";}
 +
 +/// ECSABER-specific definitions
 +#include "src/CovarianceECDef.h"
  };
- 
++
  // -----------------------------------------------------------------------------
+ 
+ }  // namespace quench

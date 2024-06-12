@@ -1,0 +1,33 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/VariableChange.h.tmp	2024-06-12 18:33:06.942319280 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/VariableChange.h	2024-06-03 16:18:03.213813956 +0200
+@@ -24,19 +24,25 @@
+ 
+ class VariableChange : public util::Printable {
+  public:
+-  static const std::string classname() {return "quench::VariableChange";}
++  static const std::string classname()
++    {return "quench::VariableChange";}
+ 
++  // Constructor/destructor
+   VariableChange(const eckit::Configuration &, const Geometry &) {}
+   ~VariableChange() {}
+ 
+-/// Perform transforms
+-  void changeVar(State &, const Variables &) const
++  // Variable changes: direct and inverse
++  void changeVar(State &,
++                 const Variables &) const
+     {throw eckit::NotImplemented(Here());}
+-  void changeVarInverse(State &, const Variables &) const
++  void changeVarInverse(State &,
++                        const Variables &) const
+     {throw eckit::NotImplemented(Here());}
+ 
+  private:
+-  void print(std::ostream & os) const override {os << "VariableChange";};
++  // Print
++  void print(std::ostream & os) const override
++    {os << "VariableChange";};
+ };
+ 
+ // -----------------------------------------------------------------------------

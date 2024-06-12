@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAMParametersBase.h.tmp	2024-06-12 18:33:06.118316478 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAMParametersBase.h	2024-05-27 15:34:15.082612713 +0200
+@@ -86,7 +86,7 @@
+   oops::Parameter<double> accuracyTolerance{"interpolation accuracy tolerance", 0.05, this};
+ 
+   // Interpolation adjoint tolerance
+-  oops::Parameter<double> adjointTolerance{"interpolation adjoint tolerance", 1.0e-12, this};
++  oops::Parameter<double> adjointTolerance{"interpolation adjoint tolerance", 5.0e-12, this};
+ 
+   // Data file (input / output)
+   oops::OptionalParameter<std::string> dataFile{"data file", this};

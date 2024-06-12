@@ -1,0 +1,30 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_4.ref.tmp	2024-06-12 18:33:08.534324695 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_fastlam_4.ref	2024-06-11 11:31:02.398169269 +0200
+@@ -24,12 +24,12 @@
+   stream_function: 3.0000000000000000e+00
+   velocity_potential: 0.0000000000000000e+00
+   surface_pressure: 3.0000000000000000e+00
+-Norm of input parameter weight_0: 6.8764635381395237e+01
+-Norm of input parameter weight_1: 1.2773159137166465e+02
+-Norm of input parameter weight_2: 5.2978007299339701e+01
+-Norm of input parameter normalization_0: 2.1619695742242578e+02
+-Norm of input parameter normalization_1: 2.3187033509524204e+02
+-Norm of input parameter normalization_2: 2.3335111946935496e+02
++Norm of input parameter weight_0: 5.8292064313359489e+01
++Norm of input parameter weight_1: 1.3333950118261592e+02
++Norm of input parameter weight_2: 5.1430243007336770e+01
++Norm of input parameter normalization_0: 2.1640997347677538e+02
++Norm of input parameter normalization_1: 2.3202886586717395e+02
++Norm of input parameter normalization_2: 2.3182790015625676e+02
+     FastLAM interpolation accuracy test passed
+     FastLAM interpolation adjoint test passed
+     FastLAM redToRows test passed
+@@ -79,6 +79,6 @@
+   - vert_coord: [1.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  stream_function: 1.3010616562174024e+01
++  stream_function: 1.3009709987755159e+01
+   velocity_potential: 0.0000000000000000e+00
+-  surface_pressure: 1.1786909546010444e+01
++  surface_pressure: 1.1405721231187407e+01

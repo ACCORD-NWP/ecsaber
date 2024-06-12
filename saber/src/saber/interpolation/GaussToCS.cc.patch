@@ -1,0 +1,27 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/interpolation/GaussToCS.cc.tmp	2024-06-12 18:33:04.526311065 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/interpolation/GaussToCS.cc	2024-06-12 17:37:28.899604845 +0200
+@@ -7,6 +7,7 @@
+ 
+ #include "atlas/grid/detail/partitioner/MatchingMeshPartitionerCubedSphere.h"
+ #include "atlas/grid/detail/partitioner/TransPartitioner.h"
++#include "atlas/meshgenerator.h"
+ #include "atlas/parallel/mpi/mpi.h"
+ #include "atlas/util/Config.h"
+ 
+@@ -244,7 +245,6 @@
+   }
+ 
+   // Interpolate to cubed sphere
+-  gaussFieldSet.haloExchange();
+   interp_.execute(gaussFieldSet, csFieldSet);
+   csFieldSet.set_dirty();  // atlas interpolation produces dirty halos
+ 
+@@ -290,8 +290,6 @@
+ 
+   // Adjoint of interpolation from gauss to dual cubed sphere
+   interp_.executeAdjoint(gaussFieldSet, csFieldSet);
+-  gaussFieldSet.adjointHaloExchange();
+-  gaussFieldSet.set_dirty();
+ 
+   for (const auto & var : activeVars_) {
+     newFields.add(gaussFieldSet[var.name()]);

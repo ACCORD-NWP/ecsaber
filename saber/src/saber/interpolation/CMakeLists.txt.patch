@@ -1,0 +1,14 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/interpolation/CMakeLists.txt.tmp	2024-06-12 18:33:04.638311445 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/interpolation/CMakeLists.txt	2024-05-27 15:34:12.758606325 +0200
+@@ -11,8 +11,11 @@
+ # Interpolation block
+ Geometry.cc
+ Geometry.h
++InterpElement.h
+ Interpolation.cc
+ Interpolation.h
++RegionalInterpolation.cc
++RegionalInterpolation.h
+ 
+ # VertProj block
+ VertProj.cc
