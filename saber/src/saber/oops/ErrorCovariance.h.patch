@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-05-06 12:38:40.643904940 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-05-06 12:59:59.275281661 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-06-12 17:37:22.039534972 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-06-12 17:40:38.865326367 +0200
 @@ -1,6 +1,5 @@
  /*
   * (C) Copyright 2021-2023 UCAR
@@ -218,7 +218,7 @@
 +  const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
 +  oops::JediVariables outerVars(incVars_.variables().variablesList());
    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
-     outerVars.addMetaData(outerVars[i], "levels", vlevs[i]);
+     outerVars[i].setLevels(vlevs[i]);
    }
 @@ -169,9 +229,7 @@
      const auto & dualResGeomConf = dualResParams->geometry.value();

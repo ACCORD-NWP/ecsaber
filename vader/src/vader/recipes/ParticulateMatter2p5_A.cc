@@ -24,7 +24,7 @@ namespace vader
 const char ParticulateMatter2p5_A::Name[] = "ParticulateMatter2p5_A";
 // PM2.5 calculaiton with CMAQ AERO6
 // Please change ivar_start (here it is 4 for aso4i) and imodes if you change the INGREDIENTS list.
-std::vector<std::string> AERO6_INGREDIENTS = {
+const std::vector<std::string> AERO6_INGREDIENTS{
            "pm2p5_fraction_of_aitken_mode",
            "pm2p5_fraction_of_accumulation_mode",
            "pm2p5_fraction_of_coarse_mode",
@@ -99,7 +99,7 @@ std::vector<std::string> AERO6_INGREDIENTS = {
            "mixing_ratio_of_aclk_wrt_dry_air",
            "mixing_ratio_of_ano3k_wrt_dry_air",
            "mixing_ratio_of_anh4k_wrt_dry_air"};
-const std::vector<std::string> ParticulateMatter2p5_A::Ingredients = {AERO6_INGREDIENTS};
+const oops::JediVariables ParticulateMatter2p5_A::Ingredients{AERO6_INGREDIENTS};
 vector<int>  imodes = {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
                        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
@@ -121,12 +121,12 @@ std::string ParticulateMatter2p5_A::name() const
     return ParticulateMatter2p5_A::Name;
 }
 
-std::string ParticulateMatter2p5_A::product() const
+oops::Variable ParticulateMatter2p5_A::product() const
 {
-    return "mass_density_of_particulate_matter_2p5_in_air";
+    return oops::Variable{"mass_density_of_particulate_matter_2p5_in_air"};
 }
 
-std::vector<std::string> ParticulateMatter2p5_A::ingredients() const
+oops::JediVariables ParticulateMatter2p5_A::ingredients() const
 {
     return ParticulateMatter2p5_A::Ingredients;
 }

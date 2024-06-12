@@ -24,8 +24,8 @@ Fields:
   stream_function: 3.0000000000000000e+00
   velocity_potential: 0.0000000000000000e+00
   surface_pressure: 3.0000000000000000e+00
-Norm of input parameter rh: 6.3918837541357242e+06
-Norm of input parameter rv: 1.1133066497566087e+03
+Norm of input parameter rh: 6.4323926510614883e+06
+Norm of input parameter rv: 1.0883371722266227e+03
     FastLAM interpolation accuracy test passed
     FastLAM interpolation adjoint test passed
     FastLAM redToRows test passed
@@ -50,13 +50,13 @@ Norm of input parameter rv: 1.1133066497566087e+03
     FastLAM interpolation adjoint test passed
     FastLAM redToRows test passed
     FastLAM rowsToCols test passed
-Norm of output parameter normalized horizontal length-scale: 1.6624060523026046e+03
-Norm of output parameter weight - 0: 4.7721413951189433e+01
-Norm of output parameter weight - 1: 1.3392201895439860e+02
-Norm of output parameter weight - 2: 6.2879396764473356e+01
-Norm of output parameter normalization - 0: 2.1503835991342174e+02
-Norm of output parameter normalization - 1: 2.3009995211475311e+02
-Norm of output parameter normalization - 2: 2.2913405485409021e+02
+Norm of output parameter normalized horizontal length-scale: 1.6735980619203779e+03
+Norm of output parameter weight - 0: 5.8292064313359489e+01
+Norm of output parameter weight - 1: 1.3333950118261592e+02
+Norm of output parameter weight - 2: 5.1430243007336770e+01
+Norm of output parameter normalization - 0: 2.1640997347677538e+02
+Norm of output parameter normalization - 1: 2.3202886586717395e+02
+Norm of output parameter normalization - 2: 2.3182790015625676e+02
 Adjoint test for block FastLAM passed
 Square-root test for block FastLAM passed
 Covariance(SABER) * Increment:
@@ -82,6 +82,6 @@ Groups:
   - vert_coord: [1.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 1.3035321855721582e+01
+  stream_function: 1.3009709987755159e+01
   velocity_potential: 0.0000000000000000e+00
-  surface_pressure: 1.1394764511691575e+01
+  surface_pressure: 1.1405721231187407e+01

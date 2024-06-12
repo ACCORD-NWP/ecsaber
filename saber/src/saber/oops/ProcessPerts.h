@@ -244,7 +244,7 @@ class ProcessPerts : public oops::Application {
     // Initialize outer variables
     const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsT.variables());
     for (std::size_t i = 0; i < vlevs.size() ; ++i) {
-      incVars.addMetaData(incVars[i], "levels", vlevs[i]);
+      incVars[i].setLevels(vlevs[i]);
     }
 
     std::vector<util::DateTime> dates;

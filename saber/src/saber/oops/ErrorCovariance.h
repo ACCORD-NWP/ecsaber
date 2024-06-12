@@ -193,7 +193,7 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
   const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
   oops::JediVariables outerVars(incVars_.variables().variablesList());
   for (std::size_t i = 0; i < vlevs.size() ; ++i) {
-    outerVars.addMetaData(outerVars[i], "levels", vlevs[i]);
+    outerVars[i].setLevels(vlevs[i]);
   }
 
   // Create covariance configuration

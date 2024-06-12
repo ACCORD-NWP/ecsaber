@@ -106,8 +106,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 4.6284005920254107e-01
-  northward_wind: 1.2605162198223638e-01
+  eastward_wind: 4.6284246666698758e-01
+  northward_wind: 1.2609406938134360e-01
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -124,8 +124,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 9.3419121028337229e-02
-  northward_wind: 7.7304580735591003e-02
+  eastward_wind: 9.3477435959848754e-02
+  northward_wind: 7.7324492848183490e-02
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -190,8 +190,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 8.9637890899685688e-14
-  northward_wind: 2.6913973475260309e-14
+  eastward_wind: 8.9637016223071983e-14
+  northward_wind: 2.6916848772841084e-14
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -208,8 +208,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 8.9637890899685688e-14
-  northward_wind: 2.6913973475260309e-14
+  eastward_wind: 8.9637016223071983e-14
+  northward_wind: 2.6916848772841084e-14
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -234,8 +234,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 6.2966499473376614e-01
-  northward_wind: 2.5805752002070798e-01
+  eastward_wind: 6.2965917988665343e-01
+  northward_wind: 2.5815576567472753e-01
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -252,8 +252,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 1.8156003354063799e-01
-  northward_wind: 1.8213609673551800e-01
+  eastward_wind: 1.8166685323863077e-01
+  northward_wind: 1.8219618402775314e-01
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -263,7 +263,7 @@ Fields:
              Level   2 ~>  0.200E+01 vert. coord.
 Localization(hybrid2_ensemble_localization) diagnostics:
 - Localization at zero separation:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999978e-01
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
 Localization(hybrid2_ensemble) * Increment:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -281,8 +281,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.2516673611810836e+00
-  northward_wind: 2.2516673611810836e+00
+  eastward_wind: 2.2517366841554374e+00
+  northward_wind: 2.2517366841554374e+00
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -299,5 +299,5 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.2516673611810836e+00
-  northward_wind: 2.2516673611810836e+00
+  eastward_wind: 2.2517366841554374e+00
+  northward_wind: 2.2517366841554374e+00

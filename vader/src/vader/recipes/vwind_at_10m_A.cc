@@ -21,7 +21,7 @@ namespace vader
 
 // Static attribute initialization
 const char vwind_at_10m_A::Name[] = "vwind_at_10m_A";
-const std::vector<std::string> vwind_at_10m_A::Ingredients = {"northward_wind"};
+const oops::JediVariables vwind_at_10m_A::Ingredients{std::vector<std::string>{"northward_wind"}};
 
 // Register the maker
 static RecipeMaker<vwind_at_10m_A> makeruwind_at_10m_A_(vwind_at_10m_A::Name);
@@ -37,12 +37,12 @@ std::string vwind_at_10m_A::name() const
     return vwind_at_10m_A::Name;
 }
 
-std::string vwind_at_10m_A::product() const
+oops::Variable vwind_at_10m_A::product() const
 {
-    return "vwind_at_10m";
+    return oops::Variable{"vwind_at_10m"};
 }
 
-std::vector<std::string> vwind_at_10m_A::ingredients() const
+oops::JediVariables vwind_at_10m_A::ingredients() const
 {
     return vwind_at_10m_A::Ingredients;
 }

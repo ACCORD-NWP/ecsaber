@@ -114,7 +114,6 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
 
   // Create FieldSet
   atlas::FieldSet fset = createFieldSet(fspace, variableSizes, vars);
-
   for (auto & field : fset) {
     // Get field owned size
     size_t n = 0;
@@ -341,7 +340,13 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
       }
     }
 
-    fset.set_dirty(false);  // smooth function will be up-to-date at ghost points
+    // As of atlas 0.37, the vortex_rollup function is not single-valued at the "across the pole"
+    // ghost points that atlas sets up for structured grids. The function will have different
+    // values at (lon,lat) = (lon,91) vs (lon+180,89), even though these two coordinates describe
+    // the same point on the sphere. Therefore, we must perform a halo exchange to correctly fill
+    // the halo regions for structured grids.
+    // For simplicity we just do the halo exchange for all grids...
+    fset.set_dirty(true);
 
     // Set metadata for interpolation type
     field.metadata().set("interp_type", "default");
@@ -1673,8 +1678,8 @@ void writeRank3FieldSet(const atlas::FieldSet & fset,
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
                                const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   return createFieldSet(fspace, variableSizes, vars.variables());
 }
@@ -1685,8 +1690,8 @@ atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
                                const oops::JediVariables & vars,
                                const double & initalizationValue) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   return createFieldSet(fspace, variableSizes, vars.variables(), initalizationValue);
 }
@@ -1697,8 +1702,8 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
                                      const atlas::FunctionSpace & fspace,
                                      const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   return createRandomFieldSet(comm, fspace, variableSizes, vars.variables());
 }
@@ -1709,8 +1714,8 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
                                      const atlas::FunctionSpace & fspace,
                                      const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   return createSmoothFieldSet(comm, fspace, variableSizes, vars.variables());
 }
@@ -1723,8 +1728,8 @@ void readFieldSet(const eckit::mpi::Comm & comm,
                   const eckit::Configuration & config,
                   atlas::FieldSet & fset) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   readFieldSet(comm, fspace, variableSizes, vars.variables(), config, fset);
 }

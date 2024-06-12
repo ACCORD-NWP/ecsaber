@@ -38,7 +38,7 @@ class VirtualPotentialTemperature_AParameters : public RecipeParametersBase {
 class VirtualPotentialTemperature_A : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef VirtualPotentialTemperature_AParameters Parameters_;
 
@@ -46,8 +46,8 @@ class VirtualPotentialTemperature_A : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override;
-    std::vector<std::string> ingredients() const override;
+    oops::Variable product() const override;
+    oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
     bool hasTLAD() const override { return true; }
@@ -76,7 +76,7 @@ class VirtualPotentialTemperature_BParameters : public RecipeParametersBase {
 class VirtualPotentialTemperature_B : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef VirtualPotentialTemperature_BParameters Parameters_;
 
@@ -84,8 +84,8 @@ class VirtualPotentialTemperature_B : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override;
-    std::vector<std::string> ingredients() const override;
+    oops::Variable product() const override;
+    oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
     bool hasTLAD() const override { return true; }

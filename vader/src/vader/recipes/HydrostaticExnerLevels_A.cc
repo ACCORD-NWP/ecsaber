@@ -22,9 +22,9 @@ namespace vader
 
 // Static attribute initialization
 const char HydrostaticExnerLevels_A::Name[] = "HydrostaticExnerLevels_A";
-const std::vector<std::string> HydrostaticExnerLevels_A::
-    Ingredients = {"height_levels", "virtual_potential_temperature",
-                   "air_pressure_levels"};
+const oops::JediVariables HydrostaticExnerLevels_A::
+    Ingredients{std::vector<std::string>{"height_levels", "virtual_potential_temperature",
+                   "air_pressure_levels"}};
 
 // Register the maker
 static RecipeMaker<HydrostaticExnerLevels_A>
@@ -42,12 +42,12 @@ std::string HydrostaticExnerLevels_A::name() const
     return HydrostaticExnerLevels_A::Name;
 }
 
-std::string HydrostaticExnerLevels_A::product() const
+oops::Variable HydrostaticExnerLevels_A::product() const
 {
-    return "hydrostatic_exner_levels";
+    return oops::Variable{"hydrostatic_exner_levels"};
 }
 
-std::vector<std::string> HydrostaticExnerLevels_A::ingredients() const
+oops::JediVariables HydrostaticExnerLevels_A::ingredients() const
 {
     return HydrostaticExnerLevels_A::Ingredients;
 }

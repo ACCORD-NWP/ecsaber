@@ -13,8 +13,8 @@ base/GeometryData.h
 base/ModelSpaceCovarianceParametersBase.h
 base/ParameterTraitsVariables.cc
 base/ParameterTraitsVariables.h
-base/VariablesBase.cc
-base/VariablesBase.h
+base/Variable.cc
+base/Variable.h
 base/Variables.cc
 base/Variables.h
 base/WriteParametersBase.h
