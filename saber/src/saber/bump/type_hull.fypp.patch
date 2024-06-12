@@ -1,0 +1,84 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_hull.fypp.tmp	2024-06-12 18:33:06.682318396 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_hull.fypp	2024-06-11 11:30:47.446086840 +0200
+@@ -28,7 +28,9 @@
+    real(kind_real) :: lat                   !< Centroid latitude
+    real(kind_real) :: radius                !< Radius
+ contains
+-   procedure :: init => hull_init
++   procedure :: hull_init_centroid_radius
++   procedure :: hull_init_boundary_nodes
++   generic :: init => hull_init_centroid_radius,hull_init_boundary_nodes
+    procedure :: dealloc => hull_dealloc
+    procedure :: inside => hull_inside
+ end type hull_type
+@@ -39,10 +41,10 @@
+ contains
+ 
+ !----------------------------------------------------------------------
+-! Subroutine: hull_init
+-!> Allocation
++! Subroutine: hull_init_centroid_radius
++!> Allocation and initialization with centroid and radius
+ !----------------------------------------------------------------------
+-subroutine hull_init(hull,mpl,n,lon,lat,min_radius)
++subroutine hull_init_centroid_radius(hull,mpl,n,lon,lat,min_radius)
+ 
+ implicit none
+ 
+@@ -60,7 +62,7 @@
+ real(kind_real) :: cd(3),v(3)
+ 
+ ! Set name
+-@:set_name(hull_init)
++@:set_name(hull_init_centroid_radius)
+ 
+ ! Probe in
+ @:probe_in()
+@@ -105,7 +107,46 @@
+ ! Probe out
+ @:probe_out()
+ 
+-end subroutine hull_init
++end subroutine hull_init_centroid_radius
++
++!----------------------------------------------------------------------
++! Subroutine: hull_init_boundary_nodes
++!> Allocation and initialization with boundary nodes
++!----------------------------------------------------------------------
++subroutine hull_init_boundary_nodes(hull,mpl,n,vbnd)
++
++implicit none
++
++! Passed variables
++class(hull_type),intent(inout) :: hull  !< Hull
++type(mpl_type),intent(inout) :: mpl     !< MPI data
++integer,intent(in) :: n                 !< Size
++real(kind_real),intent(in) :: vbnd(3,n) !< Boundary nodes
++
++! Local variables
++integer :: ib
++
++! Set name
++@:set_name(hull_init_boundary_nodes)
++
++! Probe in
++@:probe_in()
++
++! Copy number of boundary nodes
++hull%nb = n
++
++if (hull%nb>0) then
++   ! Allocation
++   allocate(hull%vbnd(3,hull%nb))
++
++   ! Copy
++   hull%vbnd = vbnd
++end if
++
++! Probe out
++@:probe_out()
++
++end subroutine hull_init_boundary_nodes
+ 
+ !----------------------------------------------------------------------
+ ! Subroutine: hull_dealloc

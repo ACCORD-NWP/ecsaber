@@ -1,0 +1,91 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/LinearVariableChange.cc.tmp	2024-06-12 18:33:07.002319485 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/LinearVariableChange.cc	2024-06-12 17:41:54.461915305 +0200
+@@ -22,6 +22,8 @@
+ 
+ LinearVariableChange::LinearVariableChange(const Geometry & geom,
+                                            const eckit::Configuration & config) {
++  oops::Log::trace() << classname() << "::LinearVariableChange starting" << std::endl;
++
+   // Local configuration
+   LinearVariableChangeParameters params;
+   params.deserialize(config);
+@@ -54,6 +56,8 @@
+                        conf,
+                        fset_);
+   }
++
++  oops::Log::trace() << classname() << "::LinearVariableChange done" << std::endl;
+ }
+ 
+ // -----------------------------------------------------------------------------
+@@ -62,46 +66,66 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-void LinearVariableChange::changeVarTL(Increment & dx, const Variables & vars) const {
++void LinearVariableChange::changeVarTL(Increment & dx,
++                                       const Variables & vars) const {
++  oops::Log::trace() << classname() << "::changeVarTL starting" << std::endl;
++
+   if (!fset_.empty()) {
+     atlas::FieldSet fset;
+     dx.toFieldSet(fset);
+     util::multiplyFieldSets(fset, fset_);
+     dx.fromFieldSet(fset);
+   }
++
++  oops::Log::trace() << classname() << "::changeVarTL done" << std::endl;
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-void LinearVariableChange::changeVarInverseTL(Increment & dx, const Variables & vars) const {
++void LinearVariableChange::changeVarInverseTL(Increment & dx,
++                                              const Variables & vars) const {
++  oops::Log::trace() << classname() << "::changeVarInverseTL starting" << std::endl;
++
+   if (!fset_.empty()) {
+     atlas::FieldSet fset;
+     dx.toFieldSet(fset);
+     util::divideFieldSets(fset, fset_);
+     dx.fromFieldSet(fset);
+   }
++
++  oops::Log::trace() << classname() << "::changeVarInverseTL done" << std::endl;
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-void LinearVariableChange::changeVarAD(Increment & dx, const Variables & vars) const {
++void LinearVariableChange::changeVarAD(Increment & dx,
++                                       const Variables & vars) const {
++  oops::Log::trace() << classname() << "::changeVarAD starting" << std::endl;
++
+   if (!fset_.empty()) {
+     atlas::FieldSet fset;
+     dx.toFieldSet(fset);
+     util::multiplyFieldSets(fset, fset_);
+     dx.fromFieldSet(fset);
+   }
++
++  oops::Log::trace() << classname() << "::changeVarAD done" << std::endl;
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-void LinearVariableChange::changeVarInverseAD(Increment & dx, const Variables & vars) const {
++void LinearVariableChange::changeVarInverseAD(Increment & dx,
++                                              const Variables & vars) const {
++  oops::Log::trace() << classname() << "::changeVarInverseAD starting" << std::endl;
++
+   if (!fset_.empty()) {
+     atlas::FieldSet fset;
+     dx.toFieldSet(fset);
+     util::divideFieldSets(fset, fset_);
+     dx.fromFieldSet(fset);
+   }
++
++  oops::Log::trace() << classname() << "::changeVarInverseAD done" << std::endl;
+ }
+ 
+ // -----------------------------------------------------------------------------

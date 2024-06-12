@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/VariableChangeParameters.h.tmp	2024-06-12 18:33:07.098319812 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/VariableChangeParameters.h	2024-06-03 16:18:03.457814617 +0200
+@@ -8,16 +8,14 @@
+ #pragma once
+ 
+ #include "oops/base/VariableChangeParametersBase.h"
+-#include "oops/util/Printable.h"
+ 
+ namespace quench {
+ 
+ // -------------------------------------------------------------------------------------------------
+-/// \brief Parameters passed to the VariableChange class.
++/// VariableChange parameters class
+ 
+ class VariableChangeParameters : public oops::VariableChangeParametersBase {
+   OOPS_CONCRETE_PARAMETERS(VariableChangeParameters, VariableChangeParametersBase)
+- public:
+ };
+ 
+ // -------------------------------------------------------------------------------------------------

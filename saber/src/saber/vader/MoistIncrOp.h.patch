@@ -1,0 +1,22 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistIncrOp.h.tmp	2024-06-12 18:33:05.074312928 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/vader/MoistIncrOp.h	2024-05-24 08:48:58.219933149 +0200
+@@ -50,10 +50,7 @@
+ 
+   void multiply(oops::FieldSet3D &) const override;
+   void multiplyAD(oops::FieldSet3D &) const override;
+-  void leftInverseMultiply(oops::FieldSet3D &) const override;
+-
+-  void directCalibration(const oops::FieldSets &) override;
+-
++  void leftInverseMultiply(oops::FieldSet3D & fset) const override;
+ 
+  private:
+   void print(std::ostream &) const override;
+@@ -62,7 +59,6 @@
+   const oops::JediVariables activeOuterVars_;
+   const oops::JediVariables innerOnlyVars_;
+   atlas::FieldSet augmentedStateFieldSet_;
+-  const Parameters_ blockparams_;
+ };
+ 
+ // -----------------------------------------------------------------------------
