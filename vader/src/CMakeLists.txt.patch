@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt.tmp.bak	2024-04-15 11:55:42.161662964 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt	2024-04-15 11:56:17.489368205 +0200
-@@ -165,7 +165,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt.tmp.bak	2024-07-04 11:13:44.195228516 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt	2024-07-04 11:13:55.843267454 +0200
+@@ -168,7 +168,7 @@
  # Mark Boost as a system library to silence compiler warnings from Boost headers
  target_include_directories( ${PROJECT_NAME} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS} )
  

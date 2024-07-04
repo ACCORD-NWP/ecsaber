@@ -94,7 +94,7 @@ void Fields::interpolate(const Locations & locs,
       const auto obsView = atlas::array::make_view<double, 2>(obsFieldSet[var]);
       auto gvView = atlas::array::make_view<double, 1>(gv.fieldSet()[var]);
       gvView.assign(0.0);
-      const std::vector<interp::InterpElement> & verInterp
+      const std::vector<InterpElement> & verInterp
         = interpolation->verticalInterpolation(var);
       for (int jo = 0; jo < locs.size(); ++jo) {
         for (const auto & operation : verInterp[jo].operations()) {
@@ -130,7 +130,7 @@ void Fields::interpolateAD(const Locations & locs,
       const auto gvView = atlas::array::make_view<double, 1>(gv.fieldSet()[var]);
       auto obsView = atlas::array::make_view<double, 2>(obsFieldSet[var]);
       obsView.assign(0.0);
-      const std::vector<interp::InterpElement> & verInterp
+      const std::vector<InterpElement> & verInterp
         = interpolation->verticalInterpolation(var);
       for (int jo = 0; jo < locs.size(); ++jo) {
         for (const auto & operation : verInterp[jo].operations()) {
@@ -312,8 +312,8 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
   }
 
   // Create horizontal interpolation
-  Interpolation interpolation(geom_->getComm(), geom_->partitioner(), geom_->functionSpace(),
-    locs.grid(), *fspace);
+  Interpolation interpolation(geom_->interpolation(), geom_->getComm(), geom_->partitioner(),
+    geom_->functionSpace(), locs.grid(), *fspace);
 
   // Interpolate vertical coordinate
   atlas::FieldSet fset;
@@ -334,7 +334,7 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
   for (const auto & var : vars_.variablesList()) {
     const std::string vertCoordName = "vert_coord_" + std::to_string(geom_->groupIndex(var));
     const auto vert_coordView = atlas::array::make_view<double, 2>(fsetInterp[vertCoordName]);
-    std::vector<interp::InterpElement> verInterp;
+    std::vector<InterpElement> verInterp;
     for (int jo = 0; jo < locs.size(); ++jo) {
       std::vector<std::pair<size_t, double>> operations;
       if (geom_->levels(var) == 1) {
@@ -347,11 +347,9 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
         double top = -std::numeric_limits<double>::max();
         for (size_t k = 0; k < geom_->levels(var); ++k) {
           bottom = std::min(bottom, vert_coordView(jo, k));
-std::cout << "TATA: " << k << " : " << vert_coordView(jo, k) << std::endl;
           top = std::max(top, vert_coordView(jo, k));
         }
         ASSERT(z >= bottom);
-std::cout << "tOTO: " << z << " / " << top << std::endl;
         ASSERT(z <= top);
         double zinf = -std::numeric_limits<double>::max();
         double zsup = std::numeric_limits<double>::max();
@@ -382,7 +380,7 @@ std::cout << "tOTO: " << z << " / " << top << std::endl;
           operations.push_back(std::make_pair(ksup, (z-zinf)/(zsup-zinf)));
         }
       }
-      verInterp.push_back(interp::InterpElement(operations));
+      verInterp.push_back(InterpElement(operations));
     }
     interpolation.insertVerticalInterpolation(var, verInterp);
   }

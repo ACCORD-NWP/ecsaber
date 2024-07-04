@@ -36,21 +36,9 @@ Interpolation::Interpolation(const oops::GeometryData & outerGeometryData,
   innerGeomData_.reset(new oops::GeometryData(geom.functionSpace(), geom.fields(),
                                               true, outerGeometryData.comm()));
 
-  // Check domain type
-  regionalGrid_ = false;
-  if (innerGeomData_->functionSpace()->type() == "StructuredColumns") {
-    const atlas::functionspace::StructuredColumns srcFs(innerGeomData_->functionSpace());
-    regionalGrid_ = !srcFs.grid().domain().global();
-  }
-
-  if (regionalGrid_) {
-    regInterp_.reset(new RegionalInterpolation(innerGeomData_->functionSpace(),
-      outerGeomData_.functionSpace()));
-  } else {
-    interp_.reset(new oops::GlobalInterpolator(
-            params.forwardInterpConf.value(), *innerGeomData_,
-            outerGeometryData.functionSpace(), outerGeometryData.comm()));
-  }
+  interp_.reset(new oops::GlobalInterpolator(
+          params.forwardInterpConf.value(), *innerGeomData_,
+          outerGeometryData.functionSpace(), outerGeometryData.comm()));
 
   oops::Log::trace() << classname() << "::Interpolation done" << std::endl;
 }
@@ -78,11 +66,7 @@ void Interpolation::multiply(oops::FieldSet3D & fieldSet) const {
   }
 
   // Interpolate to target/outer grid
-  if (regionalGrid_) {
-    regInterp_->execute(sourceFieldSet, targetFieldSet);
-  } else {
-    interp_->apply(sourceFieldSet, targetFieldSet);
-  }
+  interp_->apply(sourceFieldSet, targetFieldSet);
 
   // Add passive variables
   for (const auto & f : fieldSet) {
@@ -123,11 +107,7 @@ void Interpolation::multiplyAD(oops::FieldSet3D & fieldSet) const {
   util::zeroFieldSet(sourceFieldSet);
 
   // (Adjoint of:) Interpolate to target/outer grid
-  if (regionalGrid_) {
-    regInterp_->executeAdjoint(sourceFieldSet, targetFieldSet);
-  } else {
-    interp_->applyAD(sourceFieldSet, targetFieldSet);
-  }
+  interp_->applyAD(sourceFieldSet, targetFieldSet);
 
   // Copy passive variables
   for (const auto & f : fieldSet) {
@@ -144,17 +124,10 @@ void Interpolation::multiplyAD(oops::FieldSet3D & fieldSet) const {
 // -----------------------------------------------------------------------------
 
 void Interpolation::leftInverseMultiply(oops::FieldSet3D & fieldSet) const {
-  if (regionalGrid_) {
-    if (!regInverseInterp_) {
-      regInverseInterp_.reset(new RegionalInterpolation(outerGeomData_.functionSpace(),
-        innerGeomData_->functionSpace()));
-    }
-  } else {
-    if (!inverseInterp_) {
-      inverseInterp_.reset(new oops::GlobalInterpolator(
-            params_.inverseInterpConf.value(), outerGeomData_,
-            innerGeomData_->functionSpace(), innerGeomData_->comm()));
-    }
+  if (!inverseInterp_) {
+    inverseInterp_.reset(new oops::GlobalInterpolator(
+          params_.inverseInterpConf.value(), outerGeomData_,
+          innerGeomData_->functionSpace(), innerGeomData_->comm()));
   }
 
   // Temporary FieldSet of active variables for interpolation target
@@ -175,11 +148,7 @@ void Interpolation::leftInverseMultiply(oops::FieldSet3D & fieldSet) const {
   }
 
   // Interpolate to target/inner grid
-  if (regionalGrid_) {
-    regInverseInterp_->execute(sourceFieldSet, targetFieldSet);
-  } else {
-    inverseInterp_->apply(sourceFieldSet, targetFieldSet);
-  }
+  inverseInterp_->apply(sourceFieldSet, targetFieldSet);
 
   // Add passive variables
   for (const auto & f : fieldSet) {

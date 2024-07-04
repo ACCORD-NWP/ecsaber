@@ -10,7 +10,7 @@
 
 cmake_minimum_required( VERSION 3.12 )
 
-project( vader VERSION 1.6.0 LANGUAGES CXX Fortran )
+project( vader VERSION 1.7.0 LANGUAGES CXX Fortran )
 
 # Copy and update source from VADER
 patch_init( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )

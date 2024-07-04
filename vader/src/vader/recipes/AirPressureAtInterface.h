@@ -95,5 +95,41 @@ class AirPressureAtInterface_B : public RecipeBase
 };
 
 // -------------------------------------------------------------------------------------------------
+class AirPressureAtInterface_CParameters : public RecipeParametersBase {
+  OOPS_CONCRETE_PARAMETERS(AirPressureAtInterface_CParameters, RecipeParametersBase)
+
+ public:
+    oops::RequiredParameter<std::string> name{"recipe name", this};
+};
+
+
+/*! \brief AirPressureAtInterface_C class defines a recipe for pressure levels at MPAS layer interfaces.
+ *
+ *  \details This recipe interpolate the pressure from MPAS layer mid-points
+ *   (height coordinate) to produce the pressure at the layer interfcaces. It does not
+ *   provide TL/AD algorithms.
+ */
+class AirPressureAtInterface_C : public RecipeBase
+{
+ public:
+    static const char Name[];
+    static const oops::JediVariables Ingredients;
+
+    typedef AirPressureAtInterface_CParameters Parameters_;
+
+    AirPressureAtInterface_C(const Parameters_ &, const VaderConfigVars &);
+
+    std::string name() const override;
+    oops::Variable product() const override;
+    oops::JediVariables ingredients() const override;
+    size_t productLevels(const atlas::FieldSet &) const override;
+    atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
+    bool executeNL(atlas::FieldSet &) override;
+
+ private:
+    const VaderConfigVars & configVariables_;
+};
+
+// -------------------------------------------------------------------------------------------------
 
 }  // namespace vader

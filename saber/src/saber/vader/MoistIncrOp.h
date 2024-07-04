@@ -50,7 +50,10 @@ class MoistIncrOp : public SaberOuterBlockBase {
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
-  void leftInverseMultiply(oops::FieldSet3D & fset) const override;
+  void leftInverseMultiply(oops::FieldSet3D &) const override;
+
+  void directCalibration(const oops::FieldSets &) override;
+
 
  private:
   void print(std::ostream &) const override;
@@ -59,6 +62,7 @@ class MoistIncrOp : public SaberOuterBlockBase {
   const oops::JediVariables activeOuterVars_;
   const oops::JediVariables innerOnlyVars_;
   atlas::FieldSet augmentedStateFieldSet_;
+  const Parameters_ blockparams_;
 };
 
 // -----------------------------------------------------------------------------

@@ -30,8 +30,6 @@ if ( vader_FOUND )
     SuperMoistIncrOp.cc
     SuperMoistIncrOp.h
     PressureParameters.h
-    WriteVariances.cc
-    WriteVariances.h
     )
 
     # Generic VADER blocks
@@ -40,5 +38,10 @@ if ( vader_FOUND )
     VaderBlock.h
     )
 endif()
+
+list(APPEND vader_src_files_list
+WriteVariances.cc
+WriteVariances.h
+)
 
 set( vader_src_files ${vader_src_files_list} PARENT_SCOPE )

@@ -35,7 +35,6 @@ class FieldsIOBase : private eckit::NonCopyable {
   // Read
   virtual void read(const Geometry &,
                     const Variables &,
-                    const std::vector<size_t> &,
                     const eckit::Configuration &,
                     atlas::FieldSet &) const = 0;
 
