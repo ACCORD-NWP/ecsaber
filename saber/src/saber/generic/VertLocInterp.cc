@@ -70,7 +70,7 @@ void verticalInterpolationFromFullLevels(const oops::JediVariables & activeVars,
   }
 }
 
-
+// TO DO(Marek) - write non-buggy version using height or eta coordinates.
 void mo_buggy_verticalInterpolationFromHalfLevels(const oops::JediVariables & activeVars,
                                                   const atlas::FieldSet & fsetIn,
                                                   atlas::FieldSet & fsetOut) {

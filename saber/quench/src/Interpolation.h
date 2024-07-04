@@ -15,12 +15,14 @@
 
 #include "atlas/functionspace.h"
 
+#include "eckit/config/Configuration.h"
+
 #include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
 
 #include "saber/interpolation/AtlasInterpWrapper.h"
-#include "saber/interpolation/InterpElement.h"
-#include "saber/interpolation/RegionalInterpolation.h"
+
+#include "src/InterpElement.h"
 
 namespace atlas {
   class Field;
@@ -30,8 +32,6 @@ namespace atlas {
   }
 }
 
-namespace interp = saber::interpolation;
-
 namespace quench {
 
 // -----------------------------------------------------------------------------
@@ -39,10 +39,11 @@ namespace quench {
 class Interpolation {
  public:
   static const std::string classname()
-    {return "quench::interpolation::Interpolation";}
+    {return "quench::Interpolation";}
 
   // Constructor/destructor
-  Interpolation(const eckit::mpi::Comm &,
+  Interpolation(const eckit::Configuration &,
+                const eckit::mpi::Comm &,
                 const atlas::grid::Partitioner &,
                 const atlas::FunctionSpace &,
                 const atlas::Grid &,
@@ -57,8 +58,8 @@ class Interpolation {
 
   // Vertical interpolation
   void insertVerticalInterpolation(const std::string &,
-                                   const std::vector<interp::InterpElement> &);
-  std::vector<interp::InterpElement> & verticalInterpolation(const std::string & var)
+                                   const std::vector<InterpElement> &);
+  std::vector<InterpElement> & verticalInterpolation(const std::string & var)
     {return verInterps_[var];}
 
   // Accessors
@@ -77,18 +78,11 @@ class Interpolation {
   // Destination function space
   atlas::FunctionSpace dstFspace_;
 
-  // Grid type
-  bool regionalSrcGrid_;
-  bool regionalDstGrid_;
-
-  // Regional interpolation
-  std::shared_ptr<interp::RegionalInterpolation> regionalInterpolation_;
-
-  // Global interpolation
-  std::shared_ptr<interp::AtlasInterpWrapper> globalInterpolation_;
+  // ATLAS interpolation wrapper from SABER
+  std::shared_ptr<saber::interpolation::AtlasInterpWrapper> atlasInterpWrapper_;
 
   // Vertical interpolations
-  std::unordered_map<std::string, std::vector<interp::InterpElement>> verInterps_;
+  std::unordered_map<std::string, std::vector<InterpElement>> verInterps_;
 };
 
 }  // namespace quench

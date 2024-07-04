@@ -826,12 +826,6 @@ void Fields::read(const eckit::Configuration & config) {
   // Set FieldsIO
   std::unique_ptr<FieldsIOBase> fieldsIO(FieldsIOFactory::create(ioFormat));
 
-  // Create variableSizes
-  std::vector<size_t> variableSizes;
-  for (const auto & var : vars_.variables()) {
-    variableSizes.push_back(geom_->levels(var));
-  }
-
   // Update variables names
   Variables vars_in_file;
   for (const auto & var : vars_) {
@@ -845,11 +839,7 @@ void Fields::read(const eckit::Configuration & config) {
   }
 
   // Read fieldset
-  util::readFieldSet(geom_->getComm(),
-                     geom_->functionSpace(),
-                     vars_in_file,
-                     config,
-                     fset_);
+  fieldsIO->read(*geom_, vars_in_file, config, fset_);
 
   // Rename fields
   for (auto & field : fset_) {
@@ -1034,8 +1024,8 @@ std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geomet
   }
 
   // Create interpolation
-  Interpolation interpolation(geom_->getComm(), srcGeom.partitioner(), srcGeom.functionSpace(),
-    geom_->grid(), geom_->functionSpace());
+  Interpolation interpolation(geom_->interpolation(), geom_->getComm(), srcGeom.partitioner(),
+    srcGeom.functionSpace(), geom_->grid(), geom_->functionSpace());
 
   // Insert new interpolation
   interpolations().push_back(interpolation);

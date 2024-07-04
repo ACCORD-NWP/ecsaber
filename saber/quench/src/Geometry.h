@@ -105,6 +105,17 @@ class AliasParameters : public oops::Parameters {
 };
 
 // -----------------------------------------------------------------------------
+/// Interpolation paramaters
+
+class InterpolationParameters : public oops::Parameters {
+  OOPS_CONCRETE_PARAMETERS(InterpolationParameters, oops::Parameters)
+
+ public:
+  // Interpolation type
+  oops::RequiredParameter<std::string> interpType{"interpolation type", this};
+};
+
+// -----------------------------------------------------------------------------
 /// Geometry parameters
 
 class GeometryParameters : public oops::Parameters {
@@ -138,6 +149,9 @@ class GeometryParameters : public oops::Parameters {
 
   // Aliases for model files
   oops::Parameter<std::vector<AliasParameters>> alias{"alias", {}, this};
+
+  // Interpolation parameters
+  oops::OptionalParameter<InterpolationParameters> interpolation{"interpolation", this};
 };
 
 // -----------------------------------------------------------------------------
@@ -190,6 +204,8 @@ class Geometry : public util::Printable,
     {return modelData_;}
   const std::vector<eckit::LocalConfiguration> & alias() const
     {return alias_;}
+  const eckit::LocalConfiguration & interpolation() const
+    {return interpolation_;}
 
  private:
   // Print
@@ -248,6 +264,9 @@ class Geometry : public util::Printable,
 
   // Aliases
   std::vector<eckit::LocalConfiguration> alias_;
+
+  // Interpolation configuration
+  eckit::LocalConfiguration interpolation_;
 
 /// ECSABER-specific interface
 #include "src/GeometryECDef.h"

@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/TraitsFwd.h.tmp.bak	2024-06-12 18:33:06.966319362 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/TraitsFwd.h	2024-05-30 10:58:43.849124694 +0200
-@@ -13,23 +13,51 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/TraitsFwd.h.tmp.bak	2024-07-04 11:14:00.291282352 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/TraitsFwd.h	2024-07-04 11:12:45.507034084 +0200
+@@ -13,11 +13,24 @@
  
  class Covariance;
  class Geometry;
@@ -27,12 +27,10 @@
 +class Variables;
  
  struct Traits {
--  static std::string name() {return "quench";}
--  static std::string nameCovar() {return "quenchCovariance";}
-+  static std::string name()
-+    {return "quench";}
-+  static std::string nameCovar()
-+    {return "quenchCovariance";}
+   static std::string name()
+@@ -25,13 +38,26 @@
+   static std::string nameCovar()
+     {return "quenchCovariance";}
  
 -  typedef quench::Covariance           Covariance;
 -  typedef quench::Geometry             Geometry;

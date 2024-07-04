@@ -35,7 +35,6 @@ class FieldsIODefault : public FieldsIOBase {
   // Read
   void read(const Geometry &,
             const Variables &,
-            const std::vector<size_t> &,
             const eckit::Configuration &,
             atlas::FieldSet &) const override;
 

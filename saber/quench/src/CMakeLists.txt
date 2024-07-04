@@ -19,6 +19,7 @@ HybridWeight.cc
 HybridWeight.h
 Increment.cc
 Increment.h
+InterpElement.h
 Interpolation.cc
 Interpolation.h
 IncrEnsCtlVec.h
@@ -68,6 +69,15 @@ default/FieldsIODefault.h
 
 )
 
+if( eccodes_FOUND )
+    list( APPEND quench_src_files
+
+    grib/FieldsIOGrib.cc
+    grib/FieldsIOGrib.h
+
+    )
+endif()
+
 ecbuild_add_library( TARGET   quench
                      SOURCES  ${quench_src_files}
                      PUBLIC_LIBS  oops oops-patch saber
@@ -76,6 +86,9 @@ ecbuild_add_library( TARGET   quench
                      LINKER_LANGUAGE CXX )
 
 target_link_libraries( quench PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )
+if( eccodes_FOUND )
+    target_link_libraries( quench PUBLIC eccodes )
+endif()
 
 #Configure include directory layout for build-tree to match install-tree
 set(QUENCH_BUILD_DIR_INCLUDE_PATH ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/include)

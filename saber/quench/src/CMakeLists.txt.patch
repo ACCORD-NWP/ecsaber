@@ -1,11 +1,7 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp.bak	2024-06-12 18:33:07.086319771 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt	2024-06-03 16:20:19.306188951 +0200
-@@ -8,22 +8,69 @@
- Covariance.h
- Fields.cc
- Fields.h
-+FieldsIOBase.cc
-+FieldsIOBase.h
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp.bak	2024-07-04 11:14:00.463282929 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt	2024-07-04 11:27:51.246238830 +0200
+@@ -12,17 +12,57 @@
+ FieldsIOBase.h
  Geometry.cc
  Geometry.h
 +GeoVaLs.cc
@@ -15,11 +11,12 @@
 +HybridWeight.h
  Increment.cc
  Increment.h
+ InterpElement.h
+ Interpolation.cc
+ Interpolation.h
 -LinearVariableChange.h
 -LinearVariableChange.cc
 -ModelData.h
-+Interpolation.cc
-+Interpolation.h
 +IncrEnsCtlVec.h
 +IncrModCtlVec.h
 +instantiateQuenchMatrices.h
@@ -62,11 +59,10 @@
 +Traits.h
 +Variables.h
 +Variables.cc
-+
-+default/FieldsIODefault.cc
-+default/FieldsIODefault.h
  
- )
+ default/FieldsIODefault.cc
+ default/FieldsIODefault.h
+@@ -40,7 +80,7 @@
  
  ecbuild_add_library( TARGET   quench
                       SOURCES  ${quench_src_files}
