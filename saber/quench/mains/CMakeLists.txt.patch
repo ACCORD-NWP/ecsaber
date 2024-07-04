@@ -1,5 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt.tmp.bak	2024-07-04 11:14:00.219282111 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt.tmp	2024-07-04 13:56:20.640086855 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt	2024-07-04 11:12:45.487034018 +0200
+@@ -2,7 +2,7 @@
+ #
+ # This software is licensed under the terms of the Apache Licence Version 2.0
+ # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+- 
++
+ # VADER libraries
+ if( vader_FOUND )
+     set( vader_LIBRARIES "vader" )
 @@ -30,3 +30,18 @@
                          LIBS    quench
                                  ${vader_LIBRARIES}

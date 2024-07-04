@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2024-06-12 18:30:30.621788997 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2024-06-12 18:22:28.564179769 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp	2024-07-04 13:56:19.428083458 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2024-07-04 11:12:45.527034150 +0200
 @@ -1,8 +1,6 @@
  /*
 - * (C) Copyright 2021 UCAR

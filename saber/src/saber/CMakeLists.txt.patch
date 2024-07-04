@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt.tmp.bak	2024-05-29 11:13:25.659791117 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt	2024-05-29 09:33:12.886775707 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt.tmp	2024-07-04 13:56:20.132085431 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt	2024-07-04 11:12:45.507034084 +0200
 @@ -29,6 +29,7 @@
  target_link_libraries( ${PROJECT_NAME} PUBLIC fckit )
  target_link_libraries( ${PROJECT_NAME} PUBLIC atlas_f )

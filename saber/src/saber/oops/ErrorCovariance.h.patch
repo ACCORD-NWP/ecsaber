@@ -1,4 +1,4 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-07-04 11:13:58.887277648 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp	2024-07-04 13:56:19.492083638 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-07-04 11:12:45.527034150 +0200
 @@ -1,6 +1,5 @@
  /*

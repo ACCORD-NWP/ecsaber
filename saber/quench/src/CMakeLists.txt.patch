@@ -1,7 +1,11 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp.bak	2024-07-04 11:14:00.463282929 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp	2024-07-04 13:56:20.804087315 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt	2024-07-04 11:27:51.246238830 +0200
-@@ -12,17 +12,57 @@
- FieldsIOBase.h
+@@ -8,27 +8,87 @@
+ Covariance.h
+ Fields.cc
+ Fields.h
++FieldsIOBase.cc
++FieldsIOBase.h
  Geometry.cc
  Geometry.h
 +GeoVaLs.cc
@@ -11,12 +15,12 @@
 +HybridWeight.h
  Increment.cc
  Increment.h
- InterpElement.h
- Interpolation.cc
- Interpolation.h
 -LinearVariableChange.h
 -LinearVariableChange.cc
 -ModelData.h
++InterpElement.h
++Interpolation.cc
++Interpolation.h
 +IncrEnsCtlVec.h
 +IncrModCtlVec.h
 +instantiateQuenchMatrices.h
@@ -59,11 +63,21 @@
 +Traits.h
 +Variables.h
 +Variables.cc
++
++default/FieldsIODefault.cc
++default/FieldsIODefault.h
  
- default/FieldsIODefault.cc
- default/FieldsIODefault.h
-@@ -40,7 +80,7 @@
+ )
  
++if( eccodes_FOUND )
++    list( APPEND quench_src_files
++
++    grib/FieldsIOGrib.cc
++    grib/FieldsIOGrib.h
++
++    )
++endif()
++
  ecbuild_add_library( TARGET   quench
                       SOURCES  ${quench_src_files}
 -                     PUBLIC_LIBS  oops saber
@@ -71,3 +85,11 @@
                       HEADER_DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/quench
                       INSTALL_HEADERS LISTED
                       LINKER_LANGUAGE CXX )
+ 
+ target_link_libraries( quench PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )
++if( eccodes_FOUND )
++    target_link_libraries( quench PUBLIC eccodes )
++endif()
+ 
+ #Configure include directory layout for build-tree to match install-tree
+ set(QUENCH_BUILD_DIR_INCLUDE_PATH ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/include)
