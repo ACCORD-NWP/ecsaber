@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Traits.h.tmp	2024-06-03 16:18:03.373814390 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Traits.h	2024-05-30 10:58:49.685141671 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Traits.h.tmp	2024-07-04 13:56:20.752087169 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Traits.h	2024-07-04 11:12:45.507034084 +0200
 @@ -9,9 +9,22 @@
  
  #include "src/Covariance.h"

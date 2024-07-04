@@ -1,4 +1,4 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2024-07-04 11:13:58.387275973 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp	2024-07-04 13:56:19.048082393 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2024-05-24 08:41:35.322951062 +0200
 @@ -18,9 +18,9 @@
  #include "eckit/exception/Exceptions.h"
@@ -20,15 +20,7 @@
  
  namespace oops {
    class FieldSet3D;
-@@ -69,6 +70,7 @@
- 
-   // Block left inverse multiplication
-   virtual void leftInverseMultiply(oops::FieldSet3D &) const
-+
-     {throw eckit::NotImplemented("leftInverseMultiply not implemented yet for the block "
-       + blockName_, Here());}
- 
-@@ -277,13 +279,16 @@
+@@ -278,13 +279,16 @@
      } else {
        incVars.reset(new oops::JediVariables(vars));
      }
@@ -47,7 +39,7 @@
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -313,10 +318,11 @@
+@@ -314,10 +318,11 @@
      } else {
        incVars.reset(new oops::JediVariables(vars));
      }

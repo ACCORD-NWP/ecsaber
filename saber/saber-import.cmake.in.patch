@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp.bak	2024-03-21 09:17:27.837577964 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-03-21 09:19:30.429639217 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp	2024-07-04 13:56:23.044093601 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-04-04 15:35:09.282252474 +0200
 @@ -3,10 +3,6 @@
  
  include(CMakeFindDependencyMacro)

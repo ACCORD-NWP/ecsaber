@@ -1,20 +1,148 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h.tmp.bak	2024-07-04 11:14:00.227282138 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h.tmp	2024-07-04 13:56:20.648086878 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/State.h	2024-07-04 11:12:45.507034084 +0200
-@@ -17,6 +17,7 @@
+@@ -12,66 +12,108 @@
+ #include <string>
+ #include <vector>
+ 
++#include "oops/util/DateTime.h"
+ #include "oops/util/ObjectCounter.h"
  #include "oops/util/Printable.h"
  
  #include "src/Fields.h"
+-#include "src/Increment.h"
 +#include "src/StateECInc.h"
++
++namespace eckit {
++  class Configuration;
++}
  
- namespace eckit {
-   class Configuration;
-@@ -108,6 +109,9 @@
+ namespace quench {
+   class Geometry;
+   class Increment;
  
-   // Fields
+-/// State class
+ // -----------------------------------------------------------------------------
++/// State class
++
+ class State : public util::Printable,
+-                private util::ObjectCounter<State> {
++              private util::ObjectCounter<State> {
+  public:
+-  static const std::string classname() {return "quench::State";}
++  static const std::string classname()
++    {return "quench::State";}
+ 
+-/// Constructor, destructor
+-  State(const Geometry &, const Variables &, const util::DateTime &);
+-  State(const Geometry &, const eckit::Configuration &);
+-  State(const Geometry &, const State &);
+-  State(const Variables &, const State &);
+-  State(const State &);
++  // Constructors
++  State(const Geometry &,
++        const Variables &,
++        const util::DateTime &);
++  State(const Geometry &,
++        const eckit::Configuration &);
++  State(const Geometry & resol,
++        const State & other)
++    : fields_(new Fields(*other.fields_, resol)) {}
++  State(const Variables & vars,
++        const State & other)
++    : fields_(new Fields(*other.fields_)) {}
++  State(const State & other)
++    : fields_(new Fields(*other.fields_)) {}
+ 
+-/// Assignment
++  // Assignment
+   State & operator=(const State &);
+ 
+-/// Interactions with Increment
++  // Interactions with Increment
+   State & operator+=(const Increment &);
+ 
+-/// I/O and diagnostics
+-  void read(const eckit::Configuration &);
+-  void write(const eckit::Configuration &) const;
+-  double norm() const {return fields_->norm();}
+-  const util::DateTime & validTime() const {return fields_->time();}
+-  void updateTime(const util::Duration & dt) {fields_->time() += dt;}
+-
+-/// Access to fields
+-  Fields & fields() {return *fields_;}
+-  const Fields & fields() const {return *fields_;}
+-  std::shared_ptr<const Geometry> geometry() const {return fields_->geometry();}
+-  const Variables & variables() const {return fields_->variables();}
+-
+-/// Serialization
+-  size_t serialSize() const;;
+-  void serialize(std::vector<double> &) const;
+-  void deserialize(const std::vector<double> &, size_t &);
+-
+-/// ATLAS FieldSet accessor
+-  void toFieldSet(atlas::FieldSet &) const;
+-  void fromFieldSet(const atlas::FieldSet &);
+-
+-/// Other
+-  void zero();
+-  void accumul(const double &, const State &);
++  // I/O and diagnostics
++  void read(const eckit::Configuration & config)
++    {fields_->read(config);}
++  void write(const eckit::Configuration & config) const
++    {fields_->write(config);}
++  double norm() const
++    {return fields_->norm();}
++  const util::DateTime & validTime() const
++    {return fields_->time();}
++  util::DateTime & validTime()
++    {return fields_->time();}
++  void updateTime(const util::Duration & dt)
++    {fields_->time() += dt;}
++
++  // Access to fields
++  Fields & fields()
++    {return *fields_;}
++  const Fields & fields() const
++    {return *fields_;}
++  std::shared_ptr<const Geometry> geometry() const
++    {return fields_->geometry();}
++
++  // ATLAS FieldSet accessor
++  void toFieldSet(atlas::FieldSet & fset) const
++    {fields_->toFieldSet(fset);}
++  void fromFieldSet(const atlas::FieldSet & fset)
++    {fields_->fromFieldSet(fset);}
++
++  // Other
++  void zero()
++    {fields_->zero();}
++  void accumul(const double & zz,
++               const State & xx)
++    {fields_->axpy(zz, xx.fields());}
++  const Variables & variables() const
++    {return fields_->variables();}
++
++  // Serialization
++  size_t serialSize() const
++    {return fields_->serialSize();}
++  void serialize(std::vector<double> & vect) const
++    {fields_->serialize(vect);}
++  void deserialize(const std::vector<double> & vect,
++                   size_t & index)
++    {fields_->deserialize(vect, index);}
+ 
+  private:
++  // Print
+   void print(std::ostream &) const;
++
++  // Fields
    std::unique_ptr<Fields> fields_;
 +
 +/// ECSABER-specific definitions
 +#include "src/StateECDef.h"
  };
- 
++
  // -----------------------------------------------------------------------------
+ 
+ }  // namespace quench

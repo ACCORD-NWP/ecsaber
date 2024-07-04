@@ -1,4 +1,4 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-07-04 13:48:43.982839405 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp	2024-07-04 13:56:19.504083672 +0200
 +++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-07-04 13:44:41.969868340 +0200
 @@ -26,19 +26,15 @@
  #include "eckit/exception/Exceptions.h"
@@ -338,7 +338,7 @@
      maxLength = profileConf.getDouble("maximum distance");
    } else {
      // If no maximum length input is given, try to compute a default value from the grid
--    const auto & fspace = geom.functionSpace();
+-    const auto & fspace = geom.generic().functionSpace();
 +    const auto & fspace = geom.geometry().functionSpace();
      if (fspace.type() == "StructuredColumns") {
        const atlas::functionspace::StructuredColumns fs(fspace);

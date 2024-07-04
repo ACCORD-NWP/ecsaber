@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/quenchErrorCovarianceToolbox.cc.tmp	2024-06-03 16:11:23.468682793 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/quenchErrorCovarianceToolbox.cc	2024-05-27 17:19:29.737735443 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/quenchErrorCovarianceToolbox.cc.tmp	2024-07-04 13:56:20.604086754 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/quenchErrorCovarianceToolbox.cc	2024-07-04 11:12:45.487034018 +0200
 @@ -1,5 +1,5 @@
  /*
 - * (C) Copyright 2022 UCAR.
