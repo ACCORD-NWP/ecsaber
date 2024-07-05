@@ -23,6 +23,7 @@
 #include "saber/interpolation/AtlasInterpWrapper.h"
 
 #include "src/InterpElement.h"
+#include "src/RegionalInterpolation.h"
 
 namespace atlas {
   class Field;
@@ -80,6 +81,9 @@ class Interpolation {
 
   // ATLAS interpolation wrapper from SABER
   std::shared_ptr<saber::interpolation::AtlasInterpWrapper> atlasInterpWrapper_;
+
+  // Regional interpolation
+  std::shared_ptr<RegionalInterpolation> regionalInterpolation_;
 
   // Vertical interpolations
   std::unordered_map<std::string, std::vector<InterpElement>> verInterps_;
