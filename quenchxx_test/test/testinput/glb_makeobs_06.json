@@ -19,7 +19,7 @@
         "ObsType": "default",
         "ObsData": {
           "ObsDataOut": {
-            "filename": "testdata/glb_obs_06"
+            "filepath": "testdata/glb_obs_06"
           },
           "obsvalue": "ObsValue"
         },

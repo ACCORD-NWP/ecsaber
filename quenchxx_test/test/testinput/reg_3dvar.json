@@ -85,10 +85,10 @@
           "ObsType": "default",
           "ObsData": {
             "ObsDataInScreened": {
-              "filename": "testdata/reg_obs_12"
+              "filepath": "testdata/reg_obs_12"
             },
             "ObsDataOutScreened": {
-              "filename": "testdata/reg_obs_3dvar"
+              "filepath": "testdata/reg_obs_3dvar"
             },
             "obsvalue": "ObsValue"
           },

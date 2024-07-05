@@ -171,7 +171,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
   std::unique_ptr<CtrlVec_> zz(new CtrlVec_(rr, false));
   while (jiter < maxiter) {
     size_t jiterp1 = jiter + 1;
-    oops::Log::info() << "SQRTPLanczos Starting Iteration " << jiterp1 << std::endl;
+    oops::Log::info() << "SQRTPLanczosEVIL Starting Iteration " << jiterp1 << std::endl;
 
     util::LogbookWriter<size_t> log("InnerLoop", jiterp1);
 
@@ -193,7 +193,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
     double alpha = dot_product(ritzPairs_.vVEC(jiter), *vv);
     if (alpha <= 0.0) {
       soft_error_messages_.push_back(
-          "SQRTPLanczos: stopping J'' not positive definite");
+          "SQRTPLanczosEVIL: stopping J'' not positive definite");
       break;
     }
 
@@ -238,7 +238,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
     double gradNorm = beta * std::abs(ss[jiter]);
     double gradNormReduction = gradNorm / beta0;
 
-    oops::Log::info() << "SQRTPLanczos end of iteration " << jiterp1 << std::endl
+    oops::Log::info() << "SQRTPLanczosEVIL end of iteration " << jiterp1 << std::endl
                       << "  Gradient norm (" << std::setw(2) << jiterp1
                       << ") = " << util::full_precision(gradNorm) << std::endl
                       << "  Gradient norm reduction (" << std::setw(2) << jiterp1
@@ -289,7 +289,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
   zz.reset();
 
   // Print summary
-  oops::Log::info() << "Summary of SQRTPLanczos solver: " << std::endl
+  oops::Log::info() << "Summary of SQRTPLanczosEVIL solver: " << std::endl
                     << " Information based convergence criterion: " << linfoconv
                     << std::endl
                     << " Number of iterations performed: " << jiter << std::endl
@@ -415,11 +415,11 @@ void SQRTPLanczosEVILMinimizer<MODEL>::calcQuadCost(const CtrlVec_ &dv0,
 
   // 1. Check if the quadratic cost function is positive
   if (costJ_ < 0)
-    ABORT("SQRTPLanczos: Fatal error detected: negative quadratic J");
+    ABORT("SQRTPLanczosEVIL: Fatal error detected: negative quadratic J");
 
   // 2. Check if the quadratic cost function is decreasing monotonically
   if (costJm1_ > 0 && costJ_ > costJm1_)
-    ABORT("SQRTPLanczos: Fatal error detected: growing quadratic J");
+    ABORT("SQRTPLanczosEVIL: Fatal error detected: growing quadratic J");
 
   costJm1_ = costJ_;
 }
@@ -480,7 +480,7 @@ bool SQRTPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
       if (ritzvals[itheta1_] > 1.01 * ztheta1_) {
         // RITZ VALUES EXPLODE!
         ritzErrorDetected = true;
-        oops::Log::info() << "SQRTPLanczos: Ritz values explode" << std::endl
+        oops::Log::info() << "SQRTPLanczosEVIL: Ritz values explode" << std::endl
                           << "Leading Ritz value: " << ritzvals[itheta1_] << std::endl
                           << "Leading converged eigenvalue: " << ztheta1_
                           << std::endl;

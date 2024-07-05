@@ -85,10 +85,10 @@
         "ObsType": "default",
         "ObsData": {
           "ObsDataIn": {
-            "filenames": ["testdata/glb_obs_06"]
+            "filepaths": ["testdata/glb_obs_06"]
           },
           "ObsDataOut": {
-            "filename": "testdata/glb_test_06"
+            "filepath": "testdata/glb_test_06"
           },
           "obsvalue": "ObsVal"
         },

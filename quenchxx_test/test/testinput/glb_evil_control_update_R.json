@@ -14,6 +14,7 @@
     "halo": "1"
   },
   "model": {},
+  "variables": ["temperature"],
   "cost_function": {
     "cost_type": "3D-Var",
     "window_begin": "2010-01-01T12:00:00Z",
@@ -76,9 +77,6 @@
             "ObsDataInScreened": {
               "filepath": "testdata/glb_obs_12"
             },
-            "ObsDataOutScreened": {
-              "filepath": "testdata/glb_obs_3dvar"
-            },
             "obsvalue": "ObsValue"
           },
           "Covariance": {
@@ -91,13 +89,6 @@
         }
       ]
     }
-  },
-  "minimizer": {
-    "algorithm": "DRIPCG"
-  },
-  "output": {
-    "filepath": "testdata/glb_3dvar",
-    "date": "2010-01-01T12:00:00Z"
   },
   "variational": {
     "iteration": [
@@ -116,7 +107,6 @@
           ],
           "halo": "1"
         },
-        "timeslot": "PT0H",                
         "linearmodel": {
           "version": "default",
           "tstep": "PT0H",
@@ -124,53 +114,36 @@
             "forcing": {
               "variables": ["temperature"]
             }
-          }
-        },
-        "ninner": "10",
-        "gradient_norm_reduction": "1e-10",
-        "test": "on",
-        "diagnostics": {
-          "departures": {
-            "obsvalue": "ombg"
           }
         }
-      },
-      {
-        "resolution": {
-          "function space": "StructuredColumns",
-          "grid": {
-            "type": "regular_lonlat",
-            "N": "10"
-          },
-          "groups": [
-            {
-              "variables": ["temperature"],
-              "levels": "2"
-            }
-          ],
-          "halo": "1"
-        },
-        "timeslot": "PT0H",                        
-        "linearmodel": {
-          "version": "default",
-          "tstep": "PT0H",
-          "trajectory": {
-            "forcing": {
-              "variables": ["temperature"]
-            }
-          }
-        },
-        "ninner": "10",
-        "gradient_norm_reduction": "1e-10",
-        "test": "on"
       }
     ]
   },
-  "final": {
-    "diagnostics": {
-      "departures": {
-        "obsvalue": "oman"
-      }
-    }
+  "evil": {
+    "filter": "R",
+    "solver space": "control",
+    "eigenvalues": "testdata/glb_evil_control_3dvar.eigenvalues.txt",
+    "ritz vectors": {
+      "ctlvec": [{
+      "filepath": "testdata/glb_evil_control_3dvar.ritz.%iteration%"
+      }]
+    },
+    "number of ritz pairs": "6"
+  },
+  "analysis": {
+    "filepath": "testdata/glb_evil_control_3dvar",
+    "variables": ["temperature"],
+    "date": "2010-01-01T12:00:00Z"
+  },
+  "ensemble of backgrounds": {
+    "members": "10",
+    "variables": ["temperature"],
+    "date": "2010-01-01T12:00:00Z"
+  },
+  "ensemble of analyses": {
+    "filepath": "testdata/glb_evil_control_update_R.%member%"
+  },
+  "variance reduction": {
+    "filepath": "testdata/glb_evil_control_update_R.variance.%iteration%"
   }
 }

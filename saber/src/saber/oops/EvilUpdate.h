@@ -184,7 +184,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     // Setup R matrix
     std::unique_ptr<RinvMatrix_> RinvMatrix;
     if (filter == "S") {
-      oops::Log::info() << "Setup R matrix" << std::endl;
+      oops::Log::info() << "Setup inverse R matrix" << std::endl;
       RinvMatrix.reset(new RinvMatrix_(*J));
     }
 
@@ -253,7 +253,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     // Compute background variance
     Increment_ variance = Xb.variance();
     eckit::LocalConfiguration varRedConf(varRedConfTemplate);
-    util::seekAndReplace(varRedConf, "%iteration%", 0);
+    util::seekAndReplace(varRedConf, "%iteration%", 0, 0);
     variance.write(varRedConf);
     varianceNorm.push_back(variance.norm());
 

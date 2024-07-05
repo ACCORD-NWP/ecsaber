@@ -58,23 +58,23 @@ ObsSpace::ObsSpace(const eckit::Configuration & config,
     const eckit::LocalConfiguration dataConfig(config, "ObsData");
     if (lscreened) {
       if (dataConfig.has("ObsDataInScreened")) {
-        nameIn_ = dataConfig.getString("ObsDataInScreened.filename");
+        nameIn_ = dataConfig.getString("ObsDataInScreened.filepath");
         oops::Log::trace() << classname() << "::ObsSpace reading screened observations from "
           << nameIn_ << std::endl;
         read(nameIn_);
       }
       if (dataConfig.has("ObsDataOutScreened")) {
-        nameOut_ = dataConfig.getString("ObsDataOutScreened.filename");
+        nameOut_ = dataConfig.getString("ObsDataOutScreened.filepath");
       }
     } else {
       if (dataConfig.has("ObsDataIn")) {
-        nameIn_ = dataConfig.getString("ObsDataIn.filename");
+        nameIn_ = dataConfig.getString("ObsDataIn.filepath");
         oops::Log::trace() << classname() << "::ObsSpace reading observations from " << nameIn_
           << std::endl;
         read(nameIn_);
       }
       if (dataConfig.has("ObsDataOut")) {
-        nameOut_ = dataConfig.getString("ObsDataOut.filename");
+        nameOut_ = dataConfig.getString("ObsDataOut.filepath");
       }
     }
   }
@@ -136,8 +136,6 @@ std::vector<atlas::Point3> ObsSpace::locations(const util::DateTime & t1,
   for (size_t jo = 0; jo < nobs; ++jo) {
     locs[jo] = locs_[olist[jo]];
   }
-
-  std::cout << locs.size() << " observations found" << std::endl;
 
   oops::Log::trace() << classname() << "::locations done" << std::endl;
   return locs;
@@ -365,7 +363,7 @@ void ObsSpace::screenObservations(const ObsVector & dep,
 
 // -----------------------------------------------------------------------------
 
-void ObsSpace::read(const std::string & fileName) {
+void ObsSpace::read(const std::string & filePath) {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
 
   // Local sizes
@@ -389,9 +387,9 @@ void ObsSpace::read(const std::string & fileName) {
       height_id, col_id;
 
     // Open NetCDF file
-    std::string ncFileName = fileName + ".nc";
-    oops::Log::info() << "Reading file: " << ncFileName << std::endl;
-    if ((retval = nc_open(ncFileName.c_str(), NC_NOWRITE, &ncid))) ERR(retval);
+    std::string ncFilePath = filePath + ".nc";
+    oops::Log::info() << "Reading file: " << ncFilePath << std::endl;
+    if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval);
 
     // Get dimension
     if ((retval = nc_inq_dimid(ncid, "Locations", &nobs_id))) ERR(retval);
@@ -456,7 +454,7 @@ void ObsSpace::read(const std::string & fileName) {
         // Get other groups
         colNames[jgrpData] = grpName.substr(0, grpNameLen-1);
         std::vector<float> col(nobsGlb_);
-        if ((retval = nc_inq_varid(group_ids[jgrp], "toto", &col_id))) ERR(retval);
+        if ((retval = nc_inq_varid(group_ids[jgrp], "data", &col_id))) ERR(retval);
         if ((retval = nc_get_var_float(group_ids[jgrp], col_id, col.data()))) ERR(retval);
         for (size_t jo = 0; jo < nobsGlb_; ++jo) {
           cols[ncol*jo+jgrpData] = static_cast<double>(col[jo]);
@@ -610,12 +608,18 @@ void ObsSpace::read(const std::string & fileName) {
     }
   }
 
+  // Set order
+  order_.resize(nobsGlb_);
+  for (size_t jo = 0; jo < nobsGlb_; ++jo) {
+    order_[jo] = jo;
+  }
+
   oops::Log::trace() << classname() << "::read done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-void ObsSpace::write(const std::string & fileName,
+void ObsSpace::write(const std::string & filePath,
                      const bool & writeScreened) const {
   oops::Log::trace() << classname() << "::write starting" << std::endl;
 
@@ -753,8 +757,8 @@ void ObsSpace::write(const std::string & fileName,
     std::vector<int> groupVar_ids;
 
     // Create NetCDF file
-    const std::string ncFileName = writeScreened ? fileName + "_screened.nc" : fileName + ".nc";
-    if ((retval = nc_create(ncFileName.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid))) ERR(retval);
+    const std::string ncFilePath = writeScreened ? filePath + "_screened.nc" : filePath + ".nc";
+    if ((retval = nc_create(ncFilePath.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid))) ERR(retval);
 
     // Global attributes
     const std::string ioda_layout_key = "_ioda_layout";
@@ -819,7 +823,7 @@ void ObsSpace::write(const std::string & fileName,
       if ((retval = nc_def_grp(ncid, vec.first.c_str(), &group_id))) ERR(retval);
       group_ids.push_back(group_id);
       int groupVar_id;
-      if ((retval = nc_def_var(group_id, "toto", NC_FLOAT, 1, d_id, &groupVar_id))) ERR(retval);
+      if ((retval = nc_def_var(group_id, "data", NC_FLOAT, 1, d_id, &groupVar_id))) ERR(retval);
       if ((retval = nc_put_att_float(group_id, groupVar_id, fillValue_key.c_str(), NC_FLOAT, 1,
         &util::missingValue(0.0f)))) ERR(retval);
       groupVar_ids.push_back(groupVar_id);

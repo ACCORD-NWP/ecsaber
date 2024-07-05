@@ -132,9 +132,9 @@ void GeoVaLs::read(const eckit::Configuration & conf) {
   int retval, ncid, var_id;
 
   // Open NetCDF file
-  const std::string fileName(conf.getString("filename"));
-  std::string ncFileName = fileName + ".nc";
-  if ((retval = nc_open(ncFileName.c_str(), NC_NOWRITE, &ncid))) ERR(retval);
+  const std::string filePath(conf.getString("filepath"));
+  std::string ncFilePath = filePath + ".nc";
+  if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval);
 
   for (size_t jvar = 0; jvar < iobs_.size(); ++jvar) {
     // Get field
@@ -173,9 +173,9 @@ void GeoVaLs::write(const eckit::Configuration & conf) const {
   int retval, ncid, nobs_id, dvar_id[1], var_id[gvFieldSet_.size()];
 
   // Create NetCDF file
-  const std::string fileName(conf.getString("filename"));
-  const std::string ncFileName = fileName + ".nc";
-  if ((retval = nc_create(ncFileName.c_str(), NC_CLOBBER, &ncid))) ERR(retval);
+  const std::string filePath(conf.getString("filepath"));
+  const std::string ncFilePath = filePath + ".nc";
+  if ((retval = nc_create(ncFilePath.c_str(), NC_CLOBBER, &ncid))) ERR(retval);
 
   // Create dimensions
   if ((retval = nc_def_dim(ncid, "nobs", iobs_.size(), &nobs_id))) ERR(retval);

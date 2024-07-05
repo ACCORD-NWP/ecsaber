@@ -7,11 +7,15 @@
 
 #include "oops/runs/Run.h"
 #include "saber/oops/EnsembleVariance.h"
+#include "saber/oops/instantiateCovarFactory.h"
+#include "src/instantiateQuenchMatrices.h"
 #include "src/Logbook.h"
 #include "src/Traits.h"
 
 int main(int argc, char** argv) {
   oops::Run run(argc, argv);
+  quench::instantiateQuenchMatrices();
+  saber::instantiateCovarFactory<quench::Traits>();
   saber::EnsembleVariance<quench::Traits> ev;
   quench::Logbook::start();
   run.execute(ev);

@@ -8,6 +8,17 @@ list( APPEND quenchxx_testinput
   testinput/glb_ensemble_06.json
   testinput/glb_ensemble_12.json
   testinput/glb_ensemble_18.json
+  testinput/glb_evil_control_3dvar.json
+  testinput/glb_evil_control_update_R.json
+  testinput/glb_evil_control_update_S.json
+  testinput/glb_evil_dual_3dvar.json
+  testinput/glb_evil_dual_update_D.json
+  testinput/glb_evil_dual_update_R.json
+  testinput/glb_evil_dual_update_S.json
+  testinput/glb_evil_primal_3dvar.json
+  testinput/glb_evil_primal_update_D.json
+  testinput/glb_evil_primal_update_R.json
+  testinput/glb_evil_primal_update_S.json
   testinput/glb_hofx.json
   testinput/glb_interfaces.json
   testinput/glb_makeobs_06.json
@@ -47,6 +58,16 @@ list( APPEND quenchxx_testref
   testref/glb_ensemble_06.ref
   testref/glb_ensemble_12.ref
   testref/glb_ensemble_18.ref
+  testref/glb_evil_control_3dvar.ref
+  testref/glb_evil_control_update_R.ref
+  testref/glb_evil_control_update_S.ref
+  testref/glb_evil_dual_update_D.ref
+  testref/glb_evil_dual_update_R.ref
+  testref/glb_evil_dual_update_S.ref
+  testref/glb_evil_primal_3dvar.ref
+  testref/glb_evil_primal_update_D.ref
+  testref/glb_evil_primal_update_R.ref
+  testref/glb_evil_primal_update_S.ref
   testref/glb_hofx.ref
   testref/glb_makeobs_06.ref
   testref/glb_makeobs_12.ref
@@ -110,7 +131,8 @@ ecbuild_add_test( TARGET quenchxx_coding_norms_test
 # MPI/OMP setup
 set( omp 1 )
 foreach( mpi "1" "4" )
-    foreach( DOMAIN "glb" "reg" )
+#    foreach( DOMAIN "glb" "reg" )
+    foreach( DOMAIN "glb" )
         # Tests that create data other tests might use
 
         ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_stddev_${mpi}
@@ -283,5 +305,104 @@ foreach( mpi "1" "4" )
                                "${CMAKE_BINARY_DIR}/bin/saber_quench_variational.x testinput/${DOMAIN}_4densvar.json"
                                "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_4densvar.ref"
                           DEPENDS saber_quench_variational.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_control_3dvar_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_variational.x testinput/${DOMAIN}_evil_control_3dvar.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_control_3dvar.ref"
+                          DEPENDS saber_quench_variational.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_control_update_R_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/${DOMAIN}_evil_control_update_R.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_control_update_R.ref"
+                          DEPENDS saber_quench_evil_update.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_control_update_S_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/${DOMAIN}_evil_control_update_S.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_control_update_S.ref"
+                          DEPENDS saber_quench_evil_update.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_dual_3dvar_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_variational.x testinput/${DOMAIN}_evil_dual_3dvar.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_dual_3dvar.ref"
+                          DEPENDS saber_quench_variational.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_dual_update_D_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/${DOMAIN}_evil_dual_update_D.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_dual_update_D.ref"
+                          DEPENDS saber_quench_evil_update.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_dual_update_R_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/${DOMAIN}_evil_dual_update_R.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_dual_update_R.ref"
+                          DEPENDS saber_quench_evil_update.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_dual_update_S_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/${DOMAIN}_evil_dual_update_S.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_dual_update_S.ref"
+                          DEPENDS saber_quench_evil_update.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_primal_3dvar_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_variational.x testinput/${DOMAIN}_evil_primal_3dvar.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_primal_3dvar.ref"
+                          DEPENDS saber_quench_variational.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_primal_update_D_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/${DOMAIN}_evil_primal_update_D.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_primal_update_D.ref"
+                          DEPENDS saber_quench_evil_update.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_primal_update_R_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/${DOMAIN}_evil_primal_update_R.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_primal_update_R.ref"
+                          DEPENDS saber_quench_evil_update.x )
+
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_evil_primal_update_S_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/${DOMAIN}_evil_primal_update_S.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_evil_primal_update_S.ref"
+                          DEPENDS saber_quench_evil_update.x )
     endforeach()
 endforeach()

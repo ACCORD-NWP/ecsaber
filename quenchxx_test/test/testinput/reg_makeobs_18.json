@@ -30,7 +30,7 @@
         "ObsType": "default",
         "ObsData": {
           "ObsDataOut": {
-            "filename": "testdata/reg_obs_18"
+            "filepath": "testdata/reg_obs_18"
           },
           "obsvalue": "ObsValue"
         },
