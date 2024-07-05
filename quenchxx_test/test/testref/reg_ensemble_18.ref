@@ -1,4 +1,4 @@
-Norm of input parameter StdDev: 8.6752521577185622e+00
+Norm of input parameter StdDev: 8.6752521577186208e+00
 Member 0: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -17,7 +17,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 9.1845557125270769e+00
+  temperature: 9.1904812903860567e+00
 Member 1: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -36,7 +36,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.7738884465929132e+00
+  temperature: 1.7785708253895203e+00
 Member 2: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -55,7 +55,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 9.6830291604071075e+00
+  temperature: 9.6909012773204513e+00
 Member 3: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -74,7 +74,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.3995215519753108e+01
+  temperature: 1.3986853145996147e+01
 Member 4: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -93,7 +93,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.1854393658308462e+00
+  temperature: 4.1829567601120257e+00
 Member 5: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -112,7 +112,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.0078312023256237e+00
+  temperature: 3.0200896876411658e+00
 Member 6: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -131,7 +131,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 2.1043111950134050e+00
+  temperature: 2.1020854783454364e+00
 Member 7: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -150,7 +150,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 9.9722385614162778e+00
+  temperature: 9.9637639503562827e+00
 Member 8: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -169,7 +169,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.0686702760569379e+01
+  temperature: 1.0685736862633476e+01
 Member 9: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -188,7 +188,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.0840504897360496e+01
+  temperature: 1.0838646551844299e+01
 Member 10: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -207,7 +207,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.2797703805551400e+01
+  temperature: 1.2792167599176322e+01
 Member 11: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -226,7 +226,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 8.4026931458110852e+00
+  temperature: 8.4083214229963730e+00
 Member 12: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -245,7 +245,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 8.0026038650577576e+00
+  temperature: 7.9980339187656435e+00
 Member 13: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -264,7 +264,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.8748521298716625e+01
+  temperature: 1.8742091401837634e+01
 Member 14: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -283,7 +283,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.3618208435584931e+00
+  temperature: 4.3659355239427518e+00
 Member 15: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -302,7 +302,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 2.4672818721678920e+00
+  temperature: 2.4684302663069508e+00
 Member 16: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -321,7 +321,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 6.0638023378759245e+00
+  temperature: 6.0679749569242691e+00
 Member 17: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -340,7 +340,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.2977140074975425e+01
+  temperature: 1.2967022752313461e+01
 Member 18: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -359,7 +359,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.0977268065327994e+00
+  temperature: 4.0935872546356000e+00
 Member 19: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -378,7 +378,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.7552386595611651e+00
+  temperature: 3.7546440627538420e+00
 Member 20: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -397,7 +397,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.3674579457970035e+00
+  temperature: 1.3683467705745020e+00
 Member 21: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -416,7 +416,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 2.6362323067099114e+00
+  temperature: 2.6389367644887840e+00
 Member 22: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -435,7 +435,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 8.2895966191626140e+00
+  temperature: 8.2902034186288205e+00
 Member 23: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -454,7 +454,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 8.3284962594341163e+00
+  temperature: 8.3209424387134394e+00
 Member 24: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -473,7 +473,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 6.5316997329806732e+00
+  temperature: 6.5331109094531543e+00
 Member 25: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -492,7 +492,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.0639073326442068e+01
+  temperature: 1.0638962686337566e+01
 Member 26: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -511,7 +511,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 9.5780547219613013e+00
+  temperature: 9.5890992105937034e+00
 Member 27: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -530,7 +530,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.4898097492084004e+00
+  temperature: 1.4915323294367935e+00
 Member 28: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -549,7 +549,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.0178265828842562e+01
+  temperature: 1.0182471780169127e+01
 Member 29: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -568,7 +568,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 8.1713837388121746e+00
+  temperature: 8.1688667709646090e+00
 Member 30: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -587,7 +587,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 6.3039301130404448e+00
+  temperature: 6.3062722253550634e+00
 Member 31: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -606,7 +606,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.3898601380072419e+01
+  temperature: 1.3908635851246720e+01
 Member 32: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -625,7 +625,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 2.7425892468534911e+00
+  temperature: 2.7373338132092404e+00
 Member 33: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -644,7 +644,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 9.1174456064601799e+00
+  temperature: 9.1039952618487217e+00
 Member 34: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -663,7 +663,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 8.7496387727337073e+00
+  temperature: 8.7568076304617239e+00
 Member 35: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -682,7 +682,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.1859943572649208e+00
+  temperature: 3.1758365929245516e+00
 Member 36: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -701,7 +701,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.3905470605766162e+01
+  temperature: 1.3900030798940785e+01
 Member 37: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -720,7 +720,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 2.3083432831425448e+00
+  temperature: 2.3126196088619255e+00
 Member 38: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -739,7 +739,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 2.3279779831128651e+00
+  temperature: 2.3298141324208719e+00
 Member 39: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -758,7 +758,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 6.3908430166806856e+00
+  temperature: 6.3819373204046554e+00
 Member 40: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -777,7 +777,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 7.8751658265015481e+00
+  temperature: 7.8709487551113693e+00
 Member 41: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -796,7 +796,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 8.9327812260783599e+00
+  temperature: 8.9356469924923037e+00
 Member 42: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -815,7 +815,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.2747112054441860e+00
+  temperature: 4.2819163994726592e+00
 Member 43: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -834,7 +834,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.2294287006289002e+00
+  temperature: 3.2411131365375838e+00
 Member 44: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -853,7 +853,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 5.3187143093691187e+00
+  temperature: 5.3146125621829663e+00
 Member 45: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -872,7 +872,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.9773793731584188e+00
+  temperature: 4.9764501485361681e+00
 Member 46: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -891,7 +891,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.0178482164408145e+00
+  temperature: 4.0262033420408017e+00
 Member 47: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -910,7 +910,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.5920906264805481e+00
+  temperature: 1.5900151150192279e+00
 Member 48: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -929,7 +929,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.0800116137963020e+01
+  temperature: 1.0790682869823453e+01
 Member 49: 
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
@@ -948,4 +948,4 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 1.2062167378374163e+01
+  temperature: 1.2069310352234618e+01
