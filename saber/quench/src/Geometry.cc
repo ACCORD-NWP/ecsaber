@@ -255,6 +255,13 @@ Geometry::Geometry(const eckit::Configuration & config,
   const boost::optional<InterpolationParameters> &interpParams = params.interpolation.value();
   if (interpParams != boost::none) {
     interpolation_ = interpParams->toConfiguration();
+  } else {
+    interpolation_ = eckit::LocalConfiguration();
+    if (grid_.domain().global()) {
+      interpolation_.set("interpolation type", "atlas interpolation wrapper");
+    } else {
+      interpolation_.set("interpolation type", "regional interpolation");
+    }
   }
 
   // Print summary
