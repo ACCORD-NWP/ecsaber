@@ -58,6 +58,8 @@ ObsSpace.cc
 ObsSpace.h
 ObsVector.cc
 ObsVector.h
+RegionalInterpolation.cc
+RegionalInterpolation.h
 State.cc
 State.h
 Traits.h

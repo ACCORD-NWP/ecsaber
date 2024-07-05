@@ -1,17 +1,17 @@
-CostJo   : Nonlinear Jo = 13.3994, nobs = 20, Jo/n = 0.66997, err = 0.1
-CostJo   : Nonlinear Jo = 13.4815, nobs = 20, Jo/n = 0.674076, err = 0.1
-CostJo   : Nonlinear Jo = 25.9761, nobs = 20, Jo/n = 1.2988, err = 0.1
+CostJo   : Nonlinear Jo = 13.4004, nobs = 20, Jo/n = 0.67002, err = 0.1
+CostJo   : Nonlinear Jo = 13.4753, nobs = 20, Jo/n = 0.673767, err = 0.1
+CostJo   : Nonlinear Jo = 25.9927, nobs = 20, Jo/n = 1.29963, err = 0.1
 CostJb   : Nonlinear Jb = 0
-CostFunction: Nonlinear J = 52.857
-DRIPCGMinimizer: reduction in residual norm = 7.65839e-15
+CostFunction: Nonlinear J = 52.8684
+DRIPCGMinimizer: reduction in residual norm = 8.71929e-15
 CostFunction::addIncrement: Analysis norm: 153.149
-CostJo   : Nonlinear Jo = 12.5408, nobs = 20, Jo/n = 0.627039, err = 0.1
-CostJo   : Nonlinear Jo = 11.6682, nobs = 20, Jo/n = 0.583409, err = 0.1
-CostJo   : Nonlinear Jo = 12.6804, nobs = 20, Jo/n = 0.63402, err = 0.1
+CostJo   : Nonlinear Jo = 12.541, nobs = 20, Jo/n = 0.627049, err = 0.1
+CostJo   : Nonlinear Jo = 11.6691, nobs = 20, Jo/n = 0.583454, err = 0.1
+CostJo   : Nonlinear Jo = 12.6807, nobs = 20, Jo/n = 0.634035, err = 0.1
 CostJb   : Nonlinear Jb = 0
-CostFunction: Nonlinear J = 36.8894
-DRIPCGMinimizer: reduction in residual norm = 9.12379e-15
+CostFunction: Nonlinear J = 36.8908
+DRIPCGMinimizer: reduction in residual norm = 1.03882e-14
 CostFunction::addIncrement: Analysis norm: 153.869
-CostJo   : Nonlinear Jo = 12.4625, nobs = 20, Jo/n = 0.623127, err = 0.1
-CostJo   : Nonlinear Jo = 11.1116, nobs = 20, Jo/n = 0.555582, err = 0.1
-CostJo   : Nonlinear Jo = 12.4924, nobs = 20, Jo/n = 0.624622, err = 0.1
+CostJo   : Nonlinear Jo = 12.4625, nobs = 20, Jo/n = 0.623125, err = 0.1
+CostJo   : Nonlinear Jo = 11.1119, nobs = 20, Jo/n = 0.555595, err = 0.1
+CostJo   : Nonlinear Jo = 12.4925, nobs = 20, Jo/n = 0.624626, err = 0.1

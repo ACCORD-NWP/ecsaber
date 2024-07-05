@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp	2024-07-04 13:56:20.804087315 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt	2024-07-04 11:27:51.246238830 +0200
-@@ -8,27 +8,87 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp.bak	2024-07-05 09:24:24.733568388 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt	2024-07-05 09:18:34.188683620 +0200
+@@ -8,27 +8,89 @@
  Covariance.h
  Fields.cc
  Fields.h
@@ -57,6 +57,8 @@
 +ObsSpace.h
 +ObsVector.cc
 +ObsVector.h
++RegionalInterpolation.cc
++RegionalInterpolation.h
  State.cc
  State.h
 -VariableChange.h

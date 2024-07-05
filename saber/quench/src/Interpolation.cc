@@ -30,12 +30,14 @@ Interpolation::Interpolation(const eckit::Configuration & conf,
   oops::Log::trace() << classname() << "::Interpolation starting" << std::endl;
 
   // Get interpolation type
-  const std::string type = conf.getString("interpolation type", "atlas interpolation wrapper");
+  const std::string type = conf.getString("interpolation type");
 
   // Setup interpolation
   if (type == "atlas interpolation wrapper") {
     atlasInterpWrapper_ = std::make_shared<saber::interpolation::AtlasInterpWrapper>(srcPartitioner,
       srcFspace, dstGrid, dstFspace);
+  } else if (type == "regional interpolation") {
+    regionalInterpolation_ = std::make_shared<RegionalInterpolation>(srcFspace, dstFspace);
   } else {
     throw eckit::Exception("wrong interpolation type", Here());
   }
@@ -108,6 +110,8 @@ void Interpolation::execute(const atlas::FieldSet & srcFieldSet,
 
   if (atlasInterpWrapper_) {
     atlasInterpWrapper_->execute(srcFieldSet, targetFieldSet);
+  } else if (regionalInterpolation_) {
+    regionalInterpolation_->execute(srcFieldSet, targetFieldSet);
   }
 
   oops::Log::trace() << classname() << "::execute done" << std::endl;
@@ -121,6 +125,8 @@ void Interpolation::executeAdjoint(atlas::FieldSet & srcFieldSet,
 
   if (atlasInterpWrapper_) {
     atlasInterpWrapper_->executeAdjoint(srcFieldSet, targetFieldSet);
+  } else if (regionalInterpolation_) {
+    regionalInterpolation_->executeAdjoint(srcFieldSet, targetFieldSet);
   }
 
   oops::Log::trace() << classname() << "::executeAdjoint done" << std::endl;
