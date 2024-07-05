@@ -45,3 +45,24 @@ ecbuild_add_executable( TARGET  saber_quench_variational.x
                                 ${vader_LIBRARIES}
                                 ${gsibec_LIBRARIES}
                                 saber )
+
+ecbuild_add_executable( TARGET  saber_quench_evil_update.x
+                        SOURCES quenchEvilUpdate.cc
+                        LIBS    quench
+                                ${vader_LIBRARIES}
+                                ${gsibec_LIBRARIES}
+                                saber )
+
+ecbuild_add_executable( TARGET  quench_assim_ensemble.x
+                        SOURCES quenchAssimEnsemble.cc
+                        LIBS    quench
+                                ${vader_LIBRARIES}
+                                ${gsibec_LIBRARIES}
+                                saber )
+
+ecbuild_add_executable( TARGET  quench_ensemble_variance.x
+                        SOURCES quenchEnsembleVariance.cc
+                        LIBS    quench
+                                ${vader_LIBRARIES}
+                                ${gsibec_LIBRARIES}
+                                saber )

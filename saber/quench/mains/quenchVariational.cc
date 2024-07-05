@@ -8,6 +8,7 @@
 #include "oops/runs/Run.h"
 #include "oops/runs/Variational.h"
 #include "saber/oops/instantiateCovarFactory.h"
+#include "saber/oops/instantiateMinFactory.h"
 #include "src/instantiateQuenchMatrices.h"
 #include "src/Logbook.h"
 #include "src/Traits.h"
@@ -16,6 +17,7 @@ int main(int argc,  char ** argv) {
   oops::Run run(argc, argv);
   quench::instantiateQuenchMatrices();
   saber::instantiateCovarFactory<quench::Traits>();
+  saber::instantiateMinFactory<quench::Traits>();
   oops::Variational<quench::Traits> var;
   quench::Logbook::start();
   run.execute(var);
