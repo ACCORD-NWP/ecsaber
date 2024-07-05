@@ -26,10 +26,10 @@
         "ObsType": "default",
         "ObsData": {
           "ObsDataIn": {
-            "filename": "testdata/glb_obs_12"
+            "filepath": "testdata/glb_obs_12"
           },
           "ObsDataOut": {
-            "filename": "testdata/glb_hofx_12"
+            "filepath": "testdata/glb_hofx_12"
           },
           "obsvalue": "hofx"
         },

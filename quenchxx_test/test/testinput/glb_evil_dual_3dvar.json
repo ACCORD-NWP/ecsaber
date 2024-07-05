@@ -77,7 +77,7 @@
               "filepath": "testdata/glb_obs_12"
             },
             "ObsDataOutScreened": {
-              "filepath": "testdata/glb_obs_3dvar"
+              "filepath": "testdata/glb_obs_evil_dual_3dvar"
             },
             "obsvalue": "ObsValue"
           },
@@ -93,11 +93,15 @@
     }
   },
   "minimizer": {
-    "algorithm": "DRIPCG"
+    "algorithm": "RPLanczosEVIL",
+    "ritz tolerance": "1.0e-2",
+    "eigenvalues": "testdata/glb_evil_dual_3dvar.eigenvalues.txt",
+    "ritz vectors": {
+      "obsvalue": "ritz.%pattern%.%iteration%"
+    }
   },
   "output": {
-    "filepath": "testdata/glb_3dvar",
-    "date": "2010-01-01T12:00:00Z"
+    "filepath": "testdata/glb_evil_dual_3dvar"
   },
   "variational": {
     "iteration": [
@@ -134,35 +138,6 @@
             "obsvalue": "ombg"
           }
         }
-      },
-      {
-        "resolution": {
-          "function space": "StructuredColumns",
-          "grid": {
-            "type": "regular_lonlat",
-            "N": "10"
-          },
-          "groups": [
-            {
-              "variables": ["temperature"],
-              "levels": "2"
-            }
-          ],
-          "halo": "1"
-        },
-        "timeslot": "PT0H",                        
-        "linearmodel": {
-          "version": "default",
-          "tstep": "PT0H",
-          "trajectory": {
-            "forcing": {
-              "variables": ["temperature"]
-            }
-          }
-        },
-        "ninner": "10",
-        "gradient_norm_reduction": "1e-10",
-        "test": "on"
       }
     ]
   },

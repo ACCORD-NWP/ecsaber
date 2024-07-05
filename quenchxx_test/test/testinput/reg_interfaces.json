@@ -96,10 +96,10 @@
         "ObsType": "default",
         "ObsData": {
           "ObsDataIn": {
-            "filenames": ["testdata/reg_obs_06"]
+            "filepaths": ["testdata/reg_obs_06"]
           },
           "ObsDataOut": {
-            "filename": "testdata/reg_test_06"
+            "filepath": "testdata/reg_test_06"
           },
           "obsvalue": "ObsVal"
         },

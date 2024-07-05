@@ -36,10 +36,10 @@
       "ObsType": "default",
       "ObsData": {
         "ObsDataIn": {
-          "filename": "testdata/reg_obs_12"
+          "filepath": "testdata/reg_obs_12"
         },
         "ObsDataOut": {
-          "filename": "testdata/reg_hofx"
+          "filepath": "testdata/reg_hofx"
         },
         "obsvalue": "hofx"
       },

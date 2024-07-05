@@ -260,10 +260,10 @@
           "ObsType": "default",
           "ObsData": {
             "ObsDataInScreened": {
-              "filename": "testdata/reg_obs_06"
+              "filepath": "testdata/reg_obs_06"
             },
             "ObsDataOutScreened": {
-              "filename": "testdata/reg_obs_4densvar_06"
+              "filepath": "testdata/reg_obs_4densvar_06"
             },
             "obsvalue": "ObsValue"
           },
@@ -279,10 +279,10 @@
           "ObsType": "default",
           "ObsData": {
             "ObsDataInScreened": {
-              "filename": "testdata/reg_obs_12"
+              "filepath": "testdata/reg_obs_12"
             },
             "ObsDataOutScreened": {
-              "filename": "testdata/reg_obs_4densvar_12"
+              "filepath": "testdata/reg_obs_4densvar_12"
             },
             "obsvalue": "ObsValue"
           },
@@ -298,10 +298,10 @@
           "ObsType": "default",
           "ObsData": {
             "ObsDataInScreened": {
-              "filename": "testdata/reg_obs_18"
+              "filepath": "testdata/reg_obs_18"
             },
             "ObsDataOutScreened": {
-              "filename": "testdata/reg_obs_4densvar_18"
+              "filepath": "testdata/reg_obs_4densvar_18"
             },
             "obsvalue": "ObsValue"
           },

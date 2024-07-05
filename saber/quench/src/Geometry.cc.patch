@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.cc.tmp	2024-07-04 13:56:20.732087113 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.cc	2024-07-04 12:41:12.629852344 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.cc.tmp.bak	2024-07-05 10:08:39.243321285 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.cc	2024-07-05 10:08:14.715248305 +0200
 @@ -20,28 +20,34 @@
  #include "atlas/util/KDTree.h"
  #include "atlas/util/Point.h"
@@ -131,12 +131,12 @@
 +          avg += vert_coordView(jnode, jlevel);
 +          counter += 1.0;
 +        }
-       }
++      }
 +      comm_.allReduceInPlace(avg, eckit::mpi::sum());
 +      comm_.allReduceInPlace(counter, eckit::mpi::sum());
 +      if (counter > 0.0) {
 +        avg /= counter;
-+      }
+       }
 +      group.vert_coord_avg_.push_back(avg);
      }
  
@@ -188,21 +188,28 @@
      } else {
        // Remove code variable from the list of available variables
        vars.erase(std::remove(vars.begin(), vars.end(), codeVar), vars.end());
-@@ -201,18 +247,31 @@
+@@ -201,18 +247,38 @@
        vars.push_back(fileVar);
      } else {
        // File variable is already present in the list of variables
 -      ABORT("alias error: duplicated file variable");
 +      throw eckit::UserError("Alias error: duplicated file variable", Here());
-     }
-   }
- 
++    }
++  }
++
 +  // Interpolation
 +  const boost::optional<InterpolationParameters> &interpParams = params.interpolation.value();
 +  if (interpParams != boost::none) {
 +    interpolation_ = interpParams->toConfiguration();
-+  }
-+
++  } else {
++    interpolation_ = eckit::LocalConfiguration();
++    if (grid_.domain().global()) {
++      interpolation_.set("interpolation type", "atlas interpolation wrapper");
++    } else {
++      interpolation_.set("interpolation type", "regional interpolation");
+     }
+   }
+ 
    // Print summary
    this->print(oops::Log::info());
 +
@@ -225,7 +232,7 @@
    // Copy function space
    if (other.functionSpace_.type() == "StructuredColumns") {
      // StructuredColumns
-@@ -227,9 +286,11 @@
+@@ -227,9 +293,11 @@
        functionSpace_ = atlas::functionspace::NodeColumns(other.functionSpace_);
      }
    } else if (other.functionSpace_.type() == "PointCloud") {
@@ -239,7 +246,7 @@
    }
  
    // Copy geometry fields
-@@ -249,37 +310,38 @@
+@@ -249,37 +317,38 @@
      // Copy vertical coordinate
      group.vert_coord_ = other.groups_[groupIndex].vert_coord_;
  
@@ -292,7 +299,7 @@
    std::string prefix;
    if (os.rdbuf() == oops::Log::info().rdbuf()) {
      prefix = "Info     : ";
-@@ -302,19 +364,26 @@
+@@ -302,19 +371,26 @@
      os << prefix << "- Group " << groupIndex << ":" << std::endl;
      os << prefix << "  Vertical levels: " << std::endl;
      os << prefix << "  - number: " << levels(groupIndex) << std::endl;
@@ -320,7 +327,7 @@
    // Lon/lat sizes
    size_t nlon = 0;
    size_t nlat = 0;
-@@ -324,13 +393,13 @@
+@@ -324,13 +400,13 @@
  
    if (comm_.rank() == 0) {
      // Open NetCDF file
@@ -339,7 +346,7 @@
    }
  
    // Broadcast lon/lat sizes
-@@ -344,17 +413,17 @@
+@@ -344,17 +420,17 @@
  
    if (comm_.rank() == 0) {
      // Get lon/lat
@@ -363,7 +370,7 @@
  
      // Copy data
      for (size_t ilon = 0; ilon < nlon; ++ilon) {
-@@ -370,7 +439,7 @@
+@@ -370,7 +446,7 @@
      }
  
      // Close file
@@ -372,7 +379,7 @@
    }
  
    // Broadcast coordinates and land-sea mask
-@@ -431,8 +500,13 @@
+@@ -431,8 +507,13 @@
        }
      }
    } else {
