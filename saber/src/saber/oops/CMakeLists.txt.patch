@@ -1,13 +1,34 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp	2024-07-04 13:56:19.472083582 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-02-02 12:36:25.476561953 +0100
-@@ -4,6 +4,10 @@
- # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-07-05 09:01:24.589189134 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-07-05 08:59:59.960939327 +0200
+@@ -11,17 +11,30 @@
+ ErrorCovariance.h
+ Localization.h
  
- list( APPEND oops_src_files_list
-+# EC utilities
+-# Application
++# Applications
+ ErrorCovarianceToolbox.h
+ ProcessPerts.h
++AssimEnsemble.h
++EnsembleVariance.h
++EvilUpdate.h
++MakeObs.h
+ 
+ # Utilities
 +ECUtilities.cc
 +ECUtilities.h
-+
- # Parameters
- ErrorCovarianceParameters.h
+ Utilities.h
+ Utilities.cc
  
+ # Factories
+ instantiateCovarFactory.h
+ instantiateLocalizationFactory.h
++instantiateMinFactory.h
++
++# EVIL
++RitzPairs.h
++PLanczosEVILMinimizer.h
++RPLanczosEVILMinimizer.h
++SQRTPLanczosEVILMinimizer.h
+ )
+ 
+ set( oops_src_files ${oops_src_files_list} PARENT_SCOPE )
