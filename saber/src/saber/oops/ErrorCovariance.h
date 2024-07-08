@@ -28,7 +28,6 @@
 
 #include "saber/blocks/SaberBlockChainBase.h"
 #include "saber/blocks/SaberBlockParametersBase.h"
-#include "saber/blocks/SaberEnsembleBlockChain.h"
 #include "saber/blocks/SaberOuterBlockChain.h"
 #include "saber/blocks/SaberParametricBlockChain.h"
 #include "saber/oops/ErrorCovarianceParameters.h"
@@ -541,7 +540,7 @@ void ErrorCovariance4D<MODEL>::advectedMultiplySqrt(const IncrCtlVec_ &dv,
   oops::FieldSet4D fset4dSum(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
   for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
     // Apply covariance square-root
-    oops::FieldSet4D fset4dCmp(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
+    oops::FieldSet4D fset4dCmp(dx);
     hybridBlockChain_[jj]->multiplySqrt(dv.modCtlVec().genCtlVec().data(), fset4dCmp, offset);
     offset += hybridBlockChain_[jj]->ctlVecSize();
 

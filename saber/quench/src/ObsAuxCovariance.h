@@ -79,10 +79,6 @@ class ObsAuxCovariance : public oops::ObsAuxCovarianceBase<Traits>,
   const eckit::Configuration & config() const
     {return conf_;}
 
-/// Local
-  bool active() const
-    {return active_;}
-
  private:
   void print(std::ostream &) const;
 

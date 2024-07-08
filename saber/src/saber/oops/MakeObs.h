@@ -9,7 +9,7 @@
 #pragma once
 
 #include <memory>
-#include <string> 
+#include <string>
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
@@ -103,69 +103,74 @@ class MakeObs : public oops::Application {
         new oops::Observer<MODEL, State_>(obspace, hop, ybias));
     post.enrollProcessor(pobs);
 
-    //  Run forecast and generate observations
+    //  Run forecast and release observations
     model.forecast(xx, moderr, fclen, post);
     oops::Log::test() << "Final state: " << xx.norm() << std::endl;
     oops::Log::info() << "MakeObs: Finished observation generation." << std::endl;
-
     std::unique_ptr<Observations_> yobs(pobs->release());
-    oops::Log::info() << "Generated observation: " << *yobs << std::endl;
 
-    // Get number of observation perturbations to generate
-    size_t members = obsconf.getInt("members", 1);
-    ASSERT((members == 1) || (obsconf.has("obspert")));
+    // Setup empty departures
+    Departures_ ydep(obspace);
+    std::vector<Departures_> ypertVec;
 
-    //  Perturb observations
-    if (obsconf.has("obspert")) {
-      // Setup empty departures
-      Departures_ ydep(obspace);
-      std::vector<Departures_> ypertVec;
+    // Setup observation errors
+    oops::ObsErrors<MODEL> matR(obspace);
 
-      // Setup observation errors
-      oops::ObsErrors<MODEL> matR(obspace);
-      double opert = obsconf.getDouble("obspert");
+    // Generate perturbations, first step
+    matR.randomize(ydep);
+    *yobs += ydep;
 
-      // Generate and store normalized observation perturbations
+    // Member replacement
+    std::string pattern = obsconf.getString("pattern");
+    size_t zpad = obsconf.getInt("zero padding", 0);
+
+    // Save perturbed observations
+    for (std::size_t jj = 0; jj < yobs->size(); ++jj) {
+      oops::Log::test() << "Generated observation: " << (*yobs)[jj] << std::endl;
+    }
+    eckit::LocalConfiguration obsconfControl(obsconf);
+    util::seekAndReplace(obsconfControl, pattern, 0, zpad);
+    yobs->save(obsconfControl);
+
+    // Generate perturbations, second step
+    size_t members = obsconf.getInt("members", 0);
+
+    // Observation perturbation inflation factor
+    double obspert = obsconf.getDouble("obspert", 1.0);
+
+    if (members > 1) {
+      // Generate and store observation perturbations
       for (size_t ie = 0; ie < members; ++ie) {
         matR.randomize(ydep);
-        ydep *= opert;
+        ydep *= obspert;
         ypertVec.push_back(ydep);
       }
 
-      if (members > 1) {
-        // Compute and subtract observation perturbations mean
-        Departures_ ypertMean(obspace);
-        for (size_t ie = 0; ie < members; ++ie) {
-          ypertMean += ypertVec[ie];
-        }
-        ypertMean *= 1.0 / static_cast<double>(members);
-        for (size_t ie = 0; ie < members; ++ie) {
-          ypertVec[ie] -= ypertMean;
-        }
-      }
-
+      // Compute and subtract observation perturbations mean
+      Departures_ ypertMean(obspace);
       for (size_t ie = 0; ie < members; ++ie) {
-        // Add perturbation
-        *yobs += ypertVec[ie];
-        oops::Log::info() << "Perturbed observation: " << *yobs << std::endl;
-
-        //  Save observations
-        for (std::size_t jj = 0; jj < yobs->size(); ++jj) {
-          oops::Log::test() << "Generated observation: " << (*yobs)[jj] << std::endl;
-        }
-        eckit::LocalConfiguration obsconfMember(obsconf);
-        util::seekAndReplace(obsconfMember, "%member%", ie+1, 0);
-        yobs->save(obsconfMember);
-
-        // Remove perturbation
-        *yobs -= ypertVec[ie];
+        ypertMean += ypertVec[ie];
       }
-    } else {
+      ypertMean *= 1.0 / static_cast<double>(members);
+      for (size_t ie = 0; ie < members; ++ie) {
+        ypertVec[ie] -= ypertMean;
+      }
+    }
+
+    for (size_t ie = 0; ie < members; ++ie) {
+      // Add perturbation
+      *yobs += ypertVec[ie];
+
       //  Save observations
       for (std::size_t jj = 0; jj < yobs->size(); ++jj) {
-        oops::Log::test() << "Generated observation: " << (*yobs)[jj] << std::endl;
+        oops::Log::test() << "Generated perturbed observation: " << (*yobs)[jj] << std::endl;
       }
-      yobs->save(obsconf);
+      eckit::LocalConfiguration obsconfMember(obsconf);
+      util::seekAndReplace(obsconfMember, pattern, ie+1, zpad);
+      yobs->save(obsconfMember);
+
+      // Remove perturbation
+      *yobs -= ypertVec[ie];
     }
 
     return 0;

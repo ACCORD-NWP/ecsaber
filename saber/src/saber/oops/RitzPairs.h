@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <fstream>
 #include <string>
 
 #include "eckit/config/LocalConfiguration.h"
@@ -15,6 +16,7 @@
 #include "oops/assimilation/TriDiagSpectrum.h"
 
 #include "oops/util/ConfigFunctions.h"
+#include "oops/util/formats.h"
 
 namespace saber {
 
@@ -146,6 +148,13 @@ void RitzPairs<VECTOR>::process(const eckit::Configuration &conf) {
       ritzValFile << val << std::endl;
     }
     ritzValFile.close();
+  }
+
+  // Print alpha/beta
+  oops::Log::info() << "alpha / beta values:" << std::endl;
+  for (int iiter1 = jiter - 1; iiter1 >= 0; --iiter1) {
+    oops::Log::info() << "[" << iiter1 << "]: " << util::full_precision(alphas_[iiter1])
+      << " / " << util::full_precision(betas_[iiter1]) << std::endl;
   }
 
   oops::Log::trace() << "RitzPairs::process done" << std::endl;

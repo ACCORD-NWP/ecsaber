@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt.tmp.bak	2024-07-04 17:18:47.379860739 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt	2024-07-04 17:18:23.747772625 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt.tmp.bak	2024-07-08 13:13:54.378607772 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt	2024-07-08 13:13:33.474536046 +0200
 @@ -2,7 +2,7 @@
  #
  # This software is licensed under the terms of the Apache Licence Version 2.0
@@ -36,14 +36,14 @@
 +                                ${gsibec_LIBRARIES}
 +                                saber )
 +
-+ecbuild_add_executable( TARGET  quench_assim_ensemble.x
++ecbuild_add_executable( TARGET  saber_quench_assim_ensemble.x
 +                        SOURCES quenchAssimEnsemble.cc
 +                        LIBS    quench
 +                                ${vader_LIBRARIES}
 +                                ${gsibec_LIBRARIES}
 +                                saber )
 +
-+ecbuild_add_executable( TARGET  quench_ensemble_variance.x
++ecbuild_add_executable( TARGET  saber_quench_ensemble_variance.x
 +                        SOURCES quenchEnsembleVariance.cc
 +                        LIBS    quench
 +                                ${vader_LIBRARIES}

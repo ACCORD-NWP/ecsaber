@@ -8,7 +8,7 @@
     "groups": [
       {
         "variables": ["temperature"],
-        "levels": "2"
+        "levels": "3"
       }
     ],
     "halo": "1"
@@ -25,47 +25,45 @@
           {
             "date": "2010-01-01T12:00:00Z",
             "variables": ["temperature"],
-            "filepath": "testdata/glb_bkg_12_000001"
+            "filepath": "testdata/evil_bkg_000001"
           }
         ]
       },
       "Covariance": {
         "covariance": "SABER",
-        "saber central block": {
-          "saber block name": "BUMP_NICAS",
-          "calibration": {
-            "drivers": {
-              "multivariate strategy": "univariate",
-              "compute nicas": "true"
-            },
-            "nicas": {
-              "resolution": "4.0",
-              "explicit length-scales": "true",
-              "horizontal length-scale": [
-                {
-                  "groups": ["temperature"],
-                  "value": "4.0e6"
-                }
-              ],
-              "vertical length-scale": [
-                {
-                "groups": ["temperature"],
-                "value": "3.0"
-                }
-              ]
+        "ensemble": [
+          {
+            "variables": ["temperature"],
+            "members": "50",
+            "state from template": {
+              "template": {
+                "date": "2010-01-01T12:00:00Z",
+                "filepath": "testdata/evil_ens_%member%",
+                "state variables": ["temperature"]
+              },
+              "pattern": "%member%",
+              "zero padding": "6"
             }
           }
-        },
-        "saber outer blocks": [
-          {
-            "saber block name": "StdDev",
-            "read": {
-              "model file": {
-                "filepath": "testdata/glb_stddev"
+        ],
+        "saber central block": {
+          "saber block name": "Ensemble",
+          "inflation value": 1.0,
+          "localization": {
+            "saber central block": {
+              "saber block name": "BUMP_NICAS",
+              "read": {
+                "drivers": {
+                  "multivariate strategy": "univariate",
+                  "read local nicas": "true"
+                },
+                "io": {
+                   "overriding nicas file": "testdata/evil_nicas"
+                }
               }
             }
           }
-        ]
+        }
       }
     },
     "Jo": {
@@ -74,12 +72,12 @@
           "ObsType": "default",
           "ObsData": {
             "ObsDataInScreened": {
-              "filepath": "testdata/glb_obs_12"
+              "filepath": "testdata/evil_obs"
             },
             "ObsDataOutScreened": {
-              "filepath": "testdata/glb_obs_evil_primal_3dvar"
+              "filepath": "testdata/evil_obs_evil_dual_3dvar"
             },
-            "obsvalue": "ObsValue"
+            "obsvalue": "ObsValue.000000"
           },
           "Covariance": {
             "ObsErrorCovariance": {
@@ -93,19 +91,15 @@
     }
   },
   "minimizer": {
-    "algorithm": "PLanczosEVIL",
+    "algorithm": "RPLanczosEVIL",
     "ritz tolerance": "1.0e-2",
-    "eigenvalues": "testdata/glb_evil_primal_3dvar.eigenvalues.txt",
+    "eigenvalues": "testdata/evil_dual_3dvar.eigenvalues.txt",
     "ritz vectors": {
-      "increment": [
-        {
-          "filepath": "testdata/glb_evil_primal_3dvar.ritz.%iteration%"
-        }
-      ]
+      "obsvalue": "ritz.%pattern%.%iteration%"
     }
   },
   "output": {
-    "filepath": "testdata/glb_evil_primal_3dvar"
+    "filepath": "testdata/evil_dual_3dvar"
   },
   "variational": {
     "iteration": [
@@ -119,7 +113,7 @@
           "groups": [
             {
               "variables": ["temperature"],
-              "levels": "2"
+              "levels": "3"
             }
           ],
           "halo": "1"
@@ -134,7 +128,7 @@
             }
           }
         },
-        "ninner": "10",
+        "ninner": "30",
         "gradient_norm_reduction": "1e-10",
         "test": "on",
         "diagnostics": {
