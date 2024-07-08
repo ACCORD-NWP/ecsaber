@@ -44,7 +44,7 @@ class PLanczosEVILMinimizer : public oops::PrimalMinimizer<MODEL> {
   const std::string classname() const override
     { return "PLanczosEVILMinimizer"; }
   PLanczosEVILMinimizer(const eckit::Configuration &conf,
-                    const CostFct_ &J)
+                        const CostFct_ &J)
     : oops::PrimalMinimizer<MODEL>(J), conf_(conf) {}
   ~PLanczosEVILMinimizer() {}
 
@@ -96,9 +96,9 @@ double PLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ &dx,
   zz *= 1 / beta0;
 
   // zVEC[0] = z_1 ---> required for re-orthogonalization
-  ritzPairs.zVEC().push_back(std::shared_ptr<CtrlInc_>(new CtrlInc_(zz)));
+  ritzPairs.zVEC().emplace_back(std::unique_ptr<CtrlInc_>(new CtrlInc_(zz)));
   // vVEC[0] = v_1 ---> required for re-orthogonalization
-  ritzPairs.vVEC().push_back(std::shared_ptr<CtrlInc_>(new CtrlInc_(vv)));
+  ritzPairs.vVEC().emplace_back(std::unique_ptr<CtrlInc_>(new CtrlInc_(vv)));
 
   int jiter;
   oops::Log::info() << std::endl;
@@ -128,9 +128,9 @@ double PLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ &dx,
     zz *= 1 / beta;
 
     // zVEC[jiter+1] = z_jiter
-    ritzPairs.zVEC().push_back(std::shared_ptr<CtrlInc_>(new CtrlInc_(zz)));
+    ritzPairs.zVEC().emplace_back(std::unique_ptr<CtrlInc_>(new CtrlInc_(zz)));
     // vVEC[jiter+1] = v_jiter
-    ritzPairs.vVEC().push_back(std::shared_ptr<CtrlInc_>(new CtrlInc_(vv)));
+    ritzPairs.vVEC().emplace_back(std::unique_ptr<CtrlInc_>(new CtrlInc_(vv)));
 
     ritzPairs.alphas().push_back(alpha);
 

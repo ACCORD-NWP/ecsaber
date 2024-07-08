@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp	2024-07-04 13:56:19.492083638 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-07-04 11:12:45.527034150 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-07-08 13:10:36.957929668 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-07-08 09:37:28.855635169 +0200
 @@ -1,6 +1,5 @@
  /*
   * (C) Copyright 2021-2023 UCAR
@@ -7,7 +7,7 @@
   *
   * This software is licensed under the terms of the Apache Licence Version 2.0
   * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-@@ -14,22 +13,18 @@
+@@ -14,31 +13,29 @@
  
  #include "atlas/field.h"
  
@@ -39,7 +39,9 @@
  
  #include "saber/blocks/SaberBlockChainBase.h"
  #include "saber/blocks/SaberBlockParametersBase.h"
-@@ -39,6 +34,9 @@
+-#include "saber/blocks/SaberEnsembleBlockChain.h"
+ #include "saber/blocks/SaberOuterBlockChain.h"
+ #include "saber/blocks/SaberParametricBlockChain.h"
  #include "saber/oops/ErrorCovarianceParameters.h"
  #include "saber/oops/Utilities.h"
  
@@ -49,7 +51,7 @@
  namespace saber {
  
  // -----------------------------------------------------------------------------
-@@ -55,33 +53,46 @@
+@@ -55,33 +52,46 @@
  // -----------------------------------------------------------------------------
  
  template <typename MODEL>
@@ -117,7 +119,7 @@
  
    /// Chain of outer blocks applied to all components of hybrid covariances.
    /// Not initialized for non-hybrid covariances.
-@@ -97,27 +108,76 @@
+@@ -97,27 +107,76 @@
  
    /// Whether to run Hybrid in parallel
    bool parallelHybrid_;
@@ -209,7 +211,7 @@
  
    // Local copy of background and first guess that can undergo interpolation
    const oops::FieldSet4D fset4dXbTmp(xb);
-@@ -130,8 +190,8 @@
+@@ -130,8 +189,8 @@
    // TODO(Benjamin, Marek, Mayeul, ?)
  
    // Initialize outer variables
@@ -220,7 +222,7 @@
    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
      outerVars[i].setLevels(vlevs[i]);
    }
-@@ -169,9 +229,7 @@
+@@ -169,9 +228,7 @@
      const auto & dualResGeomConf = dualResParams->geometry.value();
      if (dualResGeomConf != boost::none) {
        // Create dualRes geometry
@@ -231,7 +233,7 @@
      }
      // Background and first guess at dual resolution geometry
      const State4D_ xbDualRes(*dualResGeom, xb);
-@@ -192,7 +250,7 @@
+@@ -192,7 +249,7 @@
      std::vector<util::DateTime> dates;
      std::vector<int> ensmems;
      fsetDualResEns = std::make_unique<oops::FieldSets>(dates,
@@ -240,7 +242,7 @@
    }
  
    // Add ensemble output
-@@ -221,165 +279,14 @@
+@@ -221,165 +278,14 @@
      // Hybrid central block
      eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
  
@@ -408,7 +410,7 @@
        }
        for (const auto & cmp : hybridConf.getSubConfigurations("components")) {
          // Initialize component outer variables
-@@ -390,7 +297,7 @@
+@@ -390,7 +296,7 @@
          // Scalar weight
          hybridScalarWeightSqrt_.push_back(std::sqrt(weightConf.getDouble("value", 1.0)));
          // File-base weight
@@ -417,7 +419,7 @@
          if (weightConf.has("file")) {
            // File-base weight
            readHybridWeight(*hybridGeom,
-@@ -467,31 +374,39 @@
+@@ -467,31 +373,39 @@
      // Set weights
      hybridScalarWeightSqrt_.push_back(1.0);
      // File-base weight
@@ -467,7 +469,7 @@
    for (size_t jtime = 0; jtime < fset4dSum.size(); ++jtime) {
      fset4dSum[jtime].init(hybridBlockChain_[0]->outerFunctionSpace(),
                            hybridBlockChain_[0]->outerVariables(),
-@@ -499,62 +414,12 @@
+@@ -499,62 +413,12 @@
    }
  
    if (parallelHybrid_) {
@@ -532,7 +534,7 @@
        hybridBlockChain_[jj]->randomize(fset4dCmp);
  
        // Weight square-root multiplication
-@@ -575,20 +440,20 @@
+@@ -575,20 +439,20 @@
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
    // ATLAS fieldset to Increment_
@@ -561,7 +563,7 @@
  
    // Copy input
    dxo = dxi;
-@@ -603,78 +468,8 @@
+@@ -603,78 +467,8 @@
  
    // Loop over B components
    if (parallelHybrid_) {
@@ -641,7 +643,7 @@
      for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
        // Create temporary FieldSet
        oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(fset4dInit);
-@@ -710,27 +505,314 @@
+@@ -710,27 +504,314 @@
    // Apply outer blocks forward
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
@@ -690,7 +692,7 @@
 +  oops::FieldSet4D fset4dSum(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
 +  for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
 +    // Apply covariance square-root
-+    oops::FieldSet4D fset4dCmp(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
++    oops::FieldSet4D fset4dCmp(dx);
 +    hybridBlockChain_[jj]->multiplySqrt(dv.modCtlVec().genCtlVec().data(), fset4dCmp, offset);
 +    offset += hybridBlockChain_[jj]->ctlVecSize();
 +

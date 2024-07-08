@@ -67,13 +67,18 @@ oops::JediVariables getInnerOnlyVars(const SaberBlockParametersBase & params,
 
 // -----------------------------------------------------------------------------
 
-void setMember(eckit::LocalConfiguration & conf,
-               const int & member);
+void setMember(eckit::LocalConfiguration &,
+               const int &);
 
 // -----------------------------------------------------------------------------
 
 void setMPI(eckit::LocalConfiguration & conf,
             const int & mpi);
+
+// -----------------------------------------------------------------------------
+
+void expandEnsembleTemplate(eckit::LocalConfiguration &,
+                            const size_t &);
 
 // -----------------------------------------------------------------------------
 
@@ -116,6 +121,9 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       ensembleConf.push_back(inputConf.getSubConfiguration("ensemble"));
     }
     nens = ensembleConf[0].getInt("members");
+    for (auto & ensemble3DConf : ensembleConf) {
+      expandEnsembleTemplate(ensemble3DConf, nens);
+    }
     outputConf.set("ensemble", ensembleConf);
     varConf = ensembleConf[0];
     ++ensembleFound;
@@ -130,6 +138,9 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       ensemblePert.push_back(inputConf.getSubConfiguration("ensemble pert"));
     }
     nens = ensemblePert[0].getInt("members");
+    for (auto & ensemble3DConf : ensembleConf) {
+      expandEnsembleTemplate(ensemble3DConf, nens);
+    }
     outputConf.set("ensemble", ensemblePert);
     varConf = ensemblePert[0];
     ++ensembleFound;

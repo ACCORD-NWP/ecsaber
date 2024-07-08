@@ -117,9 +117,9 @@ double RPLanczosEVILMinimizer<MODEL>::solve(Dual_ &vv, double &vvp, Dual_ &rr,
   ritzPairs.betas().clear();
   ritzPairs.alphas().clear();
 
-  ritzPairs.vVEC().push_back(std::shared_ptr<Dual_>(new Dual_(v)));
-  ritzPairs.zVEC().push_back(std::shared_ptr<Dual_>(new Dual_(zz)));
-  ritzPairs.tVEC().push_back(std::shared_ptr<Dual_>(new Dual_(tt)));
+  ritzPairs.vVEC().emplace_back(std::unique_ptr<Dual_>(new Dual_(v)));
+  ritzPairs.zVEC().emplace_back(std::unique_ptr<Dual_>(new Dual_(zz)));
+  ritzPairs.tVEC().emplace_back(std::unique_ptr<Dual_>(new Dual_(tt)));
   vpVEC.push_back(vp);
   zpVEC.push_back(zzp);
   tpVEC.push_back(ttp);
@@ -170,9 +170,9 @@ double RPLanczosEVILMinimizer<MODEL>::solve(Dual_ &vv, double &vvp, Dual_ &rr,
     ttp *= 1 / beta;
     zzp *= 1 / beta;
 
-    ritzPairs.vVEC().push_back(std::shared_ptr<Dual_>(new Dual_(v)));
-    ritzPairs.zVEC().push_back(std::shared_ptr<Dual_>(new Dual_(zz)));
-    ritzPairs.tVEC().push_back(std::shared_ptr<Dual_>(new Dual_(tt)));
+    ritzPairs.vVEC().emplace_back(std::unique_ptr<Dual_>(new Dual_(v)));
+    ritzPairs.zVEC().emplace_back(std::unique_ptr<Dual_>(new Dual_(zz)));
+    ritzPairs.tVEC().emplace_back(std::unique_ptr<Dual_>(new Dual_(tt)));
     vpVEC.push_back(vp);
     zpVEC.push_back(zzp);
     tpVEC.push_back(ttp);

@@ -26,6 +26,8 @@
 #include "oops/util/Logger.h"
 #include "oops/util/abor1_cpp.h"
 
+#include "saber/oops/Utilities.h"
+
 namespace saber {
 
 template <typename MODEL>
@@ -72,7 +74,9 @@ class EnsembleVariance : public oops::Application {
 
       // Read ensemble
       oops::Log::info() << "Read ensemble" << std::endl;
-      const eckit::LocalConfiguration ensConfig(conf, "ensemble");
+      eckit::LocalConfiguration ensConfig(conf, "ensemble");
+      const size_t nens = ensConfig.getInt("members");
+      expandEnsembleTemplate(ensConfig, nens);
       Ensemble_ ensemble(state.validTime(), ensConfig);
       ensemble.linearize(state, resol);
 

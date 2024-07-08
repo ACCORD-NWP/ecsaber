@@ -41,6 +41,8 @@
 #include "oops/util/Logger.h"
 #include "oops/util/abor1_cpp.h"
 
+#include "saber/oops/Utilities.h"
+
 namespace saber {
 
 template <typename MODEL>
@@ -204,10 +206,10 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     }
 
     // Setup ensemble of backgrounds perturbations
-    const eckit::LocalConfiguration ensConfig(fullConfig,
-                                              "ensemble of backgrounds");
+    eckit::LocalConfiguration ensConfig(fullConfig, "ensemble of backgrounds");
+    size_t nens = ensConfig.getInt("members");
+    expandEnsembleTemplate(ensConfig, nens);
     Ensemble_ Xb(xb.validTime(), ensConfig);
-    size_t nens = Xb.size();
     std::vector<CtrlVec_> ksi;
     if (filter == "R") {
       // Generate random control vectors
@@ -342,9 +344,9 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
 
     // Get number of Ritz pairs
     const size_t niter = evilConfig.getInt("number of ritz pairs", niterMax);
-    ASSERT(niter <= niterMax);
     oops::Log::info() << "Number of Ritz pairs: " << niter << " (max. " << niterMax
                       << ")" << std::endl;
+    ASSERT(niter <= niterMax);
 
     // Copy ensemble of backgrounds to initialize ensemble of analyses
     Ensemble_ Xa(Xb);
@@ -483,20 +485,20 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
 
     // Compute and write ensemble of analyses
     oops::Log::info() << "Compute and write ensemble of analyses" << std::endl;
-    eckit::LocalConfiguration xaPertConfTemplate(fullConfig,
-                                                 "ensemble of analyses");
+    eckit::LocalConfiguration xaPertConfTemplate(fullConfig, "ensemble of analyses");
+    expandEnsembleTemplate(xaPertConfTemplate, nens);
+    std::vector<eckit::LocalConfiguration> xaPertConfs =
+      xaPertConfTemplate.getSubConfigurations("state");
     for (size_t ie = 0; ie < nens; ++ie) {
       Xa[ie] *= std::sqrt(static_cast<double>(nens - 1));
-      eckit::LocalConfiguration xaPertConf(xaPertConfTemplate);
-      util::seekAndReplace(xaPertConf, "%member%", ie+1, 0);
       if (fullConfig.has("analysis")) {
         // Add analysis perturbations to the analysis and write
         State_ xaPert(*xa);
         xaPert += Xa[ie];
-        xaPert.write(xaPertConf);
+        xaPert.write(xaPertConfs[ie]);
       } else {
         // Write analysis perturbations directly
-        Xa[ie].write(xaPertConf);
+        Xa[ie].write(xaPertConfs[ie]);
       }
     }
 

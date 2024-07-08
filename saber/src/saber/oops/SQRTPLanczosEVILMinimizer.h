@@ -27,9 +27,8 @@
 
 #include "saber/oops/RitzPairs.h"
 
-#include "util/LogbookWriter.h"
-
 #include "util/dot_product.h"
+#include "util/LogbookWriter.h"
 
 namespace saber {
 
@@ -72,7 +71,7 @@ class SQRTPLanczosEVILMinimizer : public oops::SQRTMinimizer<MODEL> {
   bool calcRitzInformation();
   void printRitzInformation(const size_t &) const;
 
-  /// Data memebers
+  /// Data members
   const eckit::LocalConfiguration conf_;
   const CostFct_ &J_;
 

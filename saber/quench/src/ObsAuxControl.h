@@ -86,7 +86,6 @@ class ObsAuxControl : public oops::ObsAuxControlBase<Traits>,
   void print(std::ostream &) const;
 
   double bias_;
-  bool active_;
   int obsSpaceKey_;
   int key_;
 };
