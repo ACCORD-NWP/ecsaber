@@ -246,6 +246,12 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
         BMatrix->multiplySqrt(ksi[ie], dx);
         Xb[ie] = dx.state()[dx.state().first()];
       }
+
+      // Normalize perturbations
+      for (size_t ie = 0; ie < nens; ++ie) {
+        ksi[ie] *= 1.0/std::sqrt(static_cast<double>(nens - 1));
+      }
+      Xb.to_perturbations();
     } else {
       // Read ensemble of backgrounds perturbations
       oops::Log::info() << "Read ensemble of backgrounds" << std::endl;
@@ -393,11 +399,13 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
         ritzHatIncr.reset(new CtrlInc_(J->jb()));
         Increment_ incr(resol, vars, xb.validTime());
         incr.read(ritzHatConf);
+        ritzHatIncr->zero();
         ritzHatIncr->state()[ritzHatIncr->state().first()] = incr;
 
         if (filter == "D" || filter == "R") {
           // Read second Ritz vector in primal space
           ritzBarIncr.reset(new CtrlInc_(J->jb()));
+          ritzBarIncr->zero();
           incr.read(ritzBarConf);
           ritzBarIncr->state()[ritzBarIncr->state().first()] = incr;
         }
@@ -451,15 +459,13 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
         // Compute weight
         double weight;
         if (filter == "S") {
-          weight =
-              (1.0 / evals[iiter]) * ritzHatDual->dot_product_with(HXb[ie]);
+          weight = (1.0 / evals[iiter]) * ritzHatDual->dot_product_with(HXb[ie]);
         } else if (filter == "D") {
-          weight = -(1.0 - 1.0 / std::sqrt(evals[iiter])) *
-                   ritzBarIncr->state()[ritzBarIncr->state().first()]
-                       .dot_product_with(Xb[ie]);
+          weight = -(1.0 - 1.0 / std::sqrt(evals[iiter]))
+            *ritzBarIncr->state()[ritzBarIncr->state().first()].dot_product_with(Xb[ie]);
         } else if (filter == "R") {
-          weight = -(1.0 - 1.0 / std::sqrt(evals[iiter])) *
-                   ritzCtl->dot_product_with(ksi[ie]);
+          weight = -(1.0 - 1.0 / std::sqrt(evals[iiter]))
+            *ritzCtl->dot_product_with(ksi[ie]);
         }
 
         // Update analysis perturbation

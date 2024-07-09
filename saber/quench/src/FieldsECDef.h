@@ -25,3 +25,4 @@
 
  private:
   std::vector<quench::Interpolation>::iterator setupObsInterpolation(const Locations &) const;
+  void reduceDuplicatePoints();

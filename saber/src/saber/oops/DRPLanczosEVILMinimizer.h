@@ -206,7 +206,7 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(
   }
 
   // Process Ritz pairs
-  ritzPairs.process(config_);
+  ritzPairs.process(config_, "primal");
 
   return normReduction;
 }

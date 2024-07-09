@@ -49,7 +49,8 @@ class RitzPairs {
   std::vector<double> &betas() { return betas_; }
 
   // Process Ritz pairs
-  void process(const eckit::Configuration &);
+  void process(const eckit::Configuration &,
+               const std::string &);
 
  private:
   std::vector<std::shared_ptr<VECTOR>> vVEC_;
@@ -62,7 +63,8 @@ class RitzPairs {
 // -----------------------------------------------------------------------------
 
 template <typename VECTOR>
-void RitzPairs<VECTOR>::process(const eckit::Configuration &conf) {
+void RitzPairs<VECTOR>::process(const eckit::Configuration & conf,
+                                const std::string & solverSpace) {
   oops::Log::trace() << "RitzPairs::process start" << std::endl;
 
   // Get number of Ritz pairs
@@ -109,19 +111,15 @@ void RitzPairs<VECTOR>::process(const eckit::Configuration &conf) {
       util::seekAndReplace(ritzBarConf, "%iteration%", jiter - iiter1, 0);
       ritzBar.write(ritzBarConf);
 
-      // Optionally deal with a second vector
-      if (tVEC_.size() > 0 || zVEC_.size() > 0) {
+      // Deal with the second vector for primal and dual spaces
+      if (solverSpace == "primal" || solverSpace == "dual") {
         // Compute second Ritz vector
         VECTOR ritzHat(*vVEC_[0], false);
         ritzHat.zero();
         for (int iiter2 = 0; iiter2 < jiter; ++iiter2) {
           // Second vector
           VECTOR tmpHat(*vVEC_[iiter2], false);
-          if (tVEC_.size() > 0) {
-            tmpHat = *tVEC_[iiter2];
-          } else {
-            tmpHat = *zVEC_[iiter2];
-          }
+          tmpHat = *tVEC_[iiter2];
           tmpHat *= evecs[iiter1][iiter2];
           ritzHat += tmpHat;
         }
@@ -148,13 +146,6 @@ void RitzPairs<VECTOR>::process(const eckit::Configuration &conf) {
       ritzValFile << val << std::endl;
     }
     ritzValFile.close();
-  }
-
-  // Print alpha/beta
-  oops::Log::info() << "alpha / beta values:" << std::endl;
-  for (int iiter1 = jiter - 1; iiter1 >= 0; --iiter1) {
-    oops::Log::info() << "[" << iiter1 << "]: " << util::full_precision(alphas_[iiter1])
-      << " / " << util::full_precision(betas_[iiter1]) << std::endl;
   }
 
   oops::Log::trace() << "RitzPairs::process done" << std::endl;

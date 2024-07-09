@@ -98,6 +98,9 @@ class Fields : public util::Printable,
   // Grid interpolations
   static std::vector<quench::Interpolation>& interpolations();
 
+  // Reset duplicate points
+  void resetDuplicatePoints();
+
  private:
   // Print
   void print(std::ostream &) const;

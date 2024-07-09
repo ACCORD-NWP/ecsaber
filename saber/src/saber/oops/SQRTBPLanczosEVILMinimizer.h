@@ -325,7 +325,7 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
   dv += dv0;
 
   // Process Ritz pairs
-  ritzPairs_.process(conf_);
+  ritzPairs_.process(conf_, "control");
 
   // Update LMP
   if (oops::SQRTMinimizer<MODEL>::iter_ < oops::SQRTMinimizer<MODEL>::maxiter_)

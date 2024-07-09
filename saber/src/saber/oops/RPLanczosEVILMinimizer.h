@@ -219,7 +219,7 @@ double RPLanczosEVILMinimizer<MODEL>::solve(Dual_ &vv, double &vvp, Dual_ &rr,
   }
 
   // Process Ritz pairs
-  ritzPairs.process(conf_);
+  ritzPairs.process(conf_, "dual");
 
   oops::Log::info() << "RPLanczos: end" << std::endl;
 

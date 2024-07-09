@@ -75,9 +75,6 @@
             "ObsDataInScreened": {
               "filepath": "testdata/evil_obs"
             },
-            "ObsDataOutScreened": {
-              "filepath": "testdata/evil_obs_evil_primal_3dvar"
-            },
             "obsvalue": "ObsValue.000000"
           },
           "Covariance": {
@@ -137,16 +134,7 @@
   "ensemble of backgrounds": {
     "members": "50",
     "variables": ["temperature"],
-    "date": "2010-01-01T12:00:00Z",
-    "state from template": {
-      "template": {
-        "date": "2010-01-01T12:00:00Z",
-        "filepath": "testdata/evil_ens_%member%",
-        "state variables": ["temperature"]
-      },
-      "pattern": "%member%",
-      "zero padding": "6"
-    }
+    "date": "2010-01-01T12:00:00Z"
   },
   "ensemble of analyses": {
     "state from template": {
