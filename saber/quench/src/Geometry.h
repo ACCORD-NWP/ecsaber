@@ -206,6 +206,8 @@ class Geometry : public util::Printable,
     {return alias_;}
   const eckit::LocalConfiguration & interpolation() const
     {return interpolation_;}
+  const bool & duplicatePoints() const
+    {return duplicatePoints_;}
 
  private:
   // Print
@@ -267,6 +269,9 @@ class Geometry : public util::Printable,
 
   // Interpolation configuration
   eckit::LocalConfiguration interpolation_;
+
+  // Duplicate points
+  bool duplicatePoints_;
 
 /// ECSABER-specific interface
 #include "src/GeometryECDef.h"

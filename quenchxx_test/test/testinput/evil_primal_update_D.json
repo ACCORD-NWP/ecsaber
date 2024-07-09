@@ -75,9 +75,6 @@
             "ObsDataInScreened": {
               "filepath": "testdata/evil_obs"
             },
-            "ObsDataOutScreened": {
-              "filepath": "testdata/evil_obs_evil_primal_3dvar"
-            },
             "obsvalue": "ObsValue.000000"
           },
           "Covariance": {
@@ -160,5 +157,4 @@
   "variance reduction": {
     "filepath": "testdata/evil_primal_variance_D_%iteration%"
   }
-
 }

@@ -168,7 +168,7 @@ double PLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ &dx,
   }
 
   // Process Ritz pairs
-  ritzPairs.process(conf_);
+  ritzPairs.process(conf_, "primal");
 
   return reduc;
 }

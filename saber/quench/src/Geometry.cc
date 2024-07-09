@@ -264,6 +264,17 @@ Geometry::Geometry(const eckit::Configuration & config,
     }
   }
 
+  // Check for duplicate points
+  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+  const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
+  duplicatePoints_ = false;
+  for (atlas::idx_t jnode = 0; jnode < fields_.field("owned").shape(0); ++jnode) {
+    // Duplicate point = owned==0 and ghost==0 (see util::setupFunctionSpace in oops)
+    if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 0) {
+      duplicatePoints_ = true;
+    }
+  }
+
   // Print summary
   this->print(oops::Log::info());
 
@@ -276,7 +287,7 @@ Geometry::Geometry(const Geometry & other)
   : comm_(other.comm_), halo_(other.halo_), grid_(other.grid_), gridType_(other.gridType_),
   partitioner_(other.partitioner_), mesh_(other.mesh_), groupIndex_(other.groupIndex_),
   levelsAreTopDown_(other.levelsAreTopDown_), modelData_(other.modelData_), alias_(other.alias_),
-  interpolation_(other.interpolation_) {
+  interpolation_(other.interpolation_), duplicatePoints_(other.duplicatePoints_) {
   oops::Log::trace() << classname() << "::Geometry starting" << std::endl;
 
   // Copy function space

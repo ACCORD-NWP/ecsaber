@@ -426,6 +426,7 @@ double Fields::dot_product_with(const Fields & fld2) const {
 
   double zz = 0;
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
+  const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
   for (const auto & var : vars_) {
     atlas::Field field1 = fset_[var.name()];
     const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
@@ -436,7 +437,7 @@ double Fields::dot_product_with(const Fields & fld2) const {
       auto view2 = atlas::array::make_view<double, 2>(field2);
       for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
         for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-          if (gmaskView(jnode, jlevel) == 1 && ghostView(jnode) == 0) {
+          if (gmaskView(jnode, jlevel) == 1 && ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
             zz += view1(jnode, jlevel)*view2(jnode, jlevel);
           }
         }
@@ -622,6 +623,10 @@ void Fields::random() {
 
   fset_.set_dirty();  // code is too complicated, mark dirty to be safe
 
+  // Set duplicate points to the same value
+  setDuplicatePointsToZero();
+  setDuplicatePointsToValue();
+
   oops::Log::trace() << "Fields::random done" << std::endl;
 }
 
@@ -648,10 +653,11 @@ void Fields::dirac(const eckit::Configuration & config) {
   atlas::util::IndexKDTree search;
   search.reserve(geom_->functionSpace().size());
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
+  const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
   const auto lonlatView = atlas::array::make_view<double, 2>(geom_->functionSpace().lonlat());
   atlas::idx_t n = 0;
   for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
-    if (ghostView(jnode) == 0) {
+    if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
       atlas::PointLonLat pointLonLat(lonlatView(jnode, 0), lonlatView(jnode, 1));
       pointLonLat.normalise();
       atlas::PointXY point(pointLonLat);
@@ -766,6 +772,10 @@ void Fields::fromFieldSet(const atlas::FieldSet & fset) {
   for (const auto & field : fset_) {
     vars_[field.name()].setLevels(field.shape(1));
   }
+
+  // Set duplicate points to the same value
+  setDuplicatePointsToZero();
+  setDuplicatePointsToValue();
 
   oops::Log::trace() << classname() << "::fromFieldSet done" << std::endl;
 }
@@ -987,6 +997,130 @@ std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geomet
 
   oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
   return std::prev(interpolations().end());
+}
+
+// -----------------------------------------------------------------------------
+
+void Fields::setDuplicatePointsToZero() {
+  oops::Log::trace() << classname() << "::setDuplicatePointsToZero starting" << std::endl;
+
+  if (geom_->gridType() == "regular_lonlat") {
+    // Reset poles points
+    for (auto field_internal : fset_) {
+      atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
+      atlas::StructuredGrid grid = fs.grid();
+      auto view = atlas::array::make_view<double, 2>(field_internal);
+      auto view_i = atlas::array::make_view<int, 1>(fs.index_i());
+      auto view_j = atlas::array::make_view<int, 1>(fs.index_j());
+      std::vector<double> north(field_internal.shape(1), 0.0);
+      std::vector<double> south(field_internal.shape(1), 0.0);
+      for (atlas::idx_t j = fs.j_begin(); j < fs.j_end(); ++j) {
+        for (atlas::idx_t i = fs.i_begin(j); i < fs.i_end(j); ++i) {
+          atlas::idx_t jnode = fs.index(i, j);
+          if ((view_j(jnode) == 1)  && (view_i(jnode) != 1)) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              view(jnode, jlevel) = 0.0;
+            }
+          }
+          if ((view_j(jnode) == grid.ny())  && (view_i(jnode) != 1)) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              view(jnode, jlevel) = 0.0;
+            }
+          }
+        }
+      }
+    }
+  } else {
+    // Get ghost and owned points
+    const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
+    const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
+
+    for (const auto & var : vars_) {
+      atlas::Field field = fset_[var.name()];
+      if (field.rank() == 2) {
+        for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
+          for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
+            // Duplicate point = owned==0 and ghost==0 (see util::setupFunctionSpace in oops)
+            if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 0) {
+              throw eckit::NotImplemented("duplicate points not supported for this grid", Here());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  oops::Log::trace() << classname() << "::setDuplicatePointsToZero done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void Fields::setDuplicatePointsToValue() {
+  oops::Log::trace() << classname() << "::setDuplicatePointsToValue starting" << std::endl;
+
+  if (geom_->gridType() == "regular_lonlat") {
+    // Reset poles points
+    for (auto field_internal : fset_) {
+      atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
+      atlas::StructuredGrid grid = fs.grid();
+      auto view = atlas::array::make_view<double, 2>(field_internal);
+      auto view_j = atlas::array::make_view<int, 1>(fs.index_j());
+      std::vector<double> north(field_internal.shape(1), 0.0);
+      std::vector<double> south(field_internal.shape(1), 0.0);
+      for (atlas::idx_t j = fs.j_begin(); j < fs.j_end(); ++j) {
+        for (atlas::idx_t i = fs.i_begin(j); i < fs.i_end(j); ++i) {
+          atlas::idx_t jnode = fs.index(i, j);
+          if (view_j(jnode) == 1) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              north[jlevel] += view(jnode, jlevel);
+            }
+          }
+          if (view_j(jnode) == grid.ny()) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              south[jlevel] += view(jnode, jlevel);
+            }
+          }
+        }
+      }
+      geom_->getComm().allReduceInPlace(north.begin(), north.end(), eckit::mpi::sum());
+      geom_->getComm().allReduceInPlace(south.begin(), south.end(), eckit::mpi::sum());
+      for (atlas::idx_t j = fs.j_begin_halo(); j < fs.j_end_halo(); ++j) {
+        for (atlas::idx_t i = fs.i_begin_halo(j); i < fs.i_end_halo(j); ++i) {
+          atlas::idx_t jnode = fs.index(i, j);
+          if (view_j(jnode) == 1) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              view(jnode, jlevel) = north[jlevel];
+            }
+          }
+          if (view_j(jnode) == grid.ny()) {
+            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+              view(jnode, jlevel) = south[jlevel];
+            }
+          }
+        }
+      }
+    }
+  } else {
+    // Get ghost and owned points
+    const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
+    const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
+
+    for (const auto & var : vars_) {
+      atlas::Field field = fset_[var.name()];
+      if (field.rank() == 2) {
+        for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
+          for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
+            // Duplicate point = owned==0 and ghost==0 (see util::setupFunctionSpace in oops)
+            if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 0) {
+              throw eckit::NotImplemented("duplicate points not supported for this grid", Here());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  oops::Log::trace() << classname() << "::setDuplicatePointsToValue done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
