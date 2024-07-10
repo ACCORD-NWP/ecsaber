@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_spectralb_1.yaml.tmp	2024-07-10 17:22:28.396382034 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_spectralb_1.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -15,7 +15,7 @@
+     levels: 70
+   partitioner: ectrans
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables: *vars
+ background error:
+   covariance model: SABER

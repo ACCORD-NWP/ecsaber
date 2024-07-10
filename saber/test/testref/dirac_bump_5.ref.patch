@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_5.ref.tmp	2024-07-10 17:22:29.560398466 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_5.ref	2024-07-10 17:21:39.523692102 +0200
+@@ -44,4 +44,4 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  stream_function: 2.0497774524415870e+00
++  stream_function: 2.0497754116476830e+00

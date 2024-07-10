@@ -70,7 +70,7 @@ class ObsSpace : public util::Printable,
     {return nobsLoc_;}
   const std::vector<size_t> & sizeVec() const
     {return nobsLocVec_;}
-  const std::vector<size_t> & order() const
+  const std::vector<int> & order() const
     {return order_;}
   void screenObservations(const ObsVector &,
                           const GeoVaLs &) const;
@@ -98,7 +98,7 @@ class ObsSpace : public util::Printable,
   size_t nobsLoc_;
   size_t nobsGlb_;
   std::vector<size_t> nobsLocVec_;
-  std::vector<size_t> order_;
+  std::vector<int> order_;
 };
 // -----------------------------------------------------------------------------
 }  // namespace quench

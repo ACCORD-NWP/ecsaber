@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/process_perts_from_gauss_perts_3.yaml.tmp	2024-07-10 17:22:29.052391295 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/process_perts_from_gauss_perts_3.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -11,7 +11,7 @@
+   halo: 1
+ 
+ background:
+-  date: &date '2010-01-01T12:00:00Z'
++  date: &date 2010-01-01T12:00:00Z
+   state variables: &vars
+   - unbalanced_pressure_levels_minus_one
+ 

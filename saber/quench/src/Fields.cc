@@ -115,8 +115,11 @@ Fields::Fields(const Fields & other,
       field.metadata().set("interp_type", "default");
     }
 
+    // Copy fieldset
+    atlas::FieldSet fset = util::copyFieldSet(other.fset_);
+
     // Horizontal interpolation
-    interpolation->execute(other.fset_, fset_);
+    interpolation->execute(fset, fset_);
   }
 
   oops::Log::trace() << classname() << "::Fields done" << std::endl;
@@ -624,8 +627,7 @@ void Fields::random() {
   fset_.set_dirty();  // code is too complicated, mark dirty to be safe
 
   // Set duplicate points to the same value
-  setDuplicatePointsToZero();
-  setDuplicatePointsToValue();
+  resetDuplicatePoints();
 
   oops::Log::trace() << "Fields::random done" << std::endl;
 }
@@ -650,18 +652,23 @@ void Fields::dirac(const eckit::Configuration & config) {
     Here());
 
   // Build KDTree for each MPI task
-  atlas::util::IndexKDTree search;
-  search.reserve(geom_->functionSpace().size());
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
   const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
   const auto lonlatView = atlas::array::make_view<double, 2>(geom_->functionSpace().lonlat());
   atlas::idx_t n = 0;
   for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
-    if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
+    if ((ghostView(jnode) == 0) && (ownedView(jnode, 0) == 1)) {
+      ++n;
+    }
+  }
+  atlas::util::IndexKDTree search;
+  search.reserve(n);
+  for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
+    if ((ghostView(jnode) == 0) && (ownedView(jnode, 0) == 1)) {
       atlas::PointLonLat pointLonLat(lonlatView(jnode, 0), lonlatView(jnode, 1));
       pointLonLat.normalise();
       atlas::PointXY point(pointLonLat);
-      search.insert(point, n++);
+      search.insert(point, jnode);
     }
   }
   search.build();
@@ -681,30 +688,58 @@ void Fields::dirac(const eckit::Configuration & config) {
     // Search nearest neighbor
     size_t index = std::numeric_limits<size_t>::max();
     double distance = std::numeric_limits<double>::max();
+    bool potentialConflict = false;
     if (geom_->functionSpace().size() > 0) {
-      atlas::util::IndexKDTree::ValueList neighbor = search.closestPoints(pointLonLat, 1);
+      atlas::util::IndexKDTree::ValueList neighbor = search.closestPoints(pointLonLat, 2);
       index = neighbor[0].payload();
       distance = neighbor[0].distance();
+      potentialConflict = (std::abs(neighbor[0].distance()-neighbor[1].distance()) < 1.0e-12);
     }
     std::vector<double> distances(geom_->getComm().size());
-    geom_->getComm().gather(distance, distances, 0);
+    geom_->getComm().allGather(distance, distances.begin(), distances.end());
+    const std::vector<double>::iterator distanceMin = std::min_element(std::begin(distances),
+      std::end(distances));
+    size_t sameDistanceCount = 0;
+    for (size_t jj = 0; jj < geom_->getComm().size(); ++jj) {
+      if (std::abs(distances[jj]-*distanceMin) < 1.0e-12) {
+        ++sameDistanceCount;
+      }
+    }
+    if (sameDistanceCount > 1) {
+      throw eckit::UserError("requested dirac point exactly between two gridpoints", Here());
+    }
 
     // Find local task
-    size_t localTask(-1);
-    if (geom_->getComm().rank() == 0) {
-      localTask = std::distance(std::begin(distances), std::min_element(std::begin(distances),
-        std::end(distances)));
-    }
-    geom_->getComm().broadcast(localTask, 0);
+    size_t localTask = std::distance(std::begin(distances), distanceMin);
 
     if (geom_->getComm().rank() == localTask) {
+      // Check potential conflict
+      if (potentialConflict) {
+        throw eckit::UserError("requested dirac point exactly between two gridpoints", Here());
+      }
+
       // Add Dirac impulse
       if (field.rank() == 2) {
         auto view = atlas::array::make_view<double, 2>(field);
         view(index, level[jdir]-1) = 1.0;
       }
     }
+
+    // Print longitude / latitude / level
+    double lonDir = 0.0;
+    double latDir = 0.0;
+    if (geom_->getComm().rank() == localTask) {
+      lonDir = lonlatView(index, 0);
+      latDir = lonlatView(index, 1);
+    }
+    geom_->getComm().allReduceInPlace(lonDir, eckit::mpi::sum());
+    geom_->getComm().allReduceInPlace(latDir, eckit::mpi::sum());
+    oops::Log::info() << "Info     : Dirac point #" << jdir << ": " << lonDir << " / " << latDir
+      << " / " << level[jdir] << std::endl;
   }
+
+  // Set duplicate points to the same value
+  resetDuplicatePoints();
 
   oops::Log::trace() << classname() << "::dirac done" << std::endl;
 }
@@ -774,8 +809,7 @@ void Fields::fromFieldSet(const atlas::FieldSet & fset) {
   }
 
   // Set duplicate points to the same value
-  setDuplicatePointsToZero();
-  setDuplicatePointsToValue();
+  resetDuplicatePoints();
 
   oops::Log::trace() << classname() << "::fromFieldSet done" << std::endl;
 }
@@ -1001,126 +1035,66 @@ std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geomet
 
 // -----------------------------------------------------------------------------
 
-void Fields::setDuplicatePointsToZero() {
-  oops::Log::trace() << classname() << "::setDuplicatePointsToZero starting" << std::endl;
+void Fields::resetDuplicatePoints() {
+  oops::Log::trace() << classname() << "::resetDuplicatePoints starting" << std::endl;
 
-  if (geom_->gridType() == "regular_lonlat") {
-    // Reset poles points
-    for (auto field_internal : fset_) {
-      atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
-      atlas::StructuredGrid grid = fs.grid();
-      auto view = atlas::array::make_view<double, 2>(field_internal);
-      auto view_i = atlas::array::make_view<int, 1>(fs.index_i());
-      auto view_j = atlas::array::make_view<int, 1>(fs.index_j());
-      std::vector<double> north(field_internal.shape(1), 0.0);
-      std::vector<double> south(field_internal.shape(1), 0.0);
-      for (atlas::idx_t j = fs.j_begin(); j < fs.j_end(); ++j) {
-        for (atlas::idx_t i = fs.i_begin(j); i < fs.i_end(j); ++i) {
-          atlas::idx_t jnode = fs.index(i, j);
-          if ((view_j(jnode) == 1)  && (view_i(jnode) != 1)) {
-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
-              view(jnode, jlevel) = 0.0;
+  if (geom_->duplicatePoints()) {
+    if (geom_->gridType() == "regular_lonlat") {
+      // Deal with poles
+      for (auto field_internal : fset_) {
+        // Get first longitude value
+        atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
+        atlas::StructuredGrid grid = fs.grid();
+        auto view = atlas::array::make_view<double, 2>(field_internal);
+        auto view_i = atlas::array::make_view<int, 1>(fs.index_i());
+        auto view_j = atlas::array::make_view<int, 1>(fs.index_j());
+        std::vector<double> north(field_internal.shape(1), 0.0);
+        std::vector<double> south(field_internal.shape(1), 0.0);
+        for (atlas::idx_t j = fs.j_begin(); j < fs.j_end(); ++j) {
+          for (atlas::idx_t i = fs.i_begin(j); i < fs.i_end(j); ++i) {
+            atlas::idx_t jnode = fs.index(i, j);
+            if (view_i(jnode) == 1) {
+              if (view_j(jnode) == 1) {
+                for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+                  north[jlevel] = view(jnode, jlevel);
+                }
+              }
+              if (view_j(jnode) == grid.ny()) {
+                for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+                  south[jlevel] = view(jnode, jlevel);
+                }
+              }
             }
           }
-          if ((view_j(jnode) == grid.ny())  && (view_i(jnode) != 1)) {
-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
-              view(jnode, jlevel) = 0.0;
+        }
+
+        // Reduce
+        geom_->getComm().allReduceInPlace(north.begin(), north.end(), eckit::mpi::sum());
+        geom_->getComm().allReduceInPlace(south.begin(), south.end(), eckit::mpi::sum());
+
+        // Copy value
+        for (atlas::idx_t j = fs.j_begin_halo(); j < fs.j_end_halo(); ++j) {
+          for (atlas::idx_t i = fs.i_begin_halo(j); i < fs.i_end_halo(j); ++i) {
+            atlas::idx_t jnode = fs.index(i, j);
+            if (view_j(jnode) == 1) {
+              for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+                view(jnode, jlevel) = north[jlevel];
+              }
+            }
+            if (view_j(jnode) == grid.ny()) {
+              for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+                view(jnode, jlevel) = south[jlevel];
+              }
             }
           }
         }
       }
-    }
-  } else {
-    // Get ghost and owned points
-    const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
-    const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
-
-    for (const auto & var : vars_) {
-      atlas::Field field = fset_[var.name()];
-      if (field.rank() == 2) {
-        for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
-          for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
-            // Duplicate point = owned==0 and ghost==0 (see util::setupFunctionSpace in oops)
-            if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 0) {
-              throw eckit::NotImplemented("duplicate points not supported for this grid", Here());
-            }
-          }
-        }
-      }
-    }
-  }
-
-  oops::Log::trace() << classname() << "::setDuplicatePointsToZero done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
-void Fields::setDuplicatePointsToValue() {
-  oops::Log::trace() << classname() << "::setDuplicatePointsToValue starting" << std::endl;
-
-  if (geom_->gridType() == "regular_lonlat") {
-    // Reset poles points
-    for (auto field_internal : fset_) {
-      atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
-      atlas::StructuredGrid grid = fs.grid();
-      auto view = atlas::array::make_view<double, 2>(field_internal);
-      auto view_j = atlas::array::make_view<int, 1>(fs.index_j());
-      std::vector<double> north(field_internal.shape(1), 0.0);
-      std::vector<double> south(field_internal.shape(1), 0.0);
-      for (atlas::idx_t j = fs.j_begin(); j < fs.j_end(); ++j) {
-        for (atlas::idx_t i = fs.i_begin(j); i < fs.i_end(j); ++i) {
-          atlas::idx_t jnode = fs.index(i, j);
-          if (view_j(jnode) == 1) {
-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
-              north[jlevel] += view(jnode, jlevel);
-            }
-          }
-          if (view_j(jnode) == grid.ny()) {
-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
-              south[jlevel] += view(jnode, jlevel);
-            }
-          }
-        }
-      }
-      geom_->getComm().allReduceInPlace(north.begin(), north.end(), eckit::mpi::sum());
-      geom_->getComm().allReduceInPlace(south.begin(), south.end(), eckit::mpi::sum());
-      for (atlas::idx_t j = fs.j_begin_halo(); j < fs.j_end_halo(); ++j) {
-        for (atlas::idx_t i = fs.i_begin_halo(j); i < fs.i_end_halo(j); ++i) {
-          atlas::idx_t jnode = fs.index(i, j);
-          if (view_j(jnode) == 1) {
-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
-              view(jnode, jlevel) = north[jlevel];
-            }
-          }
-          if (view_j(jnode) == grid.ny()) {
-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
-              view(jnode, jlevel) = south[jlevel];
-            }
-          }
-        }
-      }
-    }
-  } else {
-    // Get ghost and owned points
-    const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
-    const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
-
-    for (const auto & var : vars_) {
-      atlas::Field field = fset_[var.name()];
-      if (field.rank() == 2) {
-        for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
-          for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
-            // Duplicate point = owned==0 and ghost==0 (see util::setupFunctionSpace in oops)
-            if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 0) {
-              throw eckit::NotImplemented("duplicate points not supported for this grid", Here());
-            }
-          }
-        }
-      }
+    } else {
+      throw eckit::NotImplemented("duplicate points not supported for this grid", Here());
     }
   }
 
-  oops::Log::trace() << classname() << "::setDuplicatePointsToValue done" << std::endl;
+  oops::Log::trace() << classname() << "::resetDuplicatePoints done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

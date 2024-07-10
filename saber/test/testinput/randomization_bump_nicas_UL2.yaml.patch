@@ -1,0 +1,22 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_bump_nicas_UL2.yaml.tmp	2024-07-10 17:22:28.520383784 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_bump_nicas_UL2.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -356,7 +356,7 @@
+     - stream_function
+     levels: 2
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - stream_function
+ background error:
+@@ -386,8 +386,8 @@
+           value: 3.0
+   randomization size: 25
+ output states:
+-  filepath: testdata/randomization_bump_nicas_UL2/member
++  filepath: testdata/randomization_bump_nicas_UL2/_MPI_-_OMP__member
+ output perturbations:
+-  filepath: testdata/randomization_bump_nicas_UL2/member_pert
++  filepath: testdata/randomization_bump_nicas_UL2/_MPI_-_OMP__member_pert
+ test:
+   reference filename: testref/randomization_bump_nicas_UL2.ref

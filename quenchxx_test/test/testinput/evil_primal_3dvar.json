@@ -75,7 +75,7 @@
               "filepath": "testdata/evil_obs"
             },
             "ObsDataOutScreened": {
-              "filepath": "testdata/evil_obs_evil_primal_3dvar"
+              "filepath": "testdata/evil_obs_primal_3dvar"
             },
             "obsvalue": "ObsValue.000000"
           },
@@ -95,9 +95,11 @@
     "ritz tolerance": "1.0e-2",
     "eigenvalues": "testdata/evil_primal_3dvar.eigenvalues.txt",
     "ritz vectors": {
+      "mpi pattern": "%mpi%",
       "increment": [
         {
-          "filepath": "testdata/evil_primal_3dvar.ritz.%pattern%.%iteration%"
+
+          "filepath": "testdata/evil_primal_3dvar.ritz.%pattern%.%iteration%_%mpi%"
         }
       ]
     }

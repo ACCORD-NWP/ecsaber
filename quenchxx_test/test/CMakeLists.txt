@@ -2,6 +2,7 @@ list( APPEND quenchxx_testinput
   testinput/evil_assim_ensemble.json
   testinput/evil_background.json
   testinput/evil_control_3dvar.json
+  testinput/evil_control_update_D.json
   testinput/evil_control_update_R.json
   testinput/evil_control_update_S.json
   testinput/evil_dual_3dvar.json
@@ -59,6 +60,7 @@ list( APPEND quenchxx_testref
   testref/evil_assim_ensemble.ref
   testref/evil_background.ref
   testref/evil_control_3dvar.ref
+  testref/evil_control_update_D.ref
   testref/evil_control_update_R.ref
   testref/evil_control_update_S.ref
   testref/evil_dual_3dvar.ref
@@ -376,6 +378,15 @@ foreach( mpi "1" "4" )
                            "${CMAKE_BINARY_DIR}/bin/saber_quench_variational.x testinput/evil_control_3dvar.json"
                            "${CMAKE_CURRENT_BINARY_DIR}/testref/evil_control_3dvar.ref"
                       DEPENDS saber_quench_variational.x )
+
+    ecbuild_add_test( TARGET quenchxx_test_evil_control_update_D_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_evil_update.x testinput/evil_control_update_D.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/evil_control_update_D.ref"
+                      DEPENDS saber_quench_evil_update.x )
 
     ecbuild_add_test( TARGET quenchxx_test_evil_control_update_R_${mpi}
                       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh

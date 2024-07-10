@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.cc.tmp	2024-07-10 17:22:26.244351654 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/fastlam/FastLAM.cc	2024-07-10 17:20:08.122401779 +0200
+@@ -19,7 +19,6 @@
+ #include "eckit/exception/Exceptions.h"
+ 
+ #include "oops/util/ConfigFunctions.h"
+-#include "oops/util/FloatCompare.h"
+ #include "oops/util/Logger.h"
+ #include "oops/util/missingValues.h"
+ #include "oops/util/RandomField.h"

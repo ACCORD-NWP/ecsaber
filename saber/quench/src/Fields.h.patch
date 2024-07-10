@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.h.tmp	2024-07-04 13:56:20.700087023 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.h	2024-07-04 11:12:45.491034031 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.h.tmp.bak	2024-07-10 09:02:30.028068713 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.h	2024-07-10 09:01:00.468530968 +0200
 @@ -21,25 +21,35 @@
  #include "oops/util/Printable.h"
  #include "oops/util/Serializable.h"
@@ -44,7 +44,7 @@
    void zero();
    void constantValue(const double &);
    void constantValue(const eckit::Configuration &);
-@@ -47,41 +57,70 @@
+@@ -47,41 +57,73 @@
    Fields & operator+=(const Fields &);
    Fields & operator-=(const Fields &);
    Fields & operator*=(const double &);
@@ -104,6 +104,9 @@
 +
 +  // Grid interpolations
 +  static std::vector<quench::Interpolation>& interpolations();
++
++  // Duplicate points
++  void resetDuplicatePoints();
  
   private:
 -  void print(std::ostream &) const override;

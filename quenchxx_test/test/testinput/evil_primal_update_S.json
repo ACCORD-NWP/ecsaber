@@ -122,7 +122,8 @@
     "solver space": "primal",
     "eigenvalues": "testdata/evil_primal_3dvar.eigenvalues.txt",
     "ritz vectors": {
-      "filepath": "testdata/evil_primal_3dvar.ritz.%pattern%.%iteration%"
+      "mpi pattern": "%mpi%",
+      "filepath": "testdata/evil_primal_3dvar.ritz.%pattern%.%iteration%_%mpi%"
     },
     "number of ritz pairs": "17"
   },
@@ -148,13 +149,15 @@
   "ensemble of analyses": {
     "state from template": {
       "template": {
-        "filepath": "testdata/evil_primal_ens_S_%member%"
+        "mpi pattern": "%mpi%",
+        "filepath": "testdata/evil_primal_ens_S_%member%_%mpi%"
       },
       "pattern": "%member%",
       "zero padding": "6"
     }
   },
   "variance reduction": {
-    "filepath": "testdata/evil_primal_variance_S_%iteration%"
+    "mpi pattern": "%mpi%",
+    "filepath": "testdata/evil_primal_variance_S_%iteration%_%mpi%"
   }
 }

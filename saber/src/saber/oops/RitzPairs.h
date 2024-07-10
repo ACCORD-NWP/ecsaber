@@ -18,6 +18,8 @@
 #include "oops/util/ConfigFunctions.h"
 #include "oops/util/formats.h"
 
+#include "saber/oops/Utilities.h"
+
 namespace saber {
 
 // -----------------------------------------------------------------------------
@@ -96,7 +98,7 @@ void RitzPairs<VECTOR>::process(const eckit::Configuration & conf,
       // Save Ritz value
       ritzVal.push_back(evals[iiter1]);
 
-      // Compute first Ritz vector
+      // Compute control or first Ritz vector
       VECTOR ritzBar(*vVEC_[0], false);
       ritzBar.zero();
       for (int iiter2 = 0; iiter2 < jiter; ++iiter2) {
@@ -105,13 +107,14 @@ void RitzPairs<VECTOR>::process(const eckit::Configuration & conf,
         ritzBar += tmpBar;
       }
 
-      // Write first Ritz vector
+      // Write control or first Ritz vector
       eckit::LocalConfiguration ritzBarConf(ritzConfTemplate);
       util::seekAndReplace(ritzBarConf, "%pattern%", "bar");
       util::seekAndReplace(ritzBarConf, "%iteration%", jiter - iiter1, 0);
+      setMPI(ritzBarConf, eckit::mpi::comm().size());
       ritzBar.write(ritzBarConf);
 
-      // Deal with the second vector for primal and dual spaces
+      // Compute second Ritz vector for primal and dual spaces
       if (solverSpace == "primal" || solverSpace == "dual") {
         // Compute second Ritz vector
         VECTOR ritzHat(*vVEC_[0], false);
@@ -128,6 +131,7 @@ void RitzPairs<VECTOR>::process(const eckit::Configuration & conf,
         eckit::LocalConfiguration ritzHatConf(ritzConfTemplate);
         util::seekAndReplace(ritzHatConf, "%pattern%", "hat");
         util::seekAndReplace(ritzHatConf, "%iteration%", jiter - iiter1, 0);
+        setMPI(ritzHatConf, eckit::mpi::comm().size());
         ritzHat.write(ritzHatConf);
       }
     } else {
@@ -137,7 +141,7 @@ void RitzPairs<VECTOR>::process(const eckit::Configuration & conf,
     }
   }
 
-  // Write Ritz values
+  // Write Ritz eigenvalues
   const eckit::mpi::Comm &comm(eckit::mpi::comm());
   if (comm.rank() == 0) {
     std::ofstream ritzValFile(conf.getString("eigenvalues").c_str());

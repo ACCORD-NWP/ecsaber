@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_stddev_2.yaml.tmp	2024-07-10 17:22:27.880374750 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_stddev_2.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -13,7 +13,7 @@
+   - in code: stream_function_alias
+     in file: stream_function
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - stream_function_alias
+   - velocity_potential

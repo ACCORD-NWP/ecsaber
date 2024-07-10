@@ -32,5 +32,5 @@ Accept Ritz pair #28
 Accept Ritz pair #29
 Accept Ritz pair #30
 SQRTBPLanczosEVILMinimizer: reduction in residual norm = 0.000816784
-CostFunction::addIncrement: Analysis norm: 51.4574
+CostFunction::addIncrement: Analysis norm: 53.8593
 CostJo   : Nonlinear Jo = 9.31374, nobs = 100, Jo/n = 0.0931374, err = 0.01

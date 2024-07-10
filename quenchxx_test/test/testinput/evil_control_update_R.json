@@ -122,8 +122,9 @@
     "solver space": "control",
     "eigenvalues": "testdata/evil_control_3dvar.eigenvalues.txt",
     "ritz vectors": {
+      "mpi pattern": "%mpi%",
       "ctlvec": [{
-      "filepath": "testdata/evil_control_3dvar.ritz.%iteration%"
+      "filepath": "testdata/evil_control_3dvar.ritz.%iteration%_%mpi%"
       }]
     },
     "number of ritz pairs": "17"
@@ -141,13 +142,15 @@
   "ensemble of analyses": {
     "state from template": {
       "template": {
-        "filepath": "testdata/evil_control_ens_R_%member%"
+        "mpi pattern": "%mpi%",
+        "filepath": "testdata/evil_control_ens_R_%member%_%mpi%"
       },
       "pattern": "%member%",
       "zero padding": "6"
     }
   },
   "variance reduction": {
-    "filepath": "testdata/evil_control_variance_R_%iteration%"
+    "mpi pattern": "%mpi%",
+    "filepath": "testdata/evil_control_variance_R_%iteration%_%mpi%"
   }
 }

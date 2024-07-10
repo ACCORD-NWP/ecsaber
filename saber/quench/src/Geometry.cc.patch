@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.cc.tmp.bak	2024-07-05 10:08:39.243321285 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.cc	2024-07-05 10:08:14.715248305 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.cc.tmp.bak	2024-07-10 17:22:27.084363512 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.cc	2024-07-10 11:21:58.225414862 +0200
 @@ -20,28 +20,34 @@
  #include "atlas/util/KDTree.h"
  #include "atlas/util/Point.h"
@@ -53,7 +53,7 @@
        } else {
          groupIndex_[var] = groupIndex;
        }
-@@ -72,30 +78,71 @@
+@@ -72,30 +78,72 @@
      // Corresponding level for 2D variables (first or last)
      group.lev2d_ = groupParams.lev2d.value();
  
@@ -123,11 +123,12 @@
 -        vert_coordView(jnode, jlevel) = group.vert_coord_[jlevel];
 +    // Average vertical coordinate
 +    const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
++    const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
 +    for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
 +      double avg = 0.0;
 +      double counter = 0.0;
 +      for (atlas::idx_t jnode = 0; jnode < group.vert_coord_.shape(0); ++jnode) {
-+        if (ghostView(jnode) == 0) {
++        if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
 +          avg += vert_coordView(jnode, jlevel);
 +          counter += 1.0;
 +        }
@@ -141,7 +142,7 @@
      }
  
      // Add orography (mountain) on bottom level
-@@ -103,10 +150,10 @@
+@@ -103,10 +151,10 @@
      if (orographyParams != boost::none) {
        const atlas::PointLonLat topPoint({orographyParams->topLon.value(),
          orographyParams->topLat.value()});
@@ -154,7 +155,7 @@
          const atlas::PointLonLat xPoint({lonlatView(jnode, 0), orographyParams->topLat.value()});
          const atlas::PointLonLat yPoint({orographyParams->topLon.value(), lonlatView(jnode, 1)});
          double dxNorm = atlas::util::Earth().distance(xPoint, topPoint)
-@@ -118,7 +165,7 @@
+@@ -118,7 +166,7 @@
          vert_coordView(jnode, group.levels_-1) += orography;
        }
      }
@@ -163,7 +164,7 @@
  
      // Default mask, set to 1 (true)
      const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
-@@ -134,14 +181,13 @@
+@@ -134,14 +182,13 @@
        // Read sea mask
        readSeaMask(groupParams.maskPath.value(), group.levels_, group.lev2d_, gmask);
      } else {
@@ -179,7 +180,7 @@
      for (atlas::idx_t jnode = 0; jnode < gmask.shape(0); ++jnode) {
        for (atlas::idx_t jlevel = 0; jlevel < gmask.shape(1); ++jlevel) {
          if (ghostView(jnode) == 0) {
-@@ -188,7 +234,7 @@
+@@ -188,7 +235,7 @@
      const std::string codeVar = item.getString("in code");
      if (std::find(vars.begin(), vars.end(), codeVar) == vars.end()) {
        // Code variable not available in the list of variables anymore
@@ -188,15 +189,15 @@
      } else {
        // Remove code variable from the list of available variables
        vars.erase(std::remove(vars.begin(), vars.end(), codeVar), vars.end());
-@@ -201,18 +247,38 @@
+@@ -201,18 +248,49 @@
        vars.push_back(fileVar);
      } else {
        // File variable is already present in the list of variables
 -      ABORT("alias error: duplicated file variable");
 +      throw eckit::UserError("Alias error: duplicated file variable", Here());
-+    }
-+  }
-+
+     }
+   }
+ 
 +  // Interpolation
 +  const boost::optional<InterpolationParameters> &interpParams = params.interpolation.value();
 +  if (interpParams != boost::none) {
@@ -205,11 +206,22 @@
 +    interpolation_ = eckit::LocalConfiguration();
 +    if (grid_.domain().global()) {
 +      interpolation_.set("interpolation type", "atlas interpolation wrapper");
-+    } else {
-+      interpolation_.set("interpolation type", "regional interpolation");
-     }
-   }
- 
++    }
++  }
++
++  // Check for duplicate points
++  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
++  const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
++  size_t duplicatedPointsCount = 0;
++  for (atlas::idx_t jnode = 0; jnode < fields_.field("owned").shape(0); ++jnode) {
++    // Duplicate point = owned==0 and ghost==0 (see util::setupFunctionSpace in oops)
++    if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 0) {
++      ++duplicatedPointsCount;
++    }
++  }
++  comm_.allReduceInPlace(duplicatedPointsCount, eckit::mpi::sum());
++  duplicatePoints_ = (duplicatedPointsCount > 0);
++
    // Print summary
    this->print(oops::Log::info());
 +
@@ -226,13 +238,13 @@
 +  : comm_(other.comm_), halo_(other.halo_), grid_(other.grid_), gridType_(other.gridType_),
 +  partitioner_(other.partitioner_), mesh_(other.mesh_), groupIndex_(other.groupIndex_),
 +  levelsAreTopDown_(other.levelsAreTopDown_), modelData_(other.modelData_), alias_(other.alias_),
-+  interpolation_(other.interpolation_) {
++  interpolation_(other.interpolation_), duplicatePoints_(other.duplicatePoints_) {
 +  oops::Log::trace() << classname() << "::Geometry starting" << std::endl;
 +
    // Copy function space
    if (other.functionSpace_.type() == "StructuredColumns") {
      // StructuredColumns
-@@ -227,9 +293,11 @@
+@@ -227,9 +305,11 @@
        functionSpace_ = atlas::functionspace::NodeColumns(other.functionSpace_);
      }
    } else if (other.functionSpace_.type() == "PointCloud") {
@@ -246,7 +258,7 @@
    }
  
    // Copy geometry fields
-@@ -249,37 +317,38 @@
+@@ -249,37 +329,38 @@
      // Copy vertical coordinate
      group.vert_coord_ = other.groups_[groupIndex].vert_coord_;
  
@@ -299,7 +311,7 @@
    std::string prefix;
    if (os.rdbuf() == oops::Log::info().rdbuf()) {
      prefix = "Info     : ";
-@@ -302,19 +371,26 @@
+@@ -302,19 +383,26 @@
      os << prefix << "- Group " << groupIndex << ":" << std::endl;
      os << prefix << "  Vertical levels: " << std::endl;
      os << prefix << "  - number: " << levels(groupIndex) << std::endl;
@@ -327,7 +339,7 @@
    // Lon/lat sizes
    size_t nlon = 0;
    size_t nlat = 0;
-@@ -324,13 +400,13 @@
+@@ -324,13 +412,13 @@
  
    if (comm_.rank() == 0) {
      // Open NetCDF file
@@ -346,7 +358,7 @@
    }
  
    // Broadcast lon/lat sizes
-@@ -344,17 +420,17 @@
+@@ -344,17 +432,17 @@
  
    if (comm_.rank() == 0) {
      // Get lon/lat
@@ -370,7 +382,7 @@
  
      // Copy data
      for (size_t ilon = 0; ilon < nlon; ++ilon) {
-@@ -370,7 +446,7 @@
+@@ -370,7 +458,7 @@
      }
  
      // Close file
@@ -379,7 +391,7 @@
    }
  
    // Broadcast coordinates and land-sea mask
-@@ -431,8 +507,13 @@
+@@ -431,8 +519,13 @@
        }
      }
    } else {

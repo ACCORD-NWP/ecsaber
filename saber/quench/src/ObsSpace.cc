@@ -383,8 +383,7 @@ void ObsSpace::read(const std::string & filePath) {
 
   if (comm_.rank() == 0) {
     // NetCDF IDs
-    int retval, ncid, nobs_id, dateTime_id, longitude_id, latitude_id,
-      height_id, col_id;
+    int retval, ncid, nobs_id, dateTime_id, order_id, longitude_id, latitude_id, height_id, col_id;
 
     // Open NetCDF file
     std::string ncFilePath = filePath + ".nc";
@@ -407,6 +406,17 @@ void ObsSpace::read(const std::string & filePath) {
     std::vector<int> times(6*nobsGlb_);
     std::vector<double> locs(3*nobsGlb_);
     std::vector<double> cols(ncol*nobsGlb_);
+    order_.resize(nobsGlb_);
+
+    // Get order if available
+    retval = nc_inq_varid(ncid, "order", &order_id);
+    if (retval == NC_NOERR) {
+      if ((retval = nc_get_var_int(ncid, order_id, order_.data()))) ERR(retval);
+    } else {
+      for (size_t jo = 0; jo < nobsGlb_; ++jo) {
+        order_[jo] = jo;
+      }
+    }
 
     size_t jgrpData = 0;
     for (int jgrp = 0; jgrp < ngrp; ++jgrp) {
@@ -608,12 +618,6 @@ void ObsSpace::read(const std::string & filePath) {
     }
   }
 
-  // Set order
-  order_.resize(nobsGlb_);
-  for (size_t jo = 0; jo < nobsGlb_; ++jo) {
-    order_[jo] = jo;
-  }
-
   oops::Log::trace() << classname() << "::read done" << std::endl;
 }
 
@@ -751,8 +755,8 @@ void ObsSpace::write(const std::string & filePath,
     }
 
     // NetCDF IDs
-    int retval, ncid, nobs_id, d_id[1], Locations_id, metaData_id, dateTime_id, longitude_id,
-      latitude_id, height_id;
+    int retval, ncid, nobs_id, d_id[1], Locations_id, order_id, metaData_id, dateTime_id,
+      longitude_id, latitude_id, height_id;
     std::vector<int> group_ids;
     std::vector<int> groupVar_ids;
 
@@ -777,9 +781,12 @@ void ObsSpace::write(const std::string & filePath,
     // Missing value
     const std::string fillValue_key = "_FillValue";
 
-    // Define variable
+    // Define global variables
     if ((retval = nc_def_var(ncid, "Locations", NC_INT, 1, d_id, &Locations_id))) ERR(retval);
     if ((retval = nc_put_att_int(ncid, Locations_id, fillValue_key.c_str(), NC_INT, 1,
+      &util::missingValue(0)))) ERR(retval);
+    if ((retval = nc_def_var(ncid, "order", NC_INT, 1, d_id, &order_id))) ERR(retval);
+    if ((retval = nc_put_att_int(ncid, order_id, fillValue_key.c_str(), NC_INT, 1,
       &util::missingValue(0)))) ERR(retval);
 
     // Define metadata group
@@ -836,6 +843,7 @@ void ObsSpace::write(const std::string & filePath,
     const size_t init = 0;
     const size_t nobs = Locations.size();
     if ((retval = nc_put_vara_int(ncid, Locations_id, &init, &nobs, Locations.data()))) ERR(retval);
+    if ((retval = nc_put_vara_int(ncid, order_id, &init, &nobs, order_.data()))) ERR(retval);
     if ((retval = nc_put_vara_long(metaData_id, dateTime_id, &init, &nobs, dateTime.data())))
       ERR(retval);
     if ((retval = nc_put_vara_float(metaData_id, longitude_id, &init, &nobs, longitude.data())))
