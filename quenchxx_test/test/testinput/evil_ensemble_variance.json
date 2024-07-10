@@ -67,6 +67,32 @@
       }
     },
     {
+      "name": "evil_control_ens_D",
+      "state": {
+        "date": "2010-01-01T12:00:00Z",
+        "variables": ["temperature"],
+        "filepath": "testdata/evil_bkg_000001"
+      },
+      "ensemble": {
+        "members": "50",
+        "variables": ["temperature"],
+        "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
+        "state from template": {
+          "template": {
+            "date": "2010-01-01T12:00:00Z",
+            "filepath": "testdata/evil_control_ens_D_%member%_%mpi%",
+            "state variables": ["temperature"]
+          },
+          "pattern": "%member%",
+          "zero padding": "6"
+        }
+      },
+      "variance": {
+        "filepath": "testdata/evil_ensemble_variance_control_ens_D"
+      }
+    },
+    {
       "name": "evil_control_ens_R",
       "state": {
         "date": "2010-01-01T12:00:00Z",
@@ -77,10 +103,11 @@
         "members": "50",
         "variables": ["temperature"],
         "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/evil_control_ens_R_%member%",
+            "filepath": "testdata/evil_control_ens_R_%member%_%mpi%",
             "state variables": ["temperature"]
           },
           "pattern": "%member%",
@@ -102,10 +129,11 @@
         "members": "50",
         "variables": ["temperature"],
         "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/evil_control_ens_S_%member%",
+            "filepath": "testdata/evil_control_ens_S_%member%_%mpi%",
             "state variables": ["temperature"]
           },
           "pattern": "%member%",
@@ -127,10 +155,11 @@
         "members": "50",
         "variables": ["temperature"],
         "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/evil_dual_ens_D_%member%",
+            "filepath": "testdata/evil_dual_ens_D_%member%_%mpi%",
             "state variables": ["temperature"]
           },
           "pattern": "%member%",
@@ -152,10 +181,11 @@
         "members": "50",
         "variables": ["temperature"],
         "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/evil_dual_ens_R_%member%",
+            "filepath": "testdata/evil_dual_ens_R_%member%_%mpi%",
             "state variables": ["temperature"]
           },
           "pattern": "%member%",
@@ -177,10 +207,11 @@
         "members": "50",
         "variables": ["temperature"],
         "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/evil_dual_ens_S_%member%",
+            "filepath": "testdata/evil_dual_ens_S_%member%_%mpi%",
             "state variables": ["temperature"]
           },
           "pattern": "%member%",
@@ -202,10 +233,11 @@
         "members": "50",
         "variables": ["temperature"],
         "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/evil_primal_ens_D_%member%",
+            "filepath": "testdata/evil_primal_ens_D_%member%_%mpi%",
             "state variables": ["temperature"]
           },
           "pattern": "%member%",
@@ -227,10 +259,11 @@
         "members": "50",
         "variables": ["temperature"],
         "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/evil_primal_ens_R_%member%",
+            "filepath": "testdata/evil_primal_ens_R_%member%_%mpi%",
             "state variables": ["temperature"]
           },
           "pattern": "%member%",
@@ -252,10 +285,11 @@
         "members": "50",
         "variables": ["temperature"],
         "date": "2010-01-01T12:00:00Z",
+        "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/evil_primal_ens_S_%member%",
+            "filepath": "testdata/evil_primal_ens_S_%member%_%mpi%",
             "state variables": ["temperature"]
           },
           "pattern": "%member%",

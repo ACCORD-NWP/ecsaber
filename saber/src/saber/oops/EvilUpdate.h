@@ -87,8 +87,8 @@ containing:
 - an eigenvalue \theta
 - one or two eigenvectors:
   + z^c in control space,
-  + (\hat{z}^p, \bar{z}^p) in primal space,
-  + (\hat{z}^d, \bar{z}^d) in dual space
+  + (\bar{z}^p, \hat{z}^p) in primal space,
+  + (\bar{z}^d, \hat{z}^d) in dual space
 
 The eigen vectors are linked:
 - In primal space: \hat{z}^p = B \bar{z}^p
@@ -100,20 +100,17 @@ The eigen vectors are linked:
 EVIL updates for 1 <= k <= N:
  - S-EVIL: x^a_k = x^b_k + \sum_{l=1}^{N_e} w^S_{kl} \hat{z}^p_l
  - D-EVIL: x^a_k = x^b_k + \sum_{l=1}^{N_e} w^D_{kl} \hat{z}^p_l
- - R-EVIL: x^a_k = U \ksi_k + \sum_{l=1}^{N_e} w^R_{kl} \hat{z}^p_l
+ - R-EVIL: x^a_k = x^r_k + \sum_{l=1}^{N_e} w^R_{kl} \hat{z}^p_l
 
 where:
 - N is the number of ensemble members (randomized or read)
 - N_e is the number of pre-computed Ritz pairs
-- \hat{z}^p_l is the lth first Ritz vector in primal space
-- \ksi_k is a random Gaussian vector of zero mean and unit variance
+- x^r_k is a vector generated with the randomization of B
 - The weights are given by:
   + S-EVIL: w^S_{kl} = 1/\theta_l (\hat{z}^d_l)^T R{-1} (y_k - Hx^b_k)
     where y_k = R^{1/2} \eta is a random observations perturbation
   + D-EVIL: w^D_{kl} = -(1 - 1/\sqrt{theta_l}) (\bar{z}^p_l)^T x^b_k
-    which is not available in control space since \bar{z}^p_l would require
-B^{-1}
-  + S-EVIL: w^S_{kl} = -(1 - 1/\sqrt{theta_l}) (z^c_l)^T \ksi_k
+  + R-EVIL: w^S_{kl} = -(1 - 1/\sqrt{theta_l}) (\bar{z}^p_l)^T x^r_k
 
 Reference:
 https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
@@ -130,9 +127,6 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     const std::string solverSpace = evilConfig.getString("solver space");
     ASSERT(solverSpace == "control" || solverSpace == "primal" ||
            solverSpace == "dual");
-
-    // Check consistency (D-EVIL not available in control space)
-    ASSERT(!(filter == "D" && solverSpace == "control"));
 
     // Setup resolution
     const eckit::LocalConfiguration resolConfig(fullConfig, "resolution");
@@ -210,46 +204,14 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     size_t nens = ensConfig.getInt("members");
     expandEnsembleTemplate(ensConfig, nens);
     Ensemble_ Xb(xb.validTime(), ensConfig);
-    std::vector<CtrlVec_> ksi;
     if (filter == "R") {
-      // Generate random control vectors
-      oops::Log::info() << "Generate random control vectors" << std::endl;
-      for (size_t ie = 0; ie < nens; ++ie) {
-        ksi.push_back(CtrlVec_(J->jb()));
-        ksi[ie].zero();
-        ksi[ie].state().random();
-      }
-
-      // Compute random control vectors mean
-      oops::Log::info() << "Compute random control vectors mean" << std::endl;
-      CtrlVec_ ksiMean(J->jb());
-      ksiMean.zero();
-      for (size_t ie = 0; ie < nens; ++ie) {
-        ksiMean += ksi[ie];
-      }
-      const double meanNorm = 1.0 / static_cast<double>(nens);
-      ksiMean *= meanNorm;
-
-      // Remove random control vectors mean
-      oops::Log::info() << "Remove random control vectors mean" << std::endl;
-      for (size_t ie = 0; ie < nens; ++ie) {
-        ksi[ie] -= ksiMean;
-      }
-
-      // Apply background error covariance square-root to control vectors
-      oops::Log::info()
-          << "Apply background error covariance square-root to control vectors"
-          << std::endl;
+      // Randomize ensemble of backgrounds perturbations
+      oops::Log::info() << "Randomize ensemble of backgrounds perturbations" << std::endl;
       Xb.build(xb, resol);
       CtrlInc_ dx(J->jb());
       for (size_t ie = 0; ie < nens; ++ie) {
-        BMatrix->multiplySqrt(ksi[ie], dx);
+        J->jb().randomize(dx);
         Xb[ie] = dx.state()[dx.state().first()];
-      }
-
-      // Normalize perturbations
-      for (size_t ie = 0; ie < nens; ++ie) {
-        ksi[ie] *= 1.0/std::sqrt(static_cast<double>(nens - 1));
       }
       Xb.to_perturbations();
     } else {
@@ -262,6 +224,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     Increment_ variance = Xb.variance();
     eckit::LocalConfiguration varRedConf(varRedConfTemplate);
     util::seekAndReplace(varRedConf, "%iteration%", 0, 0);
+    setMPI(varRedConf, eckit::mpi::comm().size());
     variance.write(varRedConf);
     varianceNorm.push_back(variance.norm());
 
@@ -315,7 +278,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
 
       for (size_t ie = 0; ie < nens; ++ie) {
         // Normalize perturbations
-        ypertVec[ie] *= 1.0 / std::sqrt(static_cast<double>(nens - 1));
+        ypertVec[ie] *= 1.0/std::sqrt(static_cast<double>(nens-1));
 
         // Compute perturbations difference
         ypertVec[ie] -= HXb[ie];
@@ -363,95 +326,92 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
       // Prepare Ritz vectors configurations
       eckit::LocalConfiguration ritzCtlConf(ritzConfTemplate);
       util::seekAndReplace(ritzCtlConf, "%iteration%", iiter+1, 0);
-      eckit::LocalConfiguration ritzHatConf(ritzConfTemplate);
-      util::seekAndReplace(ritzHatConf, "%pattern%", "hat");
-      util::seekAndReplace(ritzHatConf, "%iteration%", iiter+1, 0);
       eckit::LocalConfiguration ritzBarConf(ritzConfTemplate);
       util::seekAndReplace(ritzBarConf, "%pattern%", "bar");
       util::seekAndReplace(ritzBarConf, "%iteration%", iiter+1, 0);
+      eckit::LocalConfiguration ritzHatConf(ritzConfTemplate);
+      util::seekAndReplace(ritzHatConf, "%pattern%", "hat");
+      util::seekAndReplace(ritzHatConf, "%iteration%", iiter+1, 0);
 
       // Initialize Ritz vectors
       std::unique_ptr<CtrlVec_> ritzCtl;
-      std::unique_ptr<CtrlInc_> ritzHatIncr;
-      std::unique_ptr<CtrlInc_> ritzBarIncr;
+      std::unique_ptr<CtrlInc_> ritzHatPrimal;
+      std::unique_ptr<CtrlInc_> ritzBarPrimal;
       std::unique_ptr<Dual_> ritzHatDual;
       std::unique_ptr<Dual_> ritzBarDual;
 
       if (solverSpace == "control") {
         // Read Ritz vector in control space
         ritzCtl.reset(new CtrlVec_(J->jb()));
+        setMPI(ritzCtlConf, eckit::mpi::comm().size());
         ritzCtl->read(ritzCtlConf);
 
-        // Compute first Ritz vector in primal space
-        ritzHatIncr.reset(new CtrlInc_(J->jb()));
-        BMatrix->multiplySqrt(*ritzCtl, *ritzHatIncr);
+        // Compute second Ritz vector in primal space
+        ritzHatPrimal.reset(new CtrlInc_(J->jb()));
+        BMatrix->multiplySqrt(*ritzCtl, *ritzHatPrimal);
 
         if (filter == "S") {
-          // Compute first Ritz vector in dual space
+          // Compute second Ritz vector in dual space
           ritzHatDual.reset(new Dual_());
           for (unsigned jj = 0; jj < J->nterms(); ++jj) {
             ritzHatDual->append(J->jterm(jj).newDualVector());
           }
-          HMatrix->multiply(*ritzHatIncr, *ritzHatDual);
+          HMatrix->multiply(*ritzHatPrimal, *ritzHatDual);
+        } else {
+          // Compute first Ritz vector in primal space (WARNING: requires B inverse)
+          ritzBarPrimal.reset(new CtrlInc_(J->jb()));
+          J->jb().multiplyBinv(*ritzHatPrimal, *ritzBarPrimal);
         }
       } else if (solverSpace == "primal") {
-        // Read first Ritz vector in primal space
-        ritzHatIncr.reset(new CtrlInc_(J->jb()));
+        // Read second Ritz vector in primal space
+        ritzHatPrimal.reset(new CtrlInc_(J->jb()));
         Increment_ incr(resol, vars, xb.validTime());
+        setMPI(ritzHatConf, eckit::mpi::comm().size());
         incr.read(ritzHatConf);
-        ritzHatIncr->zero();
-        ritzHatIncr->state()[ritzHatIncr->state().first()] = incr;
+        ritzHatPrimal->state()[ritzHatPrimal->state().first()] = incr;
 
         if (filter == "D" || filter == "R") {
-          // Read second Ritz vector in primal space
-          ritzBarIncr.reset(new CtrlInc_(J->jb()));
-          ritzBarIncr->zero();
+          // Read first Ritz vector in primal space
+          ritzBarPrimal.reset(new CtrlInc_(J->jb()));
+          setMPI(ritzBarConf, eckit::mpi::comm().size());
           incr.read(ritzBarConf);
-          ritzBarIncr->state()[ritzBarIncr->state().first()] = incr;
+          ritzBarPrimal->state()[ritzBarPrimal->state().first()] = incr;
         }
 
         if (filter == "S") {
-          // Compute first vector in dual space
+          // Compute second Ritz vector in dual space
           ritzHatDual.reset(new Dual_());
           for (unsigned jj = 0; jj < J->nterms(); ++jj) {
             ritzHatDual->append(J->jterm(jj).newDualVector());
           }
-          HMatrix->multiply(*ritzHatIncr, *ritzHatDual);
-        }
-
-        if (filter == "R") {
-          // Compute Ritz vector in control space
-          ritzCtl.reset(new CtrlVec_(J->jb()));
-          BMatrix->multiplySqrtTrans(*ritzBarIncr, *ritzCtl);
+          HMatrix->multiply(*ritzHatPrimal, *ritzHatDual);
         }
       } else if (solverSpace == "dual") {
         if (filter == "S") {
-          // Read first Ritz vector in primal space
+          // Read second Ritz vector in primal space
           ritzHatDual.reset(new Dual_());
           for (unsigned jj = 0; jj < J->nterms(); ++jj) {
             ritzHatDual->append(J->jterm(jj).newDualVector());
           }
+          setMPI(ritzHatConf, eckit::mpi::comm().size());
           ritzHatDual->read(ritzHatConf);
         }
 
-        // Read second Ritz vector in primal space
+        // Read first Ritz vector in primal space
         ritzBarDual.reset(new Dual_());
         for (unsigned jj = 0; jj < J->nterms(); ++jj) {
           ritzBarDual->append(J->jterm(jj).newDualVector());
         }
+        setMPI(ritzBarConf, eckit::mpi::comm().size());
         ritzBarDual->read(ritzBarConf);
 
-        // Compute Ritz vectors in primal space
-        ritzBarIncr.reset(new CtrlInc_(J->jb()));
-        HtMatrix->multiply(*ritzBarDual, *ritzBarIncr);
-        ritzHatIncr.reset(new CtrlInc_(J->jb()));
-        BMatrix->multiply(*ritzBarIncr, *ritzHatIncr);
+        // Compute first Ritz vectors in primal space
+        ritzBarPrimal.reset(new CtrlInc_(J->jb()));
+        HtMatrix->multiply(*ritzBarDual, *ritzBarPrimal);
 
-        if (filter == "R") {
-          // Compute Ritz vector in control space
-          ritzCtl.reset(new CtrlVec_(J->jb()));
-          BMatrix->multiplySqrtTrans(*ritzBarIncr, *ritzCtl);
-        }
+        // Compute second Ritz vectors in primal space
+        ritzHatPrimal.reset(new CtrlInc_(J->jb()));
+        BMatrix->multiply(*ritzBarPrimal, *ritzHatPrimal);
       }
 
       // Update analysis perturbations
@@ -460,22 +420,20 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
         double weight;
         if (filter == "S") {
           weight = (1.0 / evals[iiter]) * ritzHatDual->dot_product_with(HXb[ie]);
-        } else if (filter == "D") {
+        } else if ((filter == "D") || (filter == "R")) {
           weight = -(1.0 - 1.0 / std::sqrt(evals[iiter]))
-            *ritzBarIncr->state()[ritzBarIncr->state().first()].dot_product_with(Xb[ie]);
-        } else if (filter == "R") {
-          weight = -(1.0 - 1.0 / std::sqrt(evals[iiter]))
-            *ritzCtl->dot_product_with(ksi[ie]);
+            *ritzBarPrimal->state()[ritzBarPrimal->state().first()].dot_product_with(Xb[ie]);
         }
 
         // Update analysis perturbation
-        Xa[ie].axpy(weight, ritzHatIncr->state()[ritzHatIncr->state().first()]);
+        Xa[ie].axpy(weight, ritzHatPrimal->state()[ritzHatPrimal->state().first()]);
       }
 
       // Compute analysis variance
       Increment_ variance = Xa.variance();
       eckit::LocalConfiguration varRedConf(varRedConfTemplate);
       util::seekAndReplace(varRedConf, "%iteration%", iiter, 0);
+      setMPI(varRedConf, eckit::mpi::comm().size());
       variance.write(varRedConf);
       varianceNorm.push_back(variance.norm());
 
@@ -484,7 +442,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
           varianceNorm[iiter + 1] / varianceNorm[0] * 100.0;
       std::streamsize ss = oops::Log::test().precision();
       oops::Log::test() << "Update with Ritz pair #" << iiter << ": variance is "
-                        << std::fixed << std::setprecision(2) << varianceReduction
+                        << std::fixed << std::setprecision(5) << varianceReduction
                         << "% of the initial variance" << std::endl;
       oops::Log::test().precision(ss);
     }
@@ -497,6 +455,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
       xaPertConfTemplate.getSubConfigurations("state");
     for (size_t ie = 0; ie < nens; ++ie) {
       Xa[ie] *= std::sqrt(static_cast<double>(nens - 1));
+      setMPI(xaPertConfs[ie], eckit::mpi::comm().size());
       if (fullConfig.has("analysis")) {
         // Add analysis perturbations to the analysis and write
         State_ xaPert(*xa);

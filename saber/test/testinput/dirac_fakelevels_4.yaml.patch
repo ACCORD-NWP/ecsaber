@@ -1,0 +1,25 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_fakelevels_4.yaml.tmp	2024-07-10 17:22:27.484369159 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_fakelevels_4.yaml	2024-07-10 17:21:11.403295129 +0200
+@@ -19,7 +19,7 @@
+     levels: 11
+   halo: 1
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - snow_depth
+ background error:
+@@ -64,11 +64,11 @@
+       output model files:
+       - parameter: rv
+         file:
+-          filepath: testdata/dirac_fakelevels_4/_MPI__rv
++          filepath: testdata/dirac_fakelevels_4/_MPI_-_OMP__rv
+       - parameter: weight
+         file:
+           overriding variables: [snow_depth_fakeLevels]
+-          filepath: testdata/dirac_fakelevels_4/_MPI__weight
++          filepath: testdata/dirac_fakelevels_4/_MPI_-_OMP__weight
+ dirac:
+   lon:
+   - 180.0

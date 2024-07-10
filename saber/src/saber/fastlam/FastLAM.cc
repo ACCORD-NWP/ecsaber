@@ -19,7 +19,6 @@
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/util/ConfigFunctions.h"
-#include "oops/util/FloatCompare.h"
 #include "oops/util/Logger.h"
 #include "oops/util/missingValues.h"
 #include "oops/util/RandomField.h"

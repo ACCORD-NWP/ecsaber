@@ -66,7 +66,7 @@ void ObsAuxControl::print(std::ostream & os) const {
   oops::Log::trace() << classname() << "::print starting" << std::endl;
 
   os << std::endl << "ObsAuxControl = " << bias_;
- 
+
   oops::Log::trace() << classname() << "::print dp,e" << std::endl;
 }
 

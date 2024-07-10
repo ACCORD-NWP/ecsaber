@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_duplicate_variables.yaml.tmp	2024-07-10 17:22:28.176378928 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_duplicate_variables.yaml	2024-07-10 17:21:11.403295129 +0200
+@@ -13,7 +13,7 @@
+     - air_pressure
+     levels: 70
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables: *vars
+ background error:
+   covariance model: SABER

@@ -75,7 +75,7 @@
               "filepath": "testdata/evil_obs"
             },
             "ObsDataOutScreened": {
-              "filepath": "testdata/evil_obs_evil_dual_3dvar"
+              "filepath": "testdata/evil_obs_dual_3dvar"
             },
             "obsvalue": "ObsValue.000000"
           },
@@ -95,7 +95,8 @@
     "ritz tolerance": "1.0e-2",
     "eigenvalues": "testdata/evil_dual_3dvar.eigenvalues.txt",
     "ritz vectors": {
-      "obsvalue": "ritz.%pattern%.%iteration%"
+      "mpi pattern": "%mpi%",
+      "obsvalue": "ritz.%pattern%.%iteration%_%mpi%"
     }
   },
   "output": {

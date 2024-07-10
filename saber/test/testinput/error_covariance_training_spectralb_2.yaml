@@ -18,7 +18,7 @@ geometry:
     levels: 70
   partitioner: ectrans
 background:
-  date: '2010-01-01T12:00:00Z'
+  date: 2010-01-01T12:00:00Z
   state variables:
   - eastward_wind
   - mu
@@ -27,10 +27,10 @@ background:
 background error:
   covariance model: SABER
   ensemble pert:
-    date: '2010-01-01T12:00:00Z'
+    date: 2010-01-01T12:00:00Z
     members from template:
       template:
-        date: '2010-01-01T12:00:00Z'
+        date: 2010-01-01T12:00:00Z
         filepath: testdata/randomization_sqrtspectralb_3/randomized_gauss_mb%mem%
       pattern: '%mem%'
       nmembers: 10

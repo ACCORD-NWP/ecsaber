@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h.tmp	2024-07-04 13:56:20.712087057 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h	2024-07-04 11:26:41.797983708 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h.tmp.bak	2024-07-10 09:02:30.044068650 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h	2024-07-09 17:17:40.289947092 +0200
 @@ -7,23 +7,19 @@
  
  #pragma once
@@ -100,7 +100,7 @@
    oops::Parameter<std::string> maskPath{"mask path", "../quench/data/landsea.nc", this};
  };
  
-@@ -99,95 +105,173 @@
+@@ -99,95 +105,178 @@
  };
  
  // -----------------------------------------------------------------------------
@@ -232,6 +232,8 @@
 +    {return alias_;}
 +  const eckit::LocalConfiguration & interpolation() const
 +    {return interpolation_;}
++  const bool & duplicatePoints() const
++    {return duplicatePoints_;}
  
   private:
 +  // Print
@@ -295,6 +297,9 @@
 +
 +  // Interpolation configuration
 +  eckit::LocalConfiguration interpolation_;
++
++  // Duplicate points
++  bool duplicatePoints_;
 +
 +/// ECSABER-specific interface
 +#include "src/GeometryECDef.h"

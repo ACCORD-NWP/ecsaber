@@ -77,6 +77,7 @@ class EnsembleVariance : public oops::Application {
       eckit::LocalConfiguration ensConfig(conf, "ensemble");
       const size_t nens = ensConfig.getInt("members");
       expandEnsembleTemplate(ensConfig, nens);
+      setMPI(ensConfig, eckit::mpi::comm().size());
       Ensemble_ ensemble(state.validTime(), ensConfig);
       ensemble.linearize(state, resol);
 

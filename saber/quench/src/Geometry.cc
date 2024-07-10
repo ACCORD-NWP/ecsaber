@@ -128,11 +128,12 @@ Geometry::Geometry(const eckit::Configuration & config,
 
     // Average vertical coordinate
     const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+    const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
     for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
       double avg = 0.0;
       double counter = 0.0;
       for (atlas::idx_t jnode = 0; jnode < group.vert_coord_.shape(0); ++jnode) {
-        if (ghostView(jnode) == 0) {
+        if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
           avg += vert_coordView(jnode, jlevel);
           counter += 1.0;
         }
@@ -259,21 +260,21 @@ Geometry::Geometry(const eckit::Configuration & config,
     interpolation_ = eckit::LocalConfiguration();
     if (grid_.domain().global()) {
       interpolation_.set("interpolation type", "atlas interpolation wrapper");
-    } else {
-      interpolation_.set("interpolation type", "regional interpolation");
     }
   }
 
   // Check for duplicate points
   const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
   const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
-  duplicatePoints_ = false;
+  size_t duplicatedPointsCount = 0;
   for (atlas::idx_t jnode = 0; jnode < fields_.field("owned").shape(0); ++jnode) {
     // Duplicate point = owned==0 and ghost==0 (see util::setupFunctionSpace in oops)
     if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 0) {
-      duplicatePoints_ = true;
+      ++duplicatedPointsCount;
     }
   }
+  comm_.allReduceInPlace(duplicatedPointsCount, eckit::mpi::sum());
+  duplicatePoints_ = (duplicatedPointsCount > 0);
 
   // Print summary
   this->print(oops::Log::info());

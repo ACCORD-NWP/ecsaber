@@ -80,7 +80,7 @@
                 "filepath": "testdata/evil_obs"
               },
               "ObsDataOutScreened": {
-                "filepath": "testdata/evil_obs_evil_assim_ensemble_%eda_member%"
+                "filepath": "testdata/evil_obs_assim_ensemble_%eda_member%"
               },
               "obsvalue": "ObsValue.%eda_member%"
             },

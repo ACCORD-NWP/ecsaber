@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc.tmp	2024-07-04 13:56:20.844087427 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc	2024-07-04 11:28:36.298404745 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc.tmp.bak	2024-07-10 17:22:27.208365262 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc	2024-07-10 11:22:03.109429068 +0200
 @@ -23,48 +23,67 @@
  #include "atlas/util/Point.h"
  
@@ -101,7 +101,7 @@
      // Create fieldset
      for (const auto & var : vars_) {
        atlas::Field field = geom_->functionSpace().createField<double>(
-@@ -87,19 +110,24 @@
+@@ -87,19 +110,27 @@
        fset_.add(field);
      }
  
@@ -114,8 +114,11 @@
 +      field.metadata().set("interp_type", "default");
 +    }
 +
++    // Copy fieldset
++    atlas::FieldSet fset = util::copyFieldSet(other.fset_);
++
 +    // Horizontal interpolation
-+    interpolation->execute(other.fset_, fset_);
++    interpolation->execute(fset, fset_);
    }
  
 -  oops::Log::trace() << "Fields::Fields done" << std::endl;
@@ -135,7 +138,7 @@
  
    // Reset ATLAS fieldset
    fset_ = atlas::FieldSet();
-@@ -111,6 +139,11 @@
+@@ -111,6 +142,11 @@
      fset_.add(field);
    }
  
@@ -147,7 +150,7 @@
    // Set fields to zero
    this->zero();
  
-@@ -118,10 +151,10 @@
+@@ -118,10 +154,10 @@
    if (copy) {
      for (const auto & var : vars_) {
        atlas::Field field = fset_[var.name()];
@@ -160,7 +163,7 @@
          for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
            for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
              view(jnode, jlevel) = viewOther(jnode, jlevel);
-@@ -130,13 +163,16 @@
+@@ -130,13 +166,16 @@
        }
      }
    }
@@ -182,7 +185,7 @@
    // Reset ATLAS fieldset
    fset_ = atlas::FieldSet();
  
-@@ -145,10 +181,10 @@
+@@ -145,10 +184,10 @@
      // Create field
      atlas::Field field = geom_->functionSpace().createField<double>(
        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
@@ -195,7 +198,7 @@
        for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
          for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
            view(jnode, jlevel) = viewOther(jnode, jlevel);
-@@ -157,11 +193,20 @@
+@@ -157,11 +196,20 @@
      }
      fset_.add(field);
    }
@@ -218,7 +221,7 @@
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
      if (field.rank() == 2) {
-@@ -170,11 +215,15 @@
+@@ -170,11 +218,15 @@
      }
    }
    fset_.set_dirty(false);
@@ -235,7 +238,7 @@
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
      const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
-@@ -190,9 +239,12 @@
+@@ -190,9 +242,12 @@
      }
    }
    fset_.set_dirty(false);
@@ -249,7 +252,7 @@
  void Fields::constantValue(const eckit::Configuration & config) {
    oops::Log::trace() << "Fields::constantValue starting" << std::endl;
    for (const auto & group : config.getSubConfigurations("constant group-specific value")) {
-@@ -216,14 +268,18 @@
+@@ -216,14 +271,18 @@
      }
    }
    fset_.set_dirty(false);
@@ -273,7 +276,7 @@
      if (field.rank() == 2) {
        auto view = atlas::array::make_view<double, 2>(field);
        auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
-@@ -236,17 +292,34 @@
+@@ -236,17 +295,34 @@
      }
    }
    time_ = rhs.time_;
@@ -311,7 +314,7 @@
      if (field.rank() == 2) {
        auto view = atlas::array::make_view<double, 2>(field);
        auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
-@@ -260,12 +333,16 @@
+@@ -260,12 +336,16 @@
        field.set_dirty(field.dirty() || fieldRhs.dirty());
      }
    }
@@ -330,7 +333,7 @@
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
      const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
-@@ -284,12 +361,16 @@
+@@ -284,12 +364,16 @@
        field.set_dirty(field.dirty() || fieldRhs.dirty());
      }
    }
@@ -349,7 +352,7 @@
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
      const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
-@@ -305,12 +386,17 @@
+@@ -305,12 +389,17 @@
        }
      }
    }
@@ -370,7 +373,7 @@
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
      const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
-@@ -329,11 +415,15 @@
+@@ -329,13 +418,18 @@
        field.set_dirty(field.dirty() || fieldRhs.dirty());
      }
    }
@@ -387,8 +390,20 @@
 +
    double zz = 0;
    const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
++  const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
    for (const auto & var : vars_) {
-@@ -354,12 +444,15 @@
+     atlas::Field field1 = fset_[var.name()];
+     const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
+@@ -346,7 +440,7 @@
+       auto view2 = atlas::array::make_view<double, 2>(field2);
+       for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
+         for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+-          if (gmaskView(jnode, jlevel) == 1 && ghostView(jnode) == 0) {
++          if (gmaskView(jnode, jlevel) == 1 && ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
+             zz += view1(jnode, jlevel)*view2(jnode, jlevel);
+           }
+         }
+@@ -354,12 +448,15 @@
      }
    }
    geom_->getComm().allReduceInPlace(zz, eckit::mpi::sum());
@@ -406,7 +421,7 @@
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
      const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
-@@ -378,11 +471,15 @@
+@@ -378,11 +475,15 @@
        field.set_dirty(field.dirty() || fieldDx.dirty());
      }
    }
@@ -424,7 +439,7 @@
    fset_.clear();
    for (size_t groupIndex = 0; groupIndex < geom_->groups(); ++groupIndex) {
      // Mask and ghost points fields
-@@ -453,7 +550,8 @@
+@@ -453,7 +554,8 @@
          fs.gather(localMasks, globalMasks);
        }
      } else {
@@ -434,7 +449,7 @@
      }
  
      if (geom_->getComm().rank() == 0) {
-@@ -510,7 +608,8 @@
+@@ -510,7 +612,8 @@
          fs.scatter(globalData, localData);
        }
      } else {
@@ -444,8 +459,13 @@
      }
  
      // Copy data
-@@ -525,9 +624,12 @@
+@@ -523,11 +626,17 @@
  
+   fset_.set_dirty();  // code is too complicated, mark dirty to be safe
+ 
++  // Set duplicate points to the same value
++  resetDuplicatePoints();
++
    oops::Log::trace() << "Fields::random done" << std::endl;
  }
 +
@@ -458,7 +478,7 @@
    // Get dirac specifications
    std::vector<double> lon = config.getDoubleVector("lon");
    std::vector<double> lat = config.getDoubleVector("lat");
-@@ -535,9 +637,12 @@
+@@ -535,22 +644,31 @@
    std::vector<std::string> variable = config.getStringVector("variable");
  
    // Check sizes
@@ -473,12 +493,95 @@
 +    Here());
  
    // Build KDTree for each MPI task
-   atlas::util::IndexKDTree search;
-@@ -594,11 +699,16 @@
-       }
+-  atlas::util::IndexKDTree search;
+-  search.reserve(geom_->functionSpace().size());
+   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
++  const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
+   const auto lonlatView = atlas::array::make_view<double, 2>(geom_->functionSpace().lonlat());
+   atlas::idx_t n = 0;
+   for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
+-    if (ghostView(jnode) == 0) {
++    if ((ghostView(jnode) == 0) && (ownedView(jnode, 0) == 1)) {
++      ++n;
++    }
++  }
++  atlas::util::IndexKDTree search;
++  search.reserve(n);
++  for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
++    if ((ghostView(jnode) == 0) && (ownedView(jnode, 0) == 1)) {
+       atlas::PointLonLat pointLonLat(lonlatView(jnode, 0), lonlatView(jnode, 1));
+       pointLonLat.normalise();
+       atlas::PointXY point(pointLonLat);
+-      search.insert(point, n++);
++      search.insert(point, jnode);
      }
    }
+   search.build();
+@@ -570,35 +688,68 @@
+     // Search nearest neighbor
+     size_t index = std::numeric_limits<size_t>::max();
+     double distance = std::numeric_limits<double>::max();
++    bool potentialConflict = false;
+     if (geom_->functionSpace().size() > 0) {
+-      atlas::util::IndexKDTree::ValueList neighbor = search.closestPoints(pointLonLat, 1);
++      atlas::util::IndexKDTree::ValueList neighbor = search.closestPoints(pointLonLat, 2);
+       index = neighbor[0].payload();
+       distance = neighbor[0].distance();
++      potentialConflict = (std::abs(neighbor[0].distance()-neighbor[1].distance()) < 1.0e-12);
+     }
+     std::vector<double> distances(geom_->getComm().size());
+-    geom_->getComm().gather(distance, distances, 0);
++    geom_->getComm().allGather(distance, distances.begin(), distances.end());
++    const std::vector<double>::iterator distanceMin = std::min_element(std::begin(distances),
++      std::end(distances));
++    size_t sameDistanceCount = 0;
++    for (size_t jj = 0; jj < geom_->getComm().size(); ++jj) {
++      if (std::abs(distances[jj]-*distanceMin) < 1.0e-12) {
++        ++sameDistanceCount;
++      }
++    }
++    if (sameDistanceCount > 1) {
++      throw eckit::UserError("requested dirac point exactly between two gridpoints", Here());
++    }
+ 
+     // Find local task
+-    size_t localTask(-1);
+-    if (geom_->getComm().rank() == 0) {
+-      localTask = std::distance(std::begin(distances), std::min_element(std::begin(distances),
+-        std::end(distances)));
+-    }
+-    geom_->getComm().broadcast(localTask, 0);
++    size_t localTask = std::distance(std::begin(distances), distanceMin);
+ 
+     if (geom_->getComm().rank() == localTask) {
++      // Check potential conflict
++      if (potentialConflict) {
++        throw eckit::UserError("requested dirac point exactly between two gridpoints", Here());
++      }
++
+       // Add Dirac impulse
+       if (field.rank() == 2) {
+         auto view = atlas::array::make_view<double, 2>(field);
+         view(index, level[jdir]-1) = 1.0;
+       }
+     }
++
++    // Print longitude / latitude / level
++    double lonDir = 0.0;
++    double latDir = 0.0;
++    if (geom_->getComm().rank() == localTask) {
++      lonDir = lonlatView(index, 0);
++      latDir = lonlatView(index, 1);
++    }
++    geom_->getComm().allReduceInPlace(lonDir, eckit::mpi::sum());
++    geom_->getComm().allReduceInPlace(latDir, eckit::mpi::sum());
++    oops::Log::info() << "Info     : Dirac point #" << jdir << ": " << lonDir << " / " << latDir
++      << " / " << level[jdir] << std::endl;
+   }
 -  oops::Log::trace() << "Fields::dirac done" << std::endl;
++
++  // Set duplicate points to the same value
++  resetDuplicatePoints();
 +
 +  oops::Log::trace() << classname() << "::dirac done" << std::endl;
  }
@@ -494,7 +597,7 @@
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
      const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
-@@ -612,29 +722,40 @@
+@@ -612,29 +763,40 @@
        for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
          for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
            if (gmaskView(jnode, jlevel) == 1) {
@@ -542,11 +645,57 @@
  
    // Reset internal fieldset
    fset_.clear();
-@@ -690,10 +811,21 @@
-       }
-     }
+@@ -646,54 +808,23 @@
+     vars_[field.name()].setLevels(field.shape(1));
    }
+ 
+-  if (geom_->gridType() == "regular_lonlat") {
+-    // Reset poles points
+-    for (auto field_internal : fset_) {
+-      atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
+-      atlas::StructuredGrid grid = fs.grid();
+-      auto view = atlas::array::make_view<double, 2>(field_internal);
+-      auto view_i = atlas::array::make_view<int, 1>(fs.index_i());
+-      auto view_j = atlas::array::make_view<int, 1>(fs.index_j());
+-      std::vector<double> north(field_internal.shape(1), 0.0);
+-      std::vector<double> south(field_internal.shape(1), 0.0);
+-      for (atlas::idx_t j = fs.j_begin(); j < fs.j_end(); ++j) {
+-        for (atlas::idx_t i = fs.i_begin(j); i < fs.i_end(j); ++i) {
+-          atlas::idx_t jnode = fs.index(i, j);
+-          if ((view_j(jnode) == 1)  && (view_i(jnode) == 1)) {
+-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+-              north[jlevel] = view(jnode, jlevel);
+-            }
+-          }
+-          if ((view_j(jnode) == grid.ny())  && (view_i(jnode) == 1)) {
+-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+-              south[jlevel] = view(jnode, jlevel);
+-            }
+-          }
+-        }
+-      }
+-      geom_->getComm().allReduceInPlace(north.begin(), north.end(), eckit::mpi::sum());
+-      geom_->getComm().allReduceInPlace(south.begin(), south.end(), eckit::mpi::sum());
+-      for (atlas::idx_t j = fs.j_begin_halo(); j < fs.j_end_halo(); ++j) {
+-        for (atlas::idx_t i = fs.i_begin_halo(j); i < fs.i_end_halo(j); ++i) {
+-          atlas::idx_t jnode = fs.index(i, j);
+-          if (view_j(jnode) == 1) {
+-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+-              view(jnode, jlevel) = north[jlevel];
+-            }
+-          }
+-          if (view_j(jnode) == grid.ny()) {
+-            for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
+-              view(jnode, jlevel) = south[jlevel];
+-            }
+-          }
+-        }
+-      }
+-    }
+-  }
 -  oops::Log::trace() << "Fields::fromFieldSet done" << std::endl;
++  // Set duplicate points to the same value
++  resetDuplicatePoints();
 +
 +  oops::Log::trace() << classname() << "::fromFieldSet done" << std::endl;
  }
@@ -565,7 +714,7 @@
    // Update variables names
    Variables vars_in_file;
    for (const auto & var : vars_) {
-@@ -707,11 +839,7 @@
+@@ -707,11 +838,7 @@
    }
  
    // Read fieldset
@@ -578,7 +727,7 @@
  
    // Rename fields
    for (auto & field : fset_) {
-@@ -722,10 +850,27 @@
+@@ -722,10 +849,27 @@
      }
    }
  
@@ -606,7 +755,7 @@
    // Copy fieldset
    atlas::FieldSet fset = util::copyFieldSet(fset_);
  
-@@ -738,8 +883,8 @@
+@@ -738,8 +882,8 @@
      }
    }
  
@@ -617,7 +766,7 @@
  
    if (geom_->mesh().generated() && config.getBool("write gmsh", false)) {
      // GMSH file path
-@@ -757,13 +902,22 @@
+@@ -757,13 +901,22 @@
      gmsh.write(geom_->mesh());
      gmsh.write(fset, fset[0].functionspace());
    }
@@ -640,7 +789,7 @@
    os << std::endl;
    os << *geom_;
    std::string prefix;
-@@ -792,9 +946,15 @@
+@@ -792,9 +945,15 @@
      zz = sqrt(zz);
      os << prefix << "  " << var.name() << ": " << zz;
    }
@@ -656,7 +805,7 @@
    size_t nn = 0;
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
-@@ -802,10 +962,16 @@
+@@ -802,10 +961,16 @@
        nn += field.shape(0)*field.shape(1);
      }
    }
@@ -673,7 +822,7 @@
    for (const auto & var : vars_) {
      const atlas::Field field = fset_[var.name()];
      if (field.rank() == 2) {
-@@ -817,9 +983,16 @@
+@@ -817,9 +982,16 @@
        }
      }
    }
@@ -691,7 +840,7 @@
    for (const auto & var : vars_) {
      atlas::Field field = fset_[var.name()];
      if (field.rank() == 2) {
-@@ -832,6 +1005,39 @@
+@@ -832,6 +1004,103 @@
        }
      }
    }
@@ -722,12 +871,76 @@
 +
 +  oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
 +  return std::prev(interpolations().end());
++}
++
++// -----------------------------------------------------------------------------
++
++void Fields::resetDuplicatePoints() {
++  oops::Log::trace() << classname() << "::resetDuplicatePoints starting" << std::endl;
++
++  if (geom_->duplicatePoints()) {
++    if (geom_->gridType() == "regular_lonlat") {
++      // Deal with poles
++      for (auto field_internal : fset_) {
++        // Get first longitude value
++        atlas::functionspace::StructuredColumns fs(field_internal.functionspace());
++        atlas::StructuredGrid grid = fs.grid();
++        auto view = atlas::array::make_view<double, 2>(field_internal);
++        auto view_i = atlas::array::make_view<int, 1>(fs.index_i());
++        auto view_j = atlas::array::make_view<int, 1>(fs.index_j());
++        std::vector<double> north(field_internal.shape(1), 0.0);
++        std::vector<double> south(field_internal.shape(1), 0.0);
++        for (atlas::idx_t j = fs.j_begin(); j < fs.j_end(); ++j) {
++          for (atlas::idx_t i = fs.i_begin(j); i < fs.i_end(j); ++i) {
++            atlas::idx_t jnode = fs.index(i, j);
++            if (view_i(jnode) == 1) {
++              if (view_j(jnode) == 1) {
++                for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
++                  north[jlevel] = view(jnode, jlevel);
++                }
++              }
++              if (view_j(jnode) == grid.ny()) {
++                for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
++                  south[jlevel] = view(jnode, jlevel);
++                }
++              }
++            }
++          }
++        }
++
++        // Reduce
++        geom_->getComm().allReduceInPlace(north.begin(), north.end(), eckit::mpi::sum());
++        geom_->getComm().allReduceInPlace(south.begin(), south.end(), eckit::mpi::sum());
++
++        // Copy value
++        for (atlas::idx_t j = fs.j_begin_halo(); j < fs.j_end_halo(); ++j) {
++          for (atlas::idx_t i = fs.i_begin_halo(j); i < fs.i_end_halo(j); ++i) {
++            atlas::idx_t jnode = fs.index(i, j);
++            if (view_j(jnode) == 1) {
++              for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
++                view(jnode, jlevel) = north[jlevel];
++              }
++            }
++            if (view_j(jnode) == grid.ny()) {
++              for (atlas::idx_t jlevel = 0; jlevel < field_internal.shape(1); ++jlevel) {
++                view(jnode, jlevel) = south[jlevel];
++              }
++            }
++          }
++        }
++      }
++    } else {
++      throw eckit::NotImplemented("duplicate points not supported for this grid", Here());
++    }
++  }
++
++  oops::Log::trace() << classname() << "::resetDuplicatePoints done" << std::endl;
  }
 +
- // -----------------------------------------------------------------------------
++// -----------------------------------------------------------------------------
 +
 +#include "src/FieldsECImp.h"
 +
-+// -----------------------------------------------------------------------------
+ // -----------------------------------------------------------------------------
 +
  }  // namespace quench

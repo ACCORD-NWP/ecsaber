@@ -89,9 +89,6 @@ void Fields::interpolate(const Locations & locs,
     // Copy FieldSet
     atlas::FieldSet fset = util::copyFieldSet(fset_);
 
-    // Set duplicate points to the same value
-    resetDuplicatePoints(fset);
-
     // Horizontal interpolation
     interpolation->execute(fset, obsFieldSet);
 
@@ -191,6 +188,8 @@ void Fields::forceWith(const Fields & other,
 void Fields::synchronizeFields() {
   oops::Log::trace() << classname() << "::synchronizeFields starting" << std::endl;
 
+  // Set duplicate points to the same value
+  resetDuplicatePoints();
 
   oops::Log::trace() << classname() << "::synchronizeFields done" << std::endl;
 }

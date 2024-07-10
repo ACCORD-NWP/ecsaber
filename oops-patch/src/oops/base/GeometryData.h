@@ -16,6 +16,8 @@
 #include "atlas/util/Geometry.h"
 #include "atlas/util/KDTree.h"
 
+#include "oops/util/FunctionSpaceHelpers.h"
+
 namespace eckit {
 namespace mpi {
 class Comm;
@@ -68,6 +70,14 @@ class GeometryData {
   const atlas::Geometry earth_;
   atlas::util::IndexKDTree globalNodeTree_;  // JEDI grid nodes = model cell-centers
   atlas::util::IndexKDTree localCellCenterTree_;  // JEDI cell centers
+
+  // When the FunctionSpace is StructuredColumns, we'll need to map the Mesh indices used in the
+  // interpolation stencil computation onto the FunctionSpace indices used to read FieldSet data.
+  bool is_atlas_structured_columns_ = false;
+  util::StructuredMeshToStructuredColumnsIndexMap indexMapper_;
+  // When the grid is regular (in either StructuredColumns or NodeColumns), we need to look through
+  // more triangles at the poles to account for grid deformation.
+  int regular_grid_nx_ = -1;
 };
 
 // -----------------------------------------------------------------------------
