@@ -61,8 +61,13 @@ if( ENABLE_MKL )
 endif()
 if( ENABLE_MKL AND MKL_FOUND )
     set( LAPACK_LIBRARIES ${MKL_LIBRARIES} )
+    set( LAPACK_FOUND ON )
 else()
     find_package( LAPACK REQUIRED )
+    if( TARGET lapack )
+      ecbuild_debug( "LAPACK found as CMake target lapack" )
+      set( LAPACK_LIBRARIES lapack )
+    endif()
 endif()
 
 # OOPS
