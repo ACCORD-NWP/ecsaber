@@ -24,7 +24,7 @@ function( patch_init commandPath )
     endif()
 endfunction()
 
-function( check_diff projectName srcPath dstPath commandPath )
+function( check_diff srcPath dstPath commandPath )
     if( ECSABER_UPDATE )
         # Set JEDIPREFIX flag
         set( JEDIPREFIX ON )
