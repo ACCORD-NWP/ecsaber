@@ -123,10 +123,6 @@ else()
 endif()
 
 ## Sources
-set( ENABLE_QUENCHXX ON )
-if( DEFINED ENV{ENABLE_QUENCHXX} )
-    set( ENABLE_QUENCHXX $ENV{ENABLE_QUENCHXX} )
-endif()
 if( ENABLE_QUENCHXX )
     add_subdirectory( quench )
 endif()
