@@ -30,8 +30,8 @@ class SaberBlockParametersBase : public oops::Parameters {
   oops::RequiredParameter<std::string> saberBlockName{"saber block name", this};
 
   // PARAMETERS WITH DEFAULTS
-  // patch::Variables to update with left inverse for background and first guess
-  oops::Parameter<oops::patch::Variables> inverseVars{"state variables to inverse", oops::patch::Variables(),
+  // JediVariables to update with left inverse for background and first guess
+  oops::Parameter<oops::JediVariables> inverseVars{"state variables to inverse", oops::JediVariables(),
     this};
 
   // Flag to skip inverse application (for ensemble perturbations, background and first guess)
@@ -52,7 +52,7 @@ class SaberBlockParametersBase : public oops::Parameters {
 
   // OPTIONAL
   // Active variables
-  oops::OptionalParameter<oops::patch::Variables> activeVars{"active variables", this};
+  oops::OptionalParameter<oops::JediVariables> activeVars{"active variables", this};
 
   // Adjoint tolerance
   oops::OptionalParameter<double> adjointTolerance{"adjoint tolerance", this};
@@ -67,7 +67,7 @@ class SaberBlockParametersBase : public oops::Parameters {
   oops::OptionalParameter<double> innerInverseTolerance{"inner inverse tolerance", this};
 
   // Inner variables to compare in outer inverse test, default is all inner active variables.
-  oops::OptionalParameter<oops::patch::Variables> innerVariables{"inner variables to compare", this};
+  oops::OptionalParameter<oops::JediVariables> innerVariables{"inner variables to compare", this};
 
   // Localization parameters for the Ensemble block
   oops::OptionalParameter<eckit::LocalConfiguration> localization{"localization", this};
@@ -76,7 +76,7 @@ class SaberBlockParametersBase : public oops::Parameters {
   oops::OptionalParameter<double> outerInverseTolerance{"outer inverse tolerance", this};
 
   // Outer variables to compare in inner inverse test, default is all outer active variables.
-  oops::OptionalParameter<oops::patch::Variables> outerVariables{"outer variables to compare", this};
+  oops::OptionalParameter<oops::JediVariables> outerVariables{"outer variables to compare", this};
 
   // Read block parameters
   oops::OptionalParameter<eckit::LocalConfiguration> readParams{"read", this};
@@ -93,18 +93,18 @@ class SaberBlockParametersBase : public oops::Parameters {
 
   // VIRTUAL METHODS
   // Mandatory active variables
-  virtual oops::patch::Variables mandatoryActiveVars() const = 0;
+  virtual oops::JediVariables mandatoryActiveVars() const = 0;
 
   // Mandatory active inner variables, must be a subset of mandatoryActiveVars()
   // Used by utilities getUnionOfInnerActiveAndOuterVars() and getInnerOnlyVars()
-  virtual oops::patch::Variables activeInnerVars(const oops::patch::Variables & outerVars) const {
-    return oops::patch::Variables();
+  virtual oops::JediVariables activeInnerVars(const oops::JediVariables & outerVars) const {
+    return oops::JediVariables();
   }
 
   // Mandatory active outer variables, must be a subset of mandatoryActiveVars()
   // Can be used to define outer variables to allocate when randomizing
-  virtual oops::patch::Variables activeOuterVars(const oops::patch::Variables & outerVars) const {
-    return oops::patch::Variables();
+  virtual oops::JediVariables activeOuterVars(const oops::JediVariables & outerVars) const {
+    return oops::JediVariables();
   }
 };
 

@@ -48,13 +48,13 @@ Fields:
     FastLAM interpolation adjoint test passed
     FastLAM redToRows test passed
     FastLAM rowsToCols test passed
-Norm of output parameter normalized horizontal length-scale: 1.6165156190671885e+03
-Norm of output parameter weight - 0: 9.0923150181530062e+01
-Norm of output parameter weight - 1: 1.0144433228980117e+02
-Norm of output parameter weight - 2: 8.3073295733448305e+01
-Norm of output parameter normalization - 0: 2.2516083858506289e+02
-Norm of output parameter normalization - 1: 2.3912664898492469e+02
-Norm of output parameter normalization - 2: 2.3882479326608188e+02
+Norm of output parameter normalized horizontal length-scale: 1.6165156190671878e+03
+Norm of output parameter weight - 0: 9.0923150188455594e+01
+Norm of output parameter weight - 1: 1.0144433228743708e+02
+Norm of output parameter weight - 2: 8.3073295732831852e+01
+Norm of output parameter normalization - 0: 2.2516083858506283e+02
+Norm of output parameter normalization - 1: 2.3912664898492423e+02
+Norm of output parameter normalization - 2: 2.3882479326608160e+02
 Adjoint test for block FastLAM passed
 Square-root test for block FastLAM passed
 Covariance(SABER) * Increment:
@@ -80,6 +80,6 @@ Groups:
   - vert_coord: [1.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 2.1429746447582087e+01
+  stream_function: 2.1429746447581998e+01
   velocity_potential: 0.0000000000000000e+00
   surface_pressure: 0.0000000000000000e+00

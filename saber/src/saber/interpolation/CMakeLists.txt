@@ -8,11 +8,15 @@ list(APPEND interpolation_src_files_list
 AtlasInterpWrapper.cc
 AtlasInterpWrapper.h
 
+# Rescaling block for Atlas interpolation wrapper
+Rescaling.cc
+Rescaling.h
+
 # Interpolation block
-#Geometry.cc
-#Geometry.h
-#Interpolation.cc
-#Interpolation.h
+Geometry.cc
+Geometry.h
+Interpolation.cc
+Interpolation.h
 
 # VertProj block
 VertProj.cc

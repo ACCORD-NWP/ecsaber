@@ -1,19 +1,30 @@
 /*
+ * (C) Copyright 2021-2023 UCAR
  * (C) Copyright 2023 Meteorologisk Institutt
+ * (C) Crown Copyright 2024 Met Office
  *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
 #pragma once
 
+#include <math.h>
+#include <netcdf.h>
 #include <omp.h>
 
+#include <algorithm>
 #include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
+#include "atlas/functionspace.h"
+#include "atlas/util/Earth.h"
 
 #include "eckit/config/Configuration.h"
+#include "eckit/exception/Exceptions.h"
+#include "eckit/mpi/Comm.h"
 
 #include "oops/base/Increment4D.h"
 #include "oops/base/State4D.h"
@@ -23,8 +34,9 @@
 #include "oops/interface/State.h"
 #include "oops/interface/Variables.h"
 #include "oops/runs/Application.h"
-#include "oops/util/abor1_cpp.h"
+#include "oops/util/AtlasArrayUtil.h"
 #include "oops/util/ConfigFunctions.h"
+#include "oops/util/ConfigHelpers.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
@@ -35,6 +47,8 @@
 
 #include "saber/oops/instantiateCovarFactory.h"
 #include "saber/oops/ECUtilities.h"
+#include "saber/oops/Utilities.h"
+#include "saber/util/HorizontalProfiles.h"
 
 namespace saber {
 
@@ -79,6 +93,10 @@ class ErrorCovarianceToolboxParameters :
 
   /// Where to write the output of randomized variance.
   oops::OptionalParameter<eckit::LocalConfiguration> outputVariance{"output variance", this};
+
+  /// Whether and how to compute unidimensional covariance profiles for isotropic cases
+  oops::OptionalParameter<eckit::LocalConfiguration> covarianceProfile{
+                                    "covariance profile", this};
 };
 
 // -----------------------------------------------------------------------------
@@ -150,10 +168,10 @@ class ErrorCovarianceToolbox : public oops::Application {
     const std::vector<eckit::LocalConfiguration> stateConfs(params.background.value()
       .getSubConfigurations("state"));
     const Variables_ tmpVarsT(stateConfs[0]);
-    oops::patch::Variables tmpVars(tmpVarsT.variables().variablesList());
+    oops::JediVariables tmpVars(tmpVarsT.variables().variablesList());
     if (params.incrementVars.value() != boost::none) {
       const Variables_ incVarsT(*params.incrementVars.value());
-      const oops::patch::Variables incVars(incVarsT.variables().variablesList());
+      const oops::JediVariables incVars(incVarsT.variables().variablesList());
       if (incVars <= tmpVars) {
         tmpVars.intersection(incVars);
       } else {
@@ -161,7 +179,7 @@ class ErrorCovarianceToolbox : public oops::Application {
                                Here());
       }
     }
-    const oops::patch::Variables vars = tmpVars;
+    const oops::JediVariables vars = tmpVars;
     const Variables_ varsT(templatedVarsConf(vars));
 
     // Background error covariance parameters
@@ -194,10 +212,13 @@ class ErrorCovarianceToolbox : public oops::Application {
       // Update parameters
       auto outputDiracUpdated(*outputDirac);
       setMPI(outputDiracUpdated, ntasks);
+      testConf.set("output dirac", outputDiracUpdated);
 
-      // Add output Dirac configuration
-      eckit::LocalConfiguration outputConf(outputDiracUpdated);
-      testConf.set("output dirac", outputConf);
+      // Add covariance profile configuration
+      const auto & profileConfig = params.covarianceProfile.value();
+      if (profileConfig != boost::none) {
+        testConf.set("covariance profile", *profileConfig);
+      }
 
       // Apply B matrix components recursively
       std::string id;
@@ -249,7 +270,7 @@ class ErrorCovarianceToolbox : public oops::Application {
     // Get diagnostic values
     for (int jj = data.first(); jj <= data.last(); ++jj) {
       util::printDiagValues(oops::mpi::myself(),
-                            eckit::mpi::comm(),
+                            geom.geometry().getComm(),
                             geom.geometry().functionSpace(),
                             data[jj].increment().fieldSet(),
                             diagPoints[jj].increment().fieldSet());
@@ -257,6 +278,92 @@ class ErrorCovarianceToolbox : public oops::Application {
 
     oops::Log::trace() << appname() << "::print_value_at_position done" << std::endl;
   }
+// -----------------------------------------------------------------------------
+// The passed geometry should be consistent with the passed increment
+  void extract_1d_covariances(const eckit::LocalConfiguration & diracConf,
+                              const eckit::LocalConfiguration & profileConf,
+                              const Geometry_ & geom,
+                              const Increment4D_ & data) const {
+  oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
+
+  if (data.last()-data.first()+1 > 1) {
+    throw eckit::NotImplemented("Not implemented for 4D covariances", Here());
+  }
+
+  // Create dirac field
+  Increment4D_ diracPoints(data);
+  dirac4D(diracConf, diracPoints);
+
+  // Define maximum length of horizontal profile
+  double maxLength = std::numeric_limits<double>::infinity();
+  if (profileConf.has("maximum distance")) {
+    oops::Log::info() << "Info     : Reading user-provided maximum distance:" << std::endl;
+    maxLength = profileConf.getDouble("maximum distance");
+  } else {
+    // If no maximum length input is given, try to compute a default value from the grid
+    const auto & fspace = geom.geometry().functionSpace();
+    if (fspace.type() == "StructuredColumns") {
+      const atlas::functionspace::StructuredColumns fs(fspace);
+      if (fs.grid().name().compare(0, 1, "F") == 0) {
+        oops::Log::info() << "Info     : maximum distance computed as twice the cell "
+                             "length at the Equator:" << std::endl;
+        const int n = std::stoi(fs.grid().name().substr(1, std::string::npos));
+        maxLength = atlas::util::Earth().radius() * M_PI / n;
+      }
+    } else if (fspace.type() == "NodeColumns") {
+      const atlas::functionspace::NodeColumns fs(fspace);
+      if (fs.mesh().grid().name().compare(0, 7, "CS-LFR-") == 0) {
+        oops::Log::info() << "Info     : maximum distance computed as twice the cell "
+                             "length at the Equator:" << std::endl;
+        const int n = std::stoi(fs.mesh().grid().name().substr(7, std::string::npos));
+        maxLength = atlas::util::Earth().radius() * M_PI / n;
+      }
+    }
+  }
+  oops::Log::info() << "Info     : maximum distance is " << maxLength << " m." << std::endl;
+
+  // Boolean flag to remove duplicate points (is isotropy for instance)
+  const bool removeDuplicates = profileConf.getBool("remove duplicate distances",
+                                                    false);
+
+  // Get values as a function of separation distance
+  auto[distances, covariances, lons, lats, levs, fieldIndexes] =
+      util::sortBySeparationDistance(geom.geometry().getComm(),
+                                     geom.geometry().functionSpace(),
+                                     data[0].increment().fieldSet(),
+                                     diracPoints[0].increment().fieldSet(),
+                                     maxLength,
+                                     removeDuplicates);
+
+  // Write to file or to test Log
+  const auto & names = data[0].increment().fieldSet().field_names();
+  if (profileConf.has("output filepath")) {
+    // Write to file
+    const auto outputPath = profileConf.getString("output filepath");
+    util::write_1d_covariances(geom.geometry().getComm(),
+                               distances,
+                               covariances,
+                               lons,
+                               lats,
+                               levs,
+                               fieldIndexes,
+                               names,
+                               outputPath);
+  }
+  // Output first 10 values of first 10  profiles to test log
+  const int numProfiles = std::min(10, static_cast<int>(distances.size()));
+  for (int i=0; i < numProfiles; i++) {
+    oops::Log::test() << "Covariance profile for variable " << names[fieldIndexes[i]]
+                      << ", at level " << levs[i] << ": " << std::endl;
+    const int numValues = std::min(10, static_cast<int>(distances[i].size()));
+    const std::vector<double> subDist(distances[i].begin(), distances[i].begin() + numValues);
+    const std::vector<double> subCovs(covariances[i].begin(), covariances[i].begin() + numValues);
+    oops::Log::test() << "Separation distance: " << subDist << std::endl;
+    oops::Log::test() << "Covariance: " << subCovs << std::endl;
+  }
+
+  oops::Log::trace() << appname() << "::extract_1d_covariances done" << std::endl;
+}
 // -----------------------------------------------------------------------------
 // The passed geometry/variables should be consistent with the passed increment
   void dirac(const eckit::LocalConfiguration & covarConf,
@@ -304,6 +411,20 @@ class ErrorCovarianceToolbox : public oops::Application {
       // Print covariances
       oops::Log::test() << "- Covariances at diagnostic points:" << std::endl;
       print_value_at_positions(testConf.getSubConfiguration("diagnostic points"), geom, dxo);
+    }
+
+    if (testConf.has("covariance profile")) {
+      oops::Log::test() << "Extracting covariances as a function of separation distance"
+                        << std::endl;
+      eckit::LocalConfiguration covProfileConf(testConf.getSubConfiguration("covariance profile"));
+
+      // Seek and replace %id% with id, recursively
+      util::seekAndReplace(covProfileConf, "%id%", id);
+
+      extract_1d_covariances(testConf.getSubConfiguration("dirac"),
+                             covProfileConf,
+                             geom,
+                             dxo);
     }
 
     // Copy configuration

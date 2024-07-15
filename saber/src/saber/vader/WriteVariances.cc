@@ -240,11 +240,11 @@ void WriteVariances::writeToFile(const eckit::mpi::Comm & comm,
   std::size_t root(0);
   // If the `fieldNames` list is empty, write out all fields in `fset`.
   atlas::FieldSet fsetWrite;
-  oops::patch::Variables variablesToWrite;
+  oops::JediVariables variablesToWrite;
   if (params_.fieldNames.value().empty()) {
-    variablesToWrite = oops::patch::Variables{fset.field_names()};
+    variablesToWrite = oops::JediVariables{fset.field_names()};
   } else {
-    variablesToWrite = oops::patch::Variables(params_.fieldNames.value());
+    variablesToWrite = oops::JediVariables(params_.fieldNames.value());
   }
   for (const auto & field : fset) {
     if (variablesToWrite.has(field.name())) {
@@ -281,12 +281,15 @@ void WriteVariances::writeToFile(const eckit::mpi::Comm & comm,
                                              "model levels"};
     const std::vector<atlas::idx_t> dim_sizes{fsetWrite[0].shape()[0],
                                               fsetWrite[0].shape()[1]};
-    std::vector<std::string> field_names = fsetWrite.field_names();
+    oops::JediVariables fsetVars(variablesToWrite);
 
     std::vector<std::vector<std::string>> dim_names_for_every_var;
-    for (auto & field : field_names) {
-      field.append(" horizontally-averaged variance");
+
+    eckit::LocalConfiguration netcdfMetaData;
+    for (const oops::Variable & var : fsetVars) {
       dim_names_for_every_var.push_back(dim_names);
+      util::setAttribute<std::string>(
+        netcdfMetaData, var.name(), "statistics type", "string", "horizontally-averaged variance");
     }
 
     std::vector<int> netcdf_general_ids;
@@ -298,8 +301,9 @@ void WriteVariances::writeToFile(const eckit::mpi::Comm & comm,
       ::util::atlasArrayWriteHeader(filepathnc,
                                     dim_names,
                                     dim_sizes,
-                                    field_names,
+                                    fsetVars,
                                     dim_names_for_every_var,
+                                    netcdfMetaData,
                                     netcdf_general_ids,
                                     netcdf_dim_ids,
                                     netcdf_var_ids,
@@ -342,7 +346,7 @@ void WriteVariances::diagnostics(const std::string & tag,
 // -----------------------------------------------------------------------------
 
 WriteVariances::WriteVariances(const oops::GeometryData & outerGeometryData,
-                               const oops::patch::Variables & outerVars,
+                               const oops::JediVariables & outerVars,
                                const eckit::Configuration & covarConfig,
                                const Parameters_ & params,
                                const oops::FieldSet3D & xb,

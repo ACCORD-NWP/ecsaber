@@ -1,0 +1,29 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/quenchErrorCovarianceToolbox.cc.tmp	2024-07-04 13:56:20.604086754 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/quenchErrorCovarianceToolbox.cc	2024-07-04 11:12:45.487034018 +0200
+@@ -1,5 +1,5 @@
+ /*
+- * (C) Copyright 2022 UCAR.
++ * (C) Copyright 2024 Meteorologisk Institutt.
+  *
+  * This software is licensed under the terms of the Apache Licence Version 2.0
+  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+@@ -7,12 +7,16 @@
+ 
+ #include "oops/runs/Run.h"
+ #include "saber/oops/ErrorCovarianceToolbox.h"
+-#include "saber/oops/instantiateCovarFactory.h"
++#include "src/instantiateQuenchMatrices.h"
++#include "src/Logbook.h"
+ #include "src/Traits.h"
+ 
+ int main(int argc,  char ** argv) {
+   oops::Run run(argc, argv);
+-  saber::instantiateCovarFactory<quench::Traits>();
++  quench::instantiateQuenchMatrices();
+   saber::ErrorCovarianceToolbox<quench::Traits> ect;
+-  return run.execute(ect);
++  quench::Logbook::start();
++  run.execute(ect);
++  quench::Logbook::stop();
++  return 0;
+ }

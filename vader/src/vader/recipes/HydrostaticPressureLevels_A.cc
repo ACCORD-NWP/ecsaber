@@ -41,12 +41,12 @@ std::string HydrostaticPressureLevels_A::name() const {
   return HydrostaticPressureLevels_A::Name;
 }
 
-std::string HydrostaticPressureLevels_A::product() const {
-  return "hydrostatic_pressure_levels";
+oops::Variable HydrostaticPressureLevels_A::product() const {
+  return oops::Variable{"hydrostatic_pressure_levels"};
 }
 
-std::vector<std::string> HydrostaticPressureLevels_A::ingredients() const {
-  return {"hydrostatic_exner_levels"};
+oops::JediVariables HydrostaticPressureLevels_A::ingredients() const {
+  return oops::JediVariables{std::vector<std::string>{"hydrostatic_exner_levels"}};
 }
 
 size_t HydrostaticPressureLevels_A::productLevels(const atlas::FieldSet & afieldset) const {

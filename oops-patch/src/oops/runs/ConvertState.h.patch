@@ -128,13 +128,13 @@
 -
 -    // Setup change of variable
 -    std::unique_ptr<VariableChange_> vc;
--    oops::patch::Variables varout;
+-    oops::JediVariables varout;
 -    bool inverse = false;
 -    if (params.varChange.value() != boost::none) {
 -      eckit::LocalConfiguration chconf(params.varChange.value()->toConfiguration());
 -      if (chconf.has("output variables")) {
 -        vc.reset(new VariableChange_(chconf, resol2));
--        varout = patch::Variables(chconf, "output variables");
+-        varout = JediVariables(chconf, "output variables");
 -        inverse = chconf.getBool("do inverse", false);
 -      }
 +
@@ -181,7 +181,7 @@
 -//    Variable transform(s)
 -      if (vc) {
 -          // Create variable change
--        oops::patch::Variables varin = xx.variables();
+-        oops::JediVariables varin = xx.variables();
 -        if (inverse) {
 -          vc->changeVarInverse(xx, varout);
 -        } else {

@@ -27,7 +27,7 @@ namespace generic {
 class IDParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(IDParameters, SaberBlockParametersBase)
  public:
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ class IDCentral : public SaberCentralBlockBase {
   typedef IDParameters Parameters_;
 
   IDCentral(const oops::GeometryData &,
-            const oops::patch::Variables &,
+            const oops::JediVariables &,
             const eckit::Configuration &,
             const Parameters_ &,
             const oops::FieldSet3D &,
@@ -56,7 +56,7 @@ class IDCentral : public SaberCentralBlockBase {
 
  private:
   const oops::GeometryData & geometryData_;
-  const oops::patch::Variables activeVars_;
+  const oops::JediVariables activeVars_;
   size_t ctlVecSize_;
   void print(std::ostream &) const override;
 };
@@ -70,7 +70,7 @@ class IDOuter : public SaberOuterBlockBase {
   typedef IDParameters Parameters_;
 
   IDOuter(const oops::GeometryData &,
-          const oops::patch::Variables &,
+          const oops::JediVariables &,
           const eckit::Configuration &,
           const Parameters_ &,
           const oops::FieldSet3D &,
@@ -79,7 +79,7 @@ class IDOuter : public SaberOuterBlockBase {
   virtual ~IDOuter() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -88,7 +88,7 @@ class IDOuter : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables innerVars_;
 };
 
 // -----------------------------------------------------------------------------

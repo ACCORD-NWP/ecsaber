@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "oops/base/Variables.h"
 #include "oops/util/parameters/OptionalParameter.h"
@@ -27,25 +28,24 @@ class GaussUVToGPParameters : public SaberBlockParametersBase {
  public:
   oops::OptionalParameter<std::string> modelGridName{"model grid name", this};
   oops::OptionalParameter<std::string> gaussState{"gauss state", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
+    std::vector<std::string>{
     "eastward_wind",
     "geostrophic_pressure_levels_minus_one",
-    "northward_wind"});}
+    "northward_wind"}});}
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"eastward_wind",
-                          "northward_wind"});
-    const int modelLevels = outerVars.getLevels("geostrophic_pressure_levels_minus_one");
-    vars.addMetaData("eastward_wind", "levels", modelLevels);
-    vars.addMetaData("northward_wind", "levels", modelLevels);
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    const int modelLevels = outerVars["geostrophic_pressure_levels_minus_one"].getLevels();
+    eckit::LocalConfiguration conf;
+    conf.set("levels", modelLevels);
+    oops::JediVariables vars;
+    vars.push_back(oops::Variable{"eastward_wind", conf});
+    vars.push_back(oops::Variable{"northward_wind", conf});
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"geostrophic_pressure_levels_minus_one"});
-    for (const auto & var : vars.variables()) {
-      vars.addMetaData(var, "levels", outerVars.getLevels(var));
-    }
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars{{outerVars["geostrophic_pressure_levels_minus_one"]}};
     return vars;
   }
 };
@@ -69,25 +69,24 @@ class GpToHpParameters : public SaberBlockParametersBase {
  public:
   oops::RequiredParameter<GpToHpCovarianceParameters>
     gptohpcovarianceparams{"covariance data", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
+    std::vector<std::string>{
     "geostrophic_pressure_levels_minus_one",
     "hydrostatic_pressure_levels",
-    "unbalanced_pressure_levels_minus_one"});}
+    "unbalanced_pressure_levels_minus_one"}});}
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"geostrophic_pressure_levels_minus_one",
-                          "unbalanced_pressure_levels_minus_one"});
-    const int modelLevels = outerVars.getLevels("hydrostatic_pressure_levels") - 1;
-    vars.addMetaData("geostrophic_pressure_levels_minus_one", "levels", modelLevels);
-    vars.addMetaData("unbalanced_pressure_levels_minus_one", "levels", modelLevels);
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    const int modelLevels = outerVars["hydrostatic_pressure_levels"].getLevels() - 1;
+    eckit::LocalConfiguration conf;
+    conf.set("levels", modelLevels);
+    oops::JediVariables vars;
+    vars.push_back(oops::Variable{"geostrophic_pressure_levels_minus_one", conf});
+    vars.push_back(oops::Variable{"unbalanced_pressure_levels_minus_one", conf});
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"hydrostatic_pressure_levels"});
-    for (const auto & var : vars.variables()) {
-      vars.addMetaData(var, "levels", outerVars.getLevels(var));
-    }
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({outerVars["hydrostatic_pressure_levels"]});
     return vars;
   }
 };
@@ -100,36 +99,38 @@ class HydrostaticPressureParameters : public SaberBlockParametersBase {
  public:
   GaussUVToGPParameters gaussUVToGp{this};
   GpToHpParameters gpToHp{this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
-    "eastward_wind",
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
+    std::vector<std::string>{"eastward_wind",
     "hydrostatic_pressure_levels",
     "northward_wind",
-    "unbalanced_pressure_levels_minus_one"});}
+    "unbalanced_pressure_levels_minus_one"}});}
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"eastward_wind",
-                          "northward_wind",
-                          "unbalanced_pressure_levels_minus_one"});
-    const int modelLevels = outerVars.getLevels("hydrostatic_pressure_levels") - 1;
-    vars.addMetaData("eastward_wind", "levels", modelLevels);
-    vars.addMetaData("northward_wind", "levels", modelLevels);
-    vars.addMetaData("unbalanced_pressure_levels_minus_one", "levels", modelLevels);
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    const int modelLevels = outerVars["hydrostatic_pressure_levels"].getLevels() - 1;
+    eckit::LocalConfiguration conf;
+    conf.set("levels", modelLevels);
+    oops::JediVariables vars;
+    vars.push_back(oops::Variable{"eastward_wind", conf});
+    vars.push_back(oops::Variable{"northward_wind", conf});
+    vars.push_back(oops::Variable{"unbalanced_pressure_levels_minus_one", conf});
     return vars;
   }
 
   // activeOuterVars() is not needed in this super-block.
   // It would have contained "hydrostatic_pressure_levels".
 
-  oops::patch::Variables intermediateTempVars(const oops::patch::Variables& outerVars) const {
-    oops::patch::Variables tempVars({"geostrophic_pressure_levels_minus_one"});
+  oops::JediVariables intermediateTempVars(const oops::JediVariables& outerVars) const {
     if (outerVars.has("geostrophic_pressure_levels_minus_one")) {
       throw eckit::UserError("geostrophic_pressure_levels_minus_one is a "
                              "temporary variable of mo_hydrostatic_pressure "
                              " and should not be an outer variable of this block.",
                              Here());
     }
-    const int modelLevels = outerVars.getLevels("hydrostatic_pressure_levels") - 1;
-    tempVars.addMetaData("geostrophic_pressure_levels_minus_one", "levels", modelLevels);
+    const int modelLevels = outerVars["hydrostatic_pressure_levels"].getLevels() - 1;
+    eckit::LocalConfiguration conf;
+    conf.set("levels", modelLevels);
+    oops::JediVariables tempVars;
+    tempVars.push_back(oops::Variable{"geostrophic_pressure_levels_minus_one", conf});
     return tempVars;
   }
 };

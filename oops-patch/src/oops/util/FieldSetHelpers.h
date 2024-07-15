@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "atlas/field.h"
@@ -72,6 +73,21 @@ bool compareFieldSets(const atlas::FieldSet &,
                       const bool & absolute = true);
 std::string getGridUid(const atlas::FunctionSpace &);
 std::string getGridUid(const atlas::FieldSet &);
+
+/// Extract coordinates and values of Field points in dataFieldSet at indices
+/// where the corresponding Field point in diagFieldSet is unity
+std::tuple< std::vector<double>,
+            std::vector<double>,
+            std::vector<size_t>,
+            std::vector<size_t>,
+            std::vector<double>,
+            std::vector<size_t>>
+extractUnityPoints(const eckit::mpi::Comm &,
+                   const eckit::mpi::Comm &,
+                   const atlas::FunctionSpace &,
+                   const atlas::FieldSet & dataFieldSet,
+                   const atlas::FieldSet & diagFieldSet);
+
 void printDiagValues(const eckit::mpi::Comm &,
                      const eckit::mpi::Comm &,
                      const atlas::FunctionSpace &,
@@ -101,22 +117,22 @@ void writeRank3FieldSet(const atlas::FieldSet &,
                         const double &);
 
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace &,
-                               const oops::patch::Variables &);
+                               const oops::JediVariables &);
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace &,
-                               const oops::patch::Variables &,
+                               const oops::JediVariables &,
                                const double &);
 atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm &,
                                      const atlas::FunctionSpace &,
-                                     const oops::patch::Variables &);
+                                     const oops::JediVariables &);
 /// Returns a fieldset with the same smooth field for all variables.
 /// Useful for testing interpolation.
 atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm &,
                                      const atlas::FunctionSpace &,
-                                     const oops::patch::Variables &);
+                                     const oops::JediVariables &);
 
 void readFieldSet(const eckit::mpi::Comm &,
                   const atlas::FunctionSpace &,
-                  const oops::patch::Variables &,
+                  const oops::JediVariables &,
                   const eckit::Configuration &,
                   atlas::FieldSet &);
 

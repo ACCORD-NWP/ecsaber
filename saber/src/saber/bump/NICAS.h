@@ -36,7 +36,7 @@ class NICASParameters : public SaberBlockParametersBase {
   oops::OptionalParameter<BUMPParameters> readParams{"read", this};
   oops::OptionalParameter<BUMPParameters> calibrationParams{"calibration", this};
 
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ class NICAS : public SaberCentralBlockBase {
   typedef NICASParameters Parameters_;
 
   NICAS(const oops::GeometryData &,
-        const oops::patch::Variables &,
+        const oops::JediVariables &,
         const eckit::Configuration &,
         const Parameters_ &,
         const oops::FieldSet3D &,
@@ -81,7 +81,7 @@ class NICAS : public SaberCentralBlockBase {
 
  private:
   void print(std::ostream &) const override;
-  oops::patch::Variables activeVars_;
+  oops::JediVariables activeVars_;
   BUMPParameters bumpParams_;
   std::unique_ptr<BUMP> bump_;
   size_t memberIndex_;

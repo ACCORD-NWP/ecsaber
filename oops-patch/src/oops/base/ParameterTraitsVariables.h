@@ -16,19 +16,19 @@
 #include "oops/util/parameters/ParameterTraits.h"
 
 /// \file ParameterTraitsVariables.h
-/// This file needs to be included before any uses of (Required/Optional)Parameter<patch::Variables>.
+/// This file needs to be included before any uses of (Required/Optional)Parameter<JediVariables>.
 
 namespace oops {
 
 /// \brief Specialization of ParameterTraits needed for serialization and deserialization of
-/// instances of patch::Variables to/from Parameter objects.
+/// instances of JediVariables to/from Parameter objects.
 template <>
-struct ParameterTraits<patch::Variables> {
-  static boost::optional<patch::Variables> get(util::CompositePath &path,
+struct ParameterTraits<JediVariables> {
+  static boost::optional<JediVariables> get(util::CompositePath &path,
                                         const eckit::Configuration &config,
                                         const std::string& name) {
     if (config.has(name)) {
-      return patch::Variables(config, name);
+      return JediVariables(config, name);
     } else {
       return boost::none;
     }
@@ -36,7 +36,7 @@ struct ParameterTraits<patch::Variables> {
 
   static void set(eckit::LocalConfiguration &config,
                   const std::string &name,
-                  const patch::Variables &value) {
+                  const JediVariables &value) {
     config.set(name, value.variables());
   }
 
@@ -45,7 +45,7 @@ struct ParameterTraits<patch::Variables> {
     return ObjectJsonSchema({{name, nameSchema.properties().at("")}});
   }
 
-  static std::string valueAsJson(const patch::Variables &value);
+  static std::string valueAsJson(const JediVariables &value);
 };
 
 }  // namespace oops

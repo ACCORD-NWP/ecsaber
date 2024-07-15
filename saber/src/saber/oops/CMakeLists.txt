@@ -4,10 +4,6 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 list( APPEND oops_src_files_list
-# EC utilities
-ECUtilities.cc
-ECUtilities.h
-
 # Parameters
 ErrorCovarianceParameters.h
 
@@ -15,17 +11,31 @@ ErrorCovarianceParameters.h
 ErrorCovariance.h
 Localization.h
 
-# Application
+# Applications
 ErrorCovarianceToolbox.h
 ProcessPerts.h
+AssimEnsemble.h
+EnsembleVariance.h
+EvilUpdate.h
+MakeObs.h
+BGOS.h
 
 # Utilities
+ECUtilities.cc
+ECUtilities.h
 Utilities.h
 Utilities.cc
 
 # Factories
 instantiateCovarFactory.h
 instantiateLocalizationFactory.h
+instantiateMinFactory.h
+
+# EVIL
+RitzPairs.h
+PLanczosEVILMinimizer.h
+RPLanczosEVILMinimizer.h
+SQRTPLanczosEVILMinimizer.h
 )
 
 set( oops_src_files ${oops_src_files_list} PARENT_SCOPE )

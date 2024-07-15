@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bump_5.yaml.tmp	2024-07-10 17:22:27.788373450 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bump_5.yaml	2024-07-10 17:21:11.403295129 +0200
+@@ -11,7 +11,7 @@
+     levels: 2
+   halo: 1
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - stream_function
+ background error:
+@@ -22,7 +22,7 @@
+   ensemble:
+     members from template:
+       template:
+-        date: '2010-01-01T12:00:00Z'
++        date: 2010-01-01T12:00:00Z
+         filepath: testdata/randomization_bump_nicas_L10L2/_MPI_-_OMP__member_%mem%
+ # TODO(Nate): switch to 12 when interpolator inverse is fixed
+ #        filepath: testdata/randomization_bump_nicas_L12L2/_MPI_-_OMP__member_%mem%

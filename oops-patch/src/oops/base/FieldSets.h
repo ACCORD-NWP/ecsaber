@@ -32,7 +32,7 @@ class FieldSets : public DataSetBase<FieldSet3D, atlas::FunctionSpace> {
             const std::vector<int> &, const eckit::mpi::Comm &);
 
   FieldSets(const atlas::FunctionSpace &,
-            const patch::Variables &,
+            const JediVariables &,
             const std::vector<util::DateTime> &,
             const eckit::Configuration &,
             const eckit::mpi::Comm &,

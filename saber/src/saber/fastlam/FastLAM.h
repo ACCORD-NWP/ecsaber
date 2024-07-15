@@ -38,7 +38,7 @@ class FastLAMParameters : public SaberBlockParametersBase {
   oops::OptionalParameter<FastLAMParametersBase> read{"read", this};
   oops::OptionalParameter<FastLAMParametersBase> calibration{"calibration", this};
 
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ class FastLAM : public SaberCentralBlockBase {
   typedef FastLAMParameters Parameters_;
 
   FastLAM(const oops::GeometryData &,
-          const oops::patch::Variables &,
+          const oops::JediVariables &,
           const eckit::Configuration &,
           const FastLAMParameters &,
           const oops::FieldSet3D &,
@@ -91,10 +91,10 @@ class FastLAM : public SaberCentralBlockBase {
   const eckit::mpi::Comm & comm_;
 
   // Active variables
-  const oops::patch::Variables activeVars_;
+  const oops::JediVariables activeVars_;
 
   // Active 2D variables
-  oops::patch::Variables active2dVars_;
+  oops::JediVariables active2dVars_;
 
   // Groups of variables
   struct Group {

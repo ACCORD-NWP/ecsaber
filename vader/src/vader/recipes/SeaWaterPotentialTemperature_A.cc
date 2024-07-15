@@ -21,12 +21,12 @@ namespace vader
 
 // Static attribute initialization
 const char SeaWaterPotentialTemperature_A::Name[] = "SeaWaterPotentialTemperature_A";
-const std::vector<std::string> SeaWaterPotentialTemperature_A::Ingredients = {
+const oops::JediVariables SeaWaterPotentialTemperature_A::Ingredients{std::vector<std::string>{
                                                                 "sea_water_temperature",
                                                                 "sea_water_salinity",
                                                                 "latitude",
                                                                 "longitude",
-                                                                "sea_water_depth"};
+                                                                "sea_water_depth"}};
 
 // Register the maker
 static RecipeMaker<SeaWaterPotentialTemperature_A> makerSWTempToSWPTemp_(
@@ -45,12 +45,12 @@ std::string SeaWaterPotentialTemperature_A::name() const
     return SeaWaterPotentialTemperature_A::Name;
 }
 
-std::string SeaWaterPotentialTemperature_A::product() const
+oops::Variable SeaWaterPotentialTemperature_A::product() const
 {
-    return "sea_water_potential_temperature";
+    return oops::Variable{"sea_water_potential_temperature"};
 }
 
-std::vector<std::string> SeaWaterPotentialTemperature_A::ingredients() const
+oops::JediVariables SeaWaterPotentialTemperature_A::ingredients() const
 {
     return SeaWaterPotentialTemperature_A::Ingredients;
 }

@@ -118,7 +118,7 @@ class SaberCentralBlockBase : public util::Printable, private boost::noncopyable
   // Read model fields
   template <typename MODEL>
   void read(const oops::Geometry<MODEL> &,
-            const oops::patch::Variables &);
+            const oops::JediVariables &);
 
   // Write model fields
   template <typename MODEL>
@@ -126,12 +126,12 @@ class SaberCentralBlockBase : public util::Printable, private boost::noncopyable
 
   // Adjoint test
   void adjointTest(const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const double &) const;
 
   // Square-root test
   void sqrtTest(const oops::GeometryData &,
-                const oops::patch::Variables &,
+                const oops::JediVariables &,
                 const double &) const;
 
  private:
@@ -158,7 +158,7 @@ class SaberCentralBlockParametersWrapper : public oops::Parameters {
 class SaberCentralBlockFactory {
  public:
   static std::unique_ptr<SaberCentralBlockBase> create(const oops::GeometryData &,
-                                                       const oops::patch::Variables &,
+                                                       const oops::JediVariables &,
                                                        const eckit::Configuration &,
                                                        const SaberBlockParametersBase &,
                                                        const oops::FieldSet3D &,
@@ -177,7 +177,7 @@ class SaberCentralBlockFactory {
 
  private:
   virtual std::unique_ptr<SaberCentralBlockBase> make(const oops::GeometryData &,
-                                                      const oops::patch::Variables &,
+                                                      const oops::JediVariables &,
                                                       const eckit::Configuration &,
                                                       const SaberBlockParametersBase &,
                                                       const oops::FieldSet3D &,
@@ -198,7 +198,7 @@ class SaberCentralBlockMaker : public SaberCentralBlockFactory {
   typedef typename T::Parameters_ Parameters_;
 
   std::unique_ptr<SaberCentralBlockBase> make(const oops::GeometryData & geometryData,
-                                              const oops::patch::Variables & outerVars,
+                                              const oops::JediVariables & outerVars,
                                               const eckit::Configuration & covarConf,
                                               const SaberBlockParametersBase & params,
                                               const oops::FieldSet3D & xb,
@@ -220,7 +220,7 @@ class SaberCentralBlockMaker : public SaberCentralBlockFactory {
 
 template <typename MODEL>
 void SaberCentralBlockBase::read(const oops::Geometry<MODEL> & geom,
-                                 const oops::patch::Variables & vars) {
+                                 const oops::JediVariables & vars) {
   oops::Log::trace() << "SaberCentralBlockBase::read starting" << std::endl;
 
   // Read fieldsets as increments

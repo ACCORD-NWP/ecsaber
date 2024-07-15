@@ -45,7 +45,7 @@ static SaberOuterBlockMaker<HydroBal> makerHydroBal_("mo_hydro_bal");
 // -----------------------------------------------------------------------------
 
 HydroBal::HydroBal(const oops::GeometryData & outerGeometryData,
-                   const oops::patch::Variables & outerVars,
+                   const oops::JediVariables & outerVars,
                    const eckit::Configuration & covarConf,
                    const Parameters_ & params,
                    const oops::FieldSet3D & xb,

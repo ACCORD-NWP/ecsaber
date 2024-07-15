@@ -1,14 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_ens_other_geom_1.ref.tmp	2024-05-22 11:25:08.542620145 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_ens_other_geom_1.ref	2024-05-22 11:23:03.302415538 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_ens_other_geom_1.ref.tmp	2024-07-10 17:22:29.456396998 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_ens_other_geom_1.ref	2024-07-10 17:21:39.523692102 +0200
 @@ -19,9 +19,9 @@
    velocity_potential: 0.0000000000000000e+00
  Covariance(SABER) diagnostics:
  - Variances at Dirac points:
 -  + Value for variable streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.1392401895206898e+08
-+  + Value for variable streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.1394289176753896e+08
++  + Value for variable streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.1392401803871912e+08
  - Covariances at diagnostic points:
 -  + Value for variable streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.1392401895206898e+08
-+  + Value for variable streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.1394289176753896e+08
++  + Value for variable streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.1392401803871912e+08
  Covariance(SABER) * Increment:
  Valid time:2010-01-01T12:00:00Z
  Quench geometry grid:
@@ -17,5 +17,5 @@
    Mask size: 100%
  Fields:
 -  streamfunction: 5.5098040319469978e+10
-+  streamfunction: 5.5099952602269676e+10
++  streamfunction: 5.5098040231158760e+10
    velocity_potential: 0.0000000000000000e+00

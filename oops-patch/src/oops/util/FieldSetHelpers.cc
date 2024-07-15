@@ -12,12 +12,14 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <tuple>
 
 #include "atlas/array.h"
 #include "atlas/field.h"
 #include "atlas/util/function/VortexRollup.h"
 
 #include "eckit/exception/Exceptions.h"
+#include "eckit/mpi/Comm.h"
 #include "eckit/utils/Hash.h"
 
 #include "oops/util/abor1_cpp.h"
@@ -112,7 +114,6 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
 
   // Create FieldSet
   atlas::FieldSet fset = createFieldSet(fspace, variableSizes, vars);
-
   for (auto & field : fset) {
     // Get field owned size
     size_t n = 0;
@@ -339,7 +340,13 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
       }
     }
 
-    fset.set_dirty(false);  // smooth function will be up-to-date at ghost points
+    // As of atlas 0.37, the vortex_rollup function is not single-valued at the "across the pole"
+    // ghost points that atlas sets up for structured grids. The function will have different
+    // values at (lon,lat) = (lon,91) vs (lon+180,89), even though these two coordinates describe
+    // the same point on the sphere. Therefore, we must perform a halo exchange to correctly fill
+    // the halo regions for structured grids.
+    // For simplicity we just do the halo exchange for all grids...
+    fset.set_dirty(true);
 
     // Set metadata for interpolation type
     field.metadata().set("interp_type", "default");
@@ -699,13 +706,18 @@ std::string getGridUid(const atlas::FieldSet & fset) {
 }
 
 // -----------------------------------------------------------------------------
-
-void printDiagValues(const eckit::mpi::Comm & timeComm,
-                     const eckit::mpi::Comm & comm,
-                     const atlas::FunctionSpace & fspace,
-                     const atlas::FieldSet & dataFset,
-                     const atlas::FieldSet & diagFset) {
-  oops::Log::trace() << "printDiagValues starting" << std::endl;
+std::tuple< std::vector<double>,
+            std::vector<double>,
+            std::vector<size_t>,
+            std::vector<size_t>,
+            std::vector<double>,
+            std::vector<size_t>>
+extractUnityPoints(const eckit::mpi::Comm & timeComm,
+                   const eckit::mpi::Comm & comm,
+                   const atlas::FunctionSpace & fspace,
+                   const atlas::FieldSet & dataFset,
+                   const atlas::FieldSet & diagFset) {
+  oops::Log::trace() << "extractUnityPoints starting" << std::endl;
 
   // Pull out local values of lon/lat/data where diag is unity
   std::vector<double> locLons;
@@ -729,7 +741,7 @@ void printDiagValues(const eckit::mpi::Comm & timeComm,
           // Diagnostic point found
           locLons.push_back(lonlatView(jnode, 0));
           locLats.push_back(lonlatView(jnode, 1));
-          locLevs.push_back(jlevel+1);
+          locLevs.push_back(jlevel);
           locSubWindows.push_back(timeComm.rank());
           locValues.push_back(dataView(jnode, jlevel));
           locFieldIndex.push_back(counter);
@@ -794,6 +806,22 @@ void printDiagValues(const eckit::mpi::Comm & timeComm,
       }
     }
   }
+  oops::Log::trace() << "extractUnityPoints about to exit..." << std::endl;
+  return std::tuple(lons, lats, levs, subWindows, values, fieldIndex);
+}
+
+// -----------------------------------------------------------------------------
+void printDiagValues(const eckit::mpi::Comm & timeComm,
+                     const eckit::mpi::Comm & comm,
+                     const atlas::FunctionSpace & fspace,
+                     const atlas::FieldSet & dataFset,
+                     const atlas::FieldSet & diagFset) {
+  oops::Log::trace() << "printDiagValues starting" << std::endl;
+
+  // Pull out values of lons, lats, levs where diagFset is unity.
+  // Values are gathered on root MPI task w.r.t. geometry communicator.
+  auto[lons, lats, levs, subWindows, values, fieldIndex]
+          = extractUnityPoints(timeComm, comm, fspace, dataFset, diagFset);
 
   // Gather global values onto root MPI task (w.r.t. time communicator, hence 't' prefix)
   if (comm.rank() == 0) {
@@ -838,7 +866,7 @@ void printDiagValues(const eckit::mpi::Comm & timeComm,
                               << std::fixed << std::setprecision(5)
                               << ", at (longitude, latitude, vertical index) point ("
                               << lonsOnRoot[i] << ", " << latsOnRoot[i]
-                              << ", " << levsOnRoot[i] << "): "
+                              << ", " << levsOnRoot[i] + 1 << "): "
                               << std::scientific << std::setprecision(16)
                               << valuesOnRoot[i] << std::endl;
           }
@@ -1648,10 +1676,10 @@ void writeRank3FieldSet(const atlas::FieldSet & fset,
 // -----------------------------------------------------------------------------
 
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
-                               const oops::patch::Variables & vars) {
+                               const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   return createFieldSet(fspace, variableSizes, vars.variables());
 }
@@ -1659,11 +1687,11 @@ atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
 // -----------------------------------------------------------------------------
 
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
-                               const oops::patch::Variables & vars,
+                               const oops::JediVariables & vars,
                                const double & initalizationValue) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   return createFieldSet(fspace, variableSizes, vars.variables(), initalizationValue);
 }
@@ -1672,10 +1700,10 @@ atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
 
 atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
                                      const atlas::FunctionSpace & fspace,
-                                     const oops::patch::Variables & vars) {
+                                     const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   return createRandomFieldSet(comm, fspace, variableSizes, vars.variables());
 }
@@ -1684,10 +1712,10 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
 
 atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
                                      const atlas::FunctionSpace & fspace,
-                                     const oops::patch::Variables & vars) {
+                                     const oops::JediVariables & vars) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   return createSmoothFieldSet(comm, fspace, variableSizes, vars.variables());
 }
@@ -1696,12 +1724,12 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
 
 void readFieldSet(const eckit::mpi::Comm & comm,
                   const atlas::FunctionSpace & fspace ,
-                  const oops::patch::Variables & vars,
+                  const oops::JediVariables & vars,
                   const eckit::Configuration & config,
                   atlas::FieldSet & fset) {
   std::vector<size_t> variableSizes;
-  for (const std::string & var : vars.variables()) {
-    variableSizes.push_back(vars.getLevels(var));
+  for (const auto & var : vars) {
+    variableSizes.push_back(var.getLevels());
   }
   readFieldSet(comm, fspace, variableSizes, vars.variables(), config, fset);
 }

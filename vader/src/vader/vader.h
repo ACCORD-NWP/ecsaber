@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2021 UCAR
+ * (C) Copyright 2021-2024 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "atlas/field/FieldSet.h"
+#include "oops/base/Variable.h"
 #include "oops/base/Variables.h"
 #include "oops/util/Printable.h"
 #include "RecipeBase.h"
@@ -21,7 +22,7 @@
 
 namespace vader {
 
-typedef std::map<std::string, std::vector<std::string>> cookbookConfigType;
+typedef std::map<oops::Variable, std::vector<std::string>> cookbookConfigType;
 // configCookbookKey is a key that can optionally be provided in the eckit::LocalConfiguration
 // that can be passed as the second parameter of the Vader constructor. If passed, the value
 // is used to define the Vader cookbook for the vader instance. If not passed, the default Vader
@@ -57,7 +58,7 @@ class Vader  : public util::Printable {
  public:
     static const std::string classname() {return "Vader";}
     static const cookbookConfigType defaultCookbookDefinition;
-    typedef  std::vector<std::pair<std::string,
+    typedef  std::vector<std::pair<oops::Variable,
                                    const std::unique_ptr<RecipeBase> & >> vaderPlanType;
     Vader(const VaderParameters & parameters,
           const eckit::Configuration & config = eckit::LocalConfiguration());
@@ -69,29 +70,29 @@ class Vader  : public util::Printable {
     std::vector<std::string> getPlanNames(vaderPlanType plan) const;
 
     /// Calculates as many variables in the list as possible
-    oops::patch::Variables changeVar(atlas::FieldSet &, oops::patch::Variables &,
+    oops::JediVariables changeVar(atlas::FieldSet &, oops::JediVariables &,
                               vaderPlanType plan = vaderPlanType()) const;
-    oops::patch::Variables changeVarTraj(atlas::FieldSet &, oops::patch::Variables &);
-    oops::patch::Variables changeVarTL(atlas::FieldSet &, oops::patch::Variables &) const;
-    oops::patch::Variables changeVarAD(atlas::FieldSet &, oops::patch::Variables &) const;
+    oops::JediVariables changeVarTraj(atlas::FieldSet &, oops::JediVariables &);
+    oops::JediVariables changeVarTL(atlas::FieldSet &, oops::JediVariables &) const;
+    oops::JediVariables changeVarAD(atlas::FieldSet &, oops::JediVariables &) const;
 
  private:
-    std::map<std::string, std::vector<std::unique_ptr<RecipeBase>>> cookbook_;
+    std::map<oops::Variable, std::vector<std::unique_ptr<RecipeBase>>> cookbook_;
     vaderPlanType recipeExecutionPlan_;
     atlas::FieldSet trajectory_;
     const eckit::LocalConfiguration configVariables_;
-    std::map<std::string, std::vector<std::string>>
+    std::map<oops::Variable, std::vector<std::string>>
         getDefaultCookbookDef();
 
     void createCookbook(const cookbookConfigType &,
                         const std::vector<RecipeParametersWrapper> & allRecpParamWraps =
                               std::vector<RecipeParametersWrapper>());
 
-    bool planVariable(std::vector<std::string> &,
-                      oops::patch::Variables &,
-                      const std::string,
+    bool planVariable(oops::JediVariables &,
+                      oops::JediVariables &,
+                      const oops::Variable &,
                       bool,
-                      oops::patch::Variables &,
+                      oops::JediVariables &,
                       vaderPlanType &) const;
 
     void executePlanNL(atlas::FieldSet &, const vaderPlanType &) const;

@@ -41,12 +41,12 @@ std::string LogDerivativeSaturationVaporPressure_A::name() const {
   return LogDerivativeSaturationVaporPressure_A::Name;
 }
 
-std::string LogDerivativeSaturationVaporPressure_A::product() const {
-  return "dlsvpdT";
+oops::Variable LogDerivativeSaturationVaporPressure_A::product() const {
+  return oops::Variable{"dlsvpdT"};
 }
 
-std::vector<std::string> LogDerivativeSaturationVaporPressure_A::ingredients() const {
-  return {"air_temperature"};
+oops::JediVariables LogDerivativeSaturationVaporPressure_A::ingredients() const {
+  return oops::JediVariables{std::vector<std::string>{"air_temperature"}};
 }
 
 size_t LogDerivativeSaturationVaporPressure_A::productLevels(

@@ -19,8 +19,8 @@ namespace vader
 
 // Static attribute initialization
 const char CloudIceMixingRatio_A::Name[] = "CloudIceMixingRatio_A";
-const std::vector<std::string> CloudIceMixingRatio_A::
-    Ingredients = {"m_ci", "m_t"};
+const oops::JediVariables CloudIceMixingRatio_A::
+    Ingredients{std::vector<std::string>{"m_ci", "m_t"}};
 
 // Register the maker
 static RecipeMaker<CloudIceMixingRatio_A> makerTotalWater_A_(CloudIceMixingRatio_A::Name);
@@ -37,12 +37,12 @@ std::string CloudIceMixingRatio_A::name() const
     return CloudIceMixingRatio_A::Name;
 }
 
-std::string CloudIceMixingRatio_A::product() const
+oops::Variable CloudIceMixingRatio_A::product() const
 {
-    return "mass_content_of_cloud_ice_in_atmosphere_layer";
+    return oops::Variable{"mass_content_of_cloud_ice_in_atmosphere_layer"};
 }
 
-std::vector<std::string> CloudIceMixingRatio_A::ingredients() const
+oops::JediVariables CloudIceMixingRatio_A::ingredients() const
 {
     return CloudIceMixingRatio_A::Ingredients;
 }

@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_gsi_geos_global_opt_3.yaml.tmp	2024-07-10 17:22:28.584384688 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_gsi_geos_global_opt_3.yaml	2024-07-10 17:21:11.403295129 +0200
+@@ -49,7 +49,7 @@
+     - surface_pressure
+     levels: 1
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - stream_function
+   - velocity_potential

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-05-22 16:04:46.844371513 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-05-22 13:09:28.688445832 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-07-08 13:10:36.929929571 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-07-08 10:51:09.106086478 +0200
 @@ -23,15 +23,14 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -29,23 +29,30 @@
  
  namespace oops {
    class FieldSet3D;
-@@ -67,6 +67,11 @@
+@@ -67,11 +67,21 @@
  
  // -----------------------------------------------------------------------------
  
-+void setMember(eckit::LocalConfiguration & conf,
-+               const int & member);
++void setMember(eckit::LocalConfiguration &,
++               const int &);
 +
 +// -----------------------------------------------------------------------------
 +
  void setMPI(eckit::LocalConfiguration & conf,
              const int & mpi);
  
-@@ -100,46 +105,30 @@
-   // Fill output configuration and set ensemble size
-   size_t nens = 0;
-   size_t ensembleFound = 0;
--  eckit::LocalConfiguration varConf;
+ // -----------------------------------------------------------------------------
+ 
++void expandEnsembleTemplate(eckit::LocalConfiguration &,
++                            const size_t &);
++
++// -----------------------------------------------------------------------------
++
+ void checkFieldsAreNotAllocated(const oops::FieldSet3D & fset,
+                                 const oops::JediVariables & vars);
+ 
+@@ -103,43 +113,36 @@
+   eckit::LocalConfiguration varConf;
  
    // Ensemble of states, perturbation using the mean
 -  oops::IncrementEnsembleFromStatesParameters<MODEL> ensembleParams;
@@ -61,8 +68,12 @@
 +      ensembleConf.push_back(inputConf.getSubConfiguration("ensemble"));
 +    }
 +    nens = ensembleConf[0].getInt("members");
++    for (auto & ensemble3DConf : ensembleConf) {
++      expandEnsembleTemplate(ensemble3DConf, nens);
++    }
      outputConf.set("ensemble", ensembleConf);
 -    varConf = ensembleParams.states.getStateConfig(0, 0);
++    varConf = ensembleConf[0];
      ++ensembleFound;
    }
  
@@ -99,37 +110,15 @@
 +      ensemblePert.push_back(inputConf.getSubConfiguration("ensemble pert"));
 +    }
 +    nens = ensemblePert[0].getInt("members");
++    for (auto & ensemble3DConf : ensembleConf) {
++      expandEnsembleTemplate(ensemble3DConf, nens);
++    }
 +    outputConf.set("ensemble", ensemblePert);
++    varConf = ensemblePert[0];
      ++ensembleFound;
    }
  
-@@ -159,7 +148,6 @@
-     if (ensemblePertOtherGeom.has("members")) {
-       const auto members = ensemblePertOtherGeom.getSubConfigurations("members");
-       nens = members.size();
--      varConf = members[0];
-     }
- 
-     if (ensemblePertOtherGeom.has("members from template")) {
-@@ -168,7 +156,6 @@
-       ASSERT(members.has("pattern"));
-       ASSERT(members.has("template"));
-       nens = members.getInt("nmembers");
--      varConf = members.getSubConfiguration("template");
-     }
- 
-     outputConf.set("ensemble pert on other geometry", ensemblePertOtherGeom);
-@@ -183,44 +170,47 @@
-   // Check number of ensembles in yaml
-   ASSERT(ensembleFound <= 1);
- 
--  oops::patch::Variables vars(varConf.has("variables") ?
--    oops::patch::Variables{varConf.getStringVector("variables")} :
--    modelvars);
-+  oops::patch::Variables vars(modelvars);
- 
-   if (!iterativeEnsembleLoading) {
-     // Full ensemble loading
+@@ -192,35 +195,40 @@
      oops::Log::info() << "Info     : Read full ensemble" << std::endl;
  
      // Ensemble of states, perturbation using the mean
@@ -191,7 +180,7 @@
        return fsetEns;
      }
  
-@@ -272,15 +262,15 @@
+@@ -271,15 +279,15 @@
        // Read perturbations into oops::FieldSets
        oops::FieldSets fsetEns(fspace, vars, xb.times(),
                                ensemblePertOtherGeom,
@@ -210,7 +199,7 @@
  }
  
  // -------------------------------------------------------------------------------------------------
-@@ -298,14 +288,17 @@
+@@ -297,14 +305,17 @@
    // Local copy
    eckit::LocalConfiguration localConf(conf);
  
@@ -230,7 +219,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -325,54 +318,42 @@
+@@ -324,54 +335,42 @@
    // Fill FieldSet
    size_t ensembleFound = 0;
  
@@ -270,20 +259,20 @@
 -    // Read Increment
 -    oops::Increment<MODEL> dx(geom, vars, fset.validTime());
 -    dx.read(ensemblePertParams.getIncrementParameters(ie));
+-
+-    // Get FieldSet
+-    fset.deepCopy(dx.fieldSet());
 +    // Increment ensemble from difference of two states
 +    std::vector<eckit::LocalConfiguration> ensembleConf
 +      = conf.getSubConfigurations("ensemble pert");
 +    std::vector<eckit::LocalConfiguration> membersConf =
 +      ensembleConf[0].getSubConfigurations("state");
  
--    // Get FieldSet
--    fset.deepCopy(dx.fieldSet());
+-    ++ensembleFound;
+-  }
 +    // Create variables
 +    oops::Variables<MODEL> varsT(templatedVarsConf(vars));
  
--    ++ensembleFound;
--  }
--
 -  if (conf.has("ensemble base") && conf.has("ensemble pairs")) {
 -    // Increment ensemble from difference of two states
 -    oops::StateEnsembleParameters<MODEL> ensembleBaseParams;

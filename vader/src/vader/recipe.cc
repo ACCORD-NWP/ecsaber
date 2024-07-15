@@ -24,12 +24,12 @@ std::string Recipe::name() const
     return recipe_->name();
 }
 // ------------------------------------------------------------------------------------------------
-std::string Recipe::product() const
+const oops::Variable Recipe::product() const
 {
     return recipe_->product();
 }
 // ------------------------------------------------------------------------------------------------
-std::vector<std::string> Recipe::ingredients() const
+const oops::JediVariables Recipe::ingredients() const
 {
     return recipe_->ingredients();
 }

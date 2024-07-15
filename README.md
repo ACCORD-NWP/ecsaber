@@ -5,7 +5,7 @@ Interface between OOPS (ECMWF) and SABER (JEDI).
 ECSABER downloads the code of three JEDI repositories as submodules:
 - `oops-jedi`: https://github.com/JCSDA/oops
 - `vader-jedi`: https://github.com/JCSDA/vader
-- `saber-jedi`: https://github.com/JCSDA/saber
+- `saber-jedi`: https://github.com/JCSDA/saber or https://git.ecmwf.int/scm/sab/saber when needed
 
 Some `oops-jedi` source files are copied and modified to create the `oops-patch` library, which contains missing functionalities of OOPS (ECMWF).
 

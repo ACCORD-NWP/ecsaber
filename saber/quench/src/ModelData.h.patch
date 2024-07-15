@@ -1,0 +1,27 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/ModelData.h.tmp	2024-07-04 13:56:20.672086945 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/ModelData.h	2024-07-04 11:12:45.503034071 +0200
+@@ -22,15 +22,22 @@
+ 
+ class ModelData : public util::Printable {
+  public:
+-  static const std::string classname() {return "quench::ModelData";}
++  static const std::string classname()
++    {return "quench::ModelData";}
+ 
++  // Constructor/destructor
+   explicit ModelData(const Geometry & geometry) : modelData_(geometry.modelData()) {}
+   ~ModelData() {}
+ 
++  // Model data accessor
+   const eckit::LocalConfiguration modelData() const {return modelData_;}
+ 
+  private:
+-  void print(std::ostream & os) const {os << "quench::ModelData::modelData(): " << modelData();}
++  // Print
++  void print(std::ostream & os) const
++    {os << "quench::ModelData::modelData(): " << modelData();}
++
++  // Model data
+   eckit::LocalConfiguration modelData_;
+ };
+ 

@@ -53,8 +53,7 @@ else()
 endif()
 
 ## Sources
-add_subdirectory( src/oops )
-add_subdirectory( src/util )
+add_subdirectory( src )
 
 ## Package Config
 ecbuild_install_project( NAME ${PROJECT_NAME} )

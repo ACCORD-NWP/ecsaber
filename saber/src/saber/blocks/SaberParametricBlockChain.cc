@@ -18,9 +18,9 @@ namespace saber {
 // outer geometry cannot be a MODEL geometry.
 SaberParametricBlockChain::SaberParametricBlockChain(
                           const oops::GeometryData & outerGeometryData,
-                          const oops::patch::Variables & outerVars,
-                          const oops::FieldSet4D & fset4dXb,
-                          const oops::FieldSet4D & fset4dFg,
+                          const oops::JediVariables & outerVars,
+                          oops::FieldSet4D & fset4dXb,
+                          oops::FieldSet4D & fset4dFg,
                           const eckit::LocalConfiguration & covarConf,
                           const eckit::Configuration & conf)
   : outerFunctionSpace_(outerGeometryData.functionSpace()),
@@ -99,7 +99,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(
 
 // -----------------------------------------------------------------------------
 
-std::tuple<oops::patch::Variables, oops::patch::Variables>
+std::tuple<oops::JediVariables, oops::JediVariables>
     SaberParametricBlockChain::initCentralBlock(
         const oops::GeometryData & outerGeom,
         const eckit::Configuration & conf,
@@ -109,15 +109,15 @@ std::tuple<oops::patch::Variables, oops::patch::Variables>
         const oops::FieldSet4D & fset4dFg) {
   oops::Log::trace() << "SaberParametricBlockChain::initCentralBlock starting" << std::endl;
   // Set outer variables for central block
-  const oops::patch::Variables currentOuterVars = outerBlockChain_ ?
+  const oops::JediVariables currentOuterVars = outerBlockChain_ ?
                              outerBlockChain_->innerVars() : outerVariables_;
 
   // Get active variables
-  oops::patch::Variables activeVars = getActiveVars(saberCentralBlockParams, currentOuterVars);
+  oops::JediVariables activeVars = getActiveVars(saberCentralBlockParams, currentOuterVars);
   // Check that active variables are present in variables
-  for (const auto & var : activeVars.variables()) {
+  for (const auto & var : activeVars) {
     if (!currentOuterVars.has(var)) {
-      throw eckit::UserError("Active variable " + var + " is not present in "
+      throw eckit::UserError("Active variable " + var.name() + " is not present in "
                              "outer variables", Here());
     }
   }
@@ -134,7 +134,7 @@ std::tuple<oops::patch::Variables, oops::patch::Variables>
   centralFunctionSpace_ = outerGeom.functionSpace();
   centralVars_ = activeVars;
 
-  auto out = std::tuple<oops::patch::Variables, oops::patch::Variables>(currentOuterVars, activeVars);
+  auto out = std::tuple<oops::JediVariables, oops::JediVariables>(currentOuterVars, activeVars);
   oops::Log::trace() << "SaberParametricBlockChain::initCentralBlock exiting..."
                      << std::endl;
   return out;
@@ -146,7 +146,7 @@ void SaberParametricBlockChain::testCentralBlock(
         const eckit::LocalConfiguration & covarConf,
         const SaberBlockParametersBase & saberCentralBlockParams,
         const oops::GeometryData & outerGeom,
-        const oops::patch::Variables & activeVars) const {
+        const oops::JediVariables & activeVars) const {
   oops::Log::trace() << "SaberParametricBlockChain::testCentralBlock starting" << std::endl;
   // Adjoint test
   if (covarConf.getBool("adjoint test")) {

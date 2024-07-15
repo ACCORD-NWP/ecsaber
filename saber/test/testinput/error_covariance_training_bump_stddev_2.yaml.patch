@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_stddev_2.yaml.tmp	2024-07-10 17:22:27.836374128 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_stddev_2.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -9,7 +9,7 @@
+     levels: 2
+   halo: 1
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - stream_function
+ background error:
+@@ -18,7 +18,7 @@
+   ensemble:
+     members from template:
+       template:
+-        date: '2010-01-01T12:00:00Z'
++        date: 2010-01-01T12:00:00Z
+         filepath: testdata/randomization_bump_nicas_L10L2/_MPI_-_OMP__member_%mem%
+         state variables:
+         - stream_function

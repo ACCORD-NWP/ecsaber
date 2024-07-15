@@ -411,16 +411,16 @@ atlas::FieldSet allocateSpectralVortDiv(
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables removeOuterOnlyVar(const oops::patch::Variables & vars) {
-  oops::patch::Variables innerVars(vars);
-  innerVars -= "geostrophic_pressure_levels_minus_one";
+oops::JediVariables removeOuterOnlyVar(const oops::JediVariables & vars) {
+  oops::JediVariables innerVars(vars);
+  innerVars -= innerVars["geostrophic_pressure_levels_minus_one"];
   return innerVars;
 }
 
 // -----------------------------------------------------------------------------
 
-void applyRecipNtimesNplus1SpectralScaling(const oops::patch::Variables & innerNames,
-                                           const oops::patch::Variables & outerNames,
+void applyRecipNtimesNplus1SpectralScaling(const oops::JediVariables & innerNames,
+                                           const oops::JediVariables & outerNames,
                                            const atlas::functionspace::Spectral & specFS,
                                            const atlas::idx_t & totalWavenumber,
                                            atlas::FieldSet & fSet) {
@@ -436,8 +436,8 @@ void applyRecipNtimesNplus1SpectralScaling(const oops::patch::Variables & innerN
   }
 
   atlas::FieldSet fsetScaled;
-  for (std::size_t var = 0; var < innerNames.variables().size(); ++var) {
-    atlas::Field scaledFld = fSet[innerNames[var]];
+  for (std::size_t var = 0; var < innerNames.size(); ++var) {
+    atlas::Field scaledFld = fSet[innerNames[var].name()];
     auto fldView = atlas::array::make_view<double, 2>(scaledFld);
 
     double earthRadius = atlas::util::Earth::radius();  // radius of earth;
@@ -447,7 +447,7 @@ void applyRecipNtimesNplus1SpectralScaling(const oops::patch::Variables & innerN
       const int m1 = zonal_wavenumbers(jm);
       for (std::size_t n1 = m1; n1 <= static_cast<std::size_t>(totalWavenumber); ++n1) {
         for (std::size_t img = 0; img < 2; ++img, ++i) {
-          for (atlas::idx_t jl = 0; jl < fSet[innerNames[var]].shape(1); ++jl) {
+          for (atlas::idx_t jl = 0; jl < fSet[innerNames[var].name()].shape(1); ++jl) {
             if (n1 != 0) {
               fldView(i, jl) *= squaredEarthRadius / (n1 * (n1 + 1));
             } else {
@@ -457,7 +457,7 @@ void applyRecipNtimesNplus1SpectralScaling(const oops::patch::Variables & innerN
         }
       }
     }
-    scaledFld.rename(outerNames[var]);
+    scaledFld.rename(outerNames[var].name());
     fsetScaled.add(scaledFld);
   }
 
@@ -477,7 +477,7 @@ static SaberOuterBlockMaker<GaussUVToGP>
 
 
 GaussUVToGP::GaussUVToGP(const oops::GeometryData & outerGeometryData,
-               const oops::patch::Variables & outerVars,
+               const oops::JediVariables & outerVars,
                const eckit::Configuration & covarConf,
                const Parameters_ & params,
                const oops::FieldSet3D & xb,
@@ -523,8 +523,8 @@ void GaussUVToGP::multiply(oops::FieldSet3D & fset) const {
   // apply inverse laplacian spectral scaling to spectral divergence
   const int N = specFunctionSpace_.truncation();
   applyRecipNtimesNplus1SpectralScaling(
-      oops::patch::Variables(std::vector<std::string>({"divergence"})),
-      oops::patch::Variables(std::vector<std::string>({"divergence"})),
+      oops::JediVariables(std::vector<std::string>({"divergence"})),
+      oops::JediVariables(std::vector<std::string>({"divergence"})),
       specFunctionSpace_, N, specfset);
 
   // apply inverse spectral transform to
@@ -556,8 +556,8 @@ void GaussUVToGP::multiplyAD(oops::FieldSet3D & fset) const {
   // apply inverse laplacian spectral scaling to spectral divergence
   const int N = specFunctionSpace_.truncation();
   applyRecipNtimesNplus1SpectralScaling(
-      oops::patch::Variables(std::vector<std::string>({"divergence"})),
-      oops::patch::Variables(std::vector<std::string>({"divergence"})),
+      oops::JediVariables(std::vector<std::string>({"divergence"})),
+      oops::JediVariables(std::vector<std::string>({"divergence"})),
       specFunctionSpace_, N, specfset);
 
   auto vortView = atlas::array::make_view<double, 2>(specfset["vorticity"]);

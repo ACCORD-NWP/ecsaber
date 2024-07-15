@@ -52,23 +52,23 @@ namespace saber {
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables getActiveVars(const SaberBlockParametersBase & params,
-                              const oops::patch::Variables & defaultVars);
+oops::JediVariables getActiveVars(const SaberBlockParametersBase & params,
+                              const oops::JediVariables & defaultVars);
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables getUnionOfInnerActiveAndOuterVars(const SaberBlockParametersBase & params,
-                                                  const oops::patch::Variables & outerVars);
+oops::JediVariables getUnionOfInnerActiveAndOuterVars(const SaberBlockParametersBase & params,
+                                                  const oops::JediVariables & outerVars);
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables getInnerOnlyVars(const SaberBlockParametersBase & params,
-                                 const oops::patch::Variables & outerVars);
+oops::JediVariables getInnerOnlyVars(const SaberBlockParametersBase & params,
+                                 const oops::JediVariables & outerVars);
 
 // -----------------------------------------------------------------------------
 
-void setMember(eckit::LocalConfiguration & conf,
-               const int & member);
+void setMember(eckit::LocalConfiguration &,
+               const int &);
 
 // -----------------------------------------------------------------------------
 
@@ -77,21 +77,26 @@ void setMPI(eckit::LocalConfiguration & conf,
 
 // -----------------------------------------------------------------------------
 
+void expandEnsembleTemplate(eckit::LocalConfiguration &,
+                            const size_t &);
+
+// -----------------------------------------------------------------------------
+
 void checkFieldsAreNotAllocated(const oops::FieldSet3D & fset,
-                                const oops::patch::Variables & vars);
+                                const oops::JediVariables & vars);
 
 // -----------------------------------------------------------------------------
 
 void allocateMissingFields(oops::FieldSet3D & fset,
-                           const oops::patch::Variables & varsToAllocate,
-                           const oops::patch::Variables & varsWithLevels,
+                           const oops::JediVariables & varsToAllocate,
+                           const oops::JediVariables & varsWithLevels,
                            const atlas::FunctionSpace & functionSpace);
 
 // -----------------------------------------------------------------------------
 
 template<typename MODEL>
 oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
-                             const oops::patch::Variables & modelvars,
+                             const oops::JediVariables & modelvars,
                              const oops::State4D<MODEL> & xb,
                              const oops::State4D<MODEL> & fg,
                              const eckit::LocalConfiguration & inputConf,
@@ -105,6 +110,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
   // Fill output configuration and set ensemble size
   size_t nens = 0;
   size_t ensembleFound = 0;
+  eckit::LocalConfiguration varConf;
 
   // Ensemble of states, perturbation using the mean
   std::vector<eckit::LocalConfiguration> ensembleConf;
@@ -115,7 +121,11 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       ensembleConf.push_back(inputConf.getSubConfiguration("ensemble"));
     }
     nens = ensembleConf[0].getInt("members");
+    for (auto & ensemble3DConf : ensembleConf) {
+      expandEnsembleTemplate(ensemble3DConf, nens);
+    }
     outputConf.set("ensemble", ensembleConf);
+    varConf = ensembleConf[0];
     ++ensembleFound;
   }
 
@@ -128,7 +138,11 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       ensemblePert.push_back(inputConf.getSubConfiguration("ensemble pert"));
     }
     nens = ensemblePert[0].getInt("members");
+    for (auto & ensemble3DConf : ensembleConf) {
+      expandEnsembleTemplate(ensemble3DConf, nens);
+    }
     outputConf.set("ensemble", ensemblePert);
+    varConf = ensemblePert[0];
     ++ensembleFound;
   }
 
@@ -148,6 +162,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     if (ensemblePertOtherGeom.has("members")) {
       const auto members = ensemblePertOtherGeom.getSubConfigurations("members");
       nens = members.size();
+      varConf = members[0];
     }
 
     if (ensemblePertOtherGeom.has("members from template")) {
@@ -156,6 +171,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       ASSERT(members.has("pattern"));
       ASSERT(members.has("template"));
       nens = members.getInt("nmembers");
+      varConf = members.getSubConfiguration("template");
     }
 
     outputConf.set("ensemble pert on other geometry", ensemblePertOtherGeom);
@@ -170,7 +186,9 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
   // Check number of ensembles in yaml
   ASSERT(ensembleFound <= 1);
 
-  oops::patch::Variables vars(modelvars);
+  oops::JediVariables vars(varConf.has("variables") ?
+    oops::JediVariables{varConf.getStringVector("variables")} :
+    modelvars);
 
   if (!iterativeEnsembleLoading) {
     // Full ensemble loading
@@ -238,24 +256,23 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
           const int levels = group.getInt("levels");
           for (const auto & var : group.getStringVector("variables")) {
             if (vars.has(var)) {
-              vars.addMetaData(var, "levels", levels);
+              vars[var].setLevels(levels);
             }
           }
         }
         // Check all variables have been populated with level information
-        const auto & metaData = vars.variablesMetaData();
-        for (const auto & var : vars.variables()) {
-          if (!metaData.getSubConfiguration(var).has("levels")) {
+        for (const auto & var : vars) {
+          if (var.getLevels() < 0) {
             std::stringstream ss;
-            ss << "Could not find vertical level information for variable "
+            ss << "Invalid vertical level information for variable "
                << var << " in `ensemble geometry: groups`.";
             throw eckit::UserError(ss.str(), Here());
           }
         }
       } else {
         // Use level information from the model variables
-        for (const auto & var : vars.variables()) {
-          vars.addMetaData(var, "levels", modelvars.getLevels(var));
+        for (auto & var : vars) {
+          var.setLevels(modelvars[var.name()].getLevels());
         }
       }
 
@@ -277,7 +294,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
 
 template<typename MODEL>
 void readHybridWeight(const oops::Geometry<MODEL> & geom,
-                      const oops::patch::Variables & vars,
+                      const oops::JediVariables & vars,
                       const util::DateTime & date,
                       const eckit::LocalConfiguration & conf,
                       oops::FieldSet3D & fset) {
@@ -307,7 +324,7 @@ void readHybridWeight(const oops::Geometry<MODEL> & geom,
 
 template<typename MODEL>
 void readEnsembleMember(const oops::Geometry<MODEL> & geom,
-                        const oops::patch::Variables & vars,
+                        const oops::JediVariables & vars,
                         const eckit::LocalConfiguration & conf,
                         const size_t & ie,
                         oops::FieldSet3D & fset) {

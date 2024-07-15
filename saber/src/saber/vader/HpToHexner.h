@@ -26,9 +26,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -39,9 +37,10 @@ namespace vader {
 class HpToHexnerParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(HpToHexnerParameters, SaberBlockParametersBase)
  public:
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
+    std::vector<std::string>{
     "hydrostatic_exner_levels",
-    "hydrostatic_pressure_levels"});}
+    "hydrostatic_pressure_levels"}});}
 };
 
 // -----------------------------------------------------------------------------
@@ -55,7 +54,7 @@ class HpToHexner : public SaberOuterBlockBase {
   typedef HpToHexnerParameters Parameters_;
 
   HpToHexner(const oops::GeometryData &,
-             const oops::patch::Variables &,
+             const oops::JediVariables &,
              const eckit::Configuration &,
              const Parameters_ &,
              const oops::FieldSet3D &,
@@ -63,7 +62,7 @@ class HpToHexner : public SaberOuterBlockBase {
   virtual ~HpToHexner();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -72,8 +71,8 @@ class HpToHexner : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  oops::patch::Variables innerVars_;
-  oops::patch::Variables activeVars_;
+  oops::JediVariables innerVars_;
+  oops::JediVariables activeVars_;
   atlas::FieldSet augmentedStateFieldSet_;
 };
 

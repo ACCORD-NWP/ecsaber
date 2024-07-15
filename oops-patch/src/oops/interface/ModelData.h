@@ -31,7 +31,7 @@ class ModelData : public  util::Printable,
 
  public:
   static const std::string classname() {return "oops::ModelData";}
-  static const patch::Variables defaultVariables() {return patch::Variables();}
+  static const JediVariables defaultVariables() {return JediVariables();}
 
   explicit ModelData(const Geometry_ &);
   virtual ~ModelData();

@@ -1,0 +1,97 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp.bak	2024-07-05 09:24:24.733568388 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt	2024-07-05 09:18:34.188683620 +0200
+@@ -8,27 +8,89 @@
+ Covariance.h
+ Fields.cc
+ Fields.h
++FieldsIOBase.cc
++FieldsIOBase.h
+ Geometry.cc
+ Geometry.h
++GeoVaLs.cc
++GeoVaLs.h
++HorizScaleDecomposition.h
++HybridWeight.cc
++HybridWeight.h
+ Increment.cc
+ Increment.h
+-LinearVariableChange.h
+-LinearVariableChange.cc
+-ModelData.h
++InterpElement.h
++Interpolation.cc
++Interpolation.h
++IncrEnsCtlVec.h
++IncrModCtlVec.h
++instantiateQuenchMatrices.h
++Interpolator.h
++LinearModel.cc
++LinearModel.h
++LinearObsOperator.cc
++LinearObsOperator.h
++LocalizationMatrix.h
++Locations.cc
++Locations.h
++Logbook.cc
++Logbook.h
++Model.cc
++Model.h
++ModelAuxControl.h
++ModelAuxCovariance.h
++ModelAuxCtlVec.h
++ModelAuxControlEstimator.h
++ModelAuxIncrement.h
++ObsAuxControl.cc
++ObsAuxControl.h
++ObsAuxCovariance.cc
++ObsAuxCovariance.h
++ObsAuxCtlVec.cc
++ObsAuxCtlVec.h
++ObsAuxIncrement.cc
++ObsAuxIncrement.h
++ObsError.cc
++ObsError.h
++ObsOperator.cc
++ObsOperator.h
++ObsSpace.cc
++ObsSpace.h
++ObsVector.cc
++ObsVector.h
++RegionalInterpolation.cc
++RegionalInterpolation.h
+ State.cc
+ State.h
+-VariableChange.h
++Traits.h
++Variables.h
++Variables.cc
++
++default/FieldsIODefault.cc
++default/FieldsIODefault.h
+ 
+ )
+ 
++if( eccodes_FOUND )
++    list( APPEND quench_src_files
++
++    grib/FieldsIOGrib.cc
++    grib/FieldsIOGrib.h
++
++    )
++endif()
++
+ ecbuild_add_library( TARGET   quench
+                      SOURCES  ${quench_src_files}
+-                     PUBLIC_LIBS  oops saber
++                     PUBLIC_LIBS  oops oops-patch saber
+                      HEADER_DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/quench
+                      INSTALL_HEADERS LISTED
+                      LINKER_LANGUAGE CXX )
+ 
+ target_link_libraries( quench PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )
++if( eccodes_FOUND )
++    target_link_libraries( quench PUBLIC eccodes )
++endif()
+ 
+ #Configure include directory layout for build-tree to match install-tree
+ set(QUENCH_BUILD_DIR_INCLUDE_PATH ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/include)

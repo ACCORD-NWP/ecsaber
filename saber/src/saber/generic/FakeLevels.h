@@ -67,7 +67,7 @@ class FakeLevelsParameters : public SaberBlockParametersBase {
   oops::OptionalParameter<FakeLevelsParametersBase> read{"read", this};
   oops::OptionalParameter<FakeLevelsParametersBase> calibration{"calibration", this};
 
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ class FakeLevels : public SaberOuterBlockBase {
   typedef FakeLevelsParametersBase ParametersBase_;
 
   FakeLevels(const oops::GeometryData &,
-             const oops::patch::Variables &,
+             const oops::JediVariables &,
              const eckit::Configuration &,
              const Parameters_ &,
              const oops::FieldSet3D &,
@@ -90,7 +90,7 @@ class FakeLevels : public SaberOuterBlockBase {
 
   const oops::GeometryData & innerGeometryData() const override
     {return gdata_;}
-  const oops::patch::Variables & innerVars() const override
+  const oops::JediVariables & innerVars() const override
     {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
@@ -110,13 +110,13 @@ class FakeLevels : public SaberOuterBlockBase {
   const util::DateTime validTime_;
   const oops::GeometryData & gdata_;
   const eckit::mpi::Comm & comm_;
-  oops::patch::Variables outerVars_;
-  oops::patch::Variables activeVars_;
+  oops::JediVariables outerVars_;
+  oops::JediVariables activeVars_;
   const std::string suffix_;
   ParametersBase_ params_;
   eckit::LocalConfiguration fieldsMetaData_;
   size_t nz_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables innerVars_;
   std::unique_ptr<oops::FieldSet3D> rv_;
   std::unique_ptr<oops::FieldSet3D> weight_;
 

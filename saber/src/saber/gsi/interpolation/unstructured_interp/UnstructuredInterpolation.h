@@ -41,7 +41,7 @@ class UnstructuredInterpolation : private util::ObjectCounter<UnstructuredInterp
                             const atlas::FunctionSpace &,
                             const atlas::FunctionSpace &,
                             const std::vector<size_t> &,
-                            const oops::patch::Variables &);
+                            const oops::JediVariables &);
   ~UnstructuredInterpolation();
 
   void apply(const atlas::Field &, atlas::Field &);
@@ -57,7 +57,7 @@ class UnstructuredInterpolation : private util::ObjectCounter<UnstructuredInterp
   const atlas::FunctionSpace innerFuncSpace_;
   const atlas::FunctionSpace outerFuncSpace_;
   std::vector<size_t> activeVariableSizes_;
-  oops::patch::Variables activeVars_;
+  oops::JediVariables activeVars_;
   void print(std::ostream &) const;
 };
 

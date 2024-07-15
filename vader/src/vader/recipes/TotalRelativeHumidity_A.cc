@@ -40,17 +40,17 @@ std::string TotalRelativeHumidity_A::name() const
   return TotalRelativeHumidity_A::Name;
 }
 
-std::string TotalRelativeHumidity_A::product() const
+oops::Variable TotalRelativeHumidity_A::product() const
 {
-  return "rht";
+  return oops::Variable{"rht"};
 }
 
-std::vector<std::string> TotalRelativeHumidity_A::ingredients() const {
-  return {"specific_humidity",
+oops::JediVariables TotalRelativeHumidity_A::ingredients() const {
+  return oops::JediVariables{std::vector<std::string>{"specific_humidity",
           "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
           "mass_content_of_cloud_ice_in_atmosphere_layer",
           "qrain",
-          "qsat"};
+          "qsat"}};
   // CCPP standard
   // return {"water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_interface",
   //        "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_at_interface",

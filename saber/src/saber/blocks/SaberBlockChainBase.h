@@ -24,9 +24,7 @@ namespace oops {
   class FieldSet4D;
   class FieldSets;
   template <class MODEL> class Geometry;
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -46,7 +44,7 @@ class SaberBlockChainBase {
   virtual void multiplySqrtAD(const oops::FieldSet4D &, atlas::Field &, const size_t &)
     const = 0;
   virtual const atlas::FunctionSpace & outerFunctionSpace() const = 0;
-  virtual const oops::patch::Variables & outerVariables() const = 0;
+  virtual const oops::JediVariables & outerVariables() const = 0;
 };
 
 template<typename MODEL>
@@ -57,9 +55,9 @@ class SaberBlockChainFactory {
   static std::unique_ptr<SaberBlockChainBase> create(const std::string &,
                                                      const Geometry_ &,
                                                      const Geometry_ &,
-                                                     const oops::patch::Variables &,
-                                                     const oops::FieldSet4D &,
-                                                     const oops::FieldSet4D &,
+                                                     const oops::JediVariables &,
+                                                     oops::FieldSet4D &,
+                                                     oops::FieldSet4D &,
                                                      oops::FieldSets &,
                                                      oops::FieldSets &,
                                                      const eckit::LocalConfiguration &,
@@ -73,9 +71,9 @@ class SaberBlockChainFactory {
  private:
   virtual std::unique_ptr<SaberBlockChainBase> make(const Geometry_ &,
                                                     const Geometry_ &,
-                                                    const oops::patch::Variables &,
-                                                    const oops::FieldSet4D &,
-                                                    const oops::FieldSet4D &,
+                                                    const oops::JediVariables &,
+                                                    oops::FieldSet4D &,
+                                                    oops::FieldSet4D &,
                                                     oops::FieldSets &,
                                                     oops::FieldSets &,
                                                     const eckit::LocalConfiguration &,
@@ -95,9 +93,9 @@ class SaberBlockChainMaker : public SaberBlockChainFactory<MODEL> {
 
   std::unique_ptr<SaberBlockChainBase> make(const Geometry_ & geom,
                                             const Geometry_ & dualResGeom,
-                                            const oops::patch::Variables & outerVars,
-                                            const oops::FieldSet4D & fset4dXb,
-                                            const oops::FieldSet4D & fset4dFg,
+                                            const oops::JediVariables & outerVars,
+                                            oops::FieldSet4D & fset4dXb,
+                                            oops::FieldSet4D & fset4dFg,
                                             oops::FieldSets & fsetEns,
                                             oops::FieldSets & fsetDualResEns,
                                             const eckit::LocalConfiguration & covarConf,
@@ -125,9 +123,9 @@ std::unique_ptr<SaberBlockChainBase>
 SaberBlockChainFactory<MODEL>::create(const std::string & name,
                                       const Geometry_ & geom,
                                       const Geometry_ & dualResGeom,
-                                      const oops::patch::Variables & outerVars,
-                                      const oops::FieldSet4D & fset4dXb,
-                                      const oops::FieldSet4D & fset4dFg,
+                                      const oops::JediVariables & outerVars,
+                                      oops::FieldSet4D & fset4dXb,
+                                      oops::FieldSet4D & fset4dFg,
                                       oops::FieldSets & fsetEns,
                                       oops::FieldSets & fsetDualResEns,
                                       const eckit::LocalConfiguration & covarConf,

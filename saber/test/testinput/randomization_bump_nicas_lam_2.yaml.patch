@@ -1,0 +1,28 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_bump_nicas_lam_2.yaml.tmp	2024-07-10 17:22:27.408368087 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_bump_nicas_lam_2.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -22,7 +22,7 @@
+     - surface_pressure
+     levels: 1
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - stream_function
+   - velocity_potential
+@@ -35,7 +35,7 @@
+     calibration:
+       io:
+         data directory: testdata
+-        files prefix: randomization_bump_nicas_lam_2/1-1
++        files prefix: randomization_bump_nicas_lam_2/_MPI_-_OMP_
+       drivers:
+         multivariate strategy: univariate
+         compute nicas: true
+@@ -74,6 +74,6 @@
+         filepath: testdata/convertstate_lam/rv_pert
+   randomization size: 2
+ output states:
+-  filepath: testdata/randomization_bump_nicas_lam_2/rv
++  filepath: testdata/randomization_bump_nicas_lam_2/_MPI_-_OMP__rv
+ test:
+   reference filename: testref/randomization_bump_nicas_lam_2.ref

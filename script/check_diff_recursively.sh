@@ -4,6 +4,7 @@
 projectName=$1
 input=$2
 commandPath=$3
+jediPrefix=$4
 
 # Same path for JEDI repo
 inputJedi=${input/ecsaber\/${projectName}/ecsaber\/${projectName}-jedi}
@@ -23,6 +24,6 @@ for itemJedi in `find ${inputJedi}`; do
     dir=${dirJedi/${projectName}-jedi/${projectName}}
 
     # Update file
-    ${scriptDir}/check_diff.sh ${itemJedi} ${dir}/${file} ${commandPath}
+    ${scriptDir}/check_diff.sh ${itemJedi} ${dir}/${file} ${commandPath} ${jediPrefix}
   fi
 done

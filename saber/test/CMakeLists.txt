@@ -156,13 +156,6 @@ foreach( test ${saber_test_full} )
                          ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref
                          ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref )
     endif()
-
-    # Link to tolerance file
-    if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref.tol )
-        execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-                         ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref.tol
-                         ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref.tol )
-    endif()
 endforeach()
 foreach( data ${saber_data} )
     # Link to input data file
@@ -222,8 +215,8 @@ foreach( mpi omp IN ZIP_LISTS mpi_list omp_list )
                 endif()
 
                 # Special check for 4D tests
-                string( FIND ${test} "_4d" fourd_result )
-                if( fourd_result EQUAL -1 OR ( fourd_result GREATER_EQUAL 0 AND ${mpi} GREATER 1 ) )
+                string( FIND ${test} "_4d" found_result )
+                if( found_result EQUAL -1 )
                     set( 4dCheck true CACHE BOOL "" FORCE )
                 else()
                     set( 4dCheck false CACHE BOOL "" FORCE )
@@ -260,44 +253,14 @@ foreach( mpi omp IN ZIP_LISTS mpi_list omp_list )
                         endif()
                     endif()
 
-                    # Special check for interpolation
-                    string( FIND ${test} "interpolation_2" interpolation_2_result )
-                    string( FIND ${test} "interpolation_3" interpolation_3_result )
-                    if( interpolation_2_result EQUAL -1 AND interpolation_3_result EQUAL -1 )
-                        set( interpCheck true CACHE BOOL "" FORCE )
-                    else()
-                        set( interpCheck false CACHE BOOL "" FORCE )
-                    endif()
-
-                    # Special check for VADER
-                    string( FIND ${test} "gauss_vader" gauss_vader_result )
-                    if( gauss_vader_result EQUAL -1 )
-                        set( vaderCheck true CACHE BOOL "" FORCE )
-                    else()
-                        set( vaderCheck false CACHE BOOL "" FORCE )
-                    endif()
-
-                    # Special check to avoid 4D tests
-                    string( FIND ${test} "_4d" fourd_result )
-                    string( FIND ${test} "_seq4d" seqfourd_result )
-                    if( fourd_result EQUAL -1 AND seqfourd_result EQUAL -1 )
-                        set( no4dCheck true CACHE BOOL "" FORCE )
-                    else()
-                        set( no4dCheck false CACHE BOOL "" FORCE )
-                    endif()
-
                     # Add test
-                    if( interpCheck AND vaderCheck AND no4dCheck )
-                        ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-                                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
-                                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
-                                               ${mpi}
-                                               ${omp}
-                                               "${CMAKE_BINARY_DIR}/bin/quench_${exename}.x testinput/${test}.yaml"
-                                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref"
-                                          DEPENDS quench_${exename}.x
-                                          TEST_DEPENDS ${deps_list} )
-                    endif()
+                    ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
+                                      MPI ${mpi}
+                                      OMP ${omp}
+                                      COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x
+                                      ARGS testinput/${test}.yaml
+                                      DEPENDS saber_quench_${exename}.x
+                                      TEST_DEPENDS ${deps_list} )
                 endif()
             endif()
         endforeach()
@@ -321,9 +284,9 @@ foreach( mpi omp IN ZIP_LISTS mpi_list omp_list )
             ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
                               MPI ${mpi}
                               OMP ${omp}
-                              COMMAND ${CMAKE_BINARY_DIR}/bin/quench_error_covariance_toolbox.x
+                              COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
                               ARGS testinput/${yaml_prefix}${test}.yaml
-                              DEPENDS quench_error_covariance_toolbox.x
+                              DEPENDS saber_quench_error_covariance_toolbox.x
                               TEST_DEPENDS ${deps_list} )
         endif()
     endforeach()

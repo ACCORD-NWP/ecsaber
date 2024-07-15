@@ -1,7 +1,5 @@
        Independent levels:  1[4]
           Subset Sc0 size:             3170
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   2 ~> 100.0%
@@ -13,15 +11,13 @@
              Level   4 ~> -0.110E+02 vert. coord.
        Independent levels:  1[1]
           Subset Sc0 size:             3170
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    8322.41 km (   7159.64 km -    9554.80 km)
                 Estimated nc1 from horizontal support radius:       76
-                   Decimate full grid, at least       76 points required,     647 valid points found
+                   Decimate full grid, at least       76 points required,     648 valid points found
                    Subgrid hash:    742226581
                 Final nc1:       76
                 Effective horizontal resolution:  2.99
@@ -53,8 +49,8 @@
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    3914.86 km (   3367.89 km -    4494.58 km)
                 Estimated nc1 from horizontal support radius:      345
-                   Decimate full grid, at least      345 points required,    2511 valid points found
-                   Subgrid hash:   -907594071
+                   Decimate full grid, at least      345 points required,    2512 valid points found
+                   Subgrid hash:  -1978974414
                 Final nc1:      345
                 Effective horizontal resolution:  3.00
                 Horizontal support radius:    3140.81 km (   2796.74 km -    3690.14 km)
@@ -83,7 +79,7 @@
              nc1(  4) =                       3170
              ns =                             5101
              v%n_s =                             4
-             c%n_s[global] =                130388
+             c%n_s[global] =                130057
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    2446.79 km (   2104.93 km -    2809.11 km)
                 Estimated nc1 from horizontal support radius:      885
@@ -159,8 +155,8 @@
                 Effective horizontal resolution:  3.00
                 Horizontal support radius:    2795.43 km (   2212.09 km -    3173.43 km)
                 Estimated nc1 from horizontal support radius:      678
-                   Decimate full grid, at least      678 points required,    2839 valid points found
-                   Subgrid hash:    129337784
+                   Decimate full grid, at least      678 points required,    2840 valid points found
+                   Subgrid hash:   1004116686
                 Final nc1:      678
                 Effective horizontal resolution:  3.00
                 Horizontal support radius:    2225.44 km (   1875.20 km -    3298.47 km)
@@ -183,7 +179,7 @@
              nc1(  4) =                       3170
              ns =                             5409
              v%n_s =                             4
-             c%n_s[global] =                 74257
+             c%n_s[global] =                 74258
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    2052.03 km (   1687.05 km -    2447.99 km)
                 Estimated nc1 from horizontal support radius:     1258
@@ -414,8 +410,8 @@
              Min / max: 1.0000000 /  1.0000000 over     10 tests
              Min / max: 1.0000000 /  1.0000000 over     10 tests
              0.0 /   -2.0:  1.0000000
-          Level   1:  0.0000000 -  0.0399606
-          Level   2:  0.0000000 -  0.1080390
+          Level   1:  0.0000000 -  0.0402739
+          Level   2:  0.0000000 -  0.1079611
           Level   3:  0.0000000 -  0.2716527
           Level   4:  0.0000000 -  1.0000000
              0.0 /   -2.0:  0.0000000
@@ -505,4 +501,4 @@ Norm of output parameter cor_rh - 3: 2.7847846883856916e+08
 Norm of output parameter cor_rv - 1: 1.3396492944638217e+03
 Norm of output parameter cor_rv - 2: 1.3396492944638217e+03
 Norm of output parameter cor_rv - 3: 1.3396492944638217e+03
-Norm of output parameter dirac_nicas - 1: 1.6780332599622909e+00
+Norm of output parameter dirac_nicas - 1: 1.6786706767358059e+00

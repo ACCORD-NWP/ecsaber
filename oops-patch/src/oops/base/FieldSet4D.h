@@ -47,11 +47,11 @@ class FieldSet4D : public FieldSets {
   FieldSet4D & operator*=(const double zz);
   /// @brief Computes dot product of this FieldSet4D with the \p other FieldSet4D
   ///        only for specified variables \p vars.
-  double dot_product_with(const FieldSet4D & other, const patch::Variables & vars) const;
+  double dot_product_with(const FieldSet4D & other, const JediVariables & vars) const;
   /// @brief Computes dot product of this FieldSet4D with the \p iens member
   ///        of the \p other FieldSets only for specified variables \p vars.
   double dot_product_with(const FieldSets & other, const size_t iens,
-                          const patch::Variables & vars) const;
+                          const JediVariables & vars) const;
   double norm() const;
 
  private:

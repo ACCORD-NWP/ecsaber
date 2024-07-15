@@ -28,9 +28,7 @@
 #include "saber/gsi/utils/GSIParameters.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -46,7 +44,7 @@ class CovarianceParameters : public SaberBlockParametersBase {
   oops::OptionalParameter<GSIParameters> readParams{"read", this};
 
   // Mandatory active variables
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -58,7 +56,7 @@ class StaticCovariance : public SaberCentralBlockBase {
   typedef CovarianceParameters Parameters_;
 
   StaticCovariance(const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const eckit::Configuration &,
                    const Parameters_ &,
                    const oops::FieldSet3D &,
@@ -75,8 +73,8 @@ class StaticCovariance : public SaberCentralBlockBase {
   CovarianceKey keySelf_;
   // Parameters
   Parameters_ params_;
-  // patch::Variables
-  std::vector<std::string> variables_;
+  // JediVariables
+  oops::JediVariables variables_;
   // GSI grid FunctionSpace
   atlas::FunctionSpace gsiGridFuncSpace_;
   // Communicator
@@ -103,7 +101,7 @@ class HybridCovariance : public SaberCentralBlockBase {
   typedef CovarianceParameters Parameters_;
 
   HybridCovariance(const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const eckit::Configuration &,
                    const Parameters_ & params,
                    const oops::FieldSet3D & xb,
