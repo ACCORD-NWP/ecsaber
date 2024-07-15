@@ -472,7 +472,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
   // -----------------------------------------------------------------------------
  private:
   std::string appname() const {
-    return "oops::EvilUpdate<" + MODEL::name() + ">";
+    return "saber::EvilUpdate<" + MODEL::name() + ">";
   }
   // -----------------------------------------------------------------------------
 };

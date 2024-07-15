@@ -66,3 +66,10 @@ ecbuild_add_executable( TARGET  saber_quench_ensemble_variance.x
                                 ${vader_LIBRARIES}
                                 ${gsibec_LIBRARIES}
                                 saber )
+
+ecbuild_add_executable( TARGET  saber_quench_bgos.x
+                        SOURCES quenchBGOS.cc
+                        LIBS    quench
+                                ${vader_LIBRARIES}
+                                ${gsibec_LIBRARIES}
+                                saber )

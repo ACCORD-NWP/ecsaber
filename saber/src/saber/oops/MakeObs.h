@@ -177,7 +177,7 @@ class MakeObs : public oops::Application {
   }
   // -----------------------------------------------------------------------------
  private:
-  std::string appname() const { return "oops::MakeObs<" + MODEL::name() + ">"; }
+  std::string appname() const { return "saber::MakeObs<" + MODEL::name() + ">"; }
   // -----------------------------------------------------------------------------
 };
 

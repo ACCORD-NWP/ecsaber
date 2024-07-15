@@ -97,7 +97,7 @@ class EnsembleVariance : public oops::Application {
   // -----------------------------------------------------------------------------
  private:
   std::string appname() const {
-    return "oops::EvilUpdate<" + MODEL::name() + ">";
+    return "saber::EnsembleVariance<" + MODEL::name() + ">";
   }
   // -----------------------------------------------------------------------------
 };
