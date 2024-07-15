@@ -28,6 +28,7 @@
 #include "saber/oops/RitzPairs.h"
 
 #include "util/dot_product.h"
+#include "util/LogbookWriter.h"
 
 namespace saber {
 
@@ -174,7 +175,9 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
 
   while (jiter < maxiter) {
     oops::Log::info() << "SQRTBPLanczos Starting Iteration " << jiter + 1
-                      << std::endl;
+                << std::endl;
+
+    util::LogbookWriter<size_t> log("InnerLoop", jiter + 1);
 
     // vv_{i+1} = ( I + U^T H^T R^{-1} H U ) zz_{i}
     UtHtRinvHU.multiply(zz, vv);
@@ -261,9 +264,11 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
       double rznorm = beta * std::abs(ss[jiter]);
       normReduction = rznorm / beta0;
       oops::Log::info() << "SQRTBPLanczos end of iteration " << jiter + 1 << std::endl
-                        << "  Norm reduction (" << std::setw(2) << jiter + 1
-                        << ") = " << util::full_precision(normReduction) << std::endl;
+                  << "  Norm reduction (" << std::setw(2) << jiter + 1
+                  << ") = " << util::full_precision(normReduction) << std::endl;
     }
+
+    util::LogbookWriter<double> log_norm("NormReduction", normReduction);
 
     // Print iteration summary
     this->printQuadCost(jiter);
