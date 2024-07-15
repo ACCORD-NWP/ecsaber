@@ -7,6 +7,3 @@
 [submodule "oops-jedi"]
 	path = oops-jedi
 	url = https://github.com/JCSDA/oops
-[submodule "quench"]
-	path = quench
-	url = https://git.ecmwf.int/scm/sab/quench.git

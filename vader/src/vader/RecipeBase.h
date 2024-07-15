@@ -16,6 +16,7 @@
 
 #include "atlas/field/FieldSet.h"
 #include "atlas/functionspace/FunctionSpace.h"
+#include "oops/base/Variable.h"
 #include "oops/base/Variables.h"
 #include "oops/util/AssociativeContainers.h"
 #include "oops/util/parameters/Parameters.h"
@@ -63,10 +64,10 @@ class RecipeBase : public util::Printable,
   virtual std::string name() const = 0;
 
 /// Variable Produced
-  virtual std::string product() const = 0;
+  virtual oops::Variable product() const = 0;
 
 /// Ingredients (list of variables required to setup and execute recipe)
-  virtual std::vector<std::string> ingredients() const = 0;
+  virtual oops::JediVariables ingredients() const = 0;
 
 /// Method returning the number of levels in the variable produced
   virtual size_t productLevels(const atlas::FieldSet &) const = 0;

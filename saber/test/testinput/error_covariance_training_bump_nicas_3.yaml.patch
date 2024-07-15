@@ -1,17 +1,11 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_3.yaml.tmp	2024-05-22 11:25:07.546618408 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_3.yaml	2024-05-22 10:50:21.951331762 +0200
-@@ -40,6 +40,14 @@
-         component: 2
-         file:
-           filepath: testdata/error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__cor_a_2
-+      - parameter: rh
-+        component: 1
-+        file:
-+          filepath: testdata/error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__cor_rh_1
-+      - parameter: rh
-+        component: 2
-+        file:
-+          filepath: testdata/error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__cor_rh_2
-       - parameter: nicas_norm
-         file:
-           filepath: testdata/error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__nicas_norm
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_3.yaml.tmp	2024-07-10 17:22:28.192379154 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_3.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -10,7 +10,7 @@
+     levels: 2
+   halo: 1
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - stream_function
+   - velocity_potential

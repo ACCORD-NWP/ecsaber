@@ -26,9 +26,7 @@
 #include "saber/blocks/SaberOuterBlockBase.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -51,29 +49,27 @@ class MoistureControlParameters : public SaberBlockParametersBase {
  public:
   oops::RequiredParameter<MoistureControlCovarianceParameters>
     moistureControlParams{"covariance data", this};
-  oops::patch::Variables mandatoryActiveVars() const override {
-    return oops::patch::Variables({
+  oops::JediVariables mandatoryActiveVars() const override {
+    return oops::JediVariables({std::vector<std::string>{
         "qt",
         "mu",
         "potential_temperature",
-        "virtual_potential_temperature"});
+        "virtual_potential_temperature"}});
   }
 
-  oops::patch::Variables activeInnerVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"virtual_potential_temperature",
-                          "mu"});
-    const int modelLevels = outerVars.getLevels("qt");
-    vars.addMetaData("virtual_potential_temperature", "levels", modelLevels);
-    vars.addMetaData("mu", "levels", modelLevels);
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    const int modelLevels = outerVars["qt"].getLevels();
+    eckit::LocalConfiguration conf;
+    conf.set("levels", modelLevels);
+    oops::JediVariables vars;
+    vars.push_back({"virtual_potential_temperature", conf});
+    vars.push_back({"mu", conf});
     return vars;
   }
 
-  oops::patch::Variables activeOuterVars(const oops::patch::Variables& outerVars) const override {
-    oops::patch::Variables vars({"potential_temperature",
-                          "qt"});
-    for (const auto & var : vars.variables()) {
-      vars.addMetaData(var, "levels", outerVars.getLevels(var));
-    }
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({outerVars["potential_temperature"],
+                          outerVars["qt"]});
     return vars;
   }
 };
@@ -87,7 +83,7 @@ class MoistureControl : public SaberOuterBlockBase {
   typedef MoistureControlParameters Parameters_;
 
   MoistureControl(const oops::GeometryData &,
-                  const oops::patch::Variables &,
+                  const oops::JediVariables &,
                   const eckit::Configuration &,
                   const Parameters_ &,
                   const oops::FieldSet3D &,
@@ -95,7 +91,7 @@ class MoistureControl : public SaberOuterBlockBase {
   virtual ~MoistureControl();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -104,9 +100,9 @@ class MoistureControl : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeOuterVars_;
-  const oops::patch::Variables innerOnlyVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
   atlas::FieldSet covFieldSet_;
   atlas::FieldSet augmentedStateFieldSet_;
 };

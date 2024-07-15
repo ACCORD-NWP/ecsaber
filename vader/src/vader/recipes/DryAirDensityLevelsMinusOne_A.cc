@@ -22,11 +22,11 @@ namespace vader
 
 // Static attribute initialization
 const char DryAirDensityLevelsMinusOne_A::Name[] = "DryAirDensityLevelsMinusOne_A";
-const std::vector<std::string> DryAirDensityLevelsMinusOne_A::
-    Ingredients = {"height", "height_levels", "potential_temperature",
+const oops::JediVariables DryAirDensityLevelsMinusOne_A::
+    Ingredients{std::vector<std::string>{"height", "height_levels", "potential_temperature",
                    "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
                    "mass_content_of_cloud_ice_in_atmosphere_layer",
-                   "specific_humidity", "air_pressure_levels_minus_one"};
+                   "specific_humidity", "air_pressure_levels_minus_one"}};
     // For renaming to CCPP standard in (hopefully) near future:
     // Ingredients = {"height_above_mean_sea_level_at_interface",
     //                "height_above_mean_sea_levels_extended_up_by_one",
@@ -54,14 +54,14 @@ std::string DryAirDensityLevelsMinusOne_A::name() const
     return DryAirDensityLevelsMinusOne_A::Name;
 }
 
-std::string DryAirDensityLevelsMinusOne_A::product() const
+oops::Variable DryAirDensityLevelsMinusOne_A::product() const
 {
-    return "dry_air_density_levels_minus_one";
+    return oops::Variable{"dry_air_density_levels_minus_one"};
     // For renaming to CCPP standard in (hopefully) near future:
     // return "dry_air_density";
 }
 
-std::vector<std::string> DryAirDensityLevelsMinusOne_A::ingredients() const
+oops::JediVariables DryAirDensityLevelsMinusOne_A::ingredients() const
 {
     return DryAirDensityLevelsMinusOne_A::Ingredients;
 }

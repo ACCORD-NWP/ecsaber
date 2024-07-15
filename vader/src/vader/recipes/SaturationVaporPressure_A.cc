@@ -38,12 +38,12 @@ std::string SaturationVaporPressure_A::name() const {
   return SaturationVaporPressure_A::Name;
 }
 
-std::string SaturationVaporPressure_A::product() const {
-  return "svp";
+oops::Variable SaturationVaporPressure_A::product() const {
+  return oops::Variable{"svp"};
 }
 
-std::vector<std::string> SaturationVaporPressure_A::ingredients() const {
-  return {"air_temperature"};
+oops::JediVariables SaturationVaporPressure_A::ingredients() const {
+  return oops::JediVariables{std::vector<std::string>{"air_temperature"}};
 }
 
 size_t SaturationVaporPressure_A::productLevels(const atlas::FieldSet & afieldset) const {

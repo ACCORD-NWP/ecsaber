@@ -1,0 +1,27 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/quenchConvertState.cc.tmp	2024-07-04 13:56:20.620086799 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/quenchConvertState.cc	2024-07-04 11:12:45.487034018 +0200
+@@ -1,5 +1,5 @@
+ /*
+- * (C) Copyright 2022 UCAR
++ * (C) Copyright 2024 Meteorologisk Institutt.
+  *
+  * This software is licensed under the terms of the Apache Licence Version 2.0
+  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+@@ -7,10 +7,16 @@
+ 
+ #include "oops/runs/ConvertState.h"
+ #include "oops/runs/Run.h"
++#include "src/instantiateQuenchMatrices.h"
++#include "src/Logbook.h"
+ #include "src/Traits.h"
+ 
+ int main(int argc,  char ** argv) {
+   oops::Run run(argc, argv);
++  quench::instantiateQuenchMatrices();
+   oops::ConvertState<quench::Traits> cs;
+-  return run.execute(cs);
++  quench::Logbook::start();
++  run.execute(cs);
++  quench::Logbook::stop();
++  return 0;
+ }

@@ -1,0 +1,27 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CovarianceParameters.h.tmp	2024-07-04 13:56:20.764087203 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CovarianceParameters.h	2024-07-04 11:12:45.487034018 +0200
+@@ -9,19 +9,18 @@
+ 
+ #include "oops/base/ModelSpaceCovarianceParametersBase.h"
+ 
+-#include "src/LinearVariableChange.h"
+ #include "src/TraitsFwd.h"
+ 
+ namespace quench {
++
+ // -----------------------------------------------------------------------------
+-/// \brief Parameters passed to the Covariance class.
++/// Covariance parameters class
+ 
+-class CovarianceParameters : public oops::ModelSpaceCovarianceParametersBase<quench::Traits>{
++class CovarianceParameters : public oops::ModelSpaceCovarianceParametersBase<Traits>{
+   OOPS_CONCRETE_PARAMETERS(CovarianceParameters,
+-                           oops::ModelSpaceCovarianceParametersBase<quench::Traits>)
+-
+- public:
++                           oops::ModelSpaceCovarianceParametersBase<Traits>)
+ };
++
+ // -----------------------------------------------------------------------------
+ 
+ }  // namespace quench

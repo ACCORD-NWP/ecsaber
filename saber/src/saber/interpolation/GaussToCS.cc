@@ -5,6 +5,7 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
+#include "atlas/field.h"
 #include "atlas/grid/detail/partitioner/MatchingMeshPartitionerCubedSphere.h"
 #include "atlas/grid/detail/partitioner/TransPartitioner.h"
 #include "atlas/parallel/mpi/mpi.h"
@@ -13,6 +14,7 @@
 #include "oops/util/Logger.h"
 
 #include "saber/interpolation/GaussToCS.h"
+#include "saber/interpolation/Rescaling.h"
 
 using atlas::grid::detail::partitioner::TransPartitioner;
 using atlas::grid::detail::partitioner::MatchingMeshPartitionerCubedSphere;
@@ -92,17 +94,17 @@ auto createInverseInterpolation(const bool initializeInverseInterpolation,
  * -> gauss StructuredColumns FunctionSpace.
  */
 void inverseInterpolateMultiplePEs(
-        const oops::patch::Variables & variables,
+        const oops::JediVariables & variables,
         const CS2Gauss & inverseInterpolation,
         const atlas::functionspace::StructuredColumns & gaussFunctionSpace,
         const atlas::FieldSet & srcFieldSet,
         atlas::FieldSet & newFieldSet) {
   // Interpolate from source to matching PointCloud
   atlas::FieldSet matchingPtcldFset;
-  for (const auto & fieldname : variables.variables()) {
+  for (const auto & var : variables) {
     auto matchingPtcldField = inverseInterpolation.matchingPtcldFspace->createField<double>(
-                atlas::option::name(fieldname) |
-                atlas::option::levels(srcFieldSet[fieldname].shape(1)));
+                atlas::option::name(var.name()) |
+                atlas::option::levels(srcFieldSet[var.name()].shape(1)));
     atlas::array::make_view<double, 2>(matchingPtcldField).assign(0.0);
     matchingPtcldFset.add(matchingPtcldField);
   }
@@ -111,21 +113,21 @@ void inverseInterpolateMultiplePEs(
 
   // Redistribute from matching PointCloud to target PointCloud
   atlas::FieldSet targetPtcldFset;
-  for (const auto & fieldname : variables.variables()) {
+  for (const auto & var : variables) {
     auto targetPtcldField = inverseInterpolation.targetPtcldFspace->createField<double>(
-          atlas::option::name(fieldname) |
-          atlas::option::levels(srcFieldSet[fieldname].shape(1)));
+          atlas::option::name(var.name()) |
+          atlas::option::levels(srcFieldSet[var.name()].shape(1)));
     targetPtcldFset.add(targetPtcldField);
   }
   inverseInterpolation.redistribution.execute(matchingPtcldFset, targetPtcldFset);
 
   // Copy from target PointCloud to gauss StructuredColumns
-  for (const auto & fieldname : variables.variables()) {
+  for (const auto & var : variables) {
     atlas::Field gaussField = gaussFunctionSpace.createField<double>(
-                atlas::option::name(fieldname) |
-                atlas::option::levels(srcFieldSet[fieldname].shape(1)));
+                atlas::option::name(var.name()) |
+                atlas::option::levels(srcFieldSet[var.name()].shape(1)));
     atlas::array::make_view<double, 2>(gaussField).assign(
-        atlas::array::make_view<const double, 2>(targetPtcldFset[fieldname]));
+        atlas::array::make_view<const double, 2>(targetPtcldFset[var.name()]));
     gaussField.set_dirty();  // atlas interpolation/redistribution above produces dirty halos
     newFieldSet.add(gaussField);
   }
@@ -134,7 +136,7 @@ void inverseInterpolateMultiplePEs(
 // -----------------------------------------------------------------------------
 
 void inverseInterpolateSinglePE(
-        const oops::patch::Variables & variables,
+        const oops::JediVariables & variables,
         const atlas::functionspace::NodeColumns & CSFunctionSpace,
         const atlas::functionspace::StructuredColumns & gaussFunctionSpace,
         const atlas::Grid & gaussGrid,
@@ -147,10 +149,10 @@ void inverseInterpolateSinglePE(
   const auto interp = atlas::Interpolation(scheme, CSFunctionSpace, hybridFunctionSpace);
 
   atlas::FieldSet hybridFieldSet;
-  for (const auto & fieldname : variables.variables()) {
+  for (const auto & var : variables) {
     atlas::Field hybridField = hybridFunctionSpace.createField<double>(
-                atlas::option::name(fieldname) |
-                atlas::option::levels(srcFieldSet[fieldname].shape(1)));
+                atlas::option::name(var.name()) |
+                atlas::option::levels(srcFieldSet[var.name()].shape(1)));
     atlas::array::make_view<double, 2>(hybridField).assign(0.0);
     hybridFieldSet.add(hybridField);
   }
@@ -159,17 +161,49 @@ void inverseInterpolateSinglePE(
   interp.execute(srcFieldSet, hybridFieldSet);
 
   // Copy into StructuredColumns
-  for (const auto & fieldname : variables.variables()) {
+  for (const auto & var : variables) {
     atlas::Field gaussField = gaussFunctionSpace.createField<double>(
-                atlas::option::name(fieldname) |
-                atlas::option::levels(srcFieldSet[fieldname].shape(1)));
+                atlas::option::name(var.name()) |
+                atlas::option::levels(srcFieldSet[var.name()].shape(1)));
     atlas::array::make_view<double, 2>(gaussField).assign(
-        atlas::array::make_view<const double, 2>(hybridFieldSet[fieldname]));
+        atlas::array::make_view<const double, 2>(hybridFieldSet[var.name()]));
     gaussField.set_dirty();  // atlas interpolation above produces dirty halos
     newFieldSet.add(gaussField);
   }
 }
 
+// -----------------------------------------------------------------------------
+
+Rescaling initRescaling(const GaussToCSParameters & params,
+                        const eckit::mpi::Comm & comm,
+                        const oops::JediVariables & activeVars,
+                        const atlas::FunctionSpace & innerFspace,
+                        const atlas::FunctionSpace & outerFspace,
+                        const saber::interpolation::AtlasInterpWrapper & interp) {
+  if (params.interpolationRescaling.value().is_initialized()) {
+    const auto & conf = params.interpolationRescaling.value().value();
+    if (conf.has("horizontal covariance profile file path")) {
+      return Rescaling(comm,
+                       conf,
+                       activeVars,
+                       innerFspace,
+                       outerFspace,
+                       interp);
+    } else if (conf.has("input file path")) {
+      eckit::LocalConfiguration readConf;
+      readConf.set("filepath", conf.getString("input file path"));
+      return Rescaling(comm,
+                       readConf,
+                       activeVars,
+                       outerFspace);
+    } else {
+      throw eckit::UserError("Missing parameters to initialize a relevant Rescaling object",
+                             Here());
+    }
+  } else {
+    return Rescaling();
+  }
+}
 }  // namespace
 
 // -----------------------------------------------------------------------------
@@ -182,7 +216,7 @@ static SaberOuterBlockMaker<GaussToCS> makerGaussToCS_("gauss to cubed-sphere-du
 // In the future it might make sense to include an atlas grid (if available) from
 // the model in outerGeometryData.
 GaussToCS::GaussToCS(const oops::GeometryData & outerGeometryData,
-                     const oops::patch::Variables & outerVars,
+                     const oops::JediVariables & outerVars,
                      const eckit::Configuration & covarConf,
                      const Parameters_ & params,
                      const oops::FieldSet3D & xb,
@@ -201,6 +235,12 @@ GaussToCS::GaussToCS(const oops::GeometryData & outerGeometryData,
                               outerGeometryData.comm().size() == 1,
                               CSFunctionSpace_, gaussGrid_,
                               gaussPartitioner_)),
+    rescaling_(initRescaling(params,
+                             outerGeometryData.comm(),
+                             activeVars_,
+                             gaussFunctionSpace_,
+                             CSFunctionSpace_,
+                             interp_)),
     innerGeometryData_(gaussFunctionSpace_, outerGeometryData.fieldSet(),
                        outerGeometryData.levelsAreTopDown(),
                        outerGeometryData.comm())
@@ -233,11 +273,11 @@ void GaussToCS::multiply(oops::FieldSet3D & fieldSet) const {
   // Create fieldset on cubed-sphere mesh.
 
   atlas::FieldSet csFieldSet;
-  for (const auto & fieldname : activeVars_.variables()) {
+  for (const auto & var : activeVars_) {
     atlas::Field csField =
       CSFunctionSpace_.createField<double>(
-          atlas::option::name(fieldname) |
-          atlas::option::levels(gaussFieldSet[fieldname].shape(1)) |
+          atlas::option::name(var.name()) |
+          atlas::option::levels(gaussFieldSet[var.name()].shape(1)) |
           atlas::option::halo(1));
     atlas::array::make_view<double, 2>(csField).assign(0.0);
     csFieldSet.add(csField);
@@ -248,11 +288,14 @@ void GaussToCS::multiply(oops::FieldSet3D & fieldSet) const {
   interp_.execute(gaussFieldSet, csFieldSet);
   csFieldSet.set_dirty();  // atlas interpolation produces dirty halos
 
-  for (const auto & fieldname : activeVars_.variables()) {
-    newFields.add(csFieldSet[fieldname]);
+  for (const auto & var : activeVars_) {
+    newFields.add(csFieldSet[var.name()]);
   }
 
   fieldSet.fieldSet() = newFields;
+
+  // Apply optional rescaling
+  rescaling_.execute(fieldSet);
 
   oops::Log::trace() << classname() << "::multiply done"
                      << fieldSet.field_names() << std::endl;
@@ -264,7 +307,10 @@ void GaussToCS::multiplyAD(oops::FieldSet3D & fieldSet) const {
   oops::Log::trace() << classname()
                      << "::multiplyAD starting" << std::endl;
 
-  // On input: fieldset on gaussian grid
+  // Apply optional rescaling
+  rescaling_.execute(fieldSet);
+
+  // Create empty fieldSets
   atlas::FieldSet newFields = atlas::FieldSet();
   atlas::FieldSet csFieldSet = atlas::FieldSet();
 
@@ -279,10 +325,10 @@ void GaussToCS::multiplyAD(oops::FieldSet3D & fieldSet) const {
 
   // Create gauss fieldset
   atlas::FieldSet gaussFieldSet;
-  for (const auto & fieldname : activeVars_.variables()) {
+  for (const auto & var : activeVars_) {
     atlas::Field gaussField =
-      gaussFunctionSpace_.createField<double>(atlas::option::name(fieldname) |
-            atlas::option::levels(csFieldSet[fieldname].shape(1)) |
+      gaussFunctionSpace_.createField<double>(atlas::option::name(var.name()) |
+            atlas::option::levels(csFieldSet[var.name()].shape(1)) |
             atlas::option::halo(1));
     atlas::array::make_view<double, 2>(gaussField).assign(0.0);
     gaussFieldSet.add(gaussField);
@@ -293,8 +339,8 @@ void GaussToCS::multiplyAD(oops::FieldSet3D & fieldSet) const {
   gaussFieldSet.adjointHaloExchange();
   gaussFieldSet.set_dirty();
 
-  for (const auto & fieldname : activeVars_.variables()) {
-    newFields.add(gaussFieldSet[fieldname]);
+  for (const auto & var : activeVars_) {
+    newFields.add(gaussFieldSet[var.name()]);
   }
 
   fieldSet.fieldSet() = newFields;
@@ -340,7 +386,7 @@ void GaussToCS::leftInverseMultiply(oops::FieldSet3D & fieldSet) const {
 // -----------------------------------------------------------------------------
 
 oops::FieldSet3D GaussToCS::generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
-                                                  const oops::patch::Variables & innerVars) const {
+                                                  const oops::JediVariables & innerVars) const {
   oops::FieldSet3D fset(this->validTime(), innerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(innerGeometryData.comm(),
                                            innerGeometryData.functionSpace(),
@@ -351,7 +397,7 @@ oops::FieldSet3D GaussToCS::generateInnerFieldSet(const oops::GeometryData & inn
 // -----------------------------------------------------------------------------
 
 oops::FieldSet3D GaussToCS::generateOuterFieldSet(const oops::GeometryData & outerGeometryData,
-                                                  const oops::patch::Variables & outerVars) const {
+                                                  const oops::JediVariables & outerVars) const {
   oops::FieldSet3D fset(this->validTime(), outerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(outerGeometryData.comm(),
                                            outerGeometryData.functionSpace(),

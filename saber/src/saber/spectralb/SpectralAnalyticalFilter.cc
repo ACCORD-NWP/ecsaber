@@ -204,7 +204,7 @@ auto createSpectralFilter(const oops::GeometryData & geometryData,
 
 // -----------------------------------------------------------------------------
 SpectralAnalyticalFilter::SpectralAnalyticalFilter(const oops::GeometryData & geometryData,
-                                                   const oops::patch::Variables & outerVars,
+                                                   const oops::JediVariables & outerVars,
                                                    const eckit::Configuration & covarConf,
                                                    const Parameters_ & params,
                                                    const oops::FieldSet3D & xb,
@@ -229,9 +229,9 @@ void SpectralAnalyticalFilter::multiply(oops::FieldSet3D & fieldSet) const {
   const int truncation = specFunctionSpace_.truncation();
   const int max_zonal_wavenumber = zonal_wavenumbers.size();
 
-  for (const auto & var : activeVars_.variables()) {
-    auto view = atlas::array::make_view<double, 2>(fieldSet[var]);
-    const atlas::idx_t levels = fieldSet[var].shape(1);
+  for (const auto & var : activeVars_) {
+    auto view = atlas::array::make_view<double, 2>(fieldSet[var.name()]);
+    const atlas::idx_t levels = fieldSet[var.name()].shape(1);
 
     // Element-wise multiplication
     atlas::idx_t jnode = 0;
@@ -279,9 +279,9 @@ void SpectralAnalyticalFilter::leftInverseMultiply(oops::FieldSet3D & fieldSet) 
   std::transform(spectralFilter_.begin(), spectralFilter_.end(),
                  filterInverse.begin(), [&](auto & x){return x != 0.0 ? 1.0 / x : 0.0;});
 
-  for (const auto & var : activeVars_.variables()) {
-    auto view = atlas::array::make_view<double, 2>(fieldSet[var]);
-    const atlas::idx_t levels = fieldSet[var].shape(1);
+  for (const auto & var : activeVars_) {
+    auto view = atlas::array::make_view<double, 2>(fieldSet[var.name()]);
+    const atlas::idx_t levels = fieldSet[var.name()].shape(1);
 
     // Element-wise multiplication
     atlas::idx_t jnode = 0;
@@ -309,7 +309,7 @@ void SpectralAnalyticalFilter::leftInverseMultiply(oops::FieldSet3D & fieldSet) 
 
 oops::FieldSet3D SpectralAnalyticalFilter::generateInnerFieldSet(
   const oops::GeometryData & innerGeometryData,
-  const oops::patch::Variables & innerVars) const {
+  const oops::JediVariables & innerVars) const {
   oops::FieldSet3D fset(this->validTime(), innerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(innerGeometryData.comm(),
                                            innerGeometryData.functionSpace(),
@@ -321,7 +321,7 @@ oops::FieldSet3D SpectralAnalyticalFilter::generateInnerFieldSet(
 
 oops::FieldSet3D SpectralAnalyticalFilter::generateOuterFieldSet(
   const oops::GeometryData & outerGeometryData,
-  const oops::patch::Variables & outerVars) const {
+  const oops::JediVariables & outerVars) const {
   oops::FieldSet3D fset(this->validTime(), outerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(outerGeometryData.comm(),
                                            outerGeometryData.functionSpace(),

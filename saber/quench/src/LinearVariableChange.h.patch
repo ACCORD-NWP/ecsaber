@@ -1,0 +1,53 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/LinearVariableChange.h.tmp	2024-07-04 13:56:20.792087281 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/LinearVariableChange.h	2024-07-04 11:12:45.499034057 +0200
+@@ -23,26 +23,38 @@
+ namespace quench {
+ 
+ // -----------------------------------------------------------------------------
+-/// quench linear change of variable (simple pointwise multiplication with a
+-/// field loaded from file)
++/// LinearVariableChange class
+ 
+ class LinearVariableChange: public util::Printable {
+  public:
+-  static const std::string classname() {return "quench::LinearVariableChange";}
++  static const std::string classname()
++    {return "quench::LinearVariableChange";}
+ 
+-  LinearVariableChange(const Geometry &, const eckit::Configuration &);
++  // Constructor/destructor
++  LinearVariableChange(const Geometry &,
++                       const eckit::Configuration &);
+   ~LinearVariableChange();
+ 
+-/// Perform linear transforms
+-  void changeVarTL(Increment &, const Variables &) const;
+-  void changeVarInverseTL(Increment &, const Variables &) const;
+-  void changeVarAD(Increment &, const Variables &) const;
+-  void changeVarInverseAD(Increment &, const Variables &) const;
+-
+-  void changeVarTraj(const State &, const Variables &) {}
++  // Linear variable changes: TL, inverseTL, AD and inverseAD
++  void changeVarTL(Increment &,
++                   const Variables &) const;
++  void changeVarInverseTL(Increment &,
++                          const Variables &) const;
++  void changeVarAD(Increment &,
++                   const Variables &) const;
++  void changeVarInverseAD(Increment &,
++                          const Variables &) const;
++
++  // Trajectory setup
++  void changeVarTraj(const State &,
++                     const Variables &) {}
+ 
+  private:
+-  void print(std::ostream & os) const override {os << "LinearVariableChange";};
++  // Print
++  void print(std::ostream & os) const override
++    {os << "LinearVariableChange";};
++
++  // Multiplicative factor
+   atlas::FieldSet fset_;
+ };
+ // -----------------------------------------------------------------------------

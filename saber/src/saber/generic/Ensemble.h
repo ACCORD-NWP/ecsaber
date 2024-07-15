@@ -49,7 +49,7 @@ class EnsembleParameters : public SaberBlockParametersBase {
   // Inflation value
   oops::Parameter<double> inflationValue{"inflation value", 1.0, this};
 
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ class Ensemble : public SaberCentralBlockBase {
   typedef EnsembleParameters Parameters_;
 
   Ensemble(const oops::GeometryData &,
-           const oops::patch::Variables &,
+           const oops::JediVariables &,
            const eckit::Configuration &,
            const Parameters_ & params,
            const oops::FieldSet3D & xb,

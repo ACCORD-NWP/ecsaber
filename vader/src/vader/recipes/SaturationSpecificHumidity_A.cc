@@ -38,14 +38,14 @@ std::string SaturationSpecificHumidity_A::name() const {
   return SaturationSpecificHumidity_A::Name;
 }
 
-std::string SaturationSpecificHumidity_A::product() const {
-  return "qsat";
+oops::Variable SaturationSpecificHumidity_A::product() const {
+  return oops::Variable{"qsat"};
 }
 
-std::vector<std::string> SaturationSpecificHumidity_A::ingredients() const {
-  return {"air_pressure",
+oops::JediVariables SaturationSpecificHumidity_A::ingredients() const {
+  return oops::JediVariables{std::vector<std::string>{"air_pressure",
           "svp",
-          "air_temperature"};
+          "air_temperature"}};
 }
 
 size_t SaturationSpecificHumidity_A::productLevels(const atlas::FieldSet & afieldset) const {

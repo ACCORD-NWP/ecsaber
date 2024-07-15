@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2024-05-06 14:08:00.054271843 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2024-05-06 14:01:08.744995726 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp	2024-07-04 13:56:18.900081979 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2024-07-04 11:12:45.511034097 +0200
 @@ -18,7 +18,7 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -18,7 +18,7 @@
  
  // -----------------------------------------------------------------------------
 @@ -186,7 +187,9 @@
-                        const oops::FieldSet4D & fset4dFg,
+                        oops::FieldSet4D & fset4dFg,
                         oops::FieldSets & fsetEns,
                         const eckit::LocalConfiguration & covarConf,
 -                       const std::vector<saber::SaberOuterBlockParametersWrapper> & params) {
@@ -28,23 +28,16 @@
    oops::Log::trace() << "SaberOuterBlockChain ctor starting" << std::endl;
    oops::Log::info() << "Info     : Creating outer blocks" << std::endl;
  
-@@ -198,12 +201,13 @@
-   eckit::LocalConfiguration outerBlockConf{covarConf};
-   outerBlockConf.set("vader", modelDataConf);
- 
-+
-   // Loop in reverse order
-   for (const SaberOuterBlockParametersWrapper & saberOuterBlockParamWrapper :
+@@ -203,7 +206,7 @@
      boost::adaptors::reverse(params)) {
--    // Initialize current outer geometry data
-+    // Initialize current outer variables and outer geometry data
+     // Initialize current outer geometry data
      const oops::GeometryData & currentOuterGeometryData = outerBlocks_.size() == 0 ?
 -                                       geom.generic() : outerBlocks_.back()->innerGeometryData();
-+      *geomData_ : outerBlocks_.back()->innerGeometryData();
++                                       *geomData_ : outerBlocks_.back()->innerGeometryData();
  
      // Initialize outer block
      const auto[saberOuterBlockParams,
-@@ -282,7 +286,7 @@
+@@ -282,7 +285,7 @@
  
      for (size_t ie = 0; ie < nens; ++ie) {
        // Read ensemble member

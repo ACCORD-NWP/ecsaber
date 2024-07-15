@@ -1,0 +1,29 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag_1.yaml.tmp	2024-07-10 17:22:28.292380566 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_hdiag_1.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -13,7 +13,7 @@
+     levels: 1
+   halo: 1
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - stream_function
+   - velocity_potential
+@@ -23,7 +23,7 @@
+   ensemble:
+     members from template:
+       template:
+-        date: '2010-01-01T12:00:00Z'
++        date: 2010-01-01T12:00:00Z
+         filepath: testdata/randomization_bump_nicas_L10L2/_MPI_-_OMP__member_%mem%
+         state variables:
+         - stream_function
+@@ -58,7 +58,7 @@
+         distance class width: 800.0e3
+         reduced levels: 2
+         local diagnostic: true
+-        averaging length-scale: 1000.0e3
++        averaging length-scale: 2000.0e3
+       fit:
+         horizontal filtering length-scale: 3000.0e3
+         number of components: 2

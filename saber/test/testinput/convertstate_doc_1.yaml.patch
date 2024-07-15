@@ -1,0 +1,51 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/convertstate_doc_1.yaml.tmp	2024-07-10 17:22:28.940389714 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/convertstate_doc_1.yaml	2024-07-10 17:21:11.403295129 +0200
+@@ -19,42 +19,42 @@
+     levels: 1
+ states:
+ - input:
+-    date: '2010-01-01T12:00:00Z'
++    date: 2010-01-01T12:00:00Z
+     state variables:
+     - stream_function
+     constant value: 4000.0e3
+   output:
+     filepath: testdata/convertstate_doc_1/rh1_avg
+ - input:
+-    date: '2010-01-01T12:00:00Z'
++    date: 2010-01-01T12:00:00Z
+     state variables:
+     - stream_function
+     constant value: -1500.0e3
+   output:
+     filepath: testdata/convertstate_doc_1/rh1_pert
+ - input:
+-    date: '2010-01-01T12:00:00Z'
++    date: 2010-01-01T12:00:00Z
+     state variables:
+     - stream_function
+     constant value: 4000.0e3
+   output:
+     filepath: testdata/convertstate_doc_1/rh2_avg
+ - input:
+-    date: '2010-01-01T12:00:00Z'
++    date: 2010-01-01T12:00:00Z
+     state variables:
+     - stream_function
+     constant value: 1500.0e3
+   output:
+     filepath: testdata/convertstate_doc_1/rh2_pert
+ - input:
+-    date: '2010-01-01T12:00:00Z'
++    date: 2010-01-01T12:00:00Z
+     state variables:
+     - stream_function
+     constant value: 0.2
+   output:
+     filepath: testdata/convertstate_doc_1/rhc_pert
+ - input:
+-    date: '2010-01-01T12:00:00Z'
++    date: 2010-01-01T12:00:00Z
+     state variables:
+     - stream_function
+   output:

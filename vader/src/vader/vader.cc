@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2021  UCAR.
+ * (C) Copyright 2021-2024  UCAR.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -78,7 +78,7 @@ Vader::Vader(const VaderParameters & parameters, const eckit::Configuration & co
         // Convert eckit::Configuration to cookbookConfigType (map)
         auto configCookbookDefinition = config.getSubConfiguration(configCookbookKey);
         for (auto configCookbookKey : configCookbookDefinition.keys()) {
-            cookbookDefinition[configCookbookKey] =
+            cookbookDefinition[oops::Variable(configCookbookKey)] =
                                         configCookbookDefinition.getStringVector(configCookbookKey);
         }
     } else {
@@ -129,32 +129,38 @@ std::vector<std::string> Vader::getPlanNames(const vaderPlanType plan) const {
 * Any variable names remaining in neededVars could not be created by Vader.
 *
 * \param[in,out] afieldset This is the FieldSet described above
-* \param[in,out] neededVars Names of variables to try to produce
+* \param[in,out] neededVars JediVariables to try to produce
 * \param[out] plan Optional arg allowing the caller to recieve the recipe execution plan used
                    (can be used for testing the planVariable routine)
 * \returns List of variables VADER was able to produce
 *
 */
-oops::patch::Variables Vader::changeVar(atlas::FieldSet & afieldset,
-                                 oops::patch::Variables & neededVars,
+oops::JediVariables Vader::changeVar(atlas::FieldSet & afieldset,
+                                 oops::JediVariables & neededVars,
                                  vaderPlanType plan) const {
     util::Timer timer(classname(), "changeVar");
     oops::Log::trace() << "entering Vader::changeVar " << std::endl;
-    oops::Log::info() << "Variables requested from Vader (non-linear): " << neededVars.variables()
+    oops::Log::info() << "Variables requested from Vader (non-linear): " << neededVars
         << std::endl;
 
     // onlyIngredientVars are the variables that Vader should NOT later return in varsProduced
     // (i.e. variables both in afieldset AND neededVars will be returned in varsProduced)
-    oops::patch::Variables onlyIngredientVars(afieldset.field_names());
+    oops::JediVariables onlyIngredientVars(afieldset.field_names());
     onlyIngredientVars -= neededVars;
     plan.clear();
 
-    auto ingredientNames = afieldset.field_names();
-    oops::Log::info() << "Variables provided to Vader: " << ingredientNames << std::endl;
+    oops::JediVariables ingredientVars;
+    for (const auto & field : afieldset) {
+    // Intentionally not adding levels to the ingredientVars metadata created here. It messes up the
+    // PlanVariable algorithm.
+      ingredientVars.push_back({field.name()});
+    }
+
+    oops::Log::info() << "Variables provided to Vader: " << ingredientVars << std::endl;
     // Loop through all the requested fields in neededVars
     // Since neededVars can be modified by planVariable and planVariable calls
     // itself recursively, we make a copy of the list here before we start.
-    std::vector<std::string> targetVariables{neededVars.variables()};
+    const oops::JediVariables targetVariables(neededVars);
     bool recipesNeedTLAD = false;  // It's OK here to plan recipes with no TL/AD methods
 
     for (auto targetVariable : targetVariables) {
@@ -168,20 +174,24 @@ oops::patch::Variables Vader::changeVar(atlas::FieldSet & afieldset,
                 " is no longer in the variable list neededVars. Moving on." << std::endl;
             continue;
         }
-        oops::patch::Variables excludedVars;
-        planVariable(ingredientNames, neededVars, targetVariable, recipesNeedTLAD,
+        oops::JediVariables excludedVars;
+        planVariable(ingredientVars, neededVars, targetVariable, recipesNeedTLAD,
                      excludedVars, plan);
     }
     executePlanNL(afieldset, plan);
 
-    if (neededVars.variables().size()) {
+    if (neededVars.size()) {
         oops::Log::info() << "Requested variables Vader could not produce: "
-            << neededVars.variables() << std::endl;
+            << neededVars << std::endl;
     } else {
         oops::Log::info() << "Vader produced all requested variables."  << std::endl;
     }
 
-    oops::patch::Variables varsProduced(afieldset.field_names());
+    oops::JediVariables varsProduced;
+    for (const auto & field : afieldset) {
+        varsProduced.push_back({field.name()});
+    }
+
     varsProduced -= onlyIngredientVars;
     oops::Log::trace() << "leaving Vader::changeVar" << std::endl;
     return varsProduced;
@@ -195,27 +205,32 @@ oops::patch::Variables Vader::changeVar(atlas::FieldSet & afieldset,
 * as the changeVar method, but also saves the result in Vader's trajectory_ property.
 *
 * \param[in,out] afieldset This is the input/output FieldSet, same as in changeVar.
-* \param[in,out] neededVars Names of variables to try to produce
+* \param[in,out] neededVars JediVariables to try to produce
 *
 */
-oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
-                      oops::patch::Variables & neededVars) {
+oops::JediVariables Vader::changeVarTraj(atlas::FieldSet & afieldset,
+                      oops::JediVariables & neededVars) {
     util::Timer timer(classname(), "changeVar");
     oops::Log::trace() << "entering Vader::changeVarTraj " << std::endl;
-    oops::Log::info() << "Variables requested from Vader (Trajectory): " << neededVars.variables()
+    oops::Log::info() << "Variables requested from Vader (Trajectory): " << neededVars
         << std::endl;
 
     // onlyIngredientVars are the variables that Vader should NOT later return in varsProduced
     // (i.e. variables both in afieldset AND neededVars will be returned in varsProduced)
-    oops::patch::Variables onlyIngredientVars(afieldset.field_names());
+    oops::JediVariables ingredientVars;
+    for (const auto & field : afieldset) {
+    // Intentionally not adding levels to the ingredientVars metadata created here. It messes up the
+    // PlanVariable algorithm.
+      ingredientVars.push_back({field.name()});
+    }
+    oops::JediVariables onlyIngredientVars(ingredientVars);
     onlyIngredientVars -= neededVars;
 
-    auto ingredientNames = afieldset.field_names();
-    oops::Log::info() << "Variables provided to Vader: " << ingredientNames << std::endl;
+    oops::Log::info() << "Variables provided to Vader: " << ingredientVars << std::endl;
     // Loop through all the requested fields in neededVars
     // Since neededVars can be modified by planVariable and planVariable calls
     // itself recursively, we make a copy of the list here before we start.
-    std::vector<std::string> targetVariables{neededVars.variables()};
+    const oops::JediVariables targetVariables(neededVars);
     bool recipesNeedTLAD = true;  // Only plan recipes with TL/AD methods implemented
 
     for (auto targetVariable : targetVariables) {
@@ -229,8 +244,8 @@ oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
                 " is no longer in the variable list neededVars. Moving on." << std::endl;
             continue;
         }
-        oops::patch::Variables excludedVars;
-        planVariable(ingredientNames, neededVars, targetVariable, recipesNeedTLAD,
+        oops::JediVariables excludedVars;
+        planVariable(ingredientVars, neededVars, targetVariable, recipesNeedTLAD,
                      excludedVars, recipeExecutionPlan_);
     }
     executePlanNL(afieldset, recipeExecutionPlan_);
@@ -247,13 +262,17 @@ oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
         trajectory_.add(to_Field);
     }
 
-    if (neededVars.variables().size()) {
+    if (neededVars.size()) {
         oops::Log::info() << "Requested variables Vader could not produce: "
-            << neededVars.variables() << std::endl;
+            << neededVars << std::endl;
     } else {
         oops::Log::info() << "Vader produced all requested variables."  << std::endl;
     }
-    oops::patch::Variables varsProduced(afieldset.field_names());
+
+    oops::JediVariables varsProduced;
+    for (const auto & field : afieldset) {
+        varsProduced.push_back({field.name()});
+    }
     varsProduced -= onlyIngredientVars;
     oops::Log::trace() << "leaving Vader::changeVarTraj" << std::endl;
     return varsProduced;
@@ -269,13 +288,13 @@ oops::patch::Variables Vader::changeVarTraj(atlas::FieldSet & afieldset,
 * communicate back to the caller which variables VADER has created.
 *
 * \param[in,out] afieldset This is the input/output fieldset, same as in changeVar
-* \param[in,out] neededVars Names of variables to try to produce
+* \param[in,out] neededVars JediVariables to try to produce
 *
 */
-oops::patch::Variables Vader::changeVarTL(atlas::FieldSet & afieldset,
-                      oops::patch::Variables & neededVars) const {
+oops::JediVariables Vader::changeVarTL(atlas::FieldSet & afieldset,
+                      oops::JediVariables & neededVars) const {
     oops::Log::trace() << "entering Vader::changeVarTL" << std::endl;
-    oops::patch::Variables varsPopulated;
+    oops::JediVariables varsPopulated;
     executePlanTL(afieldset, recipeExecutionPlan_);
     for (auto varplan : recipeExecutionPlan_) {
         varsPopulated.push_back(varplan.first);
@@ -300,10 +319,10 @@ oops::patch::Variables Vader::changeVarTL(atlas::FieldSet & afieldset,
 * \param[in,out] varsToAdjoint Same vars as 'neededVars' in changeVarTraj and changeVarTL
 *
 */
-oops::patch::Variables Vader::changeVarAD(atlas::FieldSet & afieldset,
-                      oops::patch::Variables & varsToAdjoint) const {
+oops::JediVariables Vader::changeVarAD(atlas::FieldSet & afieldset,
+                      oops::JediVariables & varsToAdjoint) const {
     oops::Log::trace() << "entering Vader::changeVarAD" << std::endl;
-    oops::patch::Variables varsAdjointed;
+    oops::JediVariables varsAdjointed;
     executePlanAD(afieldset, recipeExecutionPlan_);
     for (auto varplan : recipeExecutionPlan_) {
         oops::Log::debug() << "Adding to varsAdjointed: " << varplan.first << std::endl;
@@ -324,20 +343,20 @@ oops::patch::Variables Vader::changeVarAD(atlas::FieldSet & afieldset,
 * * Adds the variable and recipe name to the "recipeExecutionPlan" if the recipe is viable.
 * * If successful, removes the targetVariable from neededVars and returns 'true'
 *
-* \param[in] ingredientNames Names of available ingredients
-* \param[in,out] neededVars Names of variables to try to produce
-* \param[in] targetVariable variable name this instance is trying to plan
+* \param[in] ingredientVars Available ingredient variables
+* \param[in,out] neededVars JediVariables to try to produce
+* \param[in] targetVariable variable this instance is trying to plan
 * \param[in] needsTLDA Flag to only consider recipes that have TLAD implemented
 * \param[in,out] excludedVars variables to not try to create due to recursion chain
 * \param[in,out] plan ordered list of viable recipes that will get exectued later
 * \return boolean 'true' if it successfully creates a plan for targetVariable, else false
 *
 */
-bool Vader::planVariable(std::vector<std::string> & ingredientNames,
-                         oops::patch::Variables & neededVars,
-                         const std::string targetVariable,
+bool Vader::planVariable(oops::JediVariables & ingredientVars,
+                         oops::JediVariables & neededVars,
+                         const oops::Variable & targetVariable,
                          const bool needsTLAD,
-                         oops::patch::Variables & excludedVars,
+                         oops::JediVariables & excludedVars,
                          vaderPlanType & plan) const {
     bool variablePlanned = false;
 
@@ -345,9 +364,9 @@ bool Vader::planVariable(std::vector<std::string> & ingredientNames,
         std::endl;
 
     // Check if needed variable is part of the ingredients already.
-    bool variableExists =
-        (std::find(ingredientNames.begin(), ingredientNames.end(), targetVariable)
-                        != ingredientNames.end());
+    // Note: not comparing metadata because targetVar has levels, and
+    // ingredientVars don't have them
+    bool variableExists = ingredientVars.has(targetVariable);
     if (variableExists) {
         oops::Log::debug() << "Variable is part of the ingredients already. " << std::endl;
         neededVars -= targetVariable;
@@ -384,9 +403,7 @@ bool Vader::planVariable(std::vector<std::string> & ingredientNames,
                         recipe->name() << " contains the target." << std::endl;
                     break;
                 }
-                haveIngredient =
-                    (std::find(ingredientNames.begin(), ingredientNames.end(), ingredient)
-                        != ingredientNames.end());
+                haveIngredient = ingredientVars.has(ingredient);
                 if (!haveIngredient) {
                     oops::Log::debug() << "ingredient " << ingredient << " for recipe "
                         << recipe->name() << " not in FieldSet." << std::endl;
@@ -402,7 +419,7 @@ bool Vader::planVariable(std::vector<std::string> & ingredientNames,
                         // create it again as an ingredient at a lower level of recursion. Then
                         // call planVariable recursively.
                         excludedVars.push_back(targetVariable);
-                        haveIngredient = planVariable(ingredientNames, neededVars, ingredient,
+                        haveIngredient = planVariable(ingredientVars, neededVars, ingredient,
                                                     needsTLAD, excludedVars, plan);
                         // Remove the ingredient from excludedVars since we're back to this level.
                         excludedVars -= targetVariable;
@@ -417,11 +434,11 @@ bool Vader::planVariable(std::vector<std::string> & ingredientNames,
                 oops::Log::debug() <<
                     "All ingredients are in the fieldset. Adding recipe " << recipe->name() <<
                     " to recipeExecutionPlan." << std::endl;
-                plan.push_back(std::pair<std::string, const std::unique_ptr<RecipeBase> &>
+                plan.push_back(std::pair<oops::Variable, const std::unique_ptr<RecipeBase> &>
                                                                     ({targetVariable, recipe}));
                 variablePlanned = true;
                 neededVars -= targetVariable;
-                ingredientNames.push_back(targetVariable);
+                ingredientVars.push_back(targetVariable);
                 break;  // Found a viable recipe. Don't need to check any other potential recipes.
             } else {
                 oops::Log::debug() <<
@@ -493,10 +510,10 @@ void Vader::executePlanNL(atlas::FieldSet & afieldset,
     oops::Log::trace() << "entering Vader::executePlanNL" <<  std::endl;
     for (auto varPlan : recipeExecutionPlan) {
         for (auto ingredient :  varPlan.second->ingredients()) {
-            ASSERT(afieldset.has(ingredient));
+            ASSERT(afieldset.has(ingredient.name()));
         }
         // add product field to the fieldset if needed
-        checkOrAddField(afieldset, varPlan.first,
+        checkOrAddField(afieldset, varPlan.first.name(),
                         varPlan.second->productFunctionSpace(afieldset),
                         varPlan.second->productLevels(afieldset));
         if (varPlan.second->requiresSetup()) {
@@ -529,7 +546,7 @@ void Vader::executePlanTL(atlas::FieldSet & afieldset,
         oops::Log::debug() << "Vader calculating variable '" << varPlan.first <<
             "' using TL recipe with name: " << varPlan.second->name() << std::endl;
         // add product field to the fieldset if needed
-        checkOrAddField(afieldset, varPlan.first,
+        checkOrAddField(afieldset, varPlan.first.name(),
                         varPlan.second->productFunctionSpace(afieldset),
                         varPlan.second->productLevels(afieldset));
         if (varPlan.second->requiresSetup()) {
@@ -563,13 +580,13 @@ void Vader::executePlanAD(atlas::FieldSet & afieldset,
          ++varPlanIt) {
         oops::Log::debug()  << "Vader performing adjoint of recipe with name: " <<
             varPlanIt->second->name() << std::endl;
-        ASSERT(afieldset.has(varPlanIt->first));
+        ASSERT(afieldset.has(varPlanIt->first.name()));
         // Check if ingredients need to be allocated
         for (auto ingredient :  varPlanIt->second->ingredients()) {
             // add ingredient field to the fieldset and zero out if needed
-            checkOrAddField(afieldset, ingredient,
-                     trajectory_.field(ingredient).functionspace(),
-                     trajectory_.field(ingredient).shape(1), true);
+            checkOrAddField(afieldset, ingredient.name(),
+                     trajectory_.field(ingredient.name()).functionspace(),
+                     trajectory_.field(ingredient.name()).shape(1), true);
         }
         if (varPlanIt->second->requiresSetup()) {
             varPlanIt->second->setup(afieldset);
@@ -594,7 +611,7 @@ void Vader::print(std::ostream & os) const {
     for (const auto & cbMember : cookbook_) {
         cookbookString += "  ";  // 2 space indent for yaml
         bool firstRecipe = true;
-        cookbookString += cbMember.first + ": [";
+        cookbookString += cbMember.first.name() + ": [";
         for (const auto & recipe : cbMember.second) {
             if (firstRecipe) {
                 firstRecipe = false;

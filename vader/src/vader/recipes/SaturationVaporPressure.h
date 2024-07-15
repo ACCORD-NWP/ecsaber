@@ -37,8 +37,8 @@ class SaturationVaporPressure_A : public RecipeBase
     SaturationVaporPressure_A(const Parameters_ &, const VaderConfigVars &);
 
     std::string name() const override;
-    std::string product() const override;
-    std::vector<std::string> ingredients() const override;
+    oops::Variable product() const override;
+    oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
 

@@ -31,7 +31,9 @@ class SpectralCorrelationParameters : public SaberBlockParametersBase {
   oops::OptionalParameter<spectralbCalibrationVertCovParameters>
     calibrationParams{"calibration", this};
   oops::OptionalParameter<spectralbReadParameters> readParams{"read", this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::Parameter<bool> skipVerticalConv{"skip vertical convolution",
+    "Flag to skip vertical convolutions", false, this};
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -43,7 +45,7 @@ class SpectralCorrelation : public SaberCentralBlockBase {
   typedef SpectralCorrelationParameters Parameters_;
 
   SpectralCorrelation(const oops::GeometryData &,
-                      const oops::patch::Variables &,
+                      const oops::JediVariables &,
                       const eckit::Configuration &,
                       const Parameters_ &,
                       const oops::FieldSet3D &,
@@ -66,7 +68,7 @@ class SpectralCorrelation : public SaberCentralBlockBase {
   /// Parameters
   Parameters_ params_;
   /// Active variables
-  const oops::patch::Variables activeVars_;
+  const oops::JediVariables activeVars_;
   /// Vertical Spectral Correlations
   atlas::FieldSet spectralVerticalCorrelations_;
   /// Geometry data

@@ -23,9 +23,7 @@
 #include "saber/vader/MoistIncrOpParameters.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -40,7 +38,7 @@ class MoistIncrOp : public SaberOuterBlockBase {
   typedef MoistIncrOpParameters Parameters_;
 
   MoistIncrOp(const oops::GeometryData &,
-              const oops::patch::Variables &,
+              const oops::JediVariables &,
               const eckit::Configuration &,
               const Parameters_ &,
               const oops::FieldSet3D &,
@@ -48,19 +46,23 @@ class MoistIncrOp : public SaberOuterBlockBase {
   virtual ~MoistIncrOp();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
-  void leftInverseMultiply(oops::FieldSet3D & fset) const override;
+  void leftInverseMultiply(oops::FieldSet3D &) const override;
+
+  void directCalibration(const oops::FieldSets &) override;
+
 
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeOuterVars_;
-  const oops::patch::Variables innerOnlyVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
   atlas::FieldSet augmentedStateFieldSet_;
+  const Parameters_ blockparams_;
 };
 
 // -----------------------------------------------------------------------------

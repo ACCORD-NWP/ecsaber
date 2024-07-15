@@ -38,7 +38,7 @@ class InterpolationParameters : public SaberBlockParametersBase {
     eckit::LocalConfiguration(), this};
   oops::Parameter<eckit::LocalConfiguration> inverseInterpConf{"inverse interpolator",
     eckit::LocalConfiguration(), this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ class Interpolation : public SaberOuterBlockBase {
   typedef InterpolationParameters Parameters_;
 
   Interpolation(const oops::GeometryData &,
-                const oops::patch::Variables &,
+                const oops::JediVariables &,
                 const eckit::Configuration &,
                 const Parameters_ &,
                 const oops::FieldSet3D &,
@@ -58,25 +58,25 @@ class Interpolation : public SaberOuterBlockBase {
   virtual ~Interpolation() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return *innerGeomData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
   void leftInverseMultiply(oops::FieldSet3D &) const override;
 
   oops::FieldSet3D generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
-                                         const oops::patch::Variables & innerVars) const override;
+                                         const oops::JediVariables & innerVars) const override;
 
   oops::FieldSet3D generateOuterFieldSet(const oops::GeometryData & outerGeometryData,
-                                         const oops::patch::Variables & outerVars) const override;
+                                         const oops::JediVariables & outerVars) const override;
 
  private:
   void print(std::ostream &) const override;
 
   const Parameters_ params_;
   const oops::GeometryData & outerGeomData_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables activeVars_;
   // pointers for delayed initialization
   std::unique_ptr<oops::GeometryData> innerGeomData_;
   std::unique_ptr<oops::GlobalInterpolator> interp_;

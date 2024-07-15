@@ -23,10 +23,10 @@ namespace vader
 // Static attribute initialization
 const char ParticulateMatter2p5_B::Name[] = "ParticulateMatter2p5_B";
 
-const std::vector<std::string> ParticulateMatter2p5_B::Ingredients = {
+const oops::JediVariables ParticulateMatter2p5_B::Ingredients{std::vector<std::string>{
                                    "dry_air_density",
                                    "mixing_ratio_of_smoke_wrt_dry_air",
-                                   "mixing_ratio_of_dust_wrt_dry_air"};
+                                   "mixing_ratio_of_dust_wrt_dry_air"}};
 
 // Register the maker
 static RecipeMaker<ParticulateMatter2p5_B>
@@ -44,12 +44,12 @@ std::string ParticulateMatter2p5_B::name() const
     return ParticulateMatter2p5_B::Name;
 }
 
-std::string ParticulateMatter2p5_B::product() const
+oops::Variable ParticulateMatter2p5_B::product() const
 {
-    return "mass_density_of_particulate_matter_2p5_in_air";
+    return oops::Variable{"mass_density_of_particulate_matter_2p5_in_air"};
 }
 
-std::vector<std::string> ParticulateMatter2p5_B::ingredients() const
+oops::JediVariables ParticulateMatter2p5_B::ingredients() const
 {
     return ParticulateMatter2p5_B::Ingredients;
 }

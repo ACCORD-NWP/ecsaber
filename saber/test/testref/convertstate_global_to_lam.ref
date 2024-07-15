@@ -1,0 +1,37 @@
+Input state: 
+  Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 1
+  - vert_coord: [1.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  stream_function: 2.8982753492378876e+01
+Output state: 
+  Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 0
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 1
+  - vert_coord: [1.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  stream_function: 6.1343296292260007e+01

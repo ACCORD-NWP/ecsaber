@@ -28,25 +28,25 @@ static SaberOuterBlockMaker<PsiChiToUV> makerPsiChiToUV_("BUMP_PsiChiToUV");
 
 namespace {
 
-oops::patch::Variables createInnerVars(const oops::patch::Variables & outerVars) {
-  oops::patch::Variables innerVars(std::vector<std::string>(
+oops::JediVariables createInnerVars(const oops::JediVariables & outerVars) {
+  oops::JediVariables innerVars(std::vector<std::string>(
     {"stream_function", "velocity_potential"}));
-  const int modelLevels(outerVars.getLevels("eastward_wind"));
-  innerVars.addMetaData("stream_function", "levels", modelLevels);
-  innerVars.addMetaData("velocity_potential", "levels", modelLevels);
+  const int modelLevels(outerVars["eastward_wind"].getLevels());
+  innerVars["stream_function"].setLevels(modelLevels);
+  innerVars["velocity_potential"].setLevels(modelLevels);
   return innerVars;
 }
 
 // -----------------------------------------------------------------------------
 
-oops::patch::Variables createActiveVars(const oops::patch::Variables & innerVars,
-                                 const oops::patch::Variables & outerVars) {
-  oops::patch::Variables activeVars;
+oops::JediVariables createActiveVars(const oops::JediVariables & innerVars,
+                                 const oops::JediVariables & outerVars) {
+  oops::JediVariables activeVars;
   activeVars += innerVars;
   activeVars += outerVars;
   const std::vector<std::string> activeStrings{"stream_function", "velocity_potential",
                                                "eastward_wind", "northward_wind"};
-  activeVars.intersection(oops::patch::Variables(activeStrings));
+  activeVars.intersection(oops::JediVariables(activeStrings));
   return activeVars;
 }
 
@@ -55,7 +55,7 @@ oops::patch::Variables createActiveVars(const oops::patch::Variables & innerVars
 // -----------------------------------------------------------------------------
 
 PsiChiToUV::PsiChiToUV(const oops::GeometryData & outerGeometryData,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const eckit::Configuration & covarConf,
                        const Parameters_ & params,
                        const oops::FieldSet3D & xb,

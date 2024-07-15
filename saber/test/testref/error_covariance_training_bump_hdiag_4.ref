@@ -1,7 +1,5 @@
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   2 ~> 100.0%
@@ -140,37 +138,37 @@
                 Level:   2 ~> cov. at class zero:  0.10E+01
                 Level:   1 ~> cov. at class zero:  0.98E+00
                 Level:   2 ~> cov. at class zero:  0.10E+01
-             Block group 1:  0.18861564E+00 for      160 diagnostic points
-             Block group 2:  0.20479372E+00 for      160 diagnostic points
+             Block group 1:  0.18859911E+00 for      160 diagnostic points
+             Block group 2:  0.20484715E+00 for      160 diagnostic points
                    Level:   1 ~> amplitude:        1.00
-                                 cor. hor. support:      3750.59 km
+                                 cor. hor. support:      3750.94 km
                                  cor. ver. support:         3.21 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 cor. hor. support:      3848.38 km
+                                 cor. hor. support:      3845.49 km
                                  cor. ver. support:         3.21 vertical units
                    Level:   1 ~> amplitude:        1.00
-                                 cor. hor. support:      3877.91 km
+                                 cor. hor. support:      3878.10 km
                                  cor. ver. support:         3.17 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 cor. hor. support:      3708.22 km
+                                 cor. hor. support:      3708.67 km
                                  cor. ver. support:         3.17 vertical units
-             Block group 1:  0.27482725E+00 for      110 diagnostic points
-             Block group 2:  0.28776226E+00 for      131 diagnostic points
+             Block group 1:  0.27498388E+00 for      110 diagnostic points
+             Block group 2:  0.28785963E+00 for      131 diagnostic points
                 Level:   1 ~> loc. at class zero:       0.92
                 Level:   2 ~> loc. at class zero:       0.92
                    Level:   1 ~> amplitude:        1.00
-                                 loc. hor. support:      5860.49 km
+                                 loc. hor. support:      5860.79 km
                                  loc. ver. support:         6.05 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 loc. hor. support:      6250.66 km
+                                 loc. hor. support:      6249.77 km
                                  loc. ver. support:         6.06 vertical units
                 Level:   1 ~> loc. at class zero:       0.92
                 Level:   2 ~> loc. at class zero:       0.92
                    Level:   1 ~> amplitude:        1.00
-                                 loc. hor. support:      6400.76 km
+                                 loc. hor. support:      6400.78 km
                                  loc. ver. support:         6.02 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 loc. hor. support:      6327.49 km
+                                 loc. hor. support:      6332.68 km
                                  loc. ver. support:         6.02 vertical units
-Norm of output parameter loc_rh - 1: 3.9820271651400083e+08
-Norm of output parameter loc_rv - 1: 3.9130950991038139e+02
+Norm of output parameter loc_rh - 1: 3.9826795964265621e+08
+Norm of output parameter loc_rv - 1: 3.9130950991038134e+02

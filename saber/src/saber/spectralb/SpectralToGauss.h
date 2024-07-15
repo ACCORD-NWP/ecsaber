@@ -30,10 +30,10 @@ class SpectralToGaussParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(SpectralToGaussParameters, SaberBlockParametersBase)
 
  public:
-  oops::OptionalParameter<oops::patch::Variables> activeVariables{"active variables", this};
+  oops::OptionalParameter<oops::JediVariables> activeVariables{"active variables", this};
   // In the future may add N as a parameter if it is possible
   // to use the one different from the one inferred from the gaussian grid
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ class SpectralToGauss : public SaberOuterBlockBase {
   typedef SpectralToGaussParameters Parameters_;
 
   SpectralToGauss(const oops::GeometryData &,
-                  const oops::patch::Variables &,
+                  const oops::JediVariables &,
                   const eckit::Configuration &,
                   const Parameters_ &,
                   const oops::FieldSet3D &,
@@ -53,7 +53,7 @@ class SpectralToGauss : public SaberOuterBlockBase {
   virtual ~SpectralToGauss() = default;
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -62,10 +62,10 @@ class SpectralToGauss : public SaberOuterBlockBase {
   void directCalibration(const oops::FieldSets &) override;
 
   oops::FieldSet3D generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
-                                         const oops::patch::Variables & innerVars) const override;
+                                         const oops::JediVariables & innerVars) const override;
 
   oops::FieldSet3D generateOuterFieldSet(const oops::GeometryData & outerGeometryData,
-                                         const oops::patch::Variables & outerVars) const override;
+                                         const oops::JediVariables & outerVars) const override;
 
  private:
   void print(std::ostream &) const override;
@@ -76,11 +76,11 @@ class SpectralToGauss : public SaberOuterBlockBase {
   void invertMultiplyScalarFields(const atlas::FieldSet &, atlas::FieldSet &) const;
   void invertMultiplyVectorFields(const atlas::FieldSet &, atlas::FieldSet &) const;
 
-  oops::patch::Variables activeVars_;
-  oops::patch::Variables outerVars_;
+  oops::JediVariables activeVars_;
+  oops::JediVariables outerVars_;
   /// Whether to convert to and from u/v.
   const bool useWindTransform_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables innerVars_;
 
 
   /// Gaussian (outer) functionspace

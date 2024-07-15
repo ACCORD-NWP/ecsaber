@@ -20,8 +20,8 @@ namespace vader
 // Static attribute initialization
 const char WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::Name[] =
         "WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A";
-const std::vector<std::string> WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::
-        Ingredients = {"specific_humidity"};
+const oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::
+        Ingredients{std::vector<std::string>{"specific_humidity"}};
         // CCPP name: water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
 
 // Register the maker
@@ -42,12 +42,12 @@ std::string WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::name() const
     return WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::Name;
 }
 
-std::string WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::product() const
+oops::Variable WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::product() const
 {
-    return "specific_humidity_at_two_meters_above_surface";
+    return oops::Variable{"specific_humidity_at_two_meters_above_surface"};
 }
 
-std::vector<std::string> WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::ingredients() const
+oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::ingredients() const
 {
     return WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::Ingredients;
 }

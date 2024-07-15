@@ -34,7 +34,7 @@ class VertLocInterpParameters : public SaberBlockParametersBase {
   oops::Parameter<bool> reproduceBugStaggerDefn{
     "reproduce bug stagger definition",
     false, this};
-  oops::patch::Variables mandatoryActiveVars() const override {return oops::patch::Variables();}
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 };
 
 // -----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ class VertLocInterp : public SaberOuterBlockBase {
   typedef VertLocInterpParameters Parameters_;
 
   VertLocInterp(const oops::GeometryData &,
-                const oops::patch::Variables &,
+                const oops::JediVariables &,
                 const eckit::Configuration &,
                 const Parameters_ &,
                 const oops::FieldSet3D &,
@@ -55,7 +55,7 @@ class VertLocInterp : public SaberOuterBlockBase {
 
   const oops::GeometryData & innerGeometryData()
     const override {return outerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -65,9 +65,9 @@ class VertLocInterp : public SaberOuterBlockBase {
 
   Parameters_ params_;
   const oops::GeometryData & outerGeometryData_;
-  oops::patch::Variables outerVars_;
-  oops::patch::Variables activeVars_;
-  oops::patch::Variables innerVars_;
+  oops::JediVariables outerVars_;
+  oops::JediVariables activeVars_;
+  oops::JediVariables innerVars_;
 };
 
 }  // namespace vader

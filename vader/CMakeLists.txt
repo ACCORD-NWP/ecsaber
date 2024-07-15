@@ -10,22 +10,16 @@
 
 cmake_minimum_required( VERSION 3.12 )
 
-project( vader VERSION 1.6.0 LANGUAGES CXX Fortran )
-
-# Remove update summary
-file( REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
+project( vader VERSION 1.7.0 LANGUAGES CXX Fortran )
 
 # Copy and update source from VADER
-check_diff_recursively( cmake "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( src "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( tools "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( CPPLINT.cfg "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-check_diff_recursively( vader-import.cmake.in "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-
-# Check update summary
-if( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt")
-    message( FATAL_ERROR "Merge required:\n bash ${CMAKE_CURRENT_SOURCE_DIR}/update_summary.txt" )
-endif()
+patch_init( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( cmake "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( src "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( tools "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( CPPLINT.cfg "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+check_diff_recursively( vader-import.cmake.in "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+patch_apply( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
 
 ## Ecbuild integration
 find_package( ecbuild QUIET )

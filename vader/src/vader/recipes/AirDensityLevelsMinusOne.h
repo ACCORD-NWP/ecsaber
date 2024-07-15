@@ -32,7 +32,7 @@ namespace vader {
 class AirDensityLevelsMinusOne_A : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef EmptyRecipeParameters Parameters_;
 
@@ -40,8 +40,8 @@ class AirDensityLevelsMinusOne_A : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override;
-    std::vector<std::string> ingredients() const override;
+    oops::Variable product() const override;
+    oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
     bool hasTLAD() const override { return true; }
@@ -64,7 +64,7 @@ class AirDensityLevelsMinusOne_A : public RecipeBase {
 class AirDensityLevelsMinusOne_B : public RecipeBase {
  public:
     static const char Name[];
-    static const std::vector<std::string> Ingredients;
+    static const oops::JediVariables Ingredients;
 
     typedef EmptyRecipeParameters Parameters_;
 
@@ -72,8 +72,8 @@ class AirDensityLevelsMinusOne_B : public RecipeBase {
 
     // Recipe base class overrides
     std::string name() const override;
-    std::string product() const override;
-    std::vector<std::string> ingredients() const override;
+    oops::Variable product() const override;
+    oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
     bool hasTLAD() const override { return true; }

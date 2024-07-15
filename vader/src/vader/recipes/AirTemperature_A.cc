@@ -31,7 +31,7 @@ const char AirTemperature_A::Name[] = "AirTemperature_A";
 const char AT[] = "air_temperature";
 const char APT[] = "potential_temperature";
 const char DEF[] = "exner";
-const std::vector<std::string> AirTemperature_A::Ingredients = {APT, DEF};
+const oops::JediVariables AirTemperature_A::Ingredients{std::vector<std::string>{APT, DEF}};
 
 // Register the maker
 static RecipeMaker<AirTemperature_A> makerAirTemperature_A_(AirTemperature_A::Name);
@@ -46,14 +46,14 @@ std::string AirTemperature_A::name() const
     return AirTemperature_A::Name;
 }
 
-std::string AirTemperature_A::product() const
+oops::Variable AirTemperature_A::product() const
 {
-    return "air_temperature";
+    return oops::Variable{"air_temperature"};
     // CCPP Names for (hopefully near) future:
     // return "air_temperature_at_interface"
 }
 
-std::vector<std::string> AirTemperature_A::ingredients() const
+oops::JediVariables AirTemperature_A::ingredients() const
 {
     return AirTemperature_A::Ingredients;
 }

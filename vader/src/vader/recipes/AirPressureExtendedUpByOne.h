@@ -13,6 +13,7 @@
 
 #include "atlas/field/FieldSet.h"
 #include "atlas/functionspace/FunctionSpace.h"
+#include "oops/base/Variable.h"
 #include "vader/RecipeBase.h"
 
 namespace vader
@@ -33,10 +34,12 @@ class AirPressureExtendedUpByOne_A : public RecipeBase
     AirPressureExtendedUpByOne_A(const Parameters_ &, const VaderConfigVars &);
 
     std::string name() const override {return Name;}
-    std::string product() const override {return "air_pressure_levels";}
-    // std::string product() const override {return "air_pressure_extended_up_by_one";} CCPP Name
+    oops::Variable product() const override {return oops::Variable{"air_pressure_levels"};}
+    // oops::Variable product() const override {
+    //   return oops::Variable{"air_pressure_extended_up_by_1"};} CCPP Name
+    // }
 
-    std::vector<std::string> ingredients() const override;
+    oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
 

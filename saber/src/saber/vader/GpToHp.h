@@ -27,9 +27,7 @@
 #include "saber/vader/PressureParameters.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -48,7 +46,7 @@ class GpToHp : public SaberOuterBlockBase {
   typedef GpToHpParameters Parameters_;
 
   GpToHp(const oops::GeometryData &,
-         const oops::patch::Variables &,
+         const oops::JediVariables &,
          const eckit::Configuration &,
          const Parameters_ &,
          const oops::FieldSet3D &,
@@ -56,7 +54,7 @@ class GpToHp : public SaberOuterBlockBase {
   virtual ~GpToHp();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -65,9 +63,9 @@ class GpToHp : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables activeOuterVars_;
-  const oops::patch::Variables innerOnlyVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
   atlas::FieldSet covFieldSet_;
   atlas::FieldSet augmentedStateFieldSet_;
 };

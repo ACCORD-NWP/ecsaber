@@ -29,9 +29,7 @@
 #include "saber/vader/PressureParameters.h"
 
 namespace oops {
-  namespace patch{
-class Variables;
-}
+  class JediVariables;
 }
 
 namespace saber {
@@ -56,7 +54,7 @@ class HydrostaticPressure : public SaberOuterBlockBase {
   typedef HydrostaticPressureParameters Parameters_;
 
   HydrostaticPressure(const oops::GeometryData &,
-                   const oops::patch::Variables &,
+                   const oops::JediVariables &,
                    const eckit::Configuration &,
                    const Parameters_ &,
                    const oops::FieldSet3D &,
@@ -64,7 +62,7 @@ class HydrostaticPressure : public SaberOuterBlockBase {
   virtual ~HydrostaticPressure();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
-  const oops::patch::Variables & innerVars() const override {return innerVars_;}
+  const oops::JediVariables & innerVars() const override {return innerVars_;}
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
@@ -73,8 +71,8 @@ class HydrostaticPressure : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
-  const oops::patch::Variables innerVars_;
-  const oops::patch::Variables intermediateTempVars_;
+  const oops::JediVariables innerVars_;
+  const oops::JediVariables intermediateTempVars_;
   /// Gaussian (outer) functionspace
   const atlas::functionspace::StructuredColumns gaussFunctionSpace_;
   std::unique_ptr<saber::vader::GpToHp> gptohp_;

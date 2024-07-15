@@ -55,17 +55,17 @@ class FieldSet3D : public util::Serializable,
   void shallowCopy(const FieldSet3D & other);
   /// @brief Initialize atlas::FieldSet, possibly with a constant value
   void init(const atlas::FunctionSpace &,
-            const oops::patch::Variables &);
+            const oops::JediVariables &);
   void init(const atlas::FunctionSpace &,
-            const oops::patch::Variables &,
+            const oops::JediVariables &,
             const double & value);
   /// @brief Initialize atlas::FieldSet with random fields
   void randomInit(const atlas::FunctionSpace &,
-                  const oops::patch::Variables &);
+                  const oops::JediVariables &);
 
   /// Accessors
   /// @brief Return variables
-  const patch::Variables & variables() const;
+  const JediVariables & variables() const;
   /// @brief Return valid time
   const util::DateTime validTime() const {return validTime_;}
   /// @brief Return communicator
@@ -80,6 +80,9 @@ class FieldSet3D : public util::Serializable,
   atlas::Field & operator[](const int & fieldIndex) {return fset_[fieldIndex];}
   const atlas::Field & operator[](const std::string & fieldName) const {return fset_[fieldName];}
   atlas::Field & operator[](const std::string & fieldName) {return fset_[fieldName];}
+  const atlas::Field & operator[](const Variable & var) const {return fset_[var.name()];}
+  atlas::Field & operator[](const Variable & var) {return fset_[var.name()];}
+
 
   /// Arithmetic operations
   void zero();
@@ -90,13 +93,13 @@ class FieldSet3D : public util::Serializable,
   FieldSet3D & operator/=(const FieldSet3D &);
   /// @brief Computes dot product of this FieldSet3D with the \p other FieldSet3D
   ///        only for specified variables \p vars.
-  double dot_product_with(const FieldSet3D &, const patch::Variables &) const;
-  double norm(const patch::Variables &) const;
+  double dot_product_with(const FieldSet3D &, const JediVariables &) const;
+  double norm(const JediVariables &) const;
   void sqrt();
 
   /// Read / write
   void read(const atlas::FunctionSpace &,
-            const oops::patch::Variables &,
+            const oops::JediVariables &,
             const eckit::LocalConfiguration &);
   void write(const eckit::LocalConfiguration &) const;
 
@@ -107,7 +110,7 @@ class FieldSet3D : public util::Serializable,
 
 
   /// Utilities
-  void removeFields(const patch::Variables & vars);
+  void removeFields(const JediVariables & vars);
   bool compare_with(const FieldSet3D &,
                     const double & tol = 1.0e-12,
                     const util::ToleranceType & tolType = util::ToleranceType::absolute) const;
@@ -127,14 +130,14 @@ class FieldSet3D : public util::Serializable,
   const atlas::field::FieldSetImpl * get() const {return fset_.get();}
 
  private:
-  oops::patch::Variables currentVariables() const;
+  oops::JediVariables currentVariables() const;
   void print(std::ostream &) const override;
 
   atlas::FieldSet fset_;
   const util::DateTime validTime_;
   const eckit::mpi::Comm & comm_;
   std::string name_;
-  mutable oops::patch::Variables vars_;
+  mutable oops::JediVariables vars_;
 };
 
 // -----------------------------------------------------------------------------
@@ -159,6 +162,6 @@ FieldSet3D copyFieldSet3D(const util::DateTime &,
 FieldSet3D randomFieldSet3D(const util::DateTime &,
                             const eckit::mpi::Comm &,
                             const atlas::FunctionSpace &,
-                            const oops::patch::Variables &);
+                            const oops::JediVariables &);
 }  // namespace oops
 

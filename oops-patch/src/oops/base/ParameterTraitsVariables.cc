@@ -13,7 +13,7 @@
 
 namespace oops {
 
-std::string ParameterTraits<patch::Variables>::valueAsJson(const patch::Variables &value) {
+std::string ParameterTraits<JediVariables>::valueAsJson(const JediVariables &value) {
   const std::vector<std::string> varNames = value.variables();
   if (varNames.empty()) {
     return "[]";

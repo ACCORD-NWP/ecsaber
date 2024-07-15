@@ -24,7 +24,7 @@ FieldSets::FieldSets(const std::vector<util::DateTime> & times,
 // -----------------------------------------------------------------------------
 
 FieldSets::FieldSets(const atlas::FunctionSpace & fspace,
-                     const patch::Variables & vars,
+                     const JediVariables & vars,
                      const std::vector<util::DateTime> & times,
                      const eckit::Configuration & config,
                      const eckit::mpi::Comm & commGeom,

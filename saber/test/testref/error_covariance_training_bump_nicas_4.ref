@@ -1,45 +1,43 @@
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Min. / max. longitudes: -180.0 /   180.0
-          Min. / max. latitudes:   -90.0 /    90.0
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter a - 1: 4.2336977193041456e+01
-Norm of input parameter a - 2: 1.5657837636639481e+01
-Norm of input parameter rh - 1: 2.4235287450180620e+08
-Norm of input parameter rh - 2: 1.3628503661116999e+08
-Norm of input parameter rv - 1: 2.7638163733791657e+02
-Norm of input parameter rv - 2: 2.7638163733901319e+01
+Norm of input parameter a - 1: 4.2308916537728386e+01
+Norm of input parameter a - 2: 1.5687046448381214e+01
+Norm of input parameter rh - 1: 2.4242588064726251e+08
+Norm of input parameter rh - 2: 1.3632609098375362e+08
+Norm of input parameter rv - 1: 2.7699435475800004e+02
+Norm of input parameter rv - 2: 2.7699435475909940e+01
              Effective levels:   1   2 
-                Horizontal support radius:    4169.66 km (   4169.66 km -    4169.66 km)
+                Horizontal support radius:    4169.81 km (   4169.81 km -    4169.81 km)
                 Estimated nc1 from horizontal support radius:      542
                    Decimate full grid, at least      542 points required,     762 valid points found
                    Subgrid hash:    423880792
                 Final nc1:      542
                 Effective horizontal resolution:  4.00
-                Horizontal support radius:    4082.23 km (   4082.23 km -    4082.23 km)
-                Estimated nc1 from horizontal support radius:      565
-                   Decimate full grid, at least      565 points required,     762 valid points found
-                   Subgrid hash:   1569382919
-                Final nc1:      565
+                Horizontal support radius:    4084.55 km (   4084.55 km -    4084.55 km)
+                Estimated nc1 from horizontal support radius:      564
+                   Decimate full grid, at least      564 points required,     762 valid points found
+                   Subgrid hash:   1692448058
+                Final nc1:      564
                 Effective horizontal resolution:  4.00
              nc1(  1) =                        542
-             nc1(  2) =                        565
-             ns =                             1107
+             nc1(  2) =                        564
+             ns =                             1106
              v%n_s =                             2
-             c%n_s[global] =                 30461
+             c%n_s[global] =                 30412
              Effective levels:   1   2 
-                Horizontal support radius:    2344.77 km (   2344.77 km -    2344.77 km)
+                Horizontal support radius:    2344.85 km (   2344.85 km -    2344.85 km)
                 Estimated nc1 from horizontal support radius:     1714
                    Decimate full grid, at least      762 points required,     762 valid points found
                    Subgrid hash:   1550418632
                 Final nc1:      762
                 Effective horizontal resolution:  2.67
-                Horizontal support radius:    2295.61 km (   2295.61 km -    2295.61 km)
-                Estimated nc1 from horizontal support radius:     1788
+                Horizontal support radius:    2296.91 km (   2296.91 km -    2296.91 km)
+                Estimated nc1 from horizontal support radius:     1786
                    Decimate full grid, at least      762 points required,     762 valid points found
                    Subgrid hash:   1550418632
                 Final nc1:      762
@@ -67,4 +65,4 @@ Norm of input parameter rv - 2: 2.7638163733901319e+01
           Component NICAS adjoint test result:             T
              0.0 /    0.0:  1.0000000
           Level   1:  0.0000000 -  1.0000000
-          Level   2:  0.0000000 -  0.6263871
+          Level   2:  0.0000000 -  0.6263012

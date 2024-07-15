@@ -40,9 +40,9 @@ namespace vader {
 
 namespace {
 
-oops::patch::Variables removeOuterOnlyVar(const oops::patch::Variables & vars) {
-  oops::patch::Variables innerVars(vars);
-  innerVars -= "hydrostatic_pressure_levels";
+oops::JediVariables removeOuterOnlyVar(const oops::JediVariables & vars) {
+  oops::JediVariables innerVars(vars);
+  innerVars -= innerVars["hydrostatic_pressure_levels"];
   return innerVars;
 }
 
@@ -57,7 +57,7 @@ static SaberOuterBlockMaker<GpToHp>
 // -----------------------------------------------------------------------------
 
 GpToHp::GpToHp(const oops::GeometryData & outerGeometryData,
-               const oops::patch::Variables & outerVars,
+               const oops::JediVariables & outerVars,
                const eckit::Configuration & covarConf,
                const Parameters_ & params,
                const oops::FieldSet3D & xb,
@@ -70,15 +70,11 @@ GpToHp::GpToHp(const oops::GeometryData & outerGeometryData,
     augmentedStateFieldSet_()
 {
   oops::Log::trace() << classname() << "::GpToHp starting" << std::endl;
-  oops::patch::Variables activeVars = activeOuterVars_;
-  activeVars += innerOnlyVars_;
-
   // Covariance FieldSet
   covFieldSet_ = createGpRegressionStats(outerGeometryData.functionSpace(),
                                          outerGeometryData.fieldSet(),
-                                         activeVars,
+                                         innerVars_,
                                          params.gptohpcovarianceparams.value());
-
   std::vector<std::string> requiredStateVariables{
     "air_temperature",
     "air_pressure_levels_minus_one",
@@ -134,7 +130,6 @@ GpToHp::GpToHp(const oops::GeometryData & outerGeometryData,
   mo::eval_virtual_potential_temperature_nl(augmentedStateFieldSet_);
   mo::evalHydrostaticExnerLevels(augmentedStateFieldSet_);
   mo::evalHydrostaticPressureLevels(augmentedStateFieldSet_);
-
   // Need to setup derived state fields that we need.
   std::vector<std::string> requiredCovarianceVariables;
   if (covFieldSet_.has("interpolation_weights")) {
@@ -199,8 +194,8 @@ void GpToHp::leftInverseMultiply(oops::FieldSet3D & fset) const {
                            "within the mo_hydrostatic_pressure block.", Here());
   }
   //   Allocate inner-only variables except air temperature
-  oops::patch::Variables innerOnlyVarsForInversion(innerOnlyVars_);
-  innerOnlyVarsForInversion -= "geostrophic_pressure_levels_minus_one";
+  oops::JediVariables innerOnlyVarsForInversion(innerOnlyVars_);
+  innerOnlyVarsForInversion -= innerOnlyVarsForInversion["geostrophic_pressure_levels_minus_one"];
   checkFieldsAreNotAllocated(fset, innerOnlyVarsForInversion);
   allocateMissingFields(fset, innerOnlyVarsForInversion, innerOnlyVarsForInversion,
                         innerGeometryData_.functionSpace());

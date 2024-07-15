@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_vader.yaml.tmp	2024-07-10 17:22:28.100377855 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_vader.yaml	2024-07-10 17:21:11.407295185 +0200
+@@ -12,7 +12,7 @@
+   model data:
+     epsilon: 0.621957535
+ background:
+-  date: '2010-01-01T12:00:00Z'
++  date: 2010-01-01T12:00:00Z
+   state variables:
+   - virtual_temperature
+   - specific_humidity

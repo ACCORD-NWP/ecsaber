@@ -46,7 +46,7 @@ static SaberOuterBlockMaker<HpToHexner>
 // -----------------------------------------------------------------------------
 
 HpToHexner::HpToHexner(const oops::GeometryData & outerGeometryData,
-                       const oops::patch::Variables & outerVars,
+                       const oops::JediVariables & outerVars,
                        const eckit::Configuration & covarConf,
                        const Parameters_ & params,
                        const oops::FieldSet3D & xb,
@@ -130,7 +130,7 @@ HpToHexner::~HpToHexner() {
 void HpToHexner::multiply(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::multiply starting" << std::endl;
   // Allocate output fields if they are not already present, e.g when randomizing.
-  const oops::patch::Variables outputVars({"hydrostatic_exner_levels"});
+  const oops::JediVariables outputVars({"hydrostatic_exner_levels"});
   allocateMissingFields(fset,
                         outputVars,
                         activeVars_,
