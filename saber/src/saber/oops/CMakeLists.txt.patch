@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-07-05 09:01:24.589189134 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-07-05 08:59:59.960939327 +0200
-@@ -11,17 +11,30 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-07-15 08:34:47.242335585 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-07-15 08:06:39.376227997 +0200
+@@ -11,17 +11,31 @@
  ErrorCovariance.h
  Localization.h
  
@@ -12,6 +12,7 @@
 +EnsembleVariance.h
 +EvilUpdate.h
 +MakeObs.h
++BGOS.h
  
  # Utilities
 +ECUtilities.cc

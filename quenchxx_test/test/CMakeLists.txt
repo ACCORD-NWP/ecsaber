@@ -1,4 +1,13 @@
 list( APPEND quenchxx_testinput
+  testinput/bgos_background.json
+  testinput/bgos_ensemble.json
+  testinput/bgos_linear_ensemble.json
+  testinput/bgos_linear_randomized.json
+  testinput/bgos_makeobs.json
+  testinput/bgos_nonlinear_ensemble.json
+  testinput/bgos_nonlinear_randomized.json
+  testinput/bgos_stddev.json
+  testinput/bgos_truth.json
   testinput/evil_assim_ensemble.json
   testinput/evil_background.json
   testinput/evil_control_3dvar.json
@@ -57,6 +66,15 @@ list( APPEND quenchxx_testinput
 )
 
 list( APPEND quenchxx_testref
+  testref/bgos_background.ref
+  testref/bgos_ensemble.ref
+  testref/bgos_linear_ensemble.ref
+  testref/bgos_linear_randomized.ref
+  testref/bgos_makeobs.ref
+  testref/bgos_nonlinear_ensemble.ref
+  testref/bgos_nonlinear_randomized.ref
+  testref/bgos_stddev.ref
+  testref/bgos_truth.ref
   testref/evil_assim_ensemble.ref
   testref/evil_background.ref
   testref/evil_control_3dvar.ref
@@ -323,6 +341,88 @@ foreach( mpi "1" "4" )
                                "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_4densvar.ref"
                           DEPENDS saber_quench_variational.x )
     endforeach()
+
+    # BGOS tests
+    ecbuild_add_test( TARGET quenchxx_test_bgos_truth_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_convertstate.x testinput/bgos_truth.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_truth.ref"
+                      DEPENDS saber_quench_convertstate.x )
+    
+    ecbuild_add_test( TARGET quenchxx_test_bgos_stddev_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_convertstate.x testinput/bgos_stddev.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_stddev.ref"
+                      DEPENDS saber_quench_convertstate.x )
+
+    ecbuild_add_test( TARGET quenchxx_test_bgos_background_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x testinput/bgos_background.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_background.ref"
+                      DEPENDS saber_quench_error_covariance_toolbox.x )
+    
+    ecbuild_add_test( TARGET quenchxx_test_bgos_ensemble_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x testinput/bgos_ensemble.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_ensemble.ref"
+                      DEPENDS saber_quench_error_covariance_toolbox.x )
+    
+    ecbuild_add_test( TARGET quenchxx_test_bgos_makeobs_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_makeobs.x testinput/bgos_makeobs.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_makeobs.ref"
+                      DEPENDS saber_quench_makeobs.x )
+
+    ecbuild_add_test( TARGET quenchxx_test_bgos_linear_ensemble_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_bgos.x testinput/bgos_linear_ensemble.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_linear_ensemble.ref"
+                      DEPENDS saber_quench_bgos.x )
+
+    ecbuild_add_test( TARGET quenchxx_test_bgos_linear_randomized_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_bgos.x testinput/bgos_linear_randomized.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_linear_randomized.ref"
+                      DEPENDS saber_quench_bgos.x )
+
+    ecbuild_add_test( TARGET quenchxx_test_bgos_nonlinear_ensemble_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_bgos.x testinput/bgos_nonlinear_ensemble.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_nonlinear_ensemble.ref"
+                      DEPENDS saber_quench_bgos.x )
+
+    ecbuild_add_test( TARGET quenchxx_test_bgos_nonlinear_randomized_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_bgos.x testinput/bgos_nonlinear_randomized.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/bgos_nonlinear_randomized.ref"
+                      DEPENDS saber_quench_bgos.x )
 
     # EVIL tests  
     ecbuild_add_test( TARGET quenchxx_test_evil_truth_${mpi}

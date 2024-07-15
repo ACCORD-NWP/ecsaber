@@ -89,7 +89,7 @@ class AssimEnsemble : public oops::Application {
   // -----------------------------------------------------------------------------
  private:
   std::string appname() const {
-    return "oops::AssimEnsemble<" + MODEL::name() + ">";
+    return "saber::AssimEnsemble<" + MODEL::name() + ">";
   }
   // -----------------------------------------------------------------------------
 };

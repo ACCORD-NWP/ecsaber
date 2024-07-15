@@ -18,6 +18,7 @@ AssimEnsemble.h
 EnsembleVariance.h
 EvilUpdate.h
 MakeObs.h
+BGOS.h
 
 # Utilities
 ECUtilities.cc
