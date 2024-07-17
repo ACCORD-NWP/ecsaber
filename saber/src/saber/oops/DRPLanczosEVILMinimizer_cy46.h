@@ -24,7 +24,7 @@
 #include "oops/util/Logger.h"
 #include "oops/util/formats.h"
 
-#include "saber/oops/RitzPairs.h"
+#include "saber/oops/RitzPairs_cy46.h"
 
 #include "util/dot_product.h"
 
@@ -49,10 +49,6 @@ template<typename MODEL> class DRPLanczosEVILMinimizer : public oops::DRMinimize
 
   eckit::LocalConfiguration config_;
   oops::SpectralLMP<CtrlInc_> lmp_;
-
-  boost::ptr_vector<CtrlInc_> hvecs_;
-  boost::ptr_vector<CtrlInc_> vvecs_;
-  boost::ptr_vector<CtrlInc_> zvecs_;
 };
 
 // =============================================================================
@@ -60,8 +56,7 @@ template<typename MODEL> class DRPLanczosEVILMinimizer : public oops::DRMinimize
 template<typename MODEL>
 DRPLanczosEVILMinimizer<MODEL>::DRPLanczosEVILMinimizer(const eckit::Configuration & conf,
                                                 const CostFct_ & J)
-  : oops::DRMinimizer<MODEL>(J), config_(conf), lmp_(conf),
-    hvecs_(), vvecs_(), zvecs_() {}
+  : oops::DRMinimizer<MODEL>(J), config_(conf), lmp_(conf) {}
 
 // -----------------------------------------------------------------------------
 
@@ -85,7 +80,7 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ & dx, CtrlInc_ & dxh, Ctrl
   // J0
   const double costJ0 = costJ0Jb + costJ0JoJc;
 
-  lmp_.update(vvecs_, hvecs_, zvecs_, ritzPairs.alphas(),
+  lmp_.update(ritzPairs.vVEC(), ritzPairs.zVEC(), ritzPairs.tVEC(), ritzPairs.alphas(),
     ritzPairs.betas());
 
   // z_{0} = B LMP r_{0}
@@ -104,14 +99,11 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ & dx, CtrlInc_ & dxh, Ctrl
   zz *= 1/beta;
 
   // hvecs[0] = pr_{1} --> required for solution
-  hvecs_.push_back(new CtrlInc_(pr));
-  ritzPairs.zVEC().emplace_back(new CtrlInc_(pr));
+  ritzPairs.zVEC().push_back(new CtrlInc_(pr));
   // zvecs[0] = z_{1} ---> for re-orthogonalization
-  zvecs_.push_back(new CtrlInc_(zz));
-  ritzPairs.tVEC().emplace_back(new CtrlInc_(zz));
+  ritzPairs.tVEC().push_back(new CtrlInc_(zz));
   // vvecs[0] = v_{1} ---> for re-orthogonalization
-  vvecs_.push_back(new CtrlInc_(vv));
-  ritzPairs.vVEC().emplace_back(new CtrlInc_(vv));
+  ritzPairs.vVEC().push_back(new CtrlInc_(vv));
 
   double normReduction = 1.0;
 
@@ -122,18 +114,18 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ & dx, CtrlInc_ & dxh, Ctrl
     // v_{i+1} = ( pr_{i} + H^T R^{-1} H z_{i} ) - beta * v_{i-1}
     HtRinvH.multiply(zz, vv);
     vv += pr;
-    if (jiter > 0) vv.axpy(-beta, vvecs_[jiter-1]);
+    if (jiter > 0) vv.axpy(-beta, ritzPairs.vVEC(jiter-1));
 
     // alpha_{i} = v_{i+1}^T z_{i}
     double alpha = dot_product(zz, vv);
 
     // v_{i+1} = v_{i+1} - alpha_{i} v_{i}
-    vv.axpy(-alpha, vvecs_[jiter]);  // vv = vv - alpha * v_j
+    vv.axpy(-alpha, ritzPairs.vVEC(jiter));  // vv = vv - alpha * v_j
 
     // Re-orthogonalization
     for (int jj = 0; jj < jiter; ++jj) {
-      double proj = dot_product(vv, zvecs_[jj]);
-      vv.axpy(-proj, vvecs_[jj]);
+      double proj = dot_product(vv, ritzPairs.tVEC(jj));
+      vv.axpy(-proj, ritzPairs.vVEC(jj));
     }
 
     // z_{i+1} = B LMP v_{i+1}
@@ -151,14 +143,11 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ & dx, CtrlInc_ & dxh, Ctrl
     zz *= 1/beta;
 
     // hvecs[i+1] =pr_{i+1}
-    hvecs_.push_back(new CtrlInc_(pr));
-    ritzPairs.zVEC().emplace_back(new CtrlInc_(pr));
+    ritzPairs.zVEC().push_back(new CtrlInc_(pr));
     // zvecs[i+1] = z_{i+1}
-    zvecs_.push_back(new CtrlInc_(zz));
-    ritzPairs.tVEC().emplace_back(new CtrlInc_(zz));
+    ritzPairs.tVEC().push_back(new CtrlInc_(zz));
     // vvecs[i+1] = v_{i+1}
-    vvecs_.push_back(new CtrlInc_(vv));
-    ritzPairs.vVEC().emplace_back(new CtrlInc_(vv));
+    ritzPairs.vVEC().push_back(new CtrlInc_(vv));
 
     ritzPairs.alphas().push_back(alpha);
 
@@ -167,7 +156,7 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ & dx, CtrlInc_ & dxh, Ctrl
       dd.push_back(beta0);
     } else {
       // Solve the tridiagonal system T_{i} s_{i} = beta0 * e_1
-      dd.push_back(beta0*dot_product(zvecs_[0], vv));
+      dd.push_back(beta0*dot_product(ritzPairs.tVEC(0), vv));
       oops::TriDiagSolve(ritzPairs.alphas(), ritzPairs.betas(), dd, ss);
     }
 
@@ -179,8 +168,8 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ & dx, CtrlInc_ & dxh, Ctrl
     double costJ = costJ0;
     double costJb = costJ0Jb;
     for (int jj = 0; jj < jiter+1; ++jj) {
-      costJ -= 0.5 * ss[jj] * dot_product(zvecs_[jj], rr);
-      costJb += 0.5 * ss[jj] * dot_product(vvecs_[jj], zvecs_[jj]) * ss[jj];
+      costJ -= 0.5 * ss[jj] * dot_product(ritzPairs.tVEC(jj), rr);
+      costJb += 0.5 * ss[jj] * dot_product(ritzPairs.vVEC(jj), ritzPairs.tVEC(jj)) * ss[jj];
     }
     double costJoJc = costJ - costJb;
 
@@ -206,8 +195,8 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(CtrlInc_ & dx, CtrlInc_ & dxh, Ctrl
 
   // Calculate the solution (dxh = Binv dx)
   for (unsigned int jj = 0; jj < ss.size(); ++jj) {
-    dx.axpy(ss[jj], zvecs_[jj]);
-    dxh.axpy(ss[jj], hvecs_[jj]);
+    dx.axpy(ss[jj], ritzPairs.tVEC(jj));
+    dxh.axpy(ss[jj], ritzPairs.zVEC(jj));
   }
 
   // Process Ritz pairs
