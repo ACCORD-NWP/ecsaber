@@ -123,11 +123,6 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     const std::string filter = evilConfig.getString("filter");
     ASSERT(filter == "S" || filter == "D" || filter == "R");
 
-    // Setup EVIL space ("control, "primal" or "dual")
-    const std::string solverSpace = evilConfig.getString("solver space");
-    ASSERT(solverSpace == "control" || solverSpace == "primal" ||
-           solverSpace == "dual");
-
     // Setup resolution
     const eckit::LocalConfiguration resolConfig(fullConfig, "resolution");
     const Geometry_ resol(resolConfig);
@@ -165,16 +160,9 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
 
     // Setup H matrix
     std::unique_ptr<HMatrix_> HMatrix;
-    if (filter == "S" || solverSpace == "dual") {
+    if (filter == "S") {
       oops::Log::info() << "Setup H matrix" << std::endl;
       HMatrix.reset(new HMatrix_(*J));
-    }
-
-    // Setup Ht matrix
-    std::unique_ptr<HtMatrix_> HtMatrix;
-    if (solverSpace == "dual") {
-      oops::Log::info() << "Setup Ht matrix" << std::endl;
-      HtMatrix.reset(new HtMatrix_(*J));
     }
 
     // Setup R matrix
@@ -186,7 +174,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
 
     // Setup B matrix
     std::unique_ptr<BMatrix_> BMatrix;
-    if (filter == "R" || solverSpace == "control" || solverSpace == "dual") {
+    if (filter == "R") {
       oops::Log::info() << "Setup B matrix" << std::endl;
       BMatrix.reset(new BMatrix_(*J));
     }
@@ -230,7 +218,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
 
     // Convert ensemble of backgrounds perturbations from primal to dual space
     std::vector<Dual_> HXb;
-    if (filter == "S" || solverSpace == "dual") {
+    if (filter == "S") {
       // Setup ControlIncrement and DualVector
       CtrlInc_ dx(J->jb());
       Dual_ dy;
@@ -340,30 +328,28 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
       std::unique_ptr<Dual_> ritzHatDual;
       std::unique_ptr<Dual_> ritzBarDual;
 
-      if (solverSpace == "primal") {
-        // Read second Ritz vector in primal space
-        ritzHatPrimal.reset(new CtrlInc_(J->jb()));
-        Increment_ incr(resol, vars, xb.validTime());
-        setMPI(ritzHatConf, eckit::mpi::comm().size());
-        incr.read(ritzHatConf);
-        ritzHatPrimal->state()[ritzHatPrimal->state().first()] = incr;
+      // Read second Ritz vector in primal space
+      ritzHatPrimal.reset(new CtrlInc_(J->jb()));
+      Increment_ incr(resol, vars, xb.validTime());
+      setMPI(ritzHatConf, eckit::mpi::comm().size());
+      incr.read(ritzHatConf);
+      ritzHatPrimal->state()[ritzHatPrimal->state().first()] = incr;
 
-        if (filter == "D" || filter == "R") {
-          // Read first Ritz vector in primal space
-          ritzBarPrimal.reset(new CtrlInc_(J->jb()));
-          setMPI(ritzBarConf, eckit::mpi::comm().size());
-          incr.read(ritzBarConf);
-          ritzBarPrimal->state()[ritzBarPrimal->state().first()] = incr;
-        }
+      if (filter == "D" || filter == "R") {
+        // Read first Ritz vector in primal space
+        ritzBarPrimal.reset(new CtrlInc_(J->jb()));
+        setMPI(ritzBarConf, eckit::mpi::comm().size());
+        incr.read(ritzBarConf);
+        ritzBarPrimal->state()[ritzBarPrimal->state().first()] = incr;
+      }
 
-        if (filter == "S") {
-          // Compute second Ritz vector in dual space
-          ritzHatDual.reset(new Dual_());
-          for (unsigned jj = 0; jj < J->nterms(); ++jj) {
-            ritzHatDual->append(J->jterm(jj).newDualVector());
-          }
-          HMatrix->multiply(*ritzHatPrimal, *ritzHatDual);
+      if (filter == "S") {
+        // Compute second Ritz vector in dual space
+        ritzHatDual.reset(new Dual_());
+        for (unsigned jj = 0; jj < J->nterms(); ++jj) {
+          ritzHatDual->append(J->jterm(jj).newDualVector());
         }
+        HMatrix->multiply(*ritzHatPrimal, *ritzHatDual);
       }
 
       // Update analysis perturbations
