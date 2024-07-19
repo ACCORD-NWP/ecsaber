@@ -1,32 +1,12 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_geom.fypp.tmp.bak	2024-07-10 09:02:29.588070457 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_geom.fypp	2024-07-08 19:16:41.610922792 +0200
-@@ -500,14 +500,14 @@
- integer :: imga_bnd(4),proc_to_ncorner(mpl%nproc),opposite_index(1)
- integer :: izoom,isplon,isplat,irota,idir,istart
- integer,pointer :: ghost(:)
--real(kind_real) :: lon0,lat0,dist,maxdist,xcen,ycen,area_124,area_234,dist_12,dist_23,dist_34,dist_41
--real(kind_real) :: lonlat(2),lonlat_bnd(2,4),vbnd(3,4),vp(3),v1(3),v2(3),cp(3),cd(3),v_tmp(3),vbnd_cen(3),dist_with_1(3)
--real(kind_real) :: lonlat_bnd_tmp(2),lonlat_bnd_test(2,4),lonlat_bnd_opt(2,4),delta_lon_work,delta_lat_work
-+real(kind_real) :: lon0,lat0,dist,maxdist,area_124,area_234,dist_12,dist_23,dist_34,dist_41
-+real(kind_real) :: lonlat_bnd(2,4),vbnd(3,4),v1(3),v2(3),cp(3),cd(3),v_tmp(3),vbnd_cen(3),dist_with_1(3)
-+real(kind_real) :: lonlat_bnd_test(2,4),lonlat_bnd_opt(2,4),delta_lon_work,delta_lat_work
- real(kind_real) :: splon_min,splon_max,splon_delta,splon,splon_opt,splat_min,splat_max,splat_delta,splat,splat_opt
- real(kind_real) :: rota_min,rota_max,rota_delta,rota,rota_opt,dist_maxmin,dist_max,dist_test
- real(kind_real) :: north,south,east,west,east_sym,west_sym,east_pos,west_pos,delta_sym,delta_pos
- real(kind_real),pointer :: real_ptr(:,:)
--type(atlas_config) :: aconfig_grid,aconfig_domain,aconfig_proj,aconfig_work_grid,aconfig_work_proj
-+type(atlas_config) :: aconfig_domain,aconfig_work_grid,aconfig_work_proj
- type(atlas_field) :: afield,afield_lonlat,afield_ghost
- type(atlas_functionspace_nodecolumns) :: afunctionspace_nc
- type(atlas_functionspace_pointcloud) :: afunctionspace_pc
-@@ -1263,8 +1263,16 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_geom.fypp.tmp	2024-07-19 08:41:31.603709757 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_geom.fypp	2024-07-19 09:05:29.404464154 +0200
+@@ -1263,8 +1263,15 @@
  call mpl%flush
  call qsort(geom%nc0u,geom%lon_c0u,geom%lat_c0u,order,.false.)
  do ic0u=2,geom%nc0u
 -   if (eq(geom%lon_c0u(order(ic0u)),geom%lon_c0u(order(ic0u-1))).and.eq(geom%lat_c0u(order(ic0u)),geom%lat_c0u(order(ic0u-1)))) &
 - & call mpl%abort('${subr}$','duplicated points in Sc0 point on universe, check the universe')
 +   if (indist(geom%lat_c0u(order(ic0u)),geom%lat_c0u(order(ic0u-1)))) then
-+      print*, geom%lat_c0u(order(ic0u))
 +      if (indist(geom%lat_c0u(order(ic0u)),half*pi)) then
 +         call mpl%abort('${subr}$','duplicated points at the North pole')
 +      else if (indist(geom%lat_c0u(order(ic0u)),-half*pi)) then
@@ -38,12 +18,3 @@
  end do
  
  ! Release memory
-@@ -2067,7 +2075,7 @@
-             call get_grid(mpl,floor(real(nfac*ns,kind_real)*four*pi/geom%area_max_c0*(one+repro_th)),agrid,nss)
-          else
-             ! Regional grid
--            call get_grid(mpl,nfac*ns,geom%aconfig_work_grid,geom%aproj_work,geom%xmin,geom%xmax,geom%ymin,geom%ymax,agrid,nss)
-+            call get_grid(mpl,nfac*ns,geom%aconfig_work_grid,geom%xmin,geom%xmax,geom%ymin,geom%ymax,agrid,nss)
-          end if
- 
-          ! Loop over grid points

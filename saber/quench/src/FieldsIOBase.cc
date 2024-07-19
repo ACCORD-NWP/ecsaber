@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2023 Meteorlogisk Institutt
+ * (C) Copyright 2023-2024 Meteorologisk Institutt
  *
  */
 

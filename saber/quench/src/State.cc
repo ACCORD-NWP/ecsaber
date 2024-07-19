@@ -1,5 +1,6 @@
 /*
  * (C) Copyright 2022 UCAR.
+ * (C) Copyright 2023-2024 Meteorologisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -21,8 +22,8 @@ namespace quench {
 // -----------------------------------------------------------------------------
 
 State::State(const Geometry & resol,
-                   const Variables & vars,
-                   const util::DateTime & vt)
+             const Variables & vars,
+             const util::DateTime & vt)
   : fields_(new Fields(resol, vars, vt)) {
   oops::Log::trace() << classname() << "::State starting" << std::endl;
 

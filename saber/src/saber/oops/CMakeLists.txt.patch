@@ -1,11 +1,7 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-07-15 08:34:47.242335585 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-07-15 08:06:39.376227997 +0200
-@@ -11,17 +11,31 @@
- ErrorCovariance.h
- Localization.h
- 
--# Application
-+# Applications
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp	2024-07-19 08:41:30.631709124 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-07-17 09:55:18.080607360 +0200
+@@ -14,14 +14,35 @@
+ # Applications
  ErrorCovarianceToolbox.h
  ProcessPerts.h
 +AssimEnsemble.h
@@ -30,6 +26,13 @@
 +PLanczosEVILMinimizer.h
 +RPLanczosEVILMinimizer.h
 +SQRTPLanczosEVILMinimizer.h
++
++# Temporary fix for cy46
++BGOS_cy46.h
++DRPLanczosEVILMinimizer_cy46.h
++EvilUpdate_cy46.h
++instantiateMinFactory_cy46.h
++RitzPairs_cy46.h
  )
  
  set( oops_src_files ${oops_src_files_list} PARENT_SCOPE )

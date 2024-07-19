@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/generic/UnstructuredInterpolator.cc.tmp.bak	2024-06-12 17:26:17.549363216 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/generic/UnstructuredInterpolator.cc	2024-06-12 17:36:30.154986118 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/generic/UnstructuredInterpolator.cc.tmp	2024-07-19 08:26:29.715121909 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/generic/UnstructuredInterpolator.cc	2024-07-15 14:03:30.074175197 +0200
 @@ -26,10 +26,7 @@
  #include "eckit/config/Configuration.h"
  #include "eckit/exception/Exceptions.h"

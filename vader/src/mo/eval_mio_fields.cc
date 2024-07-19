@@ -53,7 +53,7 @@ void eval_mio_fields_nl(const std::string & mio_path, atlas::FieldSet & augState
                                  static_cast<std::size_t>(std::max(floor(rhtView(jn, jl) /
                                                                          constants::rHTBin), 0.0));
 
-        std::double_t ceffdenom = (1.0 -  clView(jn, jl) * cfView(jn, jl) );
+        double ceffdenom = (1.0 -  clView(jn, jl) * cfView(jn, jl) );
         if (ceffdenom > constants::tol) {
           std::double_t clcf = clView(jn, jl) * cfView(jn, jl);
           cleffView(jn, jl) = mioCoeffCl(jl, ibin) * (clView(jn, jl) - clcf) / ceffdenom;

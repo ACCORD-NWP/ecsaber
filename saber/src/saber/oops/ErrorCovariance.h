@@ -1,5 +1,6 @@
 /*
  * (C) Copyright 2021-2023 UCAR
+ * (C) Crown Copyright 2024, Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -53,13 +54,14 @@ inline std::string parametricIfNotEnsemble(const std::string & blockName) {
 
 template <typename MODEL>
 class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
-  using Geometry_ = oops::Geometry<MODEL>;
-  using Increment4D_ = oops::Increment4D<MODEL>;
-  using IncrCtlVec_ = oops::IncrCtlVec<MODEL>;
-  using IncrEnsCtlVec_ = oops::IncrEnsCtlVec<MODEL>;
-  using IncrModCtlVec_ = oops::IncrModCtlVec<MODEL>;
-  using State4D_ = oops::State4D<MODEL>;
-  using Variables_ = oops::Variables<MODEL>;
+  typedef oops::Geometry<MODEL>                                Geometry_;
+  typedef oops::Increment<MODEL>                               Increment_;
+  typedef oops::Increment4D<MODEL>                             Increment4D_;
+  typedef oops::IncrCtlVec<MODEL>                              IncrCtlVec_;
+  typedef oops::IncrEnsCtlVec<MODEL>                           IncrEnsCtlVec_;
+  typedef oops::IncrModCtlVec<MODEL>                           IncrModCtlVec_;
+  typedef oops::State4D<MODEL>                                 State4D_;
+  typedef oops::Variables<MODEL>                               Variables_;
 
  public:
   typedef ErrorCovarianceParameters<MODEL> Parameters_;
@@ -184,9 +186,6 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
 
   oops::FieldSet4D fset4dXb = oops::copyFieldSet4D(fset4dXbTmp);
   oops::FieldSet4D fset4dFg = oops::copyFieldSet4D(fset4dFgTmp);
-
-  // Extend background and first guess with geometry fields
-  // TODO(Benjamin, Marek, Mayeul, ?)
 
   // Initialize outer variables
   const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
@@ -373,7 +372,7 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
     // Set weights
     hybridScalarWeightSqrt_.push_back(1.0);
     // File-base weight
-    oops::FieldSet3D fsetWeight(xb[0].validTime(), eckit::mpi::comm());
+    oops::FieldSet3D fsetWeight(xb[0].validTime(), geom.geometry().getComm());
     hybridFieldWeightSqrt_.push_back(fsetWeight);
   }
 // End wrong indentation to stick with SABER version
@@ -405,7 +404,7 @@ void ErrorCovariance4D<MODEL>::randomize(Increment4D_ & dx) const {
   util::Timer timer(classname(), "randomize");
 
   // Create FieldSet4D, set to zero
-  oops::FieldSet4D fset4dSum(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
+  oops::FieldSet4D fset4dSum(dx.times(), oops::mpi::myself(), dx.geometry().geometry().getComm());
   for (size_t jtime = 0; jtime < fset4dSum.size(); ++jtime) {
     fset4dSum[jtime].init(hybridBlockChain_[0]->outerFunctionSpace(),
                           hybridBlockChain_[0]->outerVariables(),
@@ -418,7 +417,7 @@ void ErrorCovariance4D<MODEL>::randomize(Increment4D_ & dx) const {
     // Loop over components for the central block
     for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
       // Randomize covariance
-      oops::FieldSet4D fset4dCmp(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
+      oops::FieldSet4D fset4dCmp(dx.times(), oops::mpi::myself(), dx.geometry().geometry().getComm());
       hybridBlockChain_[jj]->randomize(fset4dCmp);
 
       // Weight square-root multiplication
@@ -469,6 +468,9 @@ void ErrorCovariance4D<MODEL>::advectedMultiply(const Increment4D_ &dxi,
   if (parallelHybrid_) {
     throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
   } else {
+    if (hybridBlockChain_.size() > 1) {
+        oops::Log::debug() << "Serial execution of Hybrid::multiply" << std::endl;
+    }
     for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
       // Create temporary FieldSet
       oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(fset4dInit);

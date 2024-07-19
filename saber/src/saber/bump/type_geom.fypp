@@ -1264,7 +1264,6 @@ call mpl%flush
 call qsort(geom%nc0u,geom%lon_c0u,geom%lat_c0u,order,.false.)
 do ic0u=2,geom%nc0u
    if (indist(geom%lat_c0u(order(ic0u)),geom%lat_c0u(order(ic0u-1)))) then
-      print*, geom%lat_c0u(order(ic0u))
       if (indist(geom%lat_c0u(order(ic0u)),half*pi)) then
          call mpl%abort('${subr}$','duplicated points at the North pole')
       else if (indist(geom%lat_c0u(order(ic0u)),-half*pi)) then

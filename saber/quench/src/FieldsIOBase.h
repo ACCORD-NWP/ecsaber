@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2023 Meteorlogisk Institutt
+ * (C) Copyright 2023-2024 Meteorologisk Institutt
  *
  */
 
@@ -17,9 +17,10 @@
 
 #include "oops/base/Variables.h"
 
+#include "src/Variables.h"
+
 namespace quench {
   class Geometry;
-  class Variables;
 
 // -----------------------------------------------------------------------------
 

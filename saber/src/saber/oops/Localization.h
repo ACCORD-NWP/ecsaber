@@ -1,6 +1,8 @@
 /*
- * (C) Copyright 2023 Meteorologisk Institutt
+ * (C) Copyright 2021 UCAR
  *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
 #pragma once
@@ -15,6 +17,7 @@
 #include "eckit/config/Configuration.h"
 
 #include "oops/base/FieldSets.h"
+#include "oops/base/State4D.h"
 #include "oops/base/Variables.h"
 #include "oops/generic/GenericCtlVec.h"
 #include "oops/generic/LocalizationBase.h"
@@ -36,12 +39,12 @@ namespace saber {
 
 template<typename MODEL>
 class Localization : public oops::LocalizationBase<MODEL> {
-  using GenericCtlVec_ = oops::GenericCtlVec;
-  using Geometry_ = oops::Geometry<MODEL>;
-  using Increment_ = oops::Increment<MODEL>;
-  using Model_ = oops::Model<MODEL>;
-  using State_ = oops::State<MODEL>;
-  using Variables_ = oops::Variables<MODEL>;
+  typedef oops::GenericCtlVec                 GenericCtlVec_;
+  typedef oops::Geometry<MODEL>               Geometry_;
+  typedef oops::Increment<MODEL>              Increment_;
+  typedef oops::Model<MODEL>                  Model_;
+  typedef oops::State<MODEL>                  State_;
+  typedef oops::Variables<MODEL>              Variables_;
 
  public:
   Localization(const Geometry_ &,

@@ -73,7 +73,7 @@ class ErrorCovarianceToolboxParameters :
   oops::Parameter<bool> parallel{"parallel subwindows", true, this};
 
   /// Outer variables parameters
-  oops::OptionalParameter<eckit::LocalConfiguration> incrementVars{"increment variables", this};
+  oops::OptionalParameter<oops::JediVariables> incrementVars{"increment variables", this};
 
   /// Dirac location/variables parameters.
   oops::OptionalParameter<eckit::LocalConfiguration> dirac{"dirac", this};
@@ -101,18 +101,18 @@ class ErrorCovarianceToolboxParameters :
 
 // -----------------------------------------------------------------------------
 
-template <typename MODEL>
-class ErrorCovarianceToolbox : public oops::Application {
-  using Covariance4DFactory_ = oops::Covariance4DFactory<MODEL>;
-  using Geometry_ = oops::Geometry<MODEL>;
-  using Increment_ = oops::Increment<MODEL>;
-  using Increment4D_ = oops::Increment4D<MODEL>;
-  using Localization_ = oops::Localization<MODEL>;
-  using Model_ = oops::Model<MODEL>;
-  using Covariance4DBase_ = oops::ModelSpaceCovariance4DBase<MODEL>;
-  using State_ = oops::State<MODEL>;
-  using State4D_ = oops::State4D<MODEL>;
-  using Variables_ = oops::Variables<MODEL>;
+template <typename MODEL> class ErrorCovarianceToolbox : public oops::Application {
+  typedef oops::ModelSpaceCovariance4DBase<MODEL>         Covariance4DBase_;
+  typedef oops::Covariance4DFactory<MODEL>                Covariance4DFactory_;
+  typedef oops::Geometry<MODEL>                           Geometry_;
+  typedef oops::Increment<MODEL>                          Increment_;
+  typedef oops::Increment4D<MODEL>                        Increment4D_;
+  typedef oops::Model<MODEL>                              Model_;
+  typedef oops::State<MODEL>                              State_;
+  typedef oops::State4D<MODEL>                            State4D_;
+  typedef oops::Localization<MODEL>                       Localization_;
+  typedef oops::Variables<MODEL>                          Variables_;
+  typedef ErrorCovarianceToolboxParameters                ErrorCovarianceToolboxParameters_;
 
  public:
 // -----------------------------------------------------------------------------
@@ -165,22 +165,14 @@ class ErrorCovarianceToolbox : public oops::Application {
     const State4D_ xx(params.background, geom, model);
 
     // Setup variables
-    const std::vector<eckit::LocalConfiguration> stateConfs(params.background.value()
-      .getSubConfigurations("state"));
-    const Variables_ tmpVarsT(stateConfs[0]);
-    oops::JediVariables tmpVars(tmpVarsT.variables().variablesList());
+    oops::JediVariables tmpVars(xx[0].state().fieldSet().field_names());
     if (params.incrementVars.value() != boost::none) {
-      const Variables_ incVarsT(*params.incrementVars.value());
-      const oops::JediVariables incVars(incVarsT.variables().variablesList());
-      if (incVars <= tmpVars) {
-        tmpVars.intersection(incVars);
-      } else {
-        throw eckit::UserError("Increment variables should be a subset of background variables",
-                               Here());
-      }
+      tmpVars = params.incrementVars.value().value();
     }
-    const oops::JediVariables vars = tmpVars;
-    const Variables_ varsT(templatedVarsConf(vars));
+    const Variables_ varsT(templatedVarsConf(tmpVars));
+
+    // Setup time
+    util::DateTime time = xx[0].validTime();
 
     // Background error covariance parameters
     const eckit::LocalConfiguration & covarParams
@@ -206,10 +198,8 @@ class ErrorCovarianceToolbox : public oops::Application {
         testConf.set("diagnostic points", *diagnostic);
       }
 
-      // Dirac output parameters
+      // Add output Dirac configuration
       const auto & outputDirac = params.outputDirac.value();
-
-      // Update parameters
       auto outputDiracUpdated(*outputDirac);
       setMPI(outputDiracUpdated, ntasks);
       testConf.set("output dirac", outputDiracUpdated);

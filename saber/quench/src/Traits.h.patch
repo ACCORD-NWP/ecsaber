@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Traits.h.tmp	2024-07-04 13:56:20.752087169 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Traits.h	2024-07-04 11:12:45.507034084 +0200
-@@ -9,9 +9,22 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Traits.h.tmp	2024-07-19 08:41:32.119710094 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Traits.h	2024-07-19 09:10:24.082802801 +0200
+@@ -10,9 +10,22 @@
  
  #include "src/Covariance.h"
  #include "src/Geometry.h"

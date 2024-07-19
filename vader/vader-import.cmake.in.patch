@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/vader/vader-import.cmake.in.tmp	2023-11-10 16:12:22.920294251 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/vader/vader-import.cmake.in	2023-11-07 15:34:43.781506381 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/vader/vader-import.cmake.in.tmp	2024-07-19 08:40:20.747663551 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/vader/vader-import.cmake.in	2024-07-19 08:41:24.307704999 +0200
 @@ -2,10 +2,6 @@
  
  include(CMakeFindDependencyMacro)

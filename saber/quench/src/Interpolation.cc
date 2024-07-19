@@ -23,10 +23,11 @@ Interpolation::Interpolation(const eckit::Configuration & conf,
                              const eckit::mpi::Comm & comm,
                              const atlas::grid::Partitioner & srcPartitioner,
                              const atlas::FunctionSpace & srcFspace,
+                             const std::string & srcUid,
                              const atlas::Grid & dstGrid,
-                             const atlas::FunctionSpace & dstFspace)
-  : srcUid_(util::getGridUid(srcFspace)), dstUid_(dstGrid.uid()),
-  dstFspace_(dstFspace), atlasInterpWrapper_() {
+                             const atlas::FunctionSpace & dstFspace,
+                             const std::string & dstUid)
+  : srcUid_(srcUid), dstUid_(dstUid), dstFspace_(dstFspace), atlasInterpWrapper_() {
   oops::Log::trace() << classname() << "::Interpolation starting" << std::endl;
 
   // Get interpolation type
@@ -40,63 +41,6 @@ Interpolation::Interpolation(const eckit::Configuration & conf,
     regionalInterpolation_ = std::make_shared<RegionalInterpolation>(srcFspace, dstFspace);
   } else {
     throw eckit::Exception("wrong interpolation type", Here());
-  }
-
-  // Test interpolation accuracy
-  if (false) {
-    // Create fields
-    atlas::Field srcField = srcFspace.createField<double>(
-      atlas::option::name("src") | atlas::option::levels(1));
-    atlas::Field dstField = dstFspace.createField<double>(
-      atlas::option::name("dst") | atlas::option::levels(1));
-
-    // Define source field
-    auto srcView = atlas::array::make_view<double, 2>(srcField);
-    const auto srcLonLatView = atlas::array::make_view<double, 2>(srcFspace.lonlat());
-    for (int jnode = 0; jnode < srcFspace.size(); ++jnode) {
-      const double lon = srcLonLatView(jnode, 0);
-      const double lat = srcLonLatView(jnode, 1);
-      srcView(jnode, 0) = 0.5*(std::sin(2.0*M_PI*lon)*std::sin(2.0*M_PI*lat)+1.0);
-    }
-
-    // Create fieldsets
-    atlas::FieldSet srcFieldSet;
-    srcFieldSet.add(srcField);
-    atlas::FieldSet dstFieldSet;
-    dstFieldSet.add(dstField);
-
-    // Interpolate
-    execute(srcFieldSet, dstFieldSet);
-
-    // Check accuracy
-    double accuracy = 0.0;
-    double maxVal = 0.0;
-    double maxRefVal = 0.0;
-    std::vector<double> locMax(2, 0.0);
-    const auto dstView = atlas::array::make_view<double, 2>(dstField);
-    const auto dstLonLatView = atlas::array::make_view<double, 2>(dstFspace.lonlat());
-    for (int jnode = 0; jnode < dstFspace.size(); ++jnode) {
-      const double lon = dstLonLatView(jnode, 0);
-      const double lat = dstLonLatView(jnode, 1);
-      const double refVal = 0.5*(std::sin(2.0*M_PI*lon)*std::sin(2.0*M_PI*lat)+1.0);
-      const double diff = std::abs(dstView(jnode, 0)-refVal);
-      if (diff > accuracy) {
-        accuracy = diff;
-        maxVal = dstView(jnode, 0);
-        maxRefVal = refVal;
-        locMax = {lon, lat};
-      }
-    }
-    std::vector<double> accuracyPerTask(comm.size());
-    comm.allGather(accuracy, accuracyPerTask.begin(), accuracyPerTask.end());
-    size_t maxTask = std::distance(accuracyPerTask.begin(), std::max_element(
-      accuracyPerTask.begin(), accuracyPerTask.end()));
-    comm.broadcast(maxVal, maxTask);
-    comm.broadcast(maxRefVal, maxTask);
-    comm.broadcast(locMax, maxTask);
-    oops::Log::info() << std::setprecision(6) << "Info     :     Interpolation test accuracy: "
-      << accuracy << " at " << locMax << " : " << std::setprecision(12) << maxVal << " != "
-      << maxRefVal << std::endl;
   }
 
   oops::Log::trace() << classname() << "::Interpolation done" << std::endl;

@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp	2024-07-04 13:56:18.900081979 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2024-07-04 11:12:45.511034097 +0200
-@@ -18,7 +18,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp	2024-07-19 08:41:30.047708742 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2024-07-19 08:42:42.127755736 +0200
+@@ -20,7 +20,7 @@
  
  #include "oops/base/FieldSet4D.h"
  #include "oops/base/FieldSets.h"
@@ -9,7 +9,7 @@
  #include "oops/base/GeometryData.h"
  #include "oops/interface/ModelData.h"
  
-@@ -175,6 +175,7 @@
+@@ -180,6 +180,7 @@
    /// TODO(AS): Need to expand this to create different outer blocks for different
    /// times for the 4D with multiple times on one MPI task.
    std::vector<std::unique_ptr<SaberOuterBlockBase>> outerBlocks_;
@@ -17,7 +17,7 @@
  };
  
  // -----------------------------------------------------------------------------
-@@ -186,7 +187,9 @@
+@@ -191,7 +192,9 @@
                         oops::FieldSet4D & fset4dFg,
                         oops::FieldSets & fsetEns,
                         const eckit::LocalConfiguration & covarConf,
@@ -28,7 +28,7 @@
    oops::Log::trace() << "SaberOuterBlockChain ctor starting" << std::endl;
    oops::Log::info() << "Info     : Creating outer blocks" << std::endl;
  
-@@ -203,7 +206,7 @@
+@@ -208,7 +211,7 @@
      boost::adaptors::reverse(params)) {
      // Initialize current outer geometry data
      const oops::GeometryData & currentOuterGeometryData = outerBlocks_.size() == 0 ?
@@ -37,7 +37,7 @@
  
      // Initialize outer block
      const auto[saberOuterBlockParams,
-@@ -282,7 +285,7 @@
+@@ -287,7 +290,7 @@
  
      for (size_t ie = 0; ie < nens; ++ie) {
        // Read ensemble member

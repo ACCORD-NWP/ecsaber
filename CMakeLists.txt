@@ -13,6 +13,19 @@ if( DEFINED ENV{ECSABER_UPDATE} )
     set( ECSABER_UPDATE $ENV{ECSABER_UPDATE} )
 endif()
 
+# Check JCSDA base repos
+if( ECSABER_UPDATE )
+    if( NOT EXISTS "oops-jedi")
+        message(FATAL "Missing oops-jedi repository, do: git clone OOPS_URL oops-jedi")
+    endif()
+    if( NOT EXISTS "saber-jedi")
+        message(FATAL "Missing saber-jedi repository, do: git clone SABER_URL saber-jedi")
+    endif()
+    if( NOT EXISTS "vader-jedi")
+        message(FATAL "Missing vader-jedi repository, do: git clone VADER_URL vader-jedi")
+    endif()
+endif()
+
 # Update functions
 function( patch_init commandPath )
     if( ECSABER_UPDATE )

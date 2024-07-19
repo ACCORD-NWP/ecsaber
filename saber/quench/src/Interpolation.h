@@ -47,8 +47,10 @@ class Interpolation {
                 const eckit::mpi::Comm &,
                 const atlas::grid::Partitioner &,
                 const atlas::FunctionSpace &,
+                const std::string &,
                 const atlas::Grid &,
-                const atlas::FunctionSpace &);
+                const atlas::FunctionSpace &,
+                const std::string &);
   ~Interpolation() {}
 
   // Horizontal interpolation and adjoint

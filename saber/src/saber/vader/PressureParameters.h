@@ -75,6 +75,10 @@ class GpToHpParameters : public SaberBlockParametersBase {
     "hydrostatic_pressure_levels",
     "unbalanced_pressure_levels_minus_one"}});}
 
+  const oops::JediVariables mandatoryStateVars() const override {
+    return oops::JediVariables({"air_pressure_levels"});
+  }
+
   oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
     const int modelLevels = outerVars["hydrostatic_pressure_levels"].getLevels() - 1;
     eckit::LocalConfiguration conf;
@@ -104,6 +108,11 @@ class HydrostaticPressureParameters : public SaberBlockParametersBase {
     "hydrostatic_pressure_levels",
     "northward_wind",
     "unbalanced_pressure_levels_minus_one"}});}
+
+  // same as in GpToHp parameters since this block is used in HydrostaticPressure
+  const oops::JediVariables mandatoryStateVars() const override {
+    return oops::JediVariables({"air_pressure_levels"});
+  }
 
   oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
     const int modelLevels = outerVars["hydrostatic_pressure_levels"].getLevels() - 1;
