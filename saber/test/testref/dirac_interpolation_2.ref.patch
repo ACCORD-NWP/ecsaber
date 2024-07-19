@@ -1,8 +1,0 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_interpolation_2.ref.tmp	2024-07-10 17:22:29.396396151 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_interpolation_2.ref	2024-07-10 17:21:39.523692102 +0200
-@@ -37,4 +37,4 @@
-   - vert_coord: [1.0000000000000000e+00]
-   Mask size: 100%
- Fields:
--  stream_function: 6.0558992597602312e-01
-+  stream_function: 6.0786179717068090e-01

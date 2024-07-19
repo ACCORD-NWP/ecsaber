@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/mpi/mpi.cc.tmp	2023-11-16 14:47:14.423971668 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/mpi/mpi.cc	2023-11-16 14:45:47.900081646 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/mpi/mpi.cc.tmp	2024-07-19 08:26:29.763121941 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops-patch/src/oops/mpi/mpi.cc	2024-02-02 12:36:25.424561686 +0100
 @@ -154,9 +154,15 @@
  void allGatherv(const eckit::mpi::Comm & comm, std::vector<util::DateTime> &x) {
      size_t globalSize = x.size();

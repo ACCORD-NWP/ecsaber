@@ -234,10 +234,14 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
   const {
   oops::Log::trace() << classname() << "::setupObsInterpolation starting" << std::endl;
 
-  // Compare with exisiting UIDs
+  // Get geometry UIDs (grid + "_" + paritioner)
+  const std::string srcGeomUid = geom_->grid().uid() + "_" + geom_->partitioner().type();
+  const std::string dstObsUid = locs.grid().uid() + "_" + geom_->partitioner().type();
+
+  // Compare with existing UIDs
   for (auto it = interpolations().begin(); it != interpolations().end(); ++it) {
-    if ((it->srcUid() == geom_->grid().uid()) && (it->dstUid() == locs.grid().uid())) {
-      oops::Log::trace() << classname() << "::setupObsInterpolation done" << std::endl;
+    if ((it->srcUid() == srcGeomUid) && (it->dstUid() == dstObsUid)) {
+      oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
       return it;
     }
   }
@@ -273,8 +277,14 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
   }
 
   // Create horizontal interpolation
-  Interpolation interpolation(geom_->interpolation(), geom_->getComm(), geom_->partitioner(),
-    geom_->functionSpace(), locs.grid(), *fspace);
+  Interpolation interpolation(geom_->interpolation(),
+                              geom_->getComm(),
+                              geom_->partitioner(),
+                              geom_->functionSpace(),
+                              srcGeomUid,
+                              locs.grid(),
+                              *fspace,
+                              dstObsUid);
 
   // Interpolate vertical coordinate
   atlas::FieldSet fset;

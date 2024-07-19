@@ -41,6 +41,11 @@ class HpToHexnerParameters : public SaberBlockParametersBase {
     std::vector<std::string>{
     "hydrostatic_exner_levels",
     "hydrostatic_pressure_levels"}});}
+
+  const oops::JediVariables mandatoryStateVars() const override {
+    return oops::JediVariables(std::vector<std::string>{"hydrostatic_exner_levels",
+                            "hydrostatic_pressure_levels"});
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -73,7 +78,7 @@ class HpToHexner : public SaberOuterBlockBase {
   const oops::GeometryData & innerGeometryData_;
   oops::JediVariables innerVars_;
   oops::JediVariables activeVars_;
-  atlas::FieldSet augmentedStateFieldSet_;
+  const oops::FieldSet3D xb_;
 };
 
 // -----------------------------------------------------------------------------

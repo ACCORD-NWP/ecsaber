@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/grib/FieldsIOGrib.h.tmp	2024-07-19 08:41:31.975709999 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/grib/FieldsIOGrib.h	2024-07-19 09:07:24.949457465 +0200
+@@ -15,6 +15,7 @@
+ #include "oops/base/Variables.h"
+ 
+ #include "src/FieldsIOBase.h"
++#include "src/Variables.h"
+ 
+ namespace quench {
+   class Geometry;

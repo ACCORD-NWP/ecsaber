@@ -43,6 +43,14 @@ class HydroBalParameters : public SaberBlockParametersBase {
         "virtual_potential_temperature"}});
   }
 
+  const oops::JediVariables mandatoryStateVars() const override {
+    return oops::JediVariables({
+        "air_pressure_levels",
+        "hydrostatic_exner_levels",
+        "virtual_potential_temperature",
+        "height_levels"});
+  }
+
   oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
     const int modelLevels = outerVars["virtual_potential_temperature"].getLevels();
     eckit::LocalConfiguration conf;
@@ -88,7 +96,7 @@ class HydroBal : public SaberOuterBlockBase {
   const oops::JediVariables innerVars_;
   const oops::JediVariables activeOuterVars_;
   const oops::JediVariables innerOnlyVars_;
-  atlas::FieldSet augmentedStateFieldSet_;
+  const oops::FieldSet3D xb_;
 };
 
 // -----------------------------------------------------------------------------

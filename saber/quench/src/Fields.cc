@@ -1,5 +1,6 @@
 /*
  * (C) Copyright 2022 UCAR.
+ * (C) Copyright 2023-2024 Meteorologisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -28,6 +29,7 @@
 
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/FieldSetOperations.h"
+#include "oops/util/FloatCompare.h"
 #include "oops/util/Logger.h"
 #include "oops/util/Random.h"
 
@@ -38,12 +40,12 @@ namespace quench {
 
 // -----------------------------------------------------------------------------
 
-static std::vector<quench::Interpolation> interpolations_;
+static std::vector<quench::Interpolation> interpolationsVector;
 
 // -----------------------------------------------------------------------------
 
 std::vector<quench::Interpolation>& Fields::interpolations() {
-  return interpolations_;
+  return interpolationsVector;
 }
 
 // -----------------------------------------------------------------------------
@@ -282,10 +284,10 @@ Fields & Fields::operator=(const Fields & rhs) {
 
   for (const auto & var : vars_.variables()) {
     atlas::Field field = fset_[var];
-    atlas::Field fieldRhs = rhs.fset_[var];
+    const atlas::Field fieldRhs = rhs.fset_[var];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
-      auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
+      const auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
         for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
           view(jnode, jlevel) = viewRhs(jnode, jlevel);
@@ -322,10 +324,10 @@ Fields & Fields::operator+=(const Fields & rhs) {
     atlas::Field field = fset_[var.name()];
     const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldRhs = fsetRhs[var.name()];
+    const atlas::Field fieldRhs = fsetRhs[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
-      auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
+      const auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
         for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
           if (gmaskView(jnode, jlevel) == 1) {
@@ -350,10 +352,10 @@ Fields & Fields::operator-=(const Fields & rhs) {
     atlas::Field field = fset_[var.name()];
     const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldRhs = rhs.fset_[var.name()];
+    const atlas::Field fieldRhs = rhs.fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
-      auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
+      const auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
         for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
           if (gmaskView(jnode, jlevel) == 1) {
@@ -404,10 +406,10 @@ void Fields::axpy(const double & zz,
     atlas::Field field = fset_[var.name()];
     const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldRhs = rhs.fset_[var.name()];
+    const atlas::Field fieldRhs = rhs.fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
-      auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
+      const auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
         for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
           if (gmaskView(jnode, jlevel) == 1) {
@@ -431,13 +433,13 @@ double Fields::dot_product_with(const Fields & fld2) const {
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
   const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
   for (const auto & var : vars_) {
-    atlas::Field field1 = fset_[var.name()];
+    const atlas::Field field1 = fset_[var.name()];
     const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field field2 = fld2.fset_[var.name()];
+    const atlas::Field field2 = fld2.fset_[var.name()];
     if (field1.rank() == 2) {
-      auto view1 = atlas::array::make_view<double, 2>(field1);
-      auto view2 = atlas::array::make_view<double, 2>(field2);
+      const auto view1 = atlas::array::make_view<double, 2>(field1);
+      const auto view2 = atlas::array::make_view<double, 2>(field2);
       for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
         for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
           if (gmaskView(jnode, jlevel) == 1 && ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
@@ -454,25 +456,25 @@ double Fields::dot_product_with(const Fields & fld2) const {
 
 // -----------------------------------------------------------------------------
 
-void Fields::schur_product_with(const Fields & dx) {
+void Fields::schur_product_with(const Fields & fld2) {
   oops::Log::trace() << classname() << "::schur_product_with starting" << std::endl;
 
   for (const auto & var : vars_) {
     atlas::Field field = fset_[var.name()];
     const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-    atlas::Field fieldDx = dx.fset_[var.name()];
+    const atlas::Field field2 = fld2.fset_[var.name()];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
-      auto viewDx = atlas::array::make_view<double, 2>(fieldDx);
+      const auto view2 = atlas::array::make_view<double, 2>(field2);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
         for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
           if (gmaskView(jnode, jlevel) == 1) {
-            view(jnode, jlevel) *= viewDx(jnode, jlevel);
+            view(jnode, jlevel) *= view2(jnode, jlevel);
           }
         }
       }
-      field.set_dirty(field.dirty() || fieldDx.dirty());
+      field.set_dirty(field.dirty() || field2.dirty());
     }
   }
 
@@ -500,7 +502,7 @@ void Fields::random() {
       }
     }
     for (const auto & var : groupVars) {
-      atlas::Field field = fset_[var];
+      const atlas::Field field = fset_[var];
       if (field.rank() == 2) {
         for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
           for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
@@ -710,7 +712,11 @@ void Fields::dirac(const eckit::Configuration & config) {
     }
 
     // Find local task
-    size_t localTask = std::distance(std::begin(distances), distanceMin);
+    size_t localTask(-1);
+    if (geom_->getComm().rank() == 0) {
+      localTask = std::distance(std::begin(distances), distanceMin);
+    }
+    geom_->getComm().broadcast(localTask, 0);
 
     if (geom_->getComm().rank() == localTask) {
       // Check potential conflict
@@ -1014,17 +1020,27 @@ std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geomet
   const {
   oops::Log::trace() << classname() << "::setupGridInterpolation starting" << std::endl;
 
-  // Compare with exisiting UIDs
+  // Get geometry UIDs (grid + "_" + paritioner)
+  const std::string srcGeomUid = srcGeom.grid().uid() + "_" + srcGeom.partitioner().type();
+  const std::string geomUid = geom_->grid().uid() + "_" + geom_->partitioner().type();
+
+  // Compare with existing UIDs
   for (auto it = interpolations().begin(); it != interpolations().end(); ++it) {
-    if ((it->srcUid() == srcGeom.grid().uid()) && (it->dstUid() == geom_->grid().uid())) {
+    if ((it->srcUid() == srcGeomUid) && (it->dstUid() == geomUid)) {
       oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
       return it;
     }
   }
 
   // Create interpolation
-  Interpolation interpolation(geom_->interpolation(), geom_->getComm(), srcGeom.partitioner(),
-    srcGeom.functionSpace(), geom_->grid(), geom_->functionSpace());
+  Interpolation interpolation(geom_->interpolation(),
+                              geom_->getComm(),
+                              srcGeom.partitioner(),
+                              srcGeom.functionSpace(),
+                              srcGeomUid,
+                              geom_->grid(),
+                              geom_->functionSpace(),
+                              geomUid);
 
   // Insert new interpolation
   interpolations().push_back(interpolation);

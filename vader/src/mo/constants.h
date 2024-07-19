@@ -28,9 +28,9 @@ namespace constants {
   static constexpr int svpLookUpLength =
     static_cast<int>((THiBound - TLoBound + deps) / Tinc) + 1;
 
-  static constexpr size_t mioBins = 21;
-  static constexpr size_t mioLevs = 40;
-  static constexpr size_t mioLookUpLength = mioLevs * mioBins;
+  static constexpr std::size_t mioBins = 21;
+  static constexpr std::size_t mioLevs = 40;
+  static constexpr std::size_t mioLookUpLength = mioLevs * mioBins;
   static constexpr double rHTBin = 5.0;     // done as a percentage!
   static constexpr double MinRhRef = 0.0;
   static constexpr double MaxRhRef = 150.0;

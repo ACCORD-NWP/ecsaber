@@ -10,6 +10,7 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -35,10 +36,12 @@
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
 #include "oops/util/parameters/OptionalParameter.h"
+#include "oops/util/parameters/Parameter.h"
 #include "oops/util/parameters/Parameters.h"
 #include "oops/util/parameters/RequiredParameter.h"
 
 #include "saber/blocks/SaberParametricBlockChain.h"
+#include "saber/oops/ErrorCovarianceParameters.h"
 #include "saber/oops/instantiateCovarFactory.h"
 
 #include "saber/oops/ECUtilities.h"
@@ -169,18 +172,17 @@ template <typename MODEL> class ProcessPertsParameters :
 
 // -----------------------------------------------------------------------------
 
-template <typename MODEL>
-class ProcessPerts : public oops::Application {
-  using CovarianceBase_ = oops::ModelSpaceCovarianceBase<MODEL>;
-  using CovarianceFactory_ = oops::CovarianceFactory<MODEL>;
-  using Geometry_ = oops::Geometry<MODEL>;
-  using Increment_ = oops::Increment<MODEL>;
-  using Increment4D_ = oops::Increment4D<MODEL>;
-  using Model_ = oops::Model<MODEL>;
-  using State_ = oops::State<MODEL>;
-  using State4D_ = oops::State4D<MODEL>;
-  using Variables_ = oops::Variables<MODEL>;
-  using ProcessPertsParameters_ = ProcessPertsParameters<MODEL>;
+template <typename MODEL> class ProcessPerts : public oops::Application {
+  typedef oops::ModelSpaceCovarianceBase<MODEL>             CovarianceBase_;
+  typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
+  typedef oops::Geometry<MODEL>                             Geometry_;
+  typedef oops::Increment<MODEL>                            Increment_;
+  typedef oops::Increment4D<MODEL>                          Increment4D_;
+  typedef oops::Model<MODEL>                                Model_;
+  typedef oops::State<MODEL>                                State_;
+  typedef oops::State4D<MODEL>                              State4D_;
+  typedef oops::Variables<MODEL>                            Variables_;
+  typedef ProcessPertsParameters<MODEL>                     ProcessPertsParameters_;
 
  public:
 // -----------------------------------------------------------------------------

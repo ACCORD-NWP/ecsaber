@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2023 Meteorlogisk Institutt
+ * (C) Copyright 2023-2024 Meteorologisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -115,13 +115,11 @@ void FieldsIOGrib::read(const Geometry & geom,
         h = codes_handle_new_from_index(index, &ret);
         CODES_CHECK(ret, 0);
 
-/*
         // Print all available keys
         codes_keys_iterator *kit = codes_keys_iterator_new(h, 0, NULL);
         while (codes_keys_iterator_next(kit) == 1) {
-          std::cout << "Key: " << codes_keys_iterator_get_name(kit) << std::endl;
+          oops::Log::debug() << "Key: " << codes_keys_iterator_get_name(kit) << std::endl;
         }
-*/
 
         // Get the data size
         size_t values_len = 0;

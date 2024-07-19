@@ -1,7 +1,0 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb-vader.txt.tmp	2024-07-04 13:56:22.224091299 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb-vader.txt	2024-05-27 17:04:11.138921510 +0200
-@@ -7,4 +7,3 @@
- compare_diagnostics_gauss_vader
- compare_diagnostics_outer_vars
- randomization_sqrtspectralb_2
--error_covariance_training_spectralb_mio

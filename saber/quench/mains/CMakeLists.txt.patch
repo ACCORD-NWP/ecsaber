@@ -1,17 +1,8 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt.tmp.bak	2024-07-15 08:34:49.118360564 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt	2024-07-15 08:10:58.153447732 +0200
-@@ -2,7 +2,7 @@
- #
- # This software is licensed under the terms of the Apache Licence Version 2.0
- # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-- 
-+
- # VADER libraries
- if( vader_FOUND )
-     set( vader_LIBRARIES "vader" )
-@@ -30,3 +30,46 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt.tmp	2024-07-19 08:41:31.931709971 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/mains/CMakeLists.txt	2024-07-19 09:06:41.417096512 +0200
+@@ -23,3 +23,46 @@
                          LIBS    quench
-                                 ${vader_LIBRARIES}
+                                 vader
                                  saber )
 +
 +ecbuild_add_executable( TARGET  saber_quench_hofx.x
@@ -25,34 +16,34 @@
 +ecbuild_add_executable( TARGET  saber_quench_variational.x
 +                        SOURCES quenchVariational.cc
 +                        LIBS    quench
-+                                ${vader_LIBRARIES}
++                                vader
 +                                ${gsibec_LIBRARIES}
 +                                saber )
 +
 +ecbuild_add_executable( TARGET  saber_quench_evil_update.x
 +                        SOURCES quenchEvilUpdate.cc
 +                        LIBS    quench
-+                                ${vader_LIBRARIES}
++                                vader
 +                                ${gsibec_LIBRARIES}
 +                                saber )
 +
 +ecbuild_add_executable( TARGET  saber_quench_assim_ensemble.x
 +                        SOURCES quenchAssimEnsemble.cc
 +                        LIBS    quench
-+                                ${vader_LIBRARIES}
++                                vader
 +                                ${gsibec_LIBRARIES}
 +                                saber )
 +
 +ecbuild_add_executable( TARGET  saber_quench_ensemble_variance.x
 +                        SOURCES quenchEnsembleVariance.cc
 +                        LIBS    quench
-+                                ${vader_LIBRARIES}
++                                vader
 +                                ${gsibec_LIBRARIES}
 +                                saber )
 +
 +ecbuild_add_executable( TARGET  saber_quench_bgos.x
 +                        SOURCES quenchBGOS.cc
 +                        LIBS    quench
-+                                ${vader_LIBRARIES}
++                                vader
 +                                ${gsibec_LIBRARIES}
 +                                saber )

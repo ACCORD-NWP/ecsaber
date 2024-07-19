@@ -1,13 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-07-08 13:10:36.957929668 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-07-08 09:37:28.855635169 +0200
-@@ -1,6 +1,5 @@
- /*
-  * (C) Copyright 2021-2023 UCAR
-- * (C) Crown Copyright 2024, Met Office
-  *
-  * This software is licensed under the terms of the Apache Licence Version 2.0
-  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-@@ -14,31 +13,29 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp	2024-07-19 08:41:30.647709133 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-07-19 08:56:26.177437858 +0200
+@@ -14,22 +14,18 @@
  
  #include "atlas/field.h"
  
@@ -39,9 +32,7 @@
  
  #include "saber/blocks/SaberBlockChainBase.h"
  #include "saber/blocks/SaberBlockParametersBase.h"
--#include "saber/blocks/SaberEnsembleBlockChain.h"
- #include "saber/blocks/SaberOuterBlockChain.h"
- #include "saber/blocks/SaberParametricBlockChain.h"
+@@ -38,6 +34,9 @@
  #include "saber/oops/ErrorCovarianceParameters.h"
  #include "saber/oops/Utilities.h"
  
@@ -51,25 +42,22 @@
  namespace saber {
  
  // -----------------------------------------------------------------------------
-@@ -55,33 +52,46 @@
+@@ -54,33 +53,47 @@
  // -----------------------------------------------------------------------------
  
  template <typename MODEL>
 -class ErrorCovariance : public oops::ModelSpaceCovarianceBase<MODEL>,
 -                        public util::Printable,
 -                        private util::ObjectCounter<ErrorCovariance<MODEL>> {
--  typedef oops::Geometry<MODEL>                                Geometry_;
--  typedef oops::Increment<MODEL>                               Increment_;
--  typedef oops::Increment4D<MODEL>                             Increment4D_;
--  typedef oops::State4D<MODEL>                                 State4D_;
 +class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
-+  using Geometry_ = oops::Geometry<MODEL>;
-+  using Increment4D_ = oops::Increment4D<MODEL>;
-+  using IncrCtlVec_ = oops::IncrCtlVec<MODEL>;
-+  using IncrEnsCtlVec_ = oops::IncrEnsCtlVec<MODEL>;
-+  using IncrModCtlVec_ = oops::IncrModCtlVec<MODEL>;
-+  using State4D_ = oops::State4D<MODEL>;
-+  using Variables_ = oops::Variables<MODEL>;
+   typedef oops::Geometry<MODEL>                                Geometry_;
+   typedef oops::Increment<MODEL>                               Increment_;
+   typedef oops::Increment4D<MODEL>                             Increment4D_;
++  typedef oops::IncrCtlVec<MODEL>                              IncrCtlVec_;
++  typedef oops::IncrEnsCtlVec<MODEL>                           IncrEnsCtlVec_;
++  typedef oops::IncrModCtlVec<MODEL>                           IncrModCtlVec_;
+   typedef oops::State4D<MODEL>                                 State4D_;
++  typedef oops::Variables<MODEL>                               Variables_;
  
   public:
 -  static const std::string classname() {return "saber::ErrorCovariance";}
@@ -119,7 +107,7 @@
  
    /// Chain of outer blocks applied to all components of hybrid covariances.
    /// Not initialized for non-hybrid covariances.
-@@ -97,27 +107,76 @@
+@@ -96,27 +109,76 @@
  
    /// Whether to run Hybrid in parallel
    bool parallelHybrid_;
@@ -211,8 +199,8 @@
  
    // Local copy of background and first guess that can undergo interpolation
    const oops::FieldSet4D fset4dXbTmp(xb);
-@@ -130,8 +189,8 @@
-   // TODO(Benjamin, Marek, Mayeul, ?)
+@@ -126,8 +188,8 @@
+   oops::FieldSet4D fset4dFg = oops::copyFieldSet4D(fset4dFgTmp);
  
    // Initialize outer variables
 -  const std::vector<std::size_t> vlevs = geom.variableSizes(incVars);
@@ -222,7 +210,7 @@
    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
      outerVars[i].setLevels(vlevs[i]);
    }
-@@ -169,9 +228,7 @@
+@@ -165,9 +227,7 @@
      const auto & dualResGeomConf = dualResParams->geometry.value();
      if (dualResGeomConf != boost::none) {
        // Create dualRes geometry
@@ -233,7 +221,7 @@
      }
      // Background and first guess at dual resolution geometry
      const State4D_ xbDualRes(*dualResGeom, xb);
-@@ -192,7 +249,7 @@
+@@ -188,7 +248,7 @@
      std::vector<util::DateTime> dates;
      std::vector<int> ensmems;
      fsetDualResEns = std::make_unique<oops::FieldSets>(dates,
@@ -242,7 +230,7 @@
    }
  
    // Add ensemble output
-@@ -221,165 +278,14 @@
+@@ -217,165 +277,14 @@
      // Hybrid central block
      eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
  
@@ -410,7 +398,7 @@
        }
        for (const auto & cmp : hybridConf.getSubConfigurations("components")) {
          // Initialize component outer variables
-@@ -390,7 +296,7 @@
+@@ -386,7 +295,7 @@
          // Scalar weight
          hybridScalarWeightSqrt_.push_back(std::sqrt(weightConf.getDouble("value", 1.0)));
          // File-base weight
@@ -419,12 +407,12 @@
          if (weightConf.has("file")) {
            // File-base weight
            readHybridWeight(*hybridGeom,
-@@ -467,31 +373,39 @@
+@@ -463,31 +372,39 @@
      // Set weights
      hybridScalarWeightSqrt_.push_back(1.0);
      // File-base weight
 -    oops::FieldSet3D fsetWeight(xb[0].validTime(), geom.getComm());
-+    oops::FieldSet3D fsetWeight(xb[0].validTime(), eckit::mpi::comm());
++    oops::FieldSet3D fsetWeight(xb[0].validTime(), geom.geometry().getComm());
      hybridFieldWeightSqrt_.push_back(fsetWeight);
    }
 +// End wrong indentation to stick with SABER version
@@ -465,11 +453,11 @@
  
    // Create FieldSet4D, set to zero
 -  oops::FieldSet4D fset4dSum(dx.times(), dx.commTime(), dx.geometry().getComm());
-+  oops::FieldSet4D fset4dSum(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
++  oops::FieldSet4D fset4dSum(dx.times(), oops::mpi::myself(), dx.geometry().geometry().getComm());
    for (size_t jtime = 0; jtime < fset4dSum.size(); ++jtime) {
      fset4dSum[jtime].init(hybridBlockChain_[0]->outerFunctionSpace(),
                            hybridBlockChain_[0]->outerVariables(),
-@@ -499,62 +413,12 @@
+@@ -495,62 +412,12 @@
    }
  
    if (parallelHybrid_) {
@@ -530,11 +518,11 @@
      for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
        // Randomize covariance
 -      oops::FieldSet4D fset4dCmp(dx.times(), dx.commTime(), dx.geometry().getComm());
-+      oops::FieldSet4D fset4dCmp(dx.times(), oops::mpi::myself(), eckit::mpi::comm());
++      oops::FieldSet4D fset4dCmp(dx.times(), oops::mpi::myself(), dx.geometry().geometry().getComm());
        hybridBlockChain_[jj]->randomize(fset4dCmp);
  
        // Weight square-root multiplication
-@@ -575,20 +439,20 @@
+@@ -571,20 +438,20 @@
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
    // ATLAS fieldset to Increment_
@@ -563,7 +551,7 @@
  
    // Copy input
    dxo = dxi;
-@@ -603,78 +467,8 @@
+@@ -599,74 +466,7 @@
  
    // Loop over B components
    if (parallelHybrid_) {
@@ -637,13 +625,9 @@
 -
 +    throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
    } else {
--    if (hybridBlockChain_.size() > 1) {
--        oops::Log::debug() << "Serial execution of Hybrid::multiply" << std::endl;
--    }
-     for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
-       // Create temporary FieldSet
-       oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(fset4dInit);
-@@ -710,27 +504,314 @@
+     if (hybridBlockChain_.size() > 1) {
+         oops::Log::debug() << "Serial execution of Hybrid::multiply" << std::endl;
+@@ -706,27 +506,314 @@
    // Apply outer blocks forward
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  

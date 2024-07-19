@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp	2024-07-04 13:56:23.044093601 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-04-04 15:35:09.282252474 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp	2024-07-19 08:41:34.627711729 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-07-19 09:16:28.577056936 +0200
 @@ -3,10 +3,6 @@
  
  include(CMakeFindDependencyMacro)
@@ -23,15 +23,3 @@
  if(@gsibec_FOUND@) # gsibec_FOUND
      find_dependency(gsibec)
      set(saber_gsibec_FOUND True) #COMPONENT 'gsibec'
-@@ -65,11 +66,6 @@
-     set(saber_vader_FOUND True) #COMPONENT 'vader'
- endif()
- 
--if(@FFTW_FOUND@) # FFTW_FOUND
--   find_dependency(FFTW)
--   set(saber_FFTW_FOUND True) #COMPONENT 'FFTW'
--endif()
--
- #Export Fortran compiler version for checking module compatibility
- set(@PROJECT_NAME@_MODULES_Fortran_COMPILER_ID @CMAKE_Fortran_COMPILER_ID@)
- set(@PROJECT_NAME@_MODULES_Fortran_COMPILER_VERSION @CMAKE_Fortran_COMPILER_VERSION@)
