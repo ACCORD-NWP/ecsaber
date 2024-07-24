@@ -37,12 +37,13 @@ PLanczosEVILMinimizer.h
 RPLanczosEVILMinimizer.h
 SQRTPLanczosEVILMinimizer.h
 
-# Temporary fix for cy46
+# Temporary versions for cy46
 BGOS_cy46.h
 DRPLanczosEVILMinimizer_cy46.h
 EvilUpdate_cy46.h
 instantiateMinFactory_cy46.h
 RitzPairs_cy46.h
+SyntheticData_cy46.h
 )
 
 set( oops_src_files ${oops_src_files_list} PARENT_SCOPE )
