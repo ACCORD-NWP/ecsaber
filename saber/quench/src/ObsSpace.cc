@@ -102,8 +102,14 @@ void ObsSpace::putdb(const std::string & col,
   oops::Log::trace() << classname() << "::putdb starting" << std::endl;
 
   ASSERT(vec.size() == nobsLoc_);
-  ASSERT(data_.find(col) == data_.end());
-  data_.insert(std::pair<std::string, std::vector<double> >(col, vec));
+  if (data_.find(col) == data_.end()) {
+    data_.insert(std::pair<std::string, std::vector<double> >(col, vec));
+  } else {
+    std::map<std::string, std::vector<double> >::iterator ic = data_.find(col);
+    for (size_t jo = 0; jo < nobsLoc_; ++jo) {
+      ic->second[jo] = vec[jo];
+    }
+  }
 
   oops::Log::trace() << classname() << "::putdb done" << std::endl;
 }

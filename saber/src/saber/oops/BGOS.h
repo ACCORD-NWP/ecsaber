@@ -14,58 +14,46 @@
 #include "eckit/config/Configuration.h"
 #include "eckit/config/LocalConfiguration.h"
 #include "oops/assimilation/ControlIncrement.h"
-#include "oops/assimilation/ControlObsVector.h"
 #include "oops/assimilation/ControlVariable.h"
 #include "oops/assimilation/CostFunction.h"
+#include "oops/assimilation/CostJo.h"
 #include "oops/assimilation/DualVector.h"
 #include "oops/assimilation/HMatrix.h"
 #include "oops/assimilation/instantiateCostFactory.h"
 #include "oops/assimilation/instantiateMinFactory.h"
 #include "oops/base/Departures.h"
 #include "oops/base/Increment4D.h"
-#include "oops/base/instantiateCovarFactory.h"
-#include "oops/base/ObsAuxControls.h"
-#include "oops/base/ObsOperators.h"
-#include "oops/base/Observations.h"
-#include "oops/base/ObservationSpaces.h"
-#include "oops/base/Observer.h"
 #include "oops/generic/instantiateObsErrorFactory.h"
 #include "oops/generic/instantiateTlmFactory.h"
 #include "oops/interface/Geometry.h"
-#include "oops/interface/Increment.h"
 #include "oops/interface/Model.h"
-#include "oops/interface/ModelAuxControl.h"
+#include "oops/interface/State.h"
 #include "oops/runs/Application.h"
 #include "oops/util/Logger.h"
 
+#include "saber/oops/instantiateCovarFactory.h"
 #include "saber/oops/Utilities.h"
 
 namespace saber {
 
-template <typename MODEL> 
+template <typename MODEL>
 class BGOS : public oops::Application {
-  using ControlObsVector_ = oops::ControlObsVector<MODEL>;
+  using CostJo_ = oops::CostJo<MODEL>;
   using CtrlInc_ = oops::ControlIncrement<MODEL>;
   using CtrlVariable_ = oops::ControlVariable<MODEL>;
   using Departures_ = oops::Departures<MODEL>;
   using Dual_ = oops::DualVector<MODEL>;
   using Geometry_ = oops::Geometry<MODEL>;
   using HMatrix_ = oops::HMatrix<MODEL>;
-  using Increment_ = oops::Increment<MODEL>;
   using Increment4D_ = oops::Increment4D<MODEL>;
   using Model_ = oops::Model<MODEL>;
-  using ModelAux_ = oops::ModelAuxControl<MODEL>;
-  using ObsAuxCtrls_ = oops::ObsAuxControls<MODEL>;
-  using Observations_ = oops::Observations<MODEL>;
-  using ObsSpaces_ = oops::ObservationSpaces<MODEL>;
-  using ObsOperators_ = oops::ObsOperators<MODEL>;
   using State_ = oops::State<MODEL>;
 
  public:
   // -----------------------------------------------------------------------------
   BGOS() {
     oops::instantiateCostFactory<MODEL>();
-    oops::instantiateCovarFactory<MODEL>();
+    saber::instantiateCovarFactory<MODEL>();
     oops::instantiateMinFactory<MODEL>();
     oops::instantiateObsErrorFactory<MODEL>();
     oops::instantiateTlmFactory<MODEL>();
@@ -97,13 +85,8 @@ class BGOS : public oops::Application {
     fullConfig.get("variational.iteration", iterconfs);
     J->linearize(xx, iterconfs[0], post);
 
-    // Define linearizing state
-    const State_ xb(xx.state()[0]);
-
-    // Window times
-    const eckit::LocalConfiguration obsconf(fullConfig, "cost_function.Jo");
-    const util::DateTime winbgn(fullConfig.getString("cost_function.window_begin"));
-    const util::Duration winlen(fullConfig.getString("cost_function.window_length"));
+    // Get Jo
+    const CostJo_ & Jo = dynamic_cast<const CostJo_ &>(J->jterm(0));
 
     // Setup ensemble configuration (if present) or randomization size
     std::vector<eckit::LocalConfiguration> membersConfig;
@@ -119,18 +102,6 @@ class BGOS : public oops::Application {
     }
     ASSERT(nens > 1);
 
-    // Setup augmented state
-    const ModelAux_ moderr(resol, model, eckit::LocalConfiguration());
-
-    // Get observations space
-    const ObsSpaces_ & obsdb = xx.obsVar().obspaces();
-
-    // Setup observations
-    const ObsOperators_ hop(obsdb);
-
-    // Setup observation bias
-    const ObsAuxCtrls_ ybias(obsdb, obsconf);
-
     // Setup linearized observation operator
     const HMatrix_ HMatrix(*J);
 
@@ -138,8 +109,8 @@ class BGOS : public oops::Application {
     ASSERT(J->nterms() == 1);
     Dual_ mean;
     Dual_ var;
-    mean.append(J->jterm(0).newDualVector());
-    var.append(J->jterm(0).newDualVector());
+    mean.append(Jo.newDualVector());
+    var.append(Jo.newDualVector());
 
     // Initialize mean and variance
     mean.zero();
@@ -161,36 +132,20 @@ class BGOS : public oops::Application {
 
       // Convert to observation space
       Dual_ dy;
-      std::vector<std::shared_ptr<ControlObsVector_>> controlObsVecSharedVec;
 
       if (nonlinear) {
         // Use nonlinear observation operator
 
-        // Add increment to state
-        State_ xTmp(xb);
+        // Re-evaluate J around new state
+        CtrlVariable_ xxTmp(xx);
         if (!membersConfig.empty()) {
-          xTmp.zero();       
+          xxTmp.state()[0].zero();       
         }
-        xTmp += dx4D[0];
+        xxTmp.state()[0] += dx4D[0];
+        J->evaluate(xxTmp, eckit::LocalConfiguration());
 
-        // Setup forecast outputs
-        oops::PostProcessor<State_> postH;
-        std::shared_ptr<oops::Observer<MODEL, State_> > pobs(
-          new oops::Observer<MODEL, State_>(obsdb, hop, ybias));
-        postH.enrollProcessor(pobs);
-
-        // Run forecast
-        model.forecast(xTmp, moderr, winlen, postH);
-
-        // Get observations
-        std::unique_ptr<Observations_> yobs(pobs->release());
-
-        // Move observation data to dual vector
-        for (size_t jj = 0; jj < obsdb.size(); ++jj) {
-          std::shared_ptr<ControlObsVector_> controlObsVec(new ControlObsVector_((*yobs)[jj]));
-          controlObsVecSharedVec.push_back(controlObsVec);
-        }
-        dy.append(new Departures_(controlObsVecSharedVec));
+        // Get departures
+        dy.append(Jo.newDepartures());
       } else {
         // Use linearized observation operator
 
@@ -199,7 +154,7 @@ class BGOS : public oops::Application {
         dx.state() = dx4D;
 
         // Allocate dual vector
-        dy.append(J->jterm(0).newDualVector());
+        dy.append(Jo.newDualVector());
 
         // Apply H matrix to control increment
         HMatrix.multiply(dx, dy);

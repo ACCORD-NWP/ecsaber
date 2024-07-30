@@ -100,7 +100,7 @@ class SyntheticData : public oops::Application {
     const CostJo_ & Jo = dynamic_cast<const CostJo_ &>(J->jterm(0));
     Observations_ yobs(Jo.observations());
     std::unique_ptr<Departures_> ydep(Jo.newDepartures());
-    yobs.obsvalues() -= ydep->depvalues(); 
+    yobs -= *ydep;
     oops::Log::test() << "H(xt): " << yobs << std::endl;
     
     // Perturb observations
@@ -110,7 +110,7 @@ class SyntheticData : public oops::Application {
 
     // Write perturbed observations
     eckit::LocalConfiguration obsConf(fullConfig, "cost_function.Jo");
-    yobs.save(obsConf.getString("Observation.ObsData.obsvalue"));
+    yobs.save(obsConf);
 
     // Setup variables
     const std::vector<std::string> varNames = fullConfig.getStringVector("variables");
@@ -128,7 +128,7 @@ class SyntheticData : public oops::Application {
     // Create configuration to write out first-guess departure
     const eckit::LocalConfiguration depConf(fullConfig, "first-guess departure");
     eckit::LocalConfiguration diagnostic;
-    diagnostic.set("departures", depConf.getString("obsvalue"));
+    diagnostic.set("departures", depConf);
     eckit::LocalConfiguration evalConf;
     evalConf.set("diagnostics", diagnostic);
 
