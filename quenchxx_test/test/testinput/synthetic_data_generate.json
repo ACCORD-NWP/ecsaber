@@ -13,6 +13,7 @@
     ],
     "halo": "1"
   },
+  "variables": ["temperature"],
   "model": {},
   "cost_function": {
     "cost_type": "3D-Var",
@@ -25,7 +26,7 @@
           {
             "date": "2010-01-01T12:00:00Z",
             "variables": ["temperature"],
-            "filepath": "testdata/bgos_bkg_000001"
+            "filepath": "testdata/synthetic_data_truth"
           }
         ]
       },
@@ -33,13 +34,30 @@
         "covariance": "SABER",
         "saber central block": {
           "saber block name": "BUMP_NICAS",
-          "read": {
+          "calibration": {
+            "general": {
+              "default seed": "12"
+            },
             "drivers": {
               "multivariate strategy": "univariate",
-              "read local nicas": "true"
+              "compute nicas": "true",
+              "write local nicas": "true"
             },
             "io": {
-               "overriding nicas file": "testdata/bgos_nicas"
+              "data directory": "testdata",
+              "files prefix": "bgos"
+            },
+            "nicas": {
+              "resolution": "5.0",
+              "explicit length-scales": "true",
+              "horizontal length-scale": [{
+                "groups": ["temperature"],
+                "value": "10.0e6"
+              }],
+              "vertical length-scale": [{
+                "groups": ["temperature"],
+                "value": "3.0"
+              }]
             }
           }
         },
@@ -47,7 +65,7 @@
           "saber block name": "StdDev",
           "read": {
             "model file": {
-              "filepath": "testdata/bgos_stddev"
+              "filepath": "testdata/synthetic_data_stddev"
             }
           }
         }]
@@ -59,12 +77,12 @@
           "ObsType": "default",
           "ObsData": {
             "ObsDataInScreened": {
-              "filepath": "testdata/bgos_obs"
+              "filepath": "testdata/synthetic_data_obs"
             },
             "ObsDataOutScreened": {
-              "filepath": "testdata/bgos_obs_linear_ensemble"
+              "filepath": "testdata/synthetic_data_obs_generate"
             },
-            "obsvalue": "ObsValue.000000"
+            "obsvalue": "ObsValue"
           },
           "Covariance": {
             "ObsErrorCovariance": {
@@ -107,19 +125,10 @@
       }
     ]
   },
-  "ensemble": {
-    "members": "50",
-    "state from template": {
-      "template": {
-        "date": "2010-01-01T12:00:00Z",
-        "filepath": "testdata/bgos_ens_%member%",
-        "state variables": ["temperature"]
-      },
-      "pattern": "%member%",
-      "zero padding": "6"
-    }
+  "background perturbation": {
+    "filepath": "testdata/synthetic_data_background_perturbation"
   },
-  "variance in observation space": {
-    "obsvalue": "Variance"
+  "first-guess departure": {
+    "obsvalue": "fg_depar@body"
   }
 }

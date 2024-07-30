@@ -6,7 +6,7 @@
  */
 
 #include "oops/runs/Run.h"
-#include "saber/oops/BGOS.h"
+#include "saber/oops/SyntheticData.h"
 #include "src/instantiateQuenchMatrices.h"
 #include "src/Logbook.h"
 #include "src/Traits.h"
@@ -14,9 +14,9 @@
 int main(int argc, char** argv) {
   oops::Run run(argc, argv);
   quench::instantiateQuenchMatrices();
-  saber::BGOS<quench::Traits> bgos;
+  saber::SyntheticData<quench::Traits> sd;
   quench::Logbook::start();
-  run.execute(bgos);
+  run.execute(sd);
   quench::Logbook::stop();
   return 0;
 }

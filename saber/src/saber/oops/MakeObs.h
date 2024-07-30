@@ -121,7 +121,7 @@ class MakeObs : public oops::Application {
     *yobs += ydep;
 
     // Member replacement
-    std::string pattern = obsconf.getString("pattern");
+    std::string pattern = obsconf.getString("pattern", "%member%");
     size_t zpad = obsconf.getInt("zero padding", 0);
 
     // Save perturbed observations

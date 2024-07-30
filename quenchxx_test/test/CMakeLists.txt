@@ -63,6 +63,10 @@ list( APPEND quenchxx_testinput
   testinput/reg_truth_06.json
   testinput/reg_truth_12.json
   testinput/reg_truth_18.json
+  testinput/synthetic_data_generate.json
+  testinput/synthetic_data_makeobs.json
+  testinput/synthetic_data_stddev.json
+  testinput/synthetic_data_truth.json
 )
 
 list( APPEND quenchxx_testref
@@ -128,6 +132,10 @@ list( APPEND quenchxx_testref
   testref/reg_truth_06.ref
   testref/reg_truth_12.ref
   testref/reg_truth_18.ref
+  testref/synthetic_data_generate.ref
+  testref/synthetic_data_makeobs.ref
+  testref/synthetic_data_stddev.ref
+  testref/synthetic_data_truth.ref
 )
 
 # Create directory for data
@@ -595,4 +603,41 @@ foreach( mpi "1" "4" )
                            "${CMAKE_BINARY_DIR}/bin/saber_quench_ensemble_variance.x testinput/evil_ensemble_variance.json"
                            "${CMAKE_CURRENT_BINARY_DIR}/testref/evil_ensemble_variance.ref"
                       DEPENDS saber_quench_ensemble_variance.x )
+
+    # Synthetic data tests
+    ecbuild_add_test( TARGET quenchxx_test_synthetic_data_truth_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_convertstate.x testinput/synthetic_data_truth.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/synthetic_data_truth.ref"
+                      DEPENDS saber_quench_convertstate.x )
+    
+    ecbuild_add_test( TARGET quenchxx_test_synthetic_data_stddev_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_convertstate.x testinput/synthetic_data_stddev.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/synthetic_data_stddev.ref"
+                      DEPENDS saber_quench_convertstate.x )
+    
+    ecbuild_add_test( TARGET quenchxx_test_synthetic_data_makeobs_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_makeobs.x testinput/synthetic_data_makeobs.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/synthetic_data_makeobs.ref"
+                      DEPENDS saber_quench_makeobs.x )
+
+    ecbuild_add_test( TARGET quenchxx_test_synthetic_data_generate_${mpi}
+                      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                      ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                           ${mpi}
+                           ${omp}
+                           "${CMAKE_BINARY_DIR}/bin/saber_quench_synthetic_data.x testinput/synthetic_data_generate.json"
+                           "${CMAKE_CURRENT_BINARY_DIR}/testref/synthetic_data_generate.ref"
+                      DEPENDS saber_quench_synthetic_data.x )
 endforeach()

@@ -62,7 +62,7 @@
               "filepath": "testdata/bgos_obs"
             },
             "ObsDataOutScreened": {
-              "filepath": "testdata/bgos_obs_primal_3dvar"
+              "filepath": "testdata/bgos_obs_linear_randomized"
             },
             "obsvalue": "ObsValue.000000"
           },
