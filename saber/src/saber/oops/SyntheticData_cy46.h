@@ -109,7 +109,7 @@ class SyntheticData : public oops::Application {
     oops::Log::test() << "H(xt)+Eo: " << yobs << std::endl;
 
     // Write perturbed observations
-    conststd::vector<eckit::LocalConfiguration> obsConf =
+    const std::vector<eckit::LocalConfiguration> obsConf =
       fullConfig.getSubConfigurations("cost_function.Jo");
     yobs.save(obsConf[0].getString("Observation.ObsData.obsvalue"));
 
