@@ -1,16 +1,6 @@
 # ECSABER
 Interface between OOPS (ECMWF) and SABER (JEDI).
 
-## JEDI sources processing
-ECSABER downloads the code of three JEDI repositories as submodules:
-- `oops-jedi`: https://github.com/JCSDA/oops
-- `vader-jedi`: https://github.com/JCSDA/vader
-- `saber-jedi`: https://github.com/JCSDA/saber or https://git.ecmwf.int/scm/sab/saber when needed
-
-Some `oops-jedi` source files are copied and modified to create the `oops-patch` library, which contains missing functionalities of OOPS (ECMWF).
-
-Similarly, the `vader-jedi` and `saber-jedi` source files are copied and modified to create the `saber` and `vader` libraries, respectively.
-
 ## Installation
 To install ECSABER
 1) Create a source directory `$SRC_DIR` and copy the following code into a file named `CMakeLists.txt`:
@@ -47,13 +37,13 @@ ecbuild_bundle( PROJECT eckit    GIT "https://github.com/ecmwf/eckit.git" TAG 1.
 ecbuild_bundle( PROJECT fckit    GIT "https://github.com/ecmwf/fckit.git" TAG 0.11.0 )
 ecbuild_bundle( PROJECT fiat     GIT "https://github.com/ecmwf-ifs/fiat.git" BRANCH main )
 ecbuild_bundle( PROJECT ectrans  GIT "https://github.com/ecmwf-ifs/ectrans.git" BRANCH main )
-ecbuild_bundle( PROJECT atlas    GIT "https://github.com/ecmwf/atlas.git" TAG 0.35.0 )
+ecbuild_bundle( PROJECT atlas    GIT "https://github.com/ecmwf/atlas.git" TAG 0.37.0 )
 
 # OOPS
 ecbuild_bundle( PROJECT oops     GIT "https://git.ecmwf.int/scm/oops/oops.git" BRANCH develop UPDATE )
 
 # ECSABER
-ecbuild_bundle( PROJECT ecsaber  GIT "https://git.ecmwf.int/scm/sab/ecsaber.git" BRANCH develop UPDATE RECURSIVE )
+ecbuild_bundle( PROJECT ecsaber  GIT "https://git.ecmwf.int/scm/sab/ecsaber.git" BRANCH develop UPDATE )
 
 ecbuild_bundle_finalize()
 ```
@@ -62,6 +52,16 @@ ecbuild_bundle_finalize()
 4) Configure: `ecbuild $SRC_DIR`
 5) Compile: `make -jN` where N is the number of threads
 6) Test: `ctest`
+
+The test `vader_coding_norms` is the only one that should fail.
+
+## JEDI sources processing
+If the `ECSABER_UPDATE` environment variable is set to `ON`, then ECSABER will update its source code from three JEDI repositories:
+- `oops-jedi`: https://github.com/JCSDA/oops
+- `saber-jedi`: https://github.com/JCSDA/saber
+- `vader-jedi`: https://github.com/JCSDA/vader
+
+The `oops-jedi`, `saber-jedi` and `vader-jedi` repository should be cloned manually in $SRC_DIR/ecsaber, or linked to other source directories. Then at configure time, `ecbuild` will prompt the user with source update options.
 
 ## Contact
 Benjamin Menetrier, Meteorologisk Institutt, Norway.<br>
