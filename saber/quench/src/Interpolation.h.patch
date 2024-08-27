@@ -1,16 +1,8 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Interpolation.h.tmp	2024-07-19 08:41:32.223710161 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Interpolation.h	2024-07-19 09:12:07.907499096 +0200
-@@ -23,6 +23,7 @@
- #include "saber/interpolation/AtlasInterpWrapper.h"
- 
- #include "src/InterpElement.h"
-+#include "src/RegionalInterpolation.h"
- 
- namespace atlas {
-   class Field;
-@@ -83,6 +84,9 @@
-   // ATLAS interpolation wrapper from SABER
-   std::shared_ptr<saber::interpolation::AtlasInterpWrapper> atlasInterpWrapper_;
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Interpolation.h.tmp.bak	2024-08-27 12:41:02.092471934 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Interpolation.h	2024-08-27 12:51:27.147877792 +0200
+@@ -94,6 +94,9 @@
+   // Regional ATLAS interpolation
+   std::shared_ptr<atlas::Interpolation> regionalInterp_;
  
 +  // Regional interpolation
 +  std::shared_ptr<RegionalInterpolation> regionalInterpolation_;

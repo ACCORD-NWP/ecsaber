@@ -22,8 +22,8 @@ namespace vader
 const char TotalWater_A::Name[] = "TotalWater_A";
 const oops::JediVariables TotalWater_A::
     Ingredients{std::vector<std::string>{"specific_humidity",
-                    "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
-                    "mass_content_of_cloud_ice_in_atmosphere_layer"}};
+                    "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
+                    "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"}};
 
 // Register the maker
 static RecipeMaker<TotalWater_A> makerTotalWater_A_(TotalWater_A::Name);

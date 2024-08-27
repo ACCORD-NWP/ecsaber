@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp	2024-07-19 08:41:30.631709124 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-07-17 09:55:18.080607360 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-08-27 12:40:59.873463443 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-08-02 15:43:44.926476978 +0200
 @@ -14,14 +14,35 @@
  # Applications
  ErrorCovarianceToolbox.h
@@ -9,6 +9,7 @@
 +EvilUpdate.h
 +MakeObs.h
 +BGOS.h
++SyntheticData.h
  
  # Utilities
 +ECUtilities.cc
@@ -27,8 +28,7 @@
 +RPLanczosEVILMinimizer.h
 +SQRTPLanczosEVILMinimizer.h
 +
-+# Temporary fix for cy46
-+BGOS_cy46.h
++# Temporary versions for cy46
 +DRPLanczosEVILMinimizer_cy46.h
 +EvilUpdate_cy46.h
 +instantiateMinFactory_cy46.h

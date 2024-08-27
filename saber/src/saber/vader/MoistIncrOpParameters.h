@@ -66,8 +66,8 @@ class MoistIncrOpParameters : public SaberBlockParametersBase {
   oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
     std::vector<std::string>{
     "air_temperature",
-    "mass_content_of_cloud_ice_in_atmosphere_layer",
-    "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
+    "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water",
+    "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
     "qt",
     "specific_humidity"}});}
 
@@ -87,9 +87,10 @@ class MoistIncrOpParameters : public SaberBlockParametersBase {
   }
 
   oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
-    oops::JediVariables vars({outerVars["mass_content_of_cloud_ice_in_atmosphere_layer"],
-                          outerVars["mass_content_of_cloud_liquid_water_in_atmosphere_layer"],
-                          outerVars["specific_humidity"]});
+    oops::JediVariables vars(
+      {outerVars["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"],
+       outerVars["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"],
+       outerVars["specific_humidity"]});
     return vars;
   }
 };
@@ -106,8 +107,8 @@ class SuperMoistIncrOpParameters : public SaberBlockParametersBase {
     std::vector<std::string>{
     "exner_levels_minus_one",
     "potential_temperature",
-    "mass_content_of_cloud_ice_in_atmosphere_layer",
-    "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
+    "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water",
+    "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
     "qt",
     "specific_humidity"}});}
 
@@ -133,8 +134,8 @@ class SuperMoistIncrOpParameters : public SaberBlockParametersBase {
   }
 
   // activeOuterVars() not needed in this super block.
-  // It would have contained "mass_content_of_cloud_ice_in_atmosphere_layer",
-  // "mass_content_of_cloud_liquid_water_in_atmosphere_layer" and "specific_humidity".
+  // It would have contained "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water",
+  // "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water" and "specific_humidity".
 
   oops::JediVariables intermediateTempVars(const oops::JediVariables& outerVars) const {
     if (outerVars.has("air_temperature")) {

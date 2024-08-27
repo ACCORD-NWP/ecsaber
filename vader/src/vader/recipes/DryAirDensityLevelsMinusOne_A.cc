@@ -24,8 +24,8 @@ namespace vader
 const char DryAirDensityLevelsMinusOne_A::Name[] = "DryAirDensityLevelsMinusOne_A";
 const oops::JediVariables DryAirDensityLevelsMinusOne_A::
     Ingredients{std::vector<std::string>{"height", "height_levels", "potential_temperature",
-                   "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
-                   "mass_content_of_cloud_ice_in_atmosphere_layer",
+                   "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
+                   "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water",
                    "specific_humidity", "air_pressure_levels_minus_one"}};
     // For renaming to CCPP standard in (hopefully) near future:
     // Ingredients = {"height_above_mean_sea_level_at_interface",

@@ -22,8 +22,8 @@ namespace mo {
 // -------------------------------------------------------------------------------------------------
 
 /// \details Calculate the dry air density from potential temperature,
-///          specific humidity, mass_content_of_cloud_liquid_water_in_atmosphere_layer,
-///          mass_content_of_cloud_ice_in_atmosphere_layer
+///          specific humidity, cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water,
+///          cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
 ///          and air pressure (using air_pressure_levels_minus_one)
 void eval_dry_air_density_from_pressure_levels_minus_one_nl(atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_dry_air_density_from_pressure_levels_minus_one_nl()] starting ..."
@@ -33,9 +33,9 @@ void eval_dry_air_density_from_pressure_levels_minus_one_nl(atlas::FieldSet & st
   const auto ptView = make_view<const double, 2>(stateFlds["potential_temperature"]);
   const auto qView = make_view<const double, 2>(stateFlds["specific_humidity"]);
   const auto qclView = make_view<const double, 2>(
-                         stateFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                    stateFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto qcfView = make_view<const double, 2>(
-                         stateFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                         stateFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels_minus_one"]);
   auto dryrhoView = make_view<double, 2>(stateFlds["dry_air_density_levels_minus_one"]);
 
@@ -90,9 +90,9 @@ void eval_dry_air_density_from_pressure_levels_minus_one_tl(atlas::FieldSet & in
   const auto ptView = make_view<const double, 2>(stateFlds["potential_temperature"]);
   const auto qView = make_view<const double, 2>(stateFlds["specific_humidity"]);
   const auto qclView = make_view<const double, 2>(
-                         stateFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                    stateFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto qcfView = make_view<const double, 2>(
-                         stateFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                         stateFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels_minus_one"]);
   const auto dryrhoView = make_view<const double, 2>(stateFlds["dry_air_density_levels_minus_one"]);
 
@@ -100,9 +100,9 @@ void eval_dry_air_density_from_pressure_levels_minus_one_tl(atlas::FieldSet & in
   const auto ptIncView = make_view<const double, 2>(incFlds["potential_temperature"]);
   const auto qIncView = make_view<const double, 2>(incFlds["specific_humidity"]);
   const auto qclIncView = make_view<const double, 2>(
-                            incFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                      incFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto qcfIncView = make_view<const double, 2>(
-                            incFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                            incFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto dryrhoIncView = make_view<double, 2>(incFlds["dry_air_density_levels_minus_one"]);
   const idx_t numLevels = incFlds["dry_air_density_levels_minus_one"].shape(1);
   const idx_t sizeOwned =
@@ -183,9 +183,9 @@ void eval_dry_air_density_from_pressure_levels_minus_one_ad(atlas::FieldSet & ha
   const auto ptView = make_view<const double, 2>(stateFlds["potential_temperature"]);
   const auto qView = make_view<const double, 2>(stateFlds["specific_humidity"]);
   const auto qclView = make_view<const double, 2>(
-                 stateFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                 stateFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto qcfView = make_view<const double, 2>(
-                       stateFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                       stateFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels_minus_one"]);
   const auto dryrhoView = make_view<const double, 2>(stateFlds["dry_air_density_levels_minus_one"]);
 
@@ -193,8 +193,9 @@ void eval_dry_air_density_from_pressure_levels_minus_one_ad(atlas::FieldSet & ha
   auto ptHatView = make_view<double, 2>(hatFlds["potential_temperature"]);
   auto qHatView = make_view<double, 2>(hatFlds["specific_humidity"]);
   auto qclHatView = make_view<double, 2>(
-                    hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
-  auto qcfHatView = make_view<double, 2>(hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                    hatFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
+  auto qcfHatView = make_view<double, 2>
+                              (hatFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto dryrhoHatView = make_view<double, 2>(hatFlds["dry_air_density_levels_minus_one"]);
 
   double h_minus_hl;
@@ -289,8 +290,8 @@ void eval_dry_air_density_from_pressure_levels_minus_one_ad(atlas::FieldSet & ha
   hatFlds["air_pressure_levels_minus_one"].set_dirty();
   hatFlds["potential_temperature"].set_dirty();
   hatFlds["specific_humidity"].set_dirty();
-  hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"].set_dirty();
-  hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"].set_dirty();
+  hatFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"].set_dirty();
+  hatFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"].set_dirty();
   hatFlds["dry_air_density_levels_minus_one"].set_dirty();
 
   oops::Log::trace() << "[eval_dry_air_density_from_pressure_levels_minus_one_ad()] ... exit"

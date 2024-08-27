@@ -35,9 +35,9 @@ const cookbookConfigType Vader::defaultCookbookDefinition = {
         // Default VADER cookbook definition
         {oops::Variable{"air_temperature"},
                                      {AirTemperature_A::Name, AirTemperature_B::Name}},
-        {oops::Variable{"mass_content_of_cloud_ice_in_atmosphere_layer"},
+        {oops::Variable{"cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"},
                                      {CloudIceMixingRatio_A::Name}},
-        {oops::Variable{"mass_content_of_cloud_liquid_water_in_atmosphere_layer"},
+        {oops::Variable{"cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"},
                                      {CloudLiquidMixingRatio_A::Name}},
         {oops::Variable{"dry_air_density"},
                                      {DryAirDensity_A::Name}},

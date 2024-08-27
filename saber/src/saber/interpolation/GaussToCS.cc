@@ -8,6 +8,7 @@
 #include "atlas/field.h"
 #include "atlas/grid/detail/partitioner/MatchingMeshPartitionerCubedSphere.h"
 #include "atlas/grid/detail/partitioner/TransPartitioner.h"
+#include "atlas/meshgenerator.h"
 #include "atlas/parallel/mpi/mpi.h"
 #include "atlas/util/Config.h"
 
@@ -24,12 +25,22 @@ namespace interpolation {
 
 namespace {
 
+int getHalo(const std::string & interpType) {
+  // Assumes that only interpolation types with "cubic" in their name require a halo of 2.
+  const std::string pattern = "cubic";
+  if (interpType.find(pattern) != interpType.npos) {
+    return 2;
+  }
+  return 1;
+}
+
 atlas::functionspace::StructuredColumns
-    createGaussFunctionSpace(const atlas::StructuredGrid & gaussGrid) {
+    createGaussFunctionSpace(const atlas::StructuredGrid & gaussGrid,
+                             const int halo) {
   return atlas::functionspace::StructuredColumns(
     gaussGrid,
     atlas::grid::Partitioner(new TransPartitioner()),
-    atlas::option::halo(1));
+    atlas::option::halo(halo));
 }
 
 // -----------------------------------------------------------------------------
@@ -183,15 +194,16 @@ Rescaling initRescaling(const GaussToCSParameters & params,
   if (params.interpolationRescaling.value().is_initialized()) {
     const auto & conf = params.interpolationRescaling.value().value();
     if (conf.has("horizontal covariance profile file path")) {
+      // Compute rescaling fields from input covariance profile
       return Rescaling(comm,
                        conf,
                        activeVars,
                        innerFspace,
                        outerFspace,
                        interp);
-    } else if (conf.has("input file path")) {
-      eckit::LocalConfiguration readConf;
-      readConf.set("filepath", conf.getString("input file path"));
+    } else if (conf.has("input atlas file")) {
+      // Read rescaling field from atlas file
+      const auto readConf = conf.getSubConfiguration("input atlas file");
       return Rescaling(comm,
                        readConf,
                        activeVars,
@@ -226,10 +238,12 @@ GaussToCS::GaussToCS(const oops::GeometryData & outerGeometryData,
     activeVars_(params.activeVariables.value().get_value_or(innerVars_)),
     CSFunctionSpace_(outerGeometryData.functionSpace()),
     gaussGrid_(params.gaussGridUid.value()),
-    gaussFunctionSpace_(createGaussFunctionSpace(gaussGrid_)),
+    gaussFunctionSpace_(createGaussFunctionSpace(gaussGrid_,
+                                                 getHalo(params.interpType.value()))),
     gaussPartitioner_(new TransPartitioner()),
     csgrid_(CSFunctionSpace_.mesh().grid()),
-    interp_(gaussPartitioner_, gaussFunctionSpace_, csgrid_, CSFunctionSpace_),
+    interp_(gaussPartitioner_, gaussFunctionSpace_, csgrid_, CSFunctionSpace_,
+            params.interpType.value()),
     inverseInterpolation_(createInverseInterpolation(
                               params.initializeInverseInterpolation.value(),
                               outerGeometryData.comm().size() == 1,
@@ -284,7 +298,6 @@ void GaussToCS::multiply(oops::FieldSet3D & fieldSet) const {
   }
 
   // Interpolate to cubed sphere
-  gaussFieldSet.haloExchange();
   interp_.execute(gaussFieldSet, csFieldSet);
   csFieldSet.set_dirty();  // atlas interpolation produces dirty halos
 
@@ -336,8 +349,6 @@ void GaussToCS::multiplyAD(oops::FieldSet3D & fieldSet) const {
 
   // Adjoint of interpolation from gauss to dual cubed sphere
   interp_.executeAdjoint(gaussFieldSet, csFieldSet);
-  gaussFieldSet.adjointHaloExchange();
-  gaussFieldSet.set_dirty();
 
   for (const auto & var : activeVars_) {
     newFields.add(gaussFieldSet[var.name()]);

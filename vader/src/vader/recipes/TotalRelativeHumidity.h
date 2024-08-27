@@ -24,8 +24,9 @@ namespace vader
 /*! \brief The class 'TotalRelativeHumidity_A' defines a recipe for 'total relative humidity (rht)'
  *
  *  \details This instantiation of RecipeBase produces total relative humidity (rht)
- *           using specific humidity, mass_content_of_cloud_liquid_water_in_atmosphere_layer,
- *           mass_content_of_cloud_ice_in_atmosphere_layer, specific rain (qrain), and
+ *           using specific humidity,
+ *           cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water,
+ *           cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water, specific rain (qrain), and
  *           saturated specific humidity (qsat) as inputs.
  *
  */

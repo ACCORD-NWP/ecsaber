@@ -24,9 +24,9 @@ bool eval_total_relative_humidity_nl(atlas::FieldSet & fields) {
 
   const auto qView = make_view<const double, 2>(fields["specific_humidity"]);
   const auto qclView = make_view<const double, 2>
-                 (fields["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                 (fields["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto qciView = make_view<const double, 2>
-                 (fields["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                 (fields["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto qrainView = make_view<const double, 2>(fields["qrain"]);
   const auto qsatView = make_view<const double, 2>(fields["qsat"]);
   auto rhtView = make_view<double, 2>(fields["rht"]);

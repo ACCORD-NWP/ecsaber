@@ -37,8 +37,8 @@ namespace vader {
  *
  *  \details This instantiation of RecipeBase produces dry air density
  *           using potential_temperature, specific humidity,
- *           mass_content_of_cloud_liquid_water_in_atmosphere_layer,
- *           mass_content_of_cloud_ice_in_atmosphere_layer
+ *           cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water,
+ *           cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
  *           and pressure (air_pressure_levels) as inputs.
  */
 

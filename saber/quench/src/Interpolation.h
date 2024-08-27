@@ -14,6 +14,10 @@
 #include <vector>
 
 #include "atlas/functionspace.h"
+#include "atlas/interpolation.h"
+#ifdef INTERP_ELEMENT_FROM_ATLAS
+#include "atlas/interpolation/element/InterpElement.h"
+#endif
 
 #include "eckit/config/Configuration.h"
 
@@ -22,8 +26,9 @@
 
 #include "saber/interpolation/AtlasInterpWrapper.h"
 
+#ifdef INTERP_ELEMENT_FROM_QUENCH
 #include "src/InterpElement.h"
-#include "src/RegionalInterpolation.h"
+#endif
 
 namespace atlas {
   class Field;
@@ -32,6 +37,8 @@ namespace atlas {
     class Partitioner;
   }
 }
+
+using atlas::interpolation::element::InterpElement;
 
 namespace quench {
 
@@ -84,8 +91,8 @@ class Interpolation {
   // ATLAS interpolation wrapper from SABER
   std::shared_ptr<saber::interpolation::AtlasInterpWrapper> atlasInterpWrapper_;
 
-  // Regional interpolation
-  std::shared_ptr<RegionalInterpolation> regionalInterpolation_;
+  // Regional ATLAS interpolation
+  std::shared_ptr<atlas::Interpolation> regionalInterp_;
 
   // Vertical interpolations
   std::unordered_map<std::string, std::vector<InterpElement>> verInterps_;
