@@ -24,7 +24,7 @@ bool eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
           << " starting ..." << std::endl;
 
   std::vector<std::string> fnames {"m_cl", "m_t",
-                                   "mass_content_of_cloud_liquid_water_in_atmosphere_layer"};
+                        "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"};
 
   const bool rvalue = eval_ratio_to_second(stateFlds, fnames);
 
@@ -44,7 +44,7 @@ void eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_tl(
           << "starting ..." << std::endl;
 
   std::vector<std::string> fnames {"m_cl", "m_t",
-                                   "mass_content_of_cloud_liquid_water_in_atmosphere_layer"};
+                        "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"};
 
   eval_ratio_to_second_tl(incFlds, stateFlds, fnames);
 
@@ -62,7 +62,7 @@ void eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_ad(
           << "starting ..." << std::endl;
 
   std::vector<std::string> fnames {"m_cl", "m_t",
-                                   "mass_content_of_cloud_liquid_water_in_atmosphere_layer"};
+                        "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"};
 
   eval_ratio_to_second_ad(hatFlds, stateFlds, fnames);
 

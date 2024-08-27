@@ -31,9 +31,9 @@ void eval_moisture_incrementing_operator_tl(atlas::FieldSet & incFlds,
   auto temperIncView = make_view<const double, 2>(incFlds["air_temperature"]);
 
   auto qclIncView = make_view<double, 2>
-                    (incFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                    (incFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto qcfIncView = make_view<double, 2>
-                    (incFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                    (incFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto qIncView = make_view<double, 2>(incFlds["specific_humidity"]);
   const idx_t numLevels = incFlds["qt"].shape(1);
   const idx_t sizeOwned =
@@ -49,8 +49,8 @@ void eval_moisture_incrementing_operator_tl(atlas::FieldSet & incFlds,
       qIncView(jn, jl) = qtIncView(jn, jl) - qclIncView(jn, jl) - qcfIncView(jn, jl);
     }
   }
-  incFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"].set_dirty();
-  incFlds["mass_content_of_cloud_ice_in_atmosphere_layer"].set_dirty();
+  incFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"].set_dirty();
+  incFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"].set_dirty();
   incFlds["specific_humidity"].set_dirty();
 
   oops::Log::trace() << "[eval_moisture_incrementing_operator_tl()] ... done"
@@ -71,9 +71,9 @@ void eval_moisture_incrementing_operator_ad(atlas::FieldSet & hatFlds,
   auto qtHatView = make_view<double, 2>(hatFlds["qt"]);
   auto qHatView = make_view<double, 2>(hatFlds["specific_humidity"]);
   auto qclHatView = make_view<double, 2>
-                    (hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                    (hatFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto qcfHatView = make_view<double, 2>
-                    (hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                    (hatFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const idx_t numLevels = hatFlds["qt"].shape(1);
   const idx_t sizeOwned =
         util::getSizeOwned(hatFlds["qt"].functionspace());
@@ -97,8 +97,8 @@ void eval_moisture_incrementing_operator_ad(atlas::FieldSet & hatFlds,
   hatFlds["air_temperature"].set_dirty();
   hatFlds["specific_humidity"].set_dirty();
   hatFlds["qt"].set_dirty();
-  hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"].set_dirty();
-  hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"].set_dirty();
+  hatFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"].set_dirty();
+  hatFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"].set_dirty();
 
   oops::Log::trace() << "[eval_moisture_incrementing_operator_ad()] ... done"
                      << std::endl;
@@ -111,9 +111,9 @@ void eval_total_water_tl(atlas::FieldSet & incFlds,
 
   auto qIncView = make_view<const double, 2>(incFlds["specific_humidity"]);
   auto qclIncView = make_view<const double, 2>
-                      (incFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                    (incFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto qcfIncView = make_view<const double, 2>
-                      (incFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                      (incFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
 
   auto qtIncView = make_view<double, 2>(incFlds["qt"]);
   const idx_t numLevels = incFlds["qt"].shape(1);
@@ -138,9 +138,9 @@ void eval_total_water_ad(atlas::FieldSet & hatFlds,
   oops::Log::trace() << "[eval_total_water_ad()] starting ..." << std::endl;
   auto qIncView = make_view<double, 2>(hatFlds["specific_humidity"]);
   auto qclIncView = make_view<double, 2>
-                      (hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"]);
+                    (hatFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto qcfIncView = make_view<double, 2>
-                      (hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"]);
+                      (hatFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto qtIncView = make_view<double, 2>(hatFlds["qt"]);
   const idx_t numLevels = hatFlds["qt"].shape(1);
   const idx_t sizeOwned =
@@ -155,8 +155,8 @@ void eval_total_water_ad(atlas::FieldSet & hatFlds,
     }
   }
   hatFlds["specific_humidity"].set_dirty();
-  hatFlds["mass_content_of_cloud_liquid_water_in_atmosphere_layer"].set_dirty();
-  hatFlds["mass_content_of_cloud_ice_in_atmosphere_layer"].set_dirty();
+  hatFlds["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"].set_dirty();
+  hatFlds["cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"].set_dirty();
   hatFlds["qt"].set_dirty();
 
   oops::Log::trace() << "[eval_total_water_ad()] ... done" << std::endl;

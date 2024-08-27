@@ -306,8 +306,17 @@ SpectralToGauss::SpectralToGauss(const oops::GeometryData & outerGeometryData,
 
 void SpectralToGauss::multiplyVectorFields(atlas::FieldSet & spectralWindFieldSet,
                                            atlas::FieldSet & outFieldSet) const {
-  // 1- Convert stream function and potential vorticity to divergence and vorticity.
   oops::Log::trace() << classname() << "::multiplyVectorFields starting" << std::endl;
+
+  std::string interpType;
+  if (spectralWindFieldSet[0].metadata().has("interp_type")) {
+    interpType = spectralWindFieldSet[0].metadata().get<std::string>("interp_type");
+    // partner winds field should have same metadata
+    ASSERT(spectralWindFieldSet[1].metadata().has("interp_type"));
+    ASSERT(spectralWindFieldSet[1].metadata().get<std::string>("interp_type") == interpType);
+  }
+
+  // 1- Convert stream function and potential vorticity to divergence and vorticity.
   // Scale by n(n+1) / squaredEarthRadius and rename fields to vorticity and divergence
   if (spectralWindFieldSet.has("streamfunction") &&
       spectralWindFieldSet.has("velocity_potential")) {
@@ -333,6 +342,12 @@ void SpectralToGauss::multiplyVectorFields(atlas::FieldSet & spectralWindFieldSe
   ASSERT(!outFieldSet.has("eastward_wind") && !outFieldSet.has("northward_wind"));
   outFieldSet.add(uvfset["eastward_wind"]);
   outFieldSet.add(uvfset["northward_wind"]);
+
+  if (!interpType.empty()) {
+    outFieldSet["eastward_wind"].metadata().set("interp_type", interpType);
+    outFieldSet["northward_wind"].metadata().set("interp_type", interpType);
+  }
+
   oops::Log::trace() << classname() << "::multiplyVectorFields done" << std::endl;
 }
 
@@ -344,6 +359,15 @@ void SpectralToGauss::multiplyVectorFieldsAD(atlas::FieldSet & windFieldSet,
   ASSERT(windFieldSet.has("eastward_wind") && windFieldSet.has("northward_wind"));
   ASSERT(!outFieldSet.has("vorticity") && !outFieldSet.has("divergence"));
   ASSERT(!outFieldSet.has("streamfunction") && !outFieldSet.has("velocity_potential"));
+
+  std::string interpType;
+  if (windFieldSet["eastward_wind"].metadata().has("interp_type")) {
+    interpType = windFieldSet["eastward_wind"].metadata().get<std::string>("interp_type");
+    // partner winds field should have same metadata
+    ASSERT(windFieldSet["northward_wind"].metadata().has("interp_type"));
+    ASSERT(windFieldSet["northward_wind"].metadata().get<std::string>("interp_type")
+                        == interpType);
+  }
 
   atlas::Field uvgp = convertUVToFieldSetAD(windFieldSet);
 
@@ -365,6 +389,20 @@ void SpectralToGauss::multiplyVectorFieldsAD(atlas::FieldSet & windFieldSet,
 
   outFieldSet.add(spectralWindFieldSet[0]);
   outFieldSet.add(spectralWindFieldSet[1]);
+
+  // pass metadata from incoming windFieldSet
+  if (!interpType.empty()) {
+    if (innerVars_.has("streamfunction") && innerVars_.has("velocity_potential")) {
+      outFieldSet["streamfunction"].metadata().set("interp_type", interpType);
+      outFieldSet["velocity_potential"].metadata().set("interp_type", interpType);
+    } else if (innerVars_.has("vorticity") && innerVars_.has("divergence")) {
+      outFieldSet["vorticity"].metadata().set("interp_type", interpType);
+      outFieldSet["divergence"].metadata().set("interp_type", interpType);
+    } else {
+      throw eckit::BadParameter("incorrect combination of wind derivatives");
+    }
+  }
+
   oops::Log::trace() << classname() << "::multiplyVectorFieldsAD done" << std::endl;
 }
 
@@ -380,14 +418,12 @@ void SpectralToGauss::multiplyScalarFields(const atlas::FieldSet & specFieldSet,
         gaussFunctionSpace_.createField<double>(atlas::option::name(fieldname) |
                                    atlas::option::levels(specFieldSet[fieldname].shape(1)));
       atlas::array::make_view<double, 2>(gaussField).assign(0.0);
+      gaussField.metadata() = specFieldSet[fieldname].metadata();
       gaussFieldSet.add(gaussField);
   }
 
   // Transform to Gaussian grid
   trans_.invtrans(specFieldSet, gaussFieldSet);
-  // TODO(Mayeul) Understand why ectrans yield dirty fields marked as clean (on 1 PE).
-  //              Fix this so that next line is not needed.
-  gaussFieldSet.set_dirty();
 
   for (const auto & fieldname : specFieldSet.field_names()) {
     ASSERT(!outFieldSet.has(fieldname));
@@ -407,6 +443,7 @@ void SpectralToGauss::multiplyScalarFieldsAD(const atlas::FieldSet & gaussFieldS
     atlas::Field specField =
       specFunctionSpace_.createField<double>(atlas::option::name(fieldname) |
                                  atlas::option::levels(gaussFieldSet[fieldname].shape(1)));
+    specField.metadata() = gaussFieldSet[fieldname].metadata();
     specFieldSet.add(specField);
   }
 
@@ -431,6 +468,7 @@ void SpectralToGauss::invertMultiplyScalarFields(const atlas::FieldSet & gaussFi
     auto spectralField = specFunctionSpace_.createField<double>(fieldConfig);
     trans_.dirtrans(gaussField, spectralField);
     ASSERT(!outFieldSet.has(spectralField.name()));
+    spectralField.metadata() = gaussField.metadata();
     outFieldSet.add(spectralField);
   }
 
@@ -446,6 +484,15 @@ void SpectralToGauss::invertMultiplyVectorFields(const atlas::FieldSet & gaussFi
   ASSERT(gaussFieldSet.has("eastward_wind") && gaussFieldSet.has("northward_wind"));
   ASSERT(!outFieldSet.has("vorticity") && !outFieldSet.has("divergence"));
   ASSERT(!outFieldSet.has("streamfunction") && !outFieldSet.has("velocity_potential"));
+
+  std::string interpType;
+  if (gaussFieldSet["eastward_wind"].metadata().has("interp_type")) {
+    interpType = gaussFieldSet["eastward_wind"].metadata().get<std::string>("interp_type");
+    // partner winds field should have same metadata
+    ASSERT(gaussFieldSet["northward_wind"].metadata().has("interp_type"));
+    ASSERT(gaussFieldSet["northward_wind"].metadata().get<std::string>("interp_type")
+                         == interpType);
+  }
 
   atlas::Field uvgp = convertFieldSetToUV(gaussFieldSet);
 
@@ -467,6 +514,19 @@ void SpectralToGauss::invertMultiplyVectorFields(const atlas::FieldSet & gaussFi
 
   outFieldSet.add(spectralWindFieldSet[0]);
   outFieldSet.add(spectralWindFieldSet[1]);
+
+  // pass metadata from incoming gaussFieldSet
+  if (!interpType.empty()) {
+    if (innerVars_.has("streamfunction") && innerVars_.has("velocity_potential")) {
+      outFieldSet["streamfunction"].metadata().set("interp_type", interpType);
+      outFieldSet["velocity_potential"].metadata().set("interp_type", interpType);
+    } else if (innerVars_.has("vorticity") && innerVars_.has("divergence")) {
+      outFieldSet["vorticity"].metadata().set("interp_type", interpType);
+      outFieldSet["divergence"].metadata().set("interp_type", interpType);
+    } else {
+      throw eckit::BadParameter("incorrect combination of wind derivatives");
+    }
+  }
 
   oops::Log::trace() << classname() << "::invertMultiplyVectorFields done" << std::endl;
 }

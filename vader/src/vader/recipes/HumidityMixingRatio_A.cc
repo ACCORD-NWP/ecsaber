@@ -22,7 +22,8 @@ namespace vader
 
 // Static attribute initialization
 const char HumidityMixingRatio_A::Name[] = "HumidityMixingRatio_A";
-const oops::JediVariables HumidityMixingRatio_A::Ingredients{{"specific_humidity"}};
+const oops::JediVariables HumidityMixingRatio_A::Ingredients{
+                      {"water_vapor_mixing_ratio_wrt_moist_air"}};
 
 // Register the maker
 static RecipeMaker<HumidityMixingRatio_A> makerHumidityMixingRatio_(HumidityMixingRatio_A::Name);
@@ -51,20 +52,20 @@ oops::JediVariables HumidityMixingRatio_A::ingredients() const
 
 size_t HumidityMixingRatio_A::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return afieldset.field("specific_humidity").shape(1);
+    return afieldset.field("water_vapor_mixing_ratio_wrt_moist_air").shape(1);
 }
 
 atlas::FunctionSpace HumidityMixingRatio_A::productFunctionSpace
                                               (const atlas::FieldSet & afieldset) const
 {
-    return afieldset.field("specific_humidity").functionspace();
+    return afieldset.field("water_vapor_mixing_ratio_wrt_moist_air").functionspace();
 }
 
 bool HumidityMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering HumidityMixingRatio_A::executeNL function" << std::endl;
 
-    atlas::field::for_each_value(afieldset["specific_humidity"],
+    atlas::field::for_each_value(afieldset["water_vapor_mixing_ratio_wrt_moist_air"],
                                  afieldset["humidity_mixing_ratio"],
                                  [&](const double q, double& mixr) {
         mixr = q / (1. - q);

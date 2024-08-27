@@ -1086,11 +1086,7 @@ else
 
       do ic2a=0,diag%nc2a
          ! Compute localization
-         if (nam%loc_from_cor) then
-            call diag%blk(ic2a,ig)%localization_from_correlation(mpl,nam,geom,cor%blk(ic2a,ig),ne)
-         else
-            call diag%blk(ic2a,ig)%localization(mpl,nam,geom,avg%grp(ic2a,ig))
-         end if
+         call diag%blk(ic2a,ig)%localization(mpl,nam,geom,avg%grp(ic2a,ig),cor%blk(ic2a,ig),ne)
 
          ! Fitting
          call diag%blk(ic2a,ig)%fitting(mpl,nam,geom)

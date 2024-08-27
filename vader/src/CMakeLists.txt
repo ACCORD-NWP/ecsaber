@@ -66,8 +66,6 @@ vader/recipes/SaturationSpecificHumidity.h
 vader/recipes/SaturationSpecificHumidity_A.cc
 vader/recipes/SaturationVaporPressure.h
 vader/recipes/SaturationVaporPressure_A.cc
-vader/recipes/SpecificHumidity.h
-vader/recipes/SpecificHumidity_A.cc
 vader/recipes/SulfateMassFraction.h
 vader/recipes/SulfateMassFraction_A.cc
 vader/recipes/SurfaceAirPressure.h
@@ -87,6 +85,8 @@ vader/recipes/VirtualPotentialTemperature_B.cc
 vader/recipes/VirtualPotentialTemperature.h
 vader/recipes/vwind_at_10m_A.cc
 vader/recipes/vwind_at_10m.h
+vader/recipes/WaterVaporMixingRatioWrtMoistAir.h
+vader/recipes/WaterVaporMixingRatioWrtMoistAir_A.cc
 vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater.h
 vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A.cc
 vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m.h

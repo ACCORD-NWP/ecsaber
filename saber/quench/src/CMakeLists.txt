@@ -9,8 +9,6 @@ list( APPEND quench_src_files
 Covariance.h
 Fields.cc
 Fields.h
-FieldsIOBase.cc
-FieldsIOBase.h
 Geometry.cc
 Geometry.h
 GeoVaLs.cc
@@ -20,7 +18,6 @@ HybridWeight.cc
 HybridWeight.h
 Increment.cc
 Increment.h
-InterpElement.h
 Interpolation.cc
 Interpolation.h
 IncrEnsCtlVec.h
@@ -59,25 +56,19 @@ ObsSpace.cc
 ObsSpace.h
 ObsVector.cc
 ObsVector.h
-RegionalInterpolation.cc
-RegionalInterpolation.h
 State.cc
 State.h
 Traits.h
 Variables.h
 Variables.cc
 
-default/FieldsIODefault.cc
-default/FieldsIODefault.h
-
 )
 
-if( eccodes_FOUND )
+# TODO(Benjamin): check when ATLAS PR #215 is merged into a tagged version to update the version number
+if(atlas_VERSION VERSION_LESS_EQUAL "0.38.1")
+    # InterpElement from QUENCH
     list( APPEND quench_src_files
-
-    grib/FieldsIOGrib.cc
-    grib/FieldsIOGrib.h
-
+    InterpElement.h
     )
 endif()
 

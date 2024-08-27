@@ -39,7 +39,7 @@ std::string CloudIceMixingRatio_A::name() const
 
 oops::Variable CloudIceMixingRatio_A::product() const
 {
-    return oops::Variable{"mass_content_of_cloud_ice_in_atmosphere_layer"};
+    return oops::Variable{"cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"};
 }
 
 oops::JediVariables CloudIceMixingRatio_A::ingredients() const

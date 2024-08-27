@@ -1,20 +1,11 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_geom.fypp.tmp	2024-07-19 08:41:31.603709757 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_geom.fypp	2024-07-19 09:05:29.404464154 +0200
-@@ -1263,8 +1263,15 @@
- call mpl%flush
- call qsort(geom%nc0u,geom%lon_c0u,geom%lat_c0u,order,.false.)
- do ic0u=2,geom%nc0u
--   if (eq(geom%lon_c0u(order(ic0u)),geom%lon_c0u(order(ic0u-1))).and.eq(geom%lat_c0u(order(ic0u)),geom%lat_c0u(order(ic0u-1)))) &
-- & call mpl%abort('${subr}$','duplicated points in Sc0 point on universe, check the universe')
-+   if (indist(geom%lat_c0u(order(ic0u)),geom%lat_c0u(order(ic0u-1)))) then
-+      if (indist(geom%lat_c0u(order(ic0u)),half*pi)) then
-+         call mpl%abort('${subr}$','duplicated points at the North pole')
-+      else if (indist(geom%lat_c0u(order(ic0u)),-half*pi)) then
-+         call mpl%abort('${subr}$','duplicated points at the South pole')
-+      else if (eq(geom%lon_c0u(order(ic0u)),geom%lon_c0u(order(ic0u-1)))) then
-+         call mpl%abort('${subr}$','duplicated points in Sc0 point on universe, check the universe')
-+      end if
-+   end if
- end do
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_geom.fypp.tmp.bak	2024-08-27 12:41:01.209468555 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/bump/type_geom.fypp	2024-08-27 12:46:48.632810244 +0200
+@@ -192,8 +192,6 @@
+    procedure :: c0_to_c0u => geom_c0_to_c0u
+ end type geom_type
  
- ! Release memory
+-integer,parameter :: nzoom = 10         !< Number of zoom iteration to compute the work grid
+-integer,parameter :: ntest = 100         !< Number of test values to compute the work grid
+ integer,parameter :: nfacmin = 4        !< Minimum size factor for the first subsampling
+ integer,parameter :: nsmax = 1000000    !< Maximum sampling size
+ logical,parameter :: parallel = .false. !< Parallel sampling (can be slow because of communications)

@@ -141,9 +141,8 @@ void JediVariables::push_back(const Variable & var) {
 // -----------------------------------------------------------------------------
 
 void JediVariables::push_back(const std::string & var) {
-  vars_.push_back(Variable(var));
+  push_back(Variable(var));
 }
-
 
 // -----------------------------------------------------------------------------
 
