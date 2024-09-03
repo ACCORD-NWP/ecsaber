@@ -28,8 +28,6 @@ states:
 - input:
     date: 2010-01-01T12:00:00Z
     state variables:
-    - stream_function
-    - velocity_potential
     - eastward_wind
     - northward_wind
     constant value: 1.2
@@ -38,8 +36,6 @@ states:
 - input:
     date: 2010-01-01T12:00:00Z
     state variables:
-    - stream_function
-    - velocity_potential
     - eastward_wind
     - northward_wind
     constant value: 3.0
@@ -48,8 +44,6 @@ states:
 - input:
     date: 2010-01-01T12:00:00Z
     state variables:
-    - stream_function
-    - velocity_potential
     - eastward_wind
     - northward_wind
     constant value: 2.5
@@ -60,8 +54,6 @@ states:
     state variables:
     - stream_function
     - velocity_potential
-    - eastward_wind
-    - northward_wind
     constant value: 0.3
   output:
     filepath: testdata/convertstate_constant/static_weight
@@ -70,8 +62,6 @@ states:
     state variables:
     - stream_function
     - velocity_potential
-    - eastward_wind
-    - northward_wind
     constant value: 0.7
   output:
     filepath: testdata/convertstate_constant/ensemble_weight

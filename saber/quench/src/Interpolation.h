@@ -15,9 +15,6 @@
 
 #include "atlas/functionspace.h"
 #include "atlas/interpolation.h"
-#ifdef INTERP_ELEMENT_FROM_ATLAS
-#include "atlas/interpolation/element/InterpElement.h"
-#endif
 
 #include "eckit/config/Configuration.h"
 
@@ -26,9 +23,7 @@
 
 #include "saber/interpolation/AtlasInterpWrapper.h"
 
-#ifdef INTERP_ELEMENT_FROM_QUENCH
 #include "src/InterpElement.h"
-#endif
 
 namespace atlas {
   class Field;

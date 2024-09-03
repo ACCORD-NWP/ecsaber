@@ -64,13 +64,13 @@ Variables.cc
 
 )
 
-# TODO(Benjamin): check when ATLAS PR #215 is merged into a tagged version to update the version number
-if(atlas_VERSION VERSION_LESS_EQUAL "0.38.1")
-    # InterpElement from QUENCH
-    list( APPEND quench_src_files
-    InterpElement.h
-    )
-endif()
+# InterpElement: use local file until it is available in the minimal ATLAS version.
+# TODO(Benjamin): remove this and update Interpolation.h
+list( APPEND quench_src_files
+
+InterpElement.h
+
+)
 
 ecbuild_add_library( TARGET   quench
                      SOURCES  ${quench_src_files}

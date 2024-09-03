@@ -261,6 +261,8 @@ Geometry::Geometry(const eckit::Configuration & config,
     interpolation_ = eckit::LocalConfiguration();
     if (grid_.domain().global()) {
       interpolation_.set("interpolation type", "atlas interpolation wrapper");
+    } else {
+      interpolation_.set("interpolation type", "regional");
     }
   }
 

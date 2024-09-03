@@ -15,6 +15,8 @@
 
 #include "eckit/mpi/Comm.h"
 
+#include "src/Variables.h"
+
 #include "util/DateTime.h"
 #include "util/ObjectCounter.h"
 #include "util/Printable.h"
@@ -97,6 +99,7 @@ class ObsSpace : public util::Printable,
   std::string nameOut_;
   size_t nobsLoc_;
   size_t nobsGlb_;
+  const Variables vars_;
   std::vector<size_t> nobsLocVec_;
   std::vector<int> order_;
 };

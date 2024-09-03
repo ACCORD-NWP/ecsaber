@@ -49,7 +49,7 @@ ObsSpace::ObsSpace(const eckit::Configuration & config,
                    const util::DateTime & end,
                    const bool lscreened)
   : winbgn_(bgn), winend_(end), lscreened_(lscreened), comm_(geom.getComm()),
-    geom_(new Geometry(geom)), nobsLoc_(0), nobsGlb_(0) {
+    geom_(new Geometry(geom)), nobsLoc_(0), nobsGlb_(0), vars_(config) {
   oops::Log::trace() << classname() << "::ObsSpace starting" << std::endl;
 
   nameIn_.clear();
@@ -78,6 +78,7 @@ ObsSpace::ObsSpace(const eckit::Configuration & config,
       }
     }
   }
+  ASSERT(vars_.size() == 1);
 
   oops::Log::trace() << classname() << "::ObsSpace done" << std::endl;
 }
@@ -397,7 +398,7 @@ void ObsSpace::read(const std::string & filePath) {
     if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval);
 
     // Get dimension
-    if ((retval = nc_inq_dimid(ncid, "Locations", &nobs_id))) ERR(retval);
+    if ((retval = nc_inq_dimid(ncid, "Location", &nobs_id))) ERR(retval);
     if ((retval = nc_inq_dimlen(ncid, nobs_id, &nobsGlb_))) ERR(retval);
 
     // Get groups list
@@ -470,7 +471,7 @@ void ObsSpace::read(const std::string & filePath) {
         // Get other groups
         colNames[jgrpData] = grpName.substr(0, grpNameLen-1);
         std::vector<float> col(nobsGlb_);
-        if ((retval = nc_inq_varid(group_ids[jgrp], "data", &col_id))) ERR(retval);
+        if ((retval = nc_inq_varid(group_ids[jgrp], vars_[0].name().c_str(), &col_id))) ERR(retval);
         if ((retval = nc_get_var_float(group_ids[jgrp], col_id, col.data()))) ERR(retval);
         for (size_t jo = 0; jo < nobsGlb_; ++jo) {
           cols[ncol*jo+jgrpData] = static_cast<double>(col[jo]);
@@ -781,14 +782,14 @@ void ObsSpace::write(const std::string & filePath,
       &ioda_layout_version_value))) ERR(retval);
 
     // Create dimension
-    if ((retval = nc_def_dim(ncid, "Locations", NC_UNLIMITED, &nobs_id))) ERR(retval);
+    if ((retval = nc_def_dim(ncid, "Location", NC_UNLIMITED, &nobs_id))) ERR(retval);
     d_id[0] = nobs_id;
 
     // Missing value
     const std::string fillValue_key = "_FillValue";
 
     // Define global variables
-    if ((retval = nc_def_var(ncid, "Locations", NC_INT, 1, d_id, &Locations_id))) ERR(retval);
+    if ((retval = nc_def_var(ncid, "Location", NC_INT, 1, d_id, &Locations_id))) ERR(retval);
     if ((retval = nc_put_att_int(ncid, Locations_id, fillValue_key.c_str(), NC_INT, 1,
       &util::missingValue(0)))) ERR(retval);
     if ((retval = nc_def_var(ncid, "order", NC_INT, 1, d_id, &order_id))) ERR(retval);
@@ -836,7 +837,8 @@ void ObsSpace::write(const std::string & filePath,
       if ((retval = nc_def_grp(ncid, vec.first.c_str(), &group_id))) ERR(retval);
       group_ids.push_back(group_id);
       int groupVar_id;
-      if ((retval = nc_def_var(group_id, "data", NC_FLOAT, 1, d_id, &groupVar_id))) ERR(retval);
+      if ((retval = nc_def_var(group_id, vars_[0].name().c_str(), NC_FLOAT, 1, d_id, &groupVar_id)))
+        ERR(retval);
       if ((retval = nc_put_att_float(group_id, groupVar_id, fillValue_key.c_str(), NC_FLOAT, 1,
         &util::missingValue(0.0f)))) ERR(retval);
       groupVar_ids.push_back(groupVar_id);

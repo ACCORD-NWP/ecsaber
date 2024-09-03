@@ -12,7 +12,7 @@ module type_diag_blk
 use tools_const, only: zero,tenth,half,one,four,ten,pi
 use tools_cor_var, only: eval
 use tools_fit, only: condmax,diag_iso,diag_tensor,tensor_d2h,tensor_d2r,tensor_check_cond,fast_fit
-use tools_func, only: vert_interp_size,vert_interp_setup,vert_interp
+use tools_func, only: vert_interp_size,vert_interp_setup,vert_interp,zss_sum
 use tools_kinds, only: kind_real,huge_real
 use tools_netcdf, only: define_grp,define_dim,put_att,define_var,put_var
 use tools_repro, only: inf,infeq,supeq
@@ -917,14 +917,14 @@ if (nam%loc_option=='nice_with_table') then
    end do
 else if (nam%loc_option=='nice_without_table') then
    ! Use ergodicity assumption
-   S_rho = sum(diag_blk%frob_wgt*avg_blk%cor_var,mask=mpl%msv%isnot(avg_blk%cor_var))
+   S_rho = zss_sum(diag_blk%frob_wgt*avg_blk%cor_var,mask=mpl%msv%isnot(avg_blk%cor_var))
 end if
 
 if (nam%loc_option=='from_squared_correlation') then
    ! Ensemble size-dependent coefficient
    P4 = one/real(ne-1,kind_real)
 
-   !$omp parallel do schedule(static) private(il0,jl0r,jc3,jc4) shared(geom,diag_blk,cor_blk,ne)
+   !$omp parallel do schedule(static) private(il0,jl0r,jc3,jc4) shared(geom,diag_blk,cor_blk,P4)
    do il0=1,geom%nl0
       do jl0r=1,nam%nl0r
          do jc4=1,nam%nc4
@@ -947,56 +947,68 @@ else if ((nam%loc_option=='nice_with_table').or.(nam%loc_option=='nice_without_t
    ! Determine smallest positive, even integer gamma that violates de discrepancy principle
    gamma_star = 0
    do gamma=2,10,2
-      norm = sum(diag_blk%frob_wgt*cor_blk%raw*(one-cor_blk%fit**gamma),mask=mpl%msv%isnot(cor_blk%raw))
+      norm = zss_sum(diag_blk%frob_wgt*cor_blk%raw*(one-cor_blk%fit**gamma),mask=mpl%msv%isnot(cor_blk%raw) &
+ & .and.mpl%msv%isnot(cor_blk%fit))
       if (norm > S_rho) then
          gamma_star = gamma
          exit
       end if
    end do
-   if (gamma_star==0) call mpl%abort('${subr}$','cannot find gamma_star')
-
-   ! Linear interpolation (bisection method)
-   alpha = half
-   dalpha = half
-   norm = sum(diag_blk%frob_wgt*cor_blk%raw*(one-(alpha*cor_blk%fit**gamma_star &
- & +(one-alpha)*cor_blk%fit**(gamma_star-2))),mask=mpl%msv%isnot(cor_blk%raw))
-   if (norm < S_rho) then
-      dalpha = half*abs(dalpha)
-   else
-      dalpha = -half*abs(dalpha)
-   end if
-   do ialpha=1,nalpha
-      alpha = alpha+dalpha
-      norm = sum(diag_blk%frob_wgt*cor_blk%raw*(one-(alpha*cor_blk%fit**gamma_star &
- & +(one-alpha)*cor_blk%fit**(gamma_star-2))),mask=mpl%msv%isnot(cor_blk%raw))
+   if (gamma_star>0) then
+      ! Linear interpolation (bisection method)
+      alpha = half
+      dalpha = half
+      alpha_star = mpl%msv%valr
+      norm = zss_sum(diag_blk%frob_wgt*cor_blk%raw*(one-(alpha*cor_blk%fit**gamma_star &
+ & +(one-alpha)*cor_blk%fit**(gamma_star-2))),mask=mpl%msv%isnot(cor_blk%raw).and.mpl%msv%isnot(cor_blk%fit))
       if (norm < S_rho) then
          dalpha = half*abs(dalpha)
-         alpha_star = alpha
       else
          dalpha = -half*abs(dalpha)
       end if
-   end do
-
-   !$omp parallel do schedule(static) private(il0,jl0r,jc3,jc4) shared(geom,diag_blk,avg_blk)
-   do il0=1,geom%nl0
-      do jl0r=1,nam%nl0r
-         do jc4=1,nam%nc4
-            do jc3=1,nam%nc3
-               if (mpl%msv%isnot(avg_blk%cor(jc3,jc4,jl0r,il0))) then
-                  ! NICE localization
-                  diag_blk%raw(jc3,jc4,jl0r,il0) = alpha_star*cor_blk%fit(jc3,jc4,jl0r,il0)**gamma_star &
+      do ialpha=1,nalpha
+         alpha = alpha+dalpha
+         norm = zss_sum(diag_blk%frob_wgt*cor_blk%raw*(one-(alpha*cor_blk%fit**gamma_star &
+ & +(one-alpha)*cor_blk%fit**(gamma_star-2))),mask=mpl%msv%isnot(cor_blk%raw).and.mpl%msv%isnot(cor_blk%fit))
+         if (norm < S_rho) then
+            dalpha = half*abs(dalpha)
+            alpha_star = alpha
+         else
+            dalpha = -half*abs(dalpha)
+         end if
+      end do
+      if (mpl%msv%isnot(alpha_star)) then
+         ! Build localization
+         !$omp parallel do schedule(static) private(il0,jl0r,jc3,jc4) shared(geom,diag_blk,avg_blk,cor_blk,alpha_star,gamma_star)
+         do il0=1,geom%nl0
+            do jl0r=1,nam%nl0r
+               do jc4=1,nam%nc4
+                  do jc3=1,nam%nc3
+                     if (mpl%msv%isnot(cor_blk%fit(jc3,jc4,jl0r,il0))) then
+                        ! NICE localization
+                        diag_blk%raw(jc3,jc4,jl0r,il0) = alpha_star*cor_blk%fit(jc3,jc4,jl0r,il0)**gamma_star &
  & +(one-alpha_star)*cor_blk%fit(jc3,jc4,jl0r,il0)**(gamma_star-2)
-                  diag_blk%valid(jc3,jc4,jl0r,il0) = avg_blk%nc1a_cor(jc3,jc4,jl0r,il0)
-               else
-                  ! Missing value
-                  diag_blk%raw(jc3,jc4,jl0r,il0) = mpl%msv%valr
-                  diag_blk%valid(jc3,jc4,jl0r,il0) = mpl%msv%valr
-               end if
+                        diag_blk%valid(jc3,jc4,jl0r,il0) = avg_blk%nc1a_cor(jc3,jc4,jl0r,il0)
+                     else
+                        ! Missing value
+                        diag_blk%raw(jc3,jc4,jl0r,il0) = mpl%msv%valr
+                        diag_blk%valid(jc3,jc4,jl0r,il0) = mpl%msv%valr
+                     end if
+                  end do
+               end do
             end do
          end do
-      end do
-   end do
-   !$omp end parallel do
+         !$omp end parallel do
+      else
+         ! Missing value
+         call mpl%warning('${subr}$','impossible to find a suitable alpha_star')
+         diag_blk%raw = mpl%msv%valr
+      end if
+   else
+      ! Missing value
+      call mpl%warning('${subr}$','impossible to find a positive gamma_star')
+      diag_blk%raw = mpl%msv%valr
+   end if
 else if (nam%loc_option=='default') then
    !$omp parallel do schedule(static) private(il0,jl0r,jc3,jc4) shared(geom,diag_blk,avg_blk)
    do il0=1,geom%nl0
