@@ -192,6 +192,8 @@ contains
    procedure :: c0_to_c0u => geom_c0_to_c0u
 end type geom_type
 
+
+integer,parameter :: niter = 10         !< Number of iterations to estimate the work grid inflation
 integer,parameter :: nfacmin = 4        !< Minimum size factor for the first subsampling
 integer,parameter :: nsmax = 1000000    !< Maximum sampling size
 logical,parameter :: parallel = .false. !< Parallel sampling (can be slow because of communications)
@@ -494,11 +496,11 @@ type(atlas_functionspace),intent(in) :: afunctionspace !< ATLAS function space
 type(fieldset_type),intent(in),optional :: fieldset    !< Fieldset
 
 ! Local variables
-integer :: il0,imga,ib,iprocmax,icorner,ib_1,ib_2,ib_3,nmg_owned,nmg_inside,iter,i
+integer :: il0,imga,ib,iprocmax,icorner,ib_1,ib_2,ib_3,nmg_owned,nmg_inside,iter,i,iproc
 real(kind_real) :: infl,dinfl,infl_opt,f_min
 real(kind_real) :: proc_to_maxdist(mpl%nproc)
 real(kind_real) :: lon0,lat0,dist,maxdist,area_124,area_234,splon_opt,splat_opt,rota_opt,dist_maxmin
-real(kind_real) :: lonlat_bnd(2,4),v_bnd(3,4),v1(3),v2(3),cp(3),cd(3),v_bnd_infl(3,4)
+real(kind_real) :: lonlat_bnd(2,4),v_bnd(3,4),v1(3),v2(3),cp(3),cd(3),v_bnd_infl(3,4),vtmp(3)
 real(kind_real) :: lonlat_bnd_opt(2,4)
 real(kind_real) :: north,south,east,west
 real(kind_real),pointer :: real_ptr(:,:)
@@ -642,12 +644,13 @@ else
    geom%global = .false.
 
    ! Find domain centroid
+   geom%v_center = zero
    do imga=1,geom%nmga
       if (geom%owned_mga(imga,1)) then
          call lonlat2xyz(mpl,geom%lon_mga(imga),geom%lat_mga(imga),v_mga(1,imga),v_mga(2,imga),v_mga(3,imga))
+         geom%v_center = geom%v_center+v_mga(:,imga)
       end if
    end do
-   geom%v_center = sum(v_mga,dim=2)
    call mpl%f_comm%allreduce(geom%v_center,fckit_mpi_sum())
    geom%v_center = geom%v_center/sqrt(sum(geom%v_center**2))
 
@@ -658,14 +661,18 @@ else
          dist = sum((v_mga(:,imga)-geom%v_center)**2)
          if (sup(dist,maxdist)) then
             maxdist = dist
-            v_bnd(:,1) = v_mga(:,imga)
+            vtmp = v_mga(:,imga)
          end if
       end if
    end do
    call mpl%f_comm%allgather(maxdist,proc_to_maxdist)
-   iprocmax = maxloc(proc_to_maxdist,dim=1)
-   call mpl%f_comm%broadcast(v_bnd(:,1),iprocmax-1)
-  
+   iprocmax = 1
+   do iproc=1,mpl%nproc
+      if (sup(proc_to_maxdist(iproc),proc_to_maxdist(iprocmax))) iprocmax = iproc
+   end do
+   call mpl%f_comm%broadcast(vtmp,iprocmax-1)
+   v_bnd(:,1) = vtmp
+
    ! Find the point furthest from the first corner (opposite corner)
    maxdist = zero
    do imga=1,geom%nmga
@@ -673,13 +680,17 @@ else
          dist = sum((v_mga(:,imga)-v_bnd(:,1))**2)
          if (sup(dist,maxdist)) then
             maxdist = dist
-            v_bnd(:,3) = v_mga(:,imga)
+            vtmp = v_mga(:,imga)
          end if
       end if
    end do
    call mpl%f_comm%allgather(maxdist,proc_to_maxdist)
-   iprocmax = maxloc(proc_to_maxdist,dim=1)
-   call mpl%f_comm%broadcast(v_bnd(:,3),iprocmax-1)
+   iprocmax = 1
+   do iproc=1,mpl%nproc
+      if (sup(proc_to_maxdist(iproc),proc_to_maxdist(iprocmax))) iprocmax = iproc
+   end do
+   call mpl%f_comm%broadcast(vtmp,iprocmax-1)
+   v_bnd(:,3) = vtmp
 
    ! Find the two other corners
    do icorner=1,2
@@ -703,14 +714,18 @@ else
                call area(v_bnd(:,ib_1),v_mga(:,imga),v_bnd(:,ib_3),dist)
                if (sup(dist,maxdist)) then
                   maxdist = dist
-                  v_bnd(:,ib_2) = v_mga(:,imga)
+                  vtmp = v_mga(:,imga)
                end if
             end if
          end if
       end do
       call mpl%f_comm%allgather(maxdist,proc_to_maxdist)
-      iprocmax = maxloc(proc_to_maxdist,dim=1)
-      call mpl%f_comm%broadcast(v_bnd(:,ib_2),iprocmax-1)
+      iprocmax = 1
+      do iproc=1,mpl%nproc
+         if (sup(proc_to_maxdist(iproc),proc_to_maxdist(iprocmax))) iprocmax = iproc
+      end do
+      call mpl%f_comm%broadcast(vtmp,iprocmax-1)
+      v_bnd(:,ib_2) = vtmp
    end do
 
    ! Compute area
@@ -747,7 +762,7 @@ else
    geom%v_center = geom%v_center/sqrt(sum(geom%v_center**2))
    infl = one
    dinfl = one
-   do iter=1,10
+   do iter=1,niter
       ! Inflation factor
       infl = infl+dinfl
 
