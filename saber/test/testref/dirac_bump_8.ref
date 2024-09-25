@@ -31,7 +31,7 @@ Fields:
              nc1(  1) =                       1636
              ns =                             1636
              v%n_s =                             1
-             c%n_s[global] =                132856
+             c%n_s[global] =                121756
     Full NICAS adjoint test result:                        T
        Block NICAS adjoint test result:                    T
           Interpolation adjoint test (horizontal) result:  T
@@ -59,4 +59,4 @@ Groups:
   - vert_coord: [0.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  snow_depth: 7.5991033784244966e+00
+  snow_depth: 7.3879924744964303e+00

@@ -28,7 +28,7 @@
              nc1(  2) =                        589
              ns =                             1178
              v%n_s =                             2
-             c%n_s[global] =                 28804
+             c%n_s[global] =                 26864
     Full NICAS adjoint test result:                        T
        Block NICAS adjoint test result:                    T
           Interpolation adjoint test (horizontal) result:  T
@@ -56,14 +56,14 @@
              0.0 /    0.0:  0.0000000
           Level   1:  0.0000000 -  0.0000000
           Level   2:  0.0000000 -  0.0000000
-          MSE (exp. / th. / ratio):  0.75269518E+03 /  0.76594153E+03 / 0.983
-          MSE (exp. / th. / ratio):  0.31003811E+03 /  0.30637661E+03 / 1.012
-          MSE (exp. / th. / ratio):  0.20497538E+03 /  0.20425107E+03 / 1.004
-          MSE (exp. / th. / ratio):  0.14691746E+03 /  0.14589362E+03 / 1.007
-          MSE (exp. / th. / ratio):  0.11700860E+03 /  0.11783716E+03 / 0.993
-          MSE (exp. / th. / ratio):  0.97004885E+02 /  0.95742691E+02 / 1.013
-          MSE (exp. / th. / ratio):  0.85182813E+02 /  0.82804489E+02 / 1.029
-          MSE (exp. / th. / ratio):  0.73327469E+02 /  0.71250375E+02 / 1.029
-          MSE (exp. / th. / ratio):  0.64240210E+02 /  0.62525839E+02 / 1.027
+          MSE (exp. / th. / ratio):  0.75124692E+03 /  0.76590118E+03 / 0.981
+          MSE (exp. / th. / ratio):  0.30960766E+03 /  0.30636047E+03 / 1.011
+          MSE (exp. / th. / ratio):  0.20577134E+03 /  0.20424031E+03 / 1.007
+          MSE (exp. / th. / ratio):  0.14737467E+03 /  0.14588594E+03 / 1.010
+          MSE (exp. / th. / ratio):  0.11753765E+03 /  0.11783095E+03 / 0.998
+          MSE (exp. / th. / ratio):  0.97410194E+02 /  0.95737647E+02 / 1.017
+          MSE (exp. / th. / ratio):  0.85441153E+02 /  0.82800127E+02 / 1.032
+          MSE (exp. / th. / ratio):  0.73398629E+02 /  0.71246621E+02 / 1.030
+          MSE (exp. / th. / ratio):  0.64282076E+02 /  0.62522545E+02 / 1.028
 Norm of output parameter cor_rh - 1: 2.3186202793903100e+08
 Norm of output parameter cor_rv - 1: 1.7389652095427326e+02

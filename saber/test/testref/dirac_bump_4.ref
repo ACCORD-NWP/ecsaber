@@ -24,6 +24,22 @@ Fields:
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
+       Accuracy tests:
+          Wavenumber:  1
+             - psi/chi to u:  89.76377%
+             - psi/chi to v:  89.76376%
+          Wavenumber:  2
+             - psi/chi to u:  75.59054%
+             - psi/chi to v:  75.59054%
+          Wavenumber:  3
+             - psi/chi to u:  89.76377%
+             - psi/chi to v:  89.76377%
+          Wavenumber:  4
+             - psi/chi to u:  67.19160%
+             - psi/chi to v:  83.98950%
+          Wavenumber:  5
+             - psi/chi to u:  39.37007%
+             - psi/chi to v:  39.37007%
 Adjoint test for block BUMP_PsiChiToUV passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -36,7 +52,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7539391781678255e+01
+Norm of input parameter StdDev: 5.7713424142713876e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -74,5 +90,5 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 4.6812802897699229e-14
-  northward_wind: 4.2976491930423595e-14
+  eastward_wind: 8.2177605927844878e-13
+  northward_wind: 2.6076486032607314e-13

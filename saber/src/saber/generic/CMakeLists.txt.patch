@@ -1,0 +1,21 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/generic/CMakeLists.txt.tmp	2024-09-25 13:10:29.117076140 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/generic/CMakeLists.txt	2024-08-02 15:43:44.926476978 +0200
+@@ -16,14 +16,14 @@
+ Ensemble.h
+ Ensemble.cc
+ 
++# Fake levels block
++FakeLevels.h
++FakeLevels.cc
++
+ # Hybrid block
+ Hybrid.h
+ Hybrid.cc
+ 
+-# Shadow levels block
+-ShadowLevels.h
+-ShadowLevels.cc
+-
+ # StdDev block
+ StdDev.h
+ StdDev.cc

@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #endif
+#include <netcdf.h>
 
 #include <algorithm>
 #include <fstream>
@@ -40,6 +41,8 @@
 #include "oops/util/Random.h"
 
 #include "src/Geometry.h"
+
+#define ERR(e, msg) {std::string s(nc_strerror(e)); ABORT(s + " : " + msg);}
 
 namespace quench {
 
@@ -644,109 +647,115 @@ void Fields::random() {
 void Fields::dirac(const eckit::Configuration & config) {
   oops::Log::trace() << classname() << "::dirac starting" << std::endl;
 
-  // Get dirac specifications
-  std::vector<double> lon = config.getDoubleVector("lon");
-  std::vector<double> lat = config.getDoubleVector("lat");
-  std::vector<atlas::idx_t> level = config.getIntVector("level");
-  std::vector<std::string> variable = config.getStringVector("variable");
+  if (config.has("file")) {
+    // Input file
+    const eckit::LocalConfiguration file(config, "file");
+    this->read(file);
+  } else {
+    // Get dirac specifications
+    std::vector<double> lon = config.getDoubleVector("lon");
+    std::vector<double> lat = config.getDoubleVector("lat");
+    std::vector<atlas::idx_t> level = config.getIntVector("level");
+    std::vector<std::string> vars = config.getStringVector("variable");
 
-  // Check sizes
-  if (lon.size() != lat.size()) throw eckit::UserError("Inconsistent dirac specification size",
-    Here());
-  if (lon.size() != level.size()) throw eckit::UserError("Inconsistent dirac specification size",
-    Here());
-  if (lon.size() != variable.size()) throw eckit::UserError("Inconsistent dirac specification size",
-    Here());
+    // Check sizes
+    if (lon.size() != lat.size()) throw eckit::UserError("Inconsistent dirac specification size",
+      Here());
+    if (lon.size() != level.size()) throw eckit::UserError("Inconsistent dirac specification size",
+      Here());
+    if (lon.size() != vars.size()) throw eckit::UserError("Inconsistent dirac specification size",
+      Here());
 
-  // Build KDTree for each MPI task
-  const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
-  const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
-  const auto lonlatView = atlas::array::make_view<double, 2>(geom_->functionSpace().lonlat());
-  atlas::idx_t n = 0;
-  for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
-    if ((ghostView(jnode) == 0) && (ownedView(jnode, 0) == 1)) {
-      ++n;
-    }
-  }
-  atlas::util::IndexKDTree search;
-  search.reserve(n);
-  for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
-    if ((ghostView(jnode) == 0) && (ownedView(jnode, 0) == 1)) {
-      atlas::PointLonLat pointLonLat(lonlatView(jnode, 0), lonlatView(jnode, 1));
-      pointLonLat.normalise();
-      atlas::PointXY point(pointLonLat);
-      search.insert(point, jnode);
-    }
-  }
-  search.build();
-
-  // Set fields to zero
-  this->zero();
-
-  // Set dirac points
-  for (size_t jdir = 0; jdir < lon.size(); ++jdir) {
-    // Get field
-    atlas::Field field = fset_[variable[jdir]];
-
-    // Find MPI task
-    atlas::PointLonLat pointLonLat(lon[jdir], lat[jdir]);
-    pointLonLat.normalise();
-
-    // Search nearest neighbor
-    size_t index = std::numeric_limits<size_t>::max();
-    double distance = std::numeric_limits<double>::max();
-    bool potentialConflict = false;
-    if (geom_->functionSpace().size() > 0) {
-      atlas::util::IndexKDTree::ValueList neighbor = search.closestPoints(pointLonLat, 2);
-      index = neighbor[0].payload();
-      distance = neighbor[0].distance();
-      potentialConflict = (std::abs(neighbor[0].distance()-neighbor[1].distance()) < 1.0e-12);
-    }
-    std::vector<double> distances(geom_->getComm().size());
-    geom_->getComm().allGather(distance, distances.begin(), distances.end());
-    const std::vector<double>::iterator distanceMin = std::min_element(std::begin(distances),
-      std::end(distances));
-    size_t sameDistanceCount = 0;
-    for (size_t jj = 0; jj < geom_->getComm().size(); ++jj) {
-      if (std::abs(distances[jj]-*distanceMin) < 1.0e-12) {
-        ++sameDistanceCount;
+    // Build KDTree for each MPI task
+    const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
+    const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
+    const auto lonlatView = atlas::array::make_view<double, 2>(geom_->functionSpace().lonlat());
+    atlas::idx_t n = 0;
+    for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
+      if ((ghostView(jnode) == 0) && (ownedView(jnode, 0) == 1)) {
+        ++n;
       }
     }
-    if (sameDistanceCount > 1) {
-      throw eckit::UserError("requested dirac point exactly between two gridpoints", Here());
+    atlas::util::IndexKDTree search;
+    search.reserve(n);
+    for (atlas::idx_t jnode = 0; jnode < geom_->functionSpace().size(); ++jnode) {
+      if ((ghostView(jnode) == 0) && (ownedView(jnode, 0) == 1)) {
+        atlas::PointLonLat pointLonLat(lonlatView(jnode, 0), lonlatView(jnode, 1));
+        pointLonLat.normalise();
+        atlas::PointXY point(pointLonLat);
+        search.insert(point, jnode);
+      }
     }
+    search.build();
 
-    // Find local task
-    size_t localTask(-1);
-    if (geom_->getComm().rank() == 0) {
-      localTask = std::distance(std::begin(distances), distanceMin);
-    }
-    geom_->getComm().broadcast(localTask, 0);
+    // Set fields to zero
+    this->zero();
 
-    if (geom_->getComm().rank() == localTask) {
-      // Check potential conflict
-      if (potentialConflict) {
+    // Set dirac points
+    for (size_t jdir = 0; jdir < lon.size(); ++jdir) {
+      // Get field
+      atlas::Field field = fset_[vars[jdir]];
+
+      // Find MPI task
+      atlas::PointLonLat pointLonLat(lon[jdir], lat[jdir]);
+      pointLonLat.normalise();
+
+      // Search nearest neighbor
+      size_t index = std::numeric_limits<size_t>::max();
+      double distance = std::numeric_limits<double>::max();
+      bool potentialConflict = false;
+      if (geom_->functionSpace().size() > 0) {
+        atlas::util::IndexKDTree::ValueList neighbor = search.closestPoints(pointLonLat, 2);
+        index = neighbor[0].payload();
+        distance = neighbor[0].distance();
+        potentialConflict = (std::abs(neighbor[0].distance()-neighbor[1].distance()) < 1.0e-12);
+      }
+      std::vector<double> distances(geom_->getComm().size());
+      geom_->getComm().allGather(distance, distances.begin(), distances.end());
+      const std::vector<double>::iterator distanceMin = std::min_element(std::begin(distances),
+      std::end(distances));
+      size_t sameDistanceCount = 0;
+      for (size_t jj = 0; jj < geom_->getComm().size(); ++jj) {
+        if (std::abs(distances[jj]-*distanceMin) < 1.0e-12) {
+          ++sameDistanceCount;
+        }
+      }
+      if (sameDistanceCount > 1) {
         throw eckit::UserError("requested dirac point exactly between two gridpoints", Here());
       }
 
-      // Add Dirac impulse
-      if (field.rank() == 2) {
-        auto view = atlas::array::make_view<double, 2>(field);
-        view(index, level[jdir]-1) = 1.0;
+      // Find local task
+      size_t localTask(-1);
+      if (geom_->getComm().rank() == 0) {
+        localTask = std::distance(std::begin(distances), distanceMin);
       }
-    }
+      geom_->getComm().broadcast(localTask, 0);
 
-    // Print longitude / latitude / level
-    double lonDir = 0.0;
-    double latDir = 0.0;
-    if (geom_->getComm().rank() == localTask) {
-      lonDir = lonlatView(index, 0);
-      latDir = lonlatView(index, 1);
+      if (geom_->getComm().rank() == localTask) {
+        // Check potential conflict
+        if (potentialConflict) {
+          throw eckit::UserError("requested dirac point exactly between two gridpoints", Here());
+        }
+
+        // Add Dirac impulse
+        if (field.rank() == 2) {
+          auto view = atlas::array::make_view<double, 2>(field);
+          view(index, level[jdir]-1) = 1.0;
+        }
+      }
+
+      // Print longitude / latitude / level
+      double lonDir = 0.0;
+      double latDir = 0.0;
+      if (geom_->getComm().rank() == localTask) {
+        lonDir = lonlatView(index, 0);
+        latDir = lonlatView(index, 1);
+      }
+      geom_->getComm().allReduceInPlace(lonDir, eckit::mpi::sum());
+      geom_->getComm().allReduceInPlace(latDir, eckit::mpi::sum());
+      oops::Log::info() << "Info     : Dirac point #" << jdir << ": " << lonDir << " / " << latDir
+        << " / " << level[jdir] << std::endl;
     }
-    geom_->getComm().allReduceInPlace(lonDir, eckit::mpi::sum());
-    geom_->getComm().allReduceInPlace(latDir, eckit::mpi::sum());
-    oops::Log::info() << "Info     : Dirac point #" << jdir << ": " << lonDir << " / " << latDir
-      << " / " << level[jdir] << std::endl;
   }
 
   // Set duplicate points to the same value
@@ -999,6 +1008,112 @@ void Fields::read(const eckit::Configuration & config) {
 #else
     throw eckit::UserError("ECCODES not available", Here());
 #endif
+  } else if (ioFormat == "arome") {
+    // AROME data at NetCDF format (converted from epygram)
+
+    // Build filepath
+    std::string filepath = config.getString("filepath");
+    if (config.has("member")) {
+      std::ostringstream out;
+      out << std::setfill('0') << std::setw(6) << config.getInt("member");
+      filepath.append("_");
+      filepath.append(out.str());
+    }
+
+    // NetCDF file path
+    std::string ncfilepath = filepath + ".nc";
+
+    // Clear local fieldset
+    fset_.clear();
+
+    // Create local fieldset
+    for (size_t jvar = 0; jvar < vars_in_file.size(); ++jvar) {
+      atlas::Field field = geom_->functionSpace().createField<double>(
+        atlas::option::name(vars_in_file[jvar].name()) |
+        atlas::option::levels(vars_in_file[jvar].getLevels()));
+      fset_.add(field);
+    }
+
+    // Initialize local fieldset
+    for (auto & field : fset_) {
+      auto view = atlas::array::make_view<double, 2>(field);
+      view.assign(0.0);
+    }
+
+    // NetCDF IDs
+    size_t nVarLev = 0;
+    std::vector<std::string> varLevName;
+    for (size_t jvar = 0; jvar < vars_in_file.size(); ++jvar) {
+      for (int k = 0; k < vars_in_file[jvar].getLevels(); ++k) {
+        const std::string level = std::to_string(k+40);
+        varLevName.push_back("S" + std::string(3-level.length(), '0') + level
+          + vars_in_file[jvar].name());
+        ++nVarLev;
+      }
+    }
+    int ncid, retval, var_id[nVarLev];
+
+    // Global data
+    atlas::FieldSet globalData;
+    for (size_t jvar = 0; jvar < vars_in_file.size(); ++jvar) {
+      atlas::Field field = geom_->functionSpace().createField<double>(
+        atlas::option::name(vars_in_file[jvar].name())
+        | atlas::option::levels(vars_in_file[jvar].getLevels()) | atlas::option::global());
+      globalData.add(field);
+    }
+
+    // StructuredColumns
+    atlas::functionspace::StructuredColumns fs(geom_->functionSpace());
+
+    if (geom_->getComm().rank() == 0) {
+      // Get grid
+      atlas::StructuredGrid grid = fs.grid();
+
+      // Get sizes
+      atlas::idx_t nx = grid.nxmax();
+      atlas::idx_t ny = grid.ny();
+
+      oops::Log::info() << "Info     : Reading file: " << ncfilepath << std::endl;
+
+      // Open NetCDF file
+      if ((retval = nc_open(ncfilepath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncfilepath);
+
+      // Get variables
+      for (size_t jVarLev = 0; jVarLev < nVarLev; ++jVarLev) {
+        if ((retval = nc_inq_varid(ncid, varLevName[jVarLev].c_str(), &var_id[jVarLev]))) {
+          ERR(retval, varLevName[jVarLev]);
+        }
+      }
+
+      size_t iVarLev = 0;
+      for (size_t jvar = 0; jvar < vars_in_file.size(); ++jvar) {
+        auto varView = atlas::array::make_view<double, 2>(globalData[vars_in_file[jvar].name()]);
+        for (int k = 0; k < vars_in_file[jvar].getLevels(); ++k) {
+          // Read data
+          std::vector<double> zvar(ny * nx);
+          if ((retval = nc_get_var_double(ncid, var_id[iVarLev], zvar.data()))) {
+            ERR(retval, varLevName[iVarLev]);
+          }
+          ++iVarLev;
+
+          // Copy data
+          for (atlas::idx_t j = 0; j < ny; ++j) {
+            for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
+              atlas::gidx_t gidx = grid.index(i, ny-1-j);
+              varView(gidx, k) = zvar[j*nx + i];
+            }
+          }
+        }
+      }
+
+      // Close file
+      if ((retval = nc_close(ncid))) ERR(retval, ncfilepath);
+    }
+
+    // Scatter data from main processor
+    fs.scatter(globalData, fset_);
+
+    fset_.set_dirty();  // code is too complicated, mark dirty to be safe
   } else {
     throw eckit::UserError("Unknown I/O format", Here());
   }
@@ -1016,8 +1131,6 @@ void Fields::read(const eckit::Configuration & config) {
   for (auto field : fset_) {
     field.metadata().set("interp_type", "default");
   }
-
-  fset_.set_dirty();
 
   oops::Log::trace() << classname() << "::read done" << std::endl;
 }
@@ -1049,6 +1162,9 @@ void Fields::write(const eckit::Configuration & config) const {
   } else if (ioFormat == "grib") {
     // GRIB format
     throw eckit::NotImplemented("GRIB output not implemented yet", Here());
+  } else if (ioFormat == "arome") {
+    // Default OOPS writer
+    util::writeFieldSet(geom_->getComm(), config, fset);
   } else {
     throw eckit::UserError("Unknown I/O format", Here());
   }

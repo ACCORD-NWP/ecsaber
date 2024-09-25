@@ -45,7 +45,7 @@
              nc1(  4) =                       1017
              ns =                             1443
              v%n_s =                             4
-             c%n_s[global] =                 33335
+             c%n_s[global] =                 29535
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    3914.86 km (   3367.89 km -    4494.58 km)
                 Estimated nc1 from horizontal support radius:      345
@@ -79,7 +79,7 @@
              nc1(  4) =                       3170
              ns =                             5101
              v%n_s =                             4
-             c%n_s[global] =                130057
+             c%n_s[global] =                113930
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    2446.79 km (   2104.93 km -    2809.11 km)
                 Estimated nc1 from horizontal support radius:      885
@@ -113,7 +113,7 @@
              nc1(  4) =                       3170
              ns =                             8117
              v%n_s =                             4
-             c%n_s[global] =                184932
+             c%n_s[global] =                166291
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    6979.70 km (   5738.28 km -    8326.49 km)
                 Estimated nc1 from horizontal support radius:      108
@@ -145,7 +145,7 @@
              nc1(  4) =                        809
              ns =                             1303
              v%n_s =                             4
-             c%n_s[global] =                 13894
+             c%n_s[global] =                 11869
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    3283.25 km (   2699.29 km -    3916.78 km)
                 Estimated nc1 from horizontal support radius:      491
@@ -179,7 +179,7 @@
              nc1(  4) =                       3170
              ns =                             5409
              v%n_s =                             4
-             c%n_s[global] =                 74258
+             c%n_s[global] =                 64171
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    2052.03 km (   1687.05 km -    2447.99 km)
                 Estimated nc1 from horizontal support radius:     1258
@@ -213,7 +213,7 @@
              nc1(  4) =                       3170
              ns =                             8904
              v%n_s =                             4
-             c%n_s[global] =                 81195
+             c%n_s[global] =                 67200
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    2383.66 km (   1925.30 km -    2795.75 km)
                 Estimated nc1 from horizontal support radius:      932
@@ -249,7 +249,7 @@
              nc1(  4) =                       3170
              ns =                             8701
              v%n_s =                             4
-             c%n_s[global] =                 95558
+             c%n_s[global] =                 75627
              Effective levels:   1   2   3   4 
                 Horizontal support radius:    1121.28 km (    905.66 km -    1315.12 km)
                 Estimated nc1 from horizontal support radius:     4216
@@ -289,7 +289,7 @@
              nc1(  4) =                       3170
              ns =                            12680
              v%n_s =                             4
-             c%n_s[global] =                 77988
+             c%n_s[global] =                 67476
              Effective levels:   1   2   3   4 
                 Horizontal support radius:     700.80 km (    566.04 km -     821.95 km)
                 Estimated nc1 from horizontal support radius:    10794
@@ -329,7 +329,7 @@
              nc1(  4) =                       3170
              ns =                            12680
              v%n_s =                             4
-             c%n_s[global] =                 34356
+             c%n_s[global] =                 32196
     Full NICAS adjoint test result:                        T
        Block NICAS adjoint test result:                    T
           Interpolation adjoint test (horizontal) result:  T
@@ -410,9 +410,9 @@
              Min / max: 1.0000000 /  1.0000000 over     10 tests
              Min / max: 1.0000000 /  1.0000000 over     10 tests
              0.0 /   -2.0:  1.0000000
-          Level   1:  0.0000000 -  0.0402739
-          Level   2:  0.0000000 -  0.1079611
-          Level   3:  0.0000000 -  0.2716527
+          Level   1:  0.0000000 -  0.0276427
+          Level   2:  0.0000000 -  0.0938883
+          Level   3:  0.0000000 -  0.2669424
           Level   4:  0.0000000 -  1.0000000
              0.0 /   -2.0:  0.0000000
           Level   1:  0.0000000 -  0.0000000
@@ -436,7 +436,7 @@
              nc1(  1) =                       3170
              ns =                             3170
              v%n_s =                             1
-             c%n_s[global] =                 36290
+             c%n_s[global] =                 32402
              Effective levels:   1 
                 Horizontal support radius:     534.52 km (    442.11 km -     649.22 km)
                 Estimated nc1 from horizontal support radius:    18553
@@ -501,4 +501,4 @@ Norm of output parameter cor_rh - 3: 2.7847846883856916e+08
 Norm of output parameter cor_rv - 1: 1.3396492944638217e+03
 Norm of output parameter cor_rv - 2: 1.3396492944638217e+03
 Norm of output parameter cor_rv - 3: 1.3396492944638217e+03
-Norm of output parameter dirac_nicas - 1: 1.6786706767358059e+00
+Norm of output parameter dirac_nicas - 1: 1.5662382319268864e+00

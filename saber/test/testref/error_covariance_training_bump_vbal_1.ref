@@ -5,26 +5,26 @@
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-          Norm of stream_function:  0.34934727E+02
-          Norm of velocity_potential:  0.33277957E+02
-          Norm of stream_function:  0.35520041E+02
-          Norm of velocity_potential:  0.37535701E+02
-          Norm of stream_function:  0.34153362E+02
-          Norm of velocity_potential:  0.37485676E+02
-          Norm of stream_function:  0.36323707E+02
-          Norm of velocity_potential:  0.35905742E+02
-          Norm of stream_function:  0.35675153E+02
-          Norm of velocity_potential:  0.33924409E+02
-          Norm of stream_function:  0.39648734E+02
-          Norm of velocity_potential:  0.37392671E+02
-          Norm of stream_function:  0.36825333E+02
-          Norm of velocity_potential:  0.34664759E+02
-          Norm of stream_function:  0.41411100E+02
-          Norm of velocity_potential:  0.37093261E+02
-          Norm of stream_function:  0.38499855E+02
-          Norm of velocity_potential:  0.42503555E+02
-          Norm of stream_function:  0.33971185E+02
-          Norm of velocity_potential:  0.36962913E+02
+          Norm of stream_function:  0.36329713E+02
+          Norm of velocity_potential:  0.33366249E+02
+          Norm of stream_function:  0.35739858E+02
+          Norm of velocity_potential:  0.37673118E+02
+          Norm of stream_function:  0.34306861E+02
+          Norm of velocity_potential:  0.37057252E+02
+          Norm of stream_function:  0.36696032E+02
+          Norm of velocity_potential:  0.36111108E+02
+          Norm of stream_function:  0.35648625E+02
+          Norm of velocity_potential:  0.34259494E+02
+          Norm of stream_function:  0.39533091E+02
+          Norm of velocity_potential:  0.36748565E+02
+          Norm of stream_function:  0.36041687E+02
+          Norm of velocity_potential:  0.35171704E+02
+          Norm of stream_function:  0.40971253E+02
+          Norm of velocity_potential:  0.37057587E+02
+          Norm of stream_function:  0.39332890E+02
+          Norm of velocity_potential:  0.41005722E+02
+          Norm of stream_function:  0.34929659E+02
+          Norm of velocity_potential:  0.38326363E+02
           Level   1 ~> 100.0%
           Level   2 ~> 100.0%
           Decimate full grid, at least      500 points required,     762 valid points found
@@ -42,13 +42,13 @@
        Vertical balance direct adjoint test results:  T
        Vertical balance inverse adjoint test results: T
 Norm of output parameter dirac_vbal - 1: 1.0000000000000000e+00
-Norm of ensemble member 0: 5.1161780676050121e+01
-Norm of ensemble member 1: 5.5841616845306199e+01
-Norm of ensemble member 2: 5.2470629242608140e+01
-Norm of ensemble member 3: 5.3432761286856341e+01
-Norm of ensemble member 4: 5.0848143148158705e+01
-Norm of ensemble member 5: 5.6307669817862866e+01
-Norm of ensemble member 6: 5.3466177087131818e+01
-Norm of ensemble member 7: 5.6185246734445066e+01
-Norm of ensemble member 8: 6.1588845477575887e+01
-Norm of ensemble member 9: 5.3624002917842937e+01
+Norm of ensemble member 0: 5.1446149408382368e+01
+Norm of ensemble member 1: 5.5336282368404156e+01
+Norm of ensemble member 2: 5.1508420595798576e+01
+Norm of ensemble member 3: 5.4061569042321622e+01
+Norm of ensemble member 4: 5.2086183260697737e+01
+Norm of ensemble member 5: 5.6782175595335438e+01
+Norm of ensemble member 6: 5.3036268475190447e+01
+Norm of ensemble member 7: 5.7908251714753696e+01
+Norm of ensemble member 8: 6.0965717499374115e+01
+Norm of ensemble member 9: 5.2326770621210841e+01

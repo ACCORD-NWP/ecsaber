@@ -23,8 +23,6 @@
 
 #include "saber/interpolation/AtlasInterpWrapper.h"
 
-#include "src/InterpElement.h"
-
 namespace atlas {
   class Field;
   class Grid;
@@ -32,8 +30,6 @@ namespace atlas {
     class Partitioner;
   }
 }
-
-using atlas::interpolation::element::InterpElement;
 
 namespace quench {
 
@@ -63,9 +59,13 @@ class Interpolation {
 
   // Vertical interpolation
   void insertVerticalInterpolation(const std::string &,
-                                   const std::vector<InterpElement> &);
-  std::vector<InterpElement> & verticalInterpolation(const std::string & var)
-    {return verInterps_[var];}
+                                   const std::vector<std::array<size_t, 2>> &,
+                                   const std::vector<std::array<double, 2>> &,
+                                   const std::vector<size_t> &);
+  void executeVertical(const atlas::FieldSet &,
+                       atlas::FieldSet &) const;
+  void executeVerticalAdjoint(atlas::FieldSet &,
+                              const atlas::FieldSet &) const;
 
   // Accessors
   const std::string & srcUid() const
@@ -90,7 +90,9 @@ class Interpolation {
   std::shared_ptr<atlas::Interpolation> regionalInterp_;
 
   // Vertical interpolations
-  std::unordered_map<std::string, std::vector<InterpElement>> verInterps_;
+  std::unordered_map<std::string, std::vector<std::array<size_t, 2>>> verStencil_;
+  std::unordered_map<std::string, std::vector<std::array<double, 2>>> verWeights_;
+  std::unordered_map<std::string, std::vector<size_t>> verStencilSize_;
 };
 
 }  // namespace quench

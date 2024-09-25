@@ -5,81 +5,81 @@
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-          Norm of stream_function:  0.36700228E+02
-          Norm of velocity_potential:  0.35353147E+02
-          Norm of surface_pressure:  0.27281000E+02
-          Norm of stream_function:  0.37644642E+02
-          Norm of velocity_potential:  0.37381124E+02
-          Norm of surface_pressure:  0.25731042E+02
-          Norm of stream_function:  0.35734364E+02
-          Norm of velocity_potential:  0.37185775E+02
-          Norm of surface_pressure:  0.26375987E+02
-          Norm of stream_function:  0.38114699E+02
-          Norm of velocity_potential:  0.36980118E+02
-          Norm of surface_pressure:  0.27871170E+02
-          Norm of stream_function:  0.37597046E+02
-          Norm of velocity_potential:  0.35291264E+02
-          Norm of surface_pressure:  0.24572890E+02
-          Norm of stream_function:  0.40731181E+02
-          Norm of velocity_potential:  0.40443048E+02
-          Norm of surface_pressure:  0.23602596E+02
-          Norm of stream_function:  0.36903096E+02
-          Norm of velocity_potential:  0.36253200E+02
-          Norm of surface_pressure:  0.27485076E+02
-          Norm of stream_function:  0.41763852E+02
-          Norm of velocity_potential:  0.37787495E+02
-          Norm of surface_pressure:  0.30811979E+02
-          Norm of stream_function:  0.38909547E+02
-          Norm of velocity_potential:  0.43195848E+02
-          Norm of surface_pressure:  0.25551308E+02
-          Norm of stream_function:  0.34730147E+02
-          Norm of velocity_potential:  0.38276016E+02
-          Norm of surface_pressure:  0.25098790E+02
-          Norm of stream_function:  0.38661535E+02
-          Norm of velocity_potential:  0.37981886E+02
-          Norm of surface_pressure:  0.26868750E+02
-          Norm of stream_function:  0.39192538E+02
-          Norm of velocity_potential:  0.42395867E+02
-          Norm of surface_pressure:  0.25788059E+02
-          Norm of stream_function:  0.39358963E+02
-          Norm of velocity_potential:  0.42576643E+02
-          Norm of surface_pressure:  0.26847952E+02
-          Norm of stream_function:  0.42523426E+02
-          Norm of velocity_potential:  0.35248938E+02
-          Norm of surface_pressure:  0.23413912E+02
-          Norm of stream_function:  0.39158719E+02
-          Norm of velocity_potential:  0.38750002E+02
-          Norm of surface_pressure:  0.25705328E+02
-          Norm of stream_function:  0.40000157E+02
-          Norm of velocity_potential:  0.36719844E+02
-          Norm of surface_pressure:  0.25839527E+02
-          Norm of stream_function:  0.40151620E+02
-          Norm of velocity_potential:  0.39539321E+02
-          Norm of surface_pressure:  0.24796585E+02
-          Norm of stream_function:  0.38297785E+02
-          Norm of velocity_potential:  0.38710471E+02
-          Norm of surface_pressure:  0.29153580E+02
-          Norm of stream_function:  0.35928874E+02
-          Norm of velocity_potential:  0.34006160E+02
-          Norm of surface_pressure:  0.27873824E+02
-          Norm of stream_function:  0.38587629E+02
-          Norm of velocity_potential:  0.34331953E+02
-          Norm of surface_pressure:  0.23931515E+02
-          Norm of stream_function:  0.33406744E+02
-          Norm of velocity_potential:  0.37961691E+02
-          Norm of surface_pressure:  0.25984677E+02
-          Norm of stream_function:  0.38024458E+02
-          Norm of velocity_potential:  0.38811186E+02
-          Norm of surface_pressure:  0.26578555E+02
-          Norm of stream_function:  0.38736793E+02
-          Norm of velocity_potential:  0.39079484E+02
-          Norm of surface_pressure:  0.28975321E+02
-          Norm of stream_function:  0.39699423E+02
-          Norm of velocity_potential:  0.35954315E+02
-          Norm of surface_pressure:  0.26515219E+02
-          Norm of stream_function:  0.39157311E+02
-          Norm of velocity_potential:  0.35991108E+02
-          Norm of surface_pressure:  0.27732166E+02
+          Norm of stream_function:  0.37955976E+02
+          Norm of velocity_potential:  0.35550830E+02
+          Norm of surface_pressure:  0.27635314E+02
+          Norm of stream_function:  0.37318938E+02
+          Norm of velocity_potential:  0.37528306E+02
+          Norm of surface_pressure:  0.25906216E+02
+          Norm of stream_function:  0.35288688E+02
+          Norm of velocity_potential:  0.37132560E+02
+          Norm of surface_pressure:  0.25966544E+02
+          Norm of stream_function:  0.38558384E+02
+          Norm of velocity_potential:  0.37669762E+02
+          Norm of surface_pressure:  0.28499597E+02
+          Norm of stream_function:  0.37289442E+02
+          Norm of velocity_potential:  0.35696191E+02
+          Norm of surface_pressure:  0.24666266E+02
+          Norm of stream_function:  0.40453759E+02
+          Norm of velocity_potential:  0.39600673E+02
+          Norm of surface_pressure:  0.23918966E+02
+          Norm of stream_function:  0.36403143E+02
+          Norm of velocity_potential:  0.36524768E+02
+          Norm of surface_pressure:  0.28453900E+02
+          Norm of stream_function:  0.41709180E+02
+          Norm of velocity_potential:  0.37881133E+02
+          Norm of surface_pressure:  0.29420843E+02
+          Norm of stream_function:  0.40087819E+02
+          Norm of velocity_potential:  0.41939667E+02
+          Norm of surface_pressure:  0.25873724E+02
+          Norm of stream_function:  0.35533473E+02
+          Norm of velocity_potential:  0.39350777E+02
+          Norm of surface_pressure:  0.24785116E+02
+          Norm of stream_function:  0.37892202E+02
+          Norm of velocity_potential:  0.37868819E+02
+          Norm of surface_pressure:  0.26713126E+02
+          Norm of stream_function:  0.39394438E+02
+          Norm of velocity_potential:  0.42432021E+02
+          Norm of surface_pressure:  0.26098820E+02
+          Norm of stream_function:  0.39891410E+02
+          Norm of velocity_potential:  0.42286388E+02
+          Norm of surface_pressure:  0.26770841E+02
+          Norm of stream_function:  0.42237628E+02
+          Norm of velocity_potential:  0.35312887E+02
+          Norm of surface_pressure:  0.24250696E+02
+          Norm of stream_function:  0.36847820E+02
+          Norm of velocity_potential:  0.38354213E+02
+          Norm of surface_pressure:  0.26279233E+02
+          Norm of stream_function:  0.39104007E+02
+          Norm of velocity_potential:  0.37490026E+02
+          Norm of surface_pressure:  0.25730167E+02
+          Norm of stream_function:  0.40799882E+02
+          Norm of velocity_potential:  0.39979240E+02
+          Norm of surface_pressure:  0.24948219E+02
+          Norm of stream_function:  0.39035668E+02
+          Norm of velocity_potential:  0.37591435E+02
+          Norm of surface_pressure:  0.29376150E+02
+          Norm of stream_function:  0.37169967E+02
+          Norm of velocity_potential:  0.34612708E+02
+          Norm of surface_pressure:  0.27624179E+02
+          Norm of stream_function:  0.38917347E+02
+          Norm of velocity_potential:  0.34079061E+02
+          Norm of surface_pressure:  0.23791338E+02
+          Norm of stream_function:  0.34520982E+02
+          Norm of velocity_potential:  0.37824212E+02
+          Norm of surface_pressure:  0.26486722E+02
+          Norm of stream_function:  0.38106704E+02
+          Norm of velocity_potential:  0.38138243E+02
+          Norm of surface_pressure:  0.26464521E+02
+          Norm of stream_function:  0.38983946E+02
+          Norm of velocity_potential:  0.39296465E+02
+          Norm of surface_pressure:  0.28458938E+02
+          Norm of stream_function:  0.39919104E+02
+          Norm of velocity_potential:  0.36039587E+02
+          Norm of surface_pressure:  0.25233918E+02
+          Norm of stream_function:  0.38869054E+02
+          Norm of velocity_potential:  0.35786724E+02
+          Norm of surface_pressure:  0.27298297E+02
           Level   1 ~> 100.0%
           Level   2 ~> 100.0%
           Decimate full grid, at least      500 points required,     762 valid points found
@@ -136,39 +136,39 @@
           Independent levels for angular sector   4 / class  10:  1[2]
                 Level:   1 ~> cov. at class zero:  0.98E+00
                 Level:   2 ~> cov. at class zero:  0.10E+01
-                Level:   1 ~> cov. at class zero:  0.98E+00
+                Level:   1 ~> cov. at class zero:  0.97E+00
                 Level:   2 ~> cov. at class zero:  0.10E+01
-             Block group 1:  0.18859911E+00 for      160 diagnostic points
-             Block group 2:  0.20484715E+00 for      160 diagnostic points
+             Block group 1:  0.16651688E+00 for      160 diagnostic points
+             Block group 2:  0.18099138E+00 for      160 diagnostic points
                    Level:   1 ~> amplitude:        1.00
-                                 cor. hor. support:      3750.94 km
-                                 cor. ver. support:         3.21 vertical units
+                                 cor. hor. support:      3353.73 km
+                                 cor. ver. support:         2.96 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 cor. hor. support:      3845.49 km
-                                 cor. ver. support:         3.21 vertical units
+                                 cor. hor. support:      3497.37 km
+                                 cor. ver. support:         2.96 vertical units
                    Level:   1 ~> amplitude:        1.00
-                                 cor. hor. support:      3878.10 km
-                                 cor. ver. support:         3.17 vertical units
+                                 cor. hor. support:      3609.51 km
+                                 cor. ver. support:         2.92 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 cor. hor. support:      3708.67 km
-                                 cor. ver. support:         3.17 vertical units
-             Block group 1:  0.27498388E+00 for      110 diagnostic points
-             Block group 2:  0.28785963E+00 for      131 diagnostic points
+                                 cor. hor. support:      3361.79 km
+                                 cor. ver. support:         2.92 vertical units
+             Block group 1:  0.26863615E+00 for      110 diagnostic points
+             Block group 2:  0.28634940E+00 for      126 diagnostic points
                 Level:   1 ~> loc. at class zero:       0.92
                 Level:   2 ~> loc. at class zero:       0.92
                    Level:   1 ~> amplitude:        1.00
-                                 loc. hor. support:      5860.79 km
-                                 loc. ver. support:         6.05 vertical units
+                                 loc. hor. support:      5078.22 km
+                                 loc. ver. support:         5.67 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 loc. hor. support:      6249.77 km
-                                 loc. ver. support:         6.06 vertical units
+                                 loc. hor. support:      5210.16 km
+                                 loc. ver. support:         5.66 vertical units
                 Level:   1 ~> loc. at class zero:       0.92
                 Level:   2 ~> loc. at class zero:       0.92
                    Level:   1 ~> amplitude:        1.00
-                                 loc. hor. support:      6400.78 km
-                                 loc. ver. support:         6.02 vertical units
+                                 loc. hor. support:      5631.83 km
+                                 loc. ver. support:         5.68 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 loc. hor. support:      6332.68 km
-                                 loc. ver. support:         6.02 vertical units
-Norm of output parameter loc_rh - 1: 3.9826795964265621e+08
-Norm of output parameter loc_rv - 1: 3.9130950991038134e+02
+                                 loc. hor. support:      5141.68 km
+                                 loc. ver. support:         5.67 vertical units
+Norm of output parameter loc_rh - 1: 3.3908160938169682e+08
+Norm of output parameter loc_rv - 1: 3.6742540535441515e+02

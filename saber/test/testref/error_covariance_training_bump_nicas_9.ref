@@ -16,7 +16,7 @@
              nc1(  2) =                        589
              ns =                             1178
              v%n_s =                             2
-             c%n_s[global] =                 28804
+             c%n_s[global] =                 26864
              Effective levels:   1   2 
                 Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
                 Estimated nc1 from horizontal support radius:      589
@@ -28,7 +28,7 @@
              nc1(  2) =                        589
              ns =                             1178
              v%n_s =                             2
-             c%n_s[global] =                 28804
+             c%n_s[global] =                 26864
     Full NICAS adjoint test result:                        T
        Block NICAS adjoint test result:                    T
           Interpolation adjoint test (horizontal) result:  T
@@ -47,12 +47,12 @@
           Convolution / communication adjoint test result: T
           Component NICAS adjoint test result:             T
              Min / max: 1.0000000 /  1.0000000 over     50 tests
-             Min / max: 0.8073385 /  1.4670308 over     50 tests
+             Min / max: 0.7990393 /  1.3767342 over     50 tests
              Min / max: 1.0000000 /  1.0000000 over     50 tests
-             Min / max: 0.8073385 /  1.4670308 over     50 tests
-             0.0 /    0.0:  1.1169505
-          Level   1:  0.0000000 -  1.1169505
-          Level   2:  0.0000000 -  0.6201234
+             Min / max: 0.7990393 /  1.3767342 over     50 tests
+             0.0 /    0.0:  0.8589343
+          Level   1:  0.0000000 -  0.8589343
+          Level   2:  0.0000000 -  0.5331640
              0.0 /    0.0:  0.0000000
           Level   1:  0.0000000 -  0.0000000
           Level   2:  0.0000000 -  0.0000000

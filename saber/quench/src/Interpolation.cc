@@ -51,14 +51,14 @@ Interpolation::Interpolation(const eckit::Configuration & conf,
 // -----------------------------------------------------------------------------
 
 void Interpolation::execute(const atlas::FieldSet & srcFieldSet,
-                            atlas::FieldSet & targetFieldSet) const {
+                            atlas::FieldSet & tgtFieldSet) const {
   oops::Log::trace() << classname() << "::execute starting" << std::endl;
 
   if (atlasInterpWrapper_) {
-    atlasInterpWrapper_->execute(srcFieldSet, targetFieldSet);
+    atlasInterpWrapper_->execute(srcFieldSet, tgtFieldSet);
   }
   if (regionalInterp_) {
-    regionalInterp_->execute(srcFieldSet, targetFieldSet);
+    regionalInterp_->execute(srcFieldSet, tgtFieldSet);
   }
 
   oops::Log::trace() << classname() << "::execute done" << std::endl;
@@ -67,14 +67,14 @@ void Interpolation::execute(const atlas::FieldSet & srcFieldSet,
 // -----------------------------------------------------------------------------
 
 void Interpolation::executeAdjoint(atlas::FieldSet & srcFieldSet,
-                                   const atlas::FieldSet & targetFieldSet) const {
+                                   const atlas::FieldSet & tgtFieldSet) const {
   oops::Log::trace() << classname() << "::executeAdjoint starting" << std::endl;
 
   if (atlasInterpWrapper_) {
-    atlasInterpWrapper_->executeAdjoint(srcFieldSet, targetFieldSet);
+    atlasInterpWrapper_->executeAdjoint(srcFieldSet, tgtFieldSet);
   }
   if (regionalInterp_) {
-    regionalInterp_->execute_adjoint(srcFieldSet, targetFieldSet);
+    regionalInterp_->execute_adjoint(srcFieldSet, tgtFieldSet);
   }
 
   oops::Log::trace() << classname() << "::executeAdjoint done" << std::endl;
@@ -82,16 +82,65 @@ void Interpolation::executeAdjoint(atlas::FieldSet & srcFieldSet,
 
 // -----------------------------------------------------------------------------
 
+
 void Interpolation::insertVerticalInterpolation(const std::string & var,
-                                                const std::vector<InterpElement> & item) {
+                                                const std::vector<std::array<size_t, 2>> & stencil,
+                                                const std::vector<std::array<double, 2>> & weights,
+                                                const std::vector<size_t> & stencilSize) {
   oops::Log::trace() << classname() << "::insertVerticalInterpolation starting" << std::endl;
 
-  if (verInterps_.find(var) != verInterps_.end()) {
+  if (verStencil_.find(var) != verStencil_.end()) {
     throw eckit::Exception("vertical interpolation already computed for this variables");
   }
-  verInterps_.insert({var, item});
+  ASSERT(stencil.size() == stencilSize.size());
+  ASSERT(weights.size() == stencilSize.size());
+  verStencil_.insert({var, stencil});
+  verWeights_.insert({var, weights});
+  verStencilSize_.insert({var, stencilSize});
 
   oops::Log::trace() << classname() << "::insertVerticalInterpolation starting" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void Interpolation::executeVertical(const atlas::FieldSet & srcFieldSet,
+                                    atlas::FieldSet & tgtFieldSet) const {
+  oops::Log::trace() << classname() << "::executeVertical starting" << std::endl;
+
+  for (auto & tgtField : tgtFieldSet) {
+    const std::string var = tgtField.name();
+    const auto srcView = atlas::array::make_view<double, 2>(srcFieldSet[var]);
+    auto tgtView = atlas::array::make_view<double, 1>(tgtField);
+    tgtView.assign(0.0);
+    for (size_t jo = 0; jo < verStencilSize_.at(var).size(); ++jo) {
+      for (size_t jj = 0; jj < verStencilSize_.at(var)[jo]; ++jj) {
+        tgtView(jo) += verWeights_.at(var)[jo][jj]*srcView(jo, verStencil_.at(var)[jo][jj]);
+      }
+    }
+  }
+
+  oops::Log::trace() << classname() << "::executeVertical done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void Interpolation::executeVerticalAdjoint(atlas::FieldSet & srcFieldSet,
+                                           const atlas::FieldSet & tgtFieldSet) const {
+  oops::Log::trace() << classname() << "::executeVerticalAdjoint starting" << std::endl;
+
+  for (const auto & tgtField : tgtFieldSet) {
+    const std::string var = tgtField.name();
+    auto srcView = atlas::array::make_view<double, 2>(srcFieldSet[var]);
+    const auto tgtView = atlas::array::make_view<double, 1>(tgtField);
+    srcView.assign(0.0);
+    for (size_t jo = 0; jo < verStencilSize_.at(var).size(); ++jo) {
+      for (size_t jj = 0; jj < verStencilSize_.at(var)[jo]; ++jj) {
+        srcView(jo, verStencil_.at(var)[jo][jj]) += verWeights_.at(var)[jo][jj]*tgtView(jo);
+      }
+    }
+  }
+
+  oops::Log::trace() << classname() << "::executeVerticalAdjoint done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

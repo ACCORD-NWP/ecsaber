@@ -16,7 +16,7 @@
              nc1(  2) =                        192
              ns =                              384
              v%n_s =                             2
-             c%n_s[global] =                  5256
+             c%n_s[global] =                  4872
 Member 0: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -34,7 +34,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.1000166812739742e+01
+  stream_function: 4.1304563305620391e+01
 Member 1: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -52,7 +52,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 5.0398058983677210e+01
+  stream_function: 4.9790688755959920e+01
 Member 2: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -70,7 +70,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.0992509368645408e+01
+  stream_function: 4.0714226274166187e+01
 Member 3: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -88,7 +88,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.2865203381967440e+01
+  stream_function: 4.2997415051218823e+01
 Member 4: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -106,7 +106,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.1748121138804635e+01
+  stream_function: 4.1884094932674664e+01
 Member 5: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -124,7 +124,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 3.9135987051411504e+01
+  stream_function: 3.9222537285644115e+01
 Member 6: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -142,7 +142,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 3.3368845163137898e+01
+  stream_function: 3.3454419319064961e+01
 Member 7: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -160,7 +160,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 3.9132613514828485e+01
+  stream_function: 3.9420711772144656e+01
 Member 8: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -178,7 +178,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.1095038279949513e+01
+  stream_function: 4.1216036206538924e+01
 Member 9: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -196,7 +196,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.5877298040484078e+01
+  stream_function: 4.5590912536717049e+01
 Member 10: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -214,7 +214,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.3299147696760421e+01
+  stream_function: 4.2750782397450209e+01
 Member 11: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -232,7 +232,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 3.9572512099982049e+01
+  stream_function: 3.9773639900520266e+01
 Member 12: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -250,7 +250,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.4424524578308713e+01
+  stream_function: 4.4070899066232492e+01
 Member 13: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -268,7 +268,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.4200566393433178e+01
+  stream_function: 4.4155963517011934e+01
 Member 14: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -286,7 +286,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 3.7497712169969759e+01
+  stream_function: 3.7711428044169338e+01
 Member 15: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -304,7 +304,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.2067092250865954e+01
+  stream_function: 4.2631102591339712e+01
 Member 16: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -322,7 +322,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.0667742561449991e+01
+  stream_function: 4.0355149306790338e+01
 Member 17: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -340,7 +340,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.0262173197523964e+01
+  stream_function: 3.9926499398446062e+01
 Member 18: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -358,7 +358,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.3345593119673161e+01
+  stream_function: 4.3478405933234583e+01
 Member 19: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -376,7 +376,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.1756247961264947e+01
+  stream_function: 4.2250242888795320e+01
 Member 20: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -394,7 +394,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 3.8701672616268290e+01
+  stream_function: 3.8934873063375328e+01
 Member 21: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -412,7 +412,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 3.7439577526059587e+01
+  stream_function: 3.7474401721739895e+01
 Member 22: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -430,7 +430,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.0610337884820254e+01
+  stream_function: 4.0488601897707689e+01
 Member 23: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -448,7 +448,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.4028087844170805e+01
+  stream_function: 4.5215613417678149e+01
 Member 24: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -466,4 +466,4 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  stream_function: 4.5278953578556930e+01
+  stream_function: 4.5071598416253536e+01

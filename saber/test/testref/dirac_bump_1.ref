@@ -42,6 +42,22 @@ Fields:
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
+       Accuracy tests:
+          Wavenumber:  1
+             - psi/chi to u:  89.76377%
+             - psi/chi to v:  89.76376%
+          Wavenumber:  2
+             - psi/chi to u:  75.59054%
+             - psi/chi to v:  75.59054%
+          Wavenumber:  3
+             - psi/chi to u:  89.76377%
+             - psi/chi to v:  89.76377%
+          Wavenumber:  4
+             - psi/chi to u:  67.19160%
+             - psi/chi to v:  83.98950%
+          Wavenumber:  5
+             - psi/chi to u:  39.37007%
+             - psi/chi to v:  39.37007%
 Adjoint test for block BUMP_PsiChiToUV passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -54,7 +70,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7539391781678255e+01
+Norm of input parameter StdDev: 5.7713424142713876e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -71,7 +87,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.7539391781678255e+01
+Norm of input parameter stddev - 1: 5.7713424142713876e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -106,8 +122,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 9.9286541982331791e+00
-  northward_wind: 3.1752229729236148e+00
+  eastward_wind: 7.7889088634610397e+00
+  northward_wind: 1.8602772965862855e+00
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -124,8 +140,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.2707840177776122e+00
-  northward_wind: 1.7998957702083997e+00
+  eastward_wind: 1.8340893134195742e+00
+  northward_wind: 2.4160655365981172e+00
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -133,6 +149,22 @@ Fields:
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
+       Accuracy tests:
+          Wavenumber:  1
+             - psi/chi to u:  89.76377%
+             - psi/chi to v:  89.76376%
+          Wavenumber:  2
+             - psi/chi to u:  75.59054%
+             - psi/chi to v:  75.59054%
+          Wavenumber:  3
+             - psi/chi to u:  89.76377%
+             - psi/chi to v:  89.76377%
+          Wavenumber:  4
+             - psi/chi to u:  67.19160%
+             - psi/chi to v:  83.98950%
+          Wavenumber:  5
+             - psi/chi to u:  39.37007%
+             - psi/chi to v:  39.37007%
 Adjoint test for block BUMP_PsiChiToUV passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -145,7 +177,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7539391781678255e+01
+Norm of input parameter StdDev: 5.7713424142713876e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -162,7 +194,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.7539391781678255e+01
+Norm of input parameter stddev - 1: 5.7713424142713876e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -190,8 +222,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 8.9637016223071983e-14
-  northward_wind: 2.6916848772841084e-14
+  eastward_wind: 2.9664824928771610e-12
+  northward_wind: 1.4446599010701732e-12
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -208,8 +240,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 8.9637016223071983e-14
-  northward_wind: 2.6916848772841084e-14
+  eastward_wind: 2.9664824928771610e-12
+  northward_wind: 1.4446599010701732e-12
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -234,8 +266,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 3.1771693434345925e+00
-  northward_wind: 1.0160713513355568e+00
+  eastward_wind: 2.4924508363055611e+00
+  northward_wind: 5.9528873490754164e-01
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -252,8 +284,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 7.2665088568883618e-01
-  northward_wind: 5.7596664646668794e-01
+  eastward_wind: 5.8690858029388371e-01
+  northward_wind: 7.7314097171158347e-01
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -263,7 +295,7 @@ Fields:
              Level   2 ~>  0.200E+01 vert. coord.
 Localization(hybrid2_ensemble_localization) diagnostics:
 - Localization at zero separation:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999989e-01
 Localization(hybrid2_ensemble) * Increment:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -281,8 +313,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.2517366841554374e+00
-  northward_wind: 2.2517366841554374e+00
+  eastward_wind: 1.8682204526235258e+00
+  northward_wind: 1.8682204526235258e+00
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -299,5 +331,5 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.2517366841554374e+00
-  northward_wind: 2.2517366841554374e+00
+  eastward_wind: 1.8682204526235258e+00
+  northward_wind: 1.8682204526235258e+00

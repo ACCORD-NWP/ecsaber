@@ -93,18 +93,7 @@ void Fields::interpolate(const Locations & locs,
     interpolation->execute(fset, obsFieldSet);
 
     // Vertical interpolation
-    for (const auto & var : vars_.variablesList()) {
-      const auto obsView = atlas::array::make_view<double, 2>(obsFieldSet[var]);
-      auto gvView = atlas::array::make_view<double, 1>(gv.fieldSet()[var]);
-      gvView.assign(0.0);
-      const std::vector<InterpElement> & verInterp
-        = interpolation->verticalInterpolation(var);
-      for (int jo = 0; jo < locs.size(); ++jo) {
-        for (const auto & operation : verInterp[jo].operations()) {
-          gvView(jo) += operation.second*obsView(jo, operation.first);
-        }
-      }
-    }
+    interpolation->executeVertical(obsFieldSet, gv.fieldSet());
   }
 
   oops::Log::trace() << classname() << "::interpolate done" << std::endl;
@@ -128,19 +117,8 @@ void Fields::interpolateAD(const Locations & locs,
       obsFieldSet.add(obsField);
     }
 
-    // Vertical interpolation adjoint
-    for (const auto & var : vars_.variablesList()) {
-      const auto gvView = atlas::array::make_view<double, 1>(gv.fieldSet()[var]);
-      auto obsView = atlas::array::make_view<double, 2>(obsFieldSet[var]);
-      obsView.assign(0.0);
-      const std::vector<InterpElement> & verInterp
-        = interpolation->verticalInterpolation(var);
-      for (int jo = 0; jo < locs.size(); ++jo) {
-        for (const auto & operation : verInterp[jo].operations()) {
-          obsView(jo, operation.first) += operation.second*gvView(jo);
-        }
-      }
-    }
+    // Vertical interpolation
+    interpolation->executeVerticalAdjoint(obsFieldSet, gv.fieldSet());
 
     // Horizontal interpolation
     interpolation->executeAdjoint(fset_, obsFieldSet);
@@ -305,12 +283,16 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
   for (const auto & var : vars_.variablesList()) {
     const std::string vertCoordName = "vert_coord_" + std::to_string(geom_->groupIndex(var));
     const auto vert_coordView = atlas::array::make_view<double, 2>(fsetInterp[vertCoordName]);
-    std::vector<InterpElement> verInterp;
+    std::vector<std::array<size_t, 2>> verStencil;
+    std::vector<std::array<double, 2>> verWeights;
+    std::vector<size_t> verStencilSize;
+    verStencil.resize(locs.size());
+    verWeights.resize(locs.size());
+    verStencilSize.resize(locs.size());
     for (int jo = 0; jo < locs.size(); ++jo) {
-      std::vector<std::pair<size_t, double>> operations;
       if (geom_->levels(var) == 1) {
         // No vertical interpolation
-        operations.push_back(std::make_pair(0, 1.0));
+        verStencilSize[jo] = 0;
       } else {
         // Linear vertical interpolation
         const double z = locs[jo][2];
@@ -345,15 +327,22 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
           }
         }
         if (kinf == ksup) {
-          operations.push_back(std::make_pair(kinf, 1.0));
+          verStencil[jo][0] = kinf;
+          verWeights[jo][0] = 1.0;
+          verStencilSize[jo] = 1;
         } else {
-          operations.push_back(std::make_pair(kinf, (zsup-z)/(zsup-zinf)));
-          operations.push_back(std::make_pair(ksup, (z-zinf)/(zsup-zinf)));
+          verStencil[jo][0] = kinf;
+          verWeights[jo][0] = (zsup-z)/(zsup-zinf);
+          verStencil[jo][1] = ksup;
+          verWeights[jo][1] = (z-zinf)/(zsup-zinf);
+          verStencilSize[jo] = 2;
         }
       }
-      verInterp.push_back(InterpElement(operations));
     }
-    interpolation.insertVerticalInterpolation(var, verInterp);
+    interpolation.insertVerticalInterpolation(var,
+                                              verStencil,
+                                              verWeights,
+                                              verStencilSize);
   }
 
   // Insert new interpolation
