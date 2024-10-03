@@ -67,7 +67,7 @@ void Increment::diff(const State & x1,
 Increment & Increment::operator=(const Increment & rhs) {
   oops::Log::trace() << classname() << "::operator= starting" << std::endl;
 
-  *fields_ = *rhs.fields_;
+  fields_.reset(new Fields(*rhs.fields_));
 
   oops::Log::trace() << classname() << "::operator= done" << std::endl;
   return *this;

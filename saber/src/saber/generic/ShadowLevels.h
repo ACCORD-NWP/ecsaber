@@ -107,7 +107,6 @@ class ShadowLevels : public SaberOuterBlockBase {
     override;
 
  private:
-  const util::DateTime validTime_;
   const oops::GeometryData & gdata_;
   const eckit::mpi::Comm & comm_;
   oops::JediVariables outerVars_;

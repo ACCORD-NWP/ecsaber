@@ -67,8 +67,7 @@ State::State(const Geometry & resol,
 State & State::operator=(const State & rhs) {
   oops::Log::trace() << classname() << "::operator= starting" << std::endl;
 
-  ASSERT(fields_);
-  *fields_ = *rhs.fields_;
+  fields_.reset(new Fields(*rhs.fields_));
   return *this;
 
   oops::Log::trace() << classname() << "::operator= done" << std::endl;

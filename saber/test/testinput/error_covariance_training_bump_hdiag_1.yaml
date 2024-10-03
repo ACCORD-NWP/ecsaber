@@ -58,7 +58,7 @@ background error:
         distance class width: 800.0e3
         reduced levels: 2
         local diagnostic: true
-        averaging length-scale: 2000.0e3
+        averaging length-scale: 1000.0e3
       fit:
         horizontal filtering length-scale: 3000.0e3
         number of components: 2

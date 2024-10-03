@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp	2024-07-19 08:41:30.079708763 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2024-07-15 14:03:30.098175342 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp.bak	2024-10-03 15:19:12.446116323 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2024-10-03 15:21:08.099621973 +0200
 @@ -30,6 +30,7 @@
  #include "oops/util/Printable.h"
  
@@ -8,7 +8,7 @@
  
  // Forward declaration
  namespace oops {
-@@ -225,12 +226,17 @@
+@@ -227,12 +228,17 @@
    // Read fieldsets as increments
    std::vector<oops::FieldSet3D> fsetVec;
    for (const auto & input : this->getReadConfs()) {
@@ -28,7 +28,7 @@
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -250,8 +256,9 @@
+@@ -252,8 +258,9 @@
  
    // Write fieldsets as increments
    for (const auto & output : outputs) {

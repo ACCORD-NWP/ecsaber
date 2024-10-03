@@ -122,7 +122,10 @@ Fields::Fields(const Fields & other,
 
     // Set interpolation type
     for (auto field : fset_) {
-      field.metadata().set("interp_type", "default");
+      field.metadata() = other.fset_[field.name()].metadata();
+      if (!field.metadata().has("interp_type")) {
+        field.metadata().set("interp_type", "default");
+      }
     }
 
     // Copy fieldset
@@ -154,7 +157,10 @@ Fields::Fields(const Fields & other,
 
   // Set interpolation type
   for (auto field : fset_) {
-    field.metadata().set("interp_type", "default");
+    field.metadata() = other.fset_[field.name()].metadata();
+    if (!field.metadata().has("interp_type")) {
+      field.metadata().set("interp_type", "default");
+    }
   }
 
   // Set fields to zero
@@ -209,7 +215,10 @@ Fields::Fields(const Fields & other)
 
   // Set interpolation type
   for (auto field : fset_) {
-    field.metadata().set("interp_type", "default");
+    field.metadata() = other.fset_[field.name()].metadata();
+    if (!field.metadata().has("interp_type")) {
+      field.metadata().set("interp_type", "default");
+    }
   }
 
   oops::Log::trace() << classname() << "::Fields done" << std::endl;
@@ -438,7 +447,6 @@ double Fields::dot_product_with(const Fields & fld2) const {
   oops::Log::trace() << classname() << "::dot_product_with starting" << std::endl;
 
   double zz = 0;
-  const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
   const auto ownedView = atlas::array::make_view<int, 2>(geom_->fields().field("owned"));
   for (const auto & var : vars_) {
     const atlas::Field field1 = fset_[var.name()];
@@ -450,7 +458,7 @@ double Fields::dot_product_with(const Fields & fld2) const {
       const auto view2 = atlas::array::make_view<double, 2>(field2);
       for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
         for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-          if (gmaskView(jnode, jlevel) == 1 && ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
+          if (gmaskView(jnode, jlevel) == 1 && ownedView(jnode, 0) == 1) {
             zz += view1(jnode, jlevel)*view2(jnode, jlevel);
           }
         }
@@ -803,7 +811,10 @@ void Fields::toFieldSet(atlas::FieldSet & fset) const {
   fset.clear();
   fset = util::shareFields(fset_);
   for (auto field : fset) {
-    field.metadata().set("interp_type", "default");
+    field.metadata() = fset_[field.name()].metadata();
+    if (!field.metadata().has("interp_type")) {
+      field.metadata().set("interp_type", "default");
+    }
     field.set_dirty(fset_[field.name()].dirty());
   }
 

@@ -1018,9 +1018,6 @@ void readFieldSet(const eckit::mpi::Comm & comm,
         // Get latitude direction in file
         const bool latSouthToNorth = config.getBool("latitude south to north", true);
 
-        // NetCDF IDs
-        int ncid, retval, var_id[vars.size()];
-
         oops::Log::info() << "Info     : Reading file: " << ncfilepath << std::endl;
 
         // Open NetCDF file
@@ -1064,9 +1061,6 @@ void readFieldSet(const eckit::mpi::Comm & comm,
       const atlas::idx_t nb_nodes = fs.nb_nodes_global();
 
       if (comm.rank() == 0) {
-        // NetCDF IDs
-        int ncid, retval, var_id[vars.size()];
-
         oops::Log::info() << "Info     : Reading file: " << ncfilepath << std::endl;
 
         // Open NetCDF file
@@ -1742,8 +1736,6 @@ void readFieldSet(const eckit::mpi::Comm & comm,
   }
   readFieldSet(comm, fspace, variableSizes, vars.variables(), config, fset);
 }
-
-
 
 // -----------------------------------------------------------------------------
 

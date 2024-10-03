@@ -48,8 +48,8 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
  public:
   explicit SaberOuterBlockBase(const SaberBlockParametersBase & params,
                                const util::DateTime & validTime)
-    : blockName_(params.saberBlockName), skipInverse_(params.skipInverse),
-      filterMode_(params.filterMode), validTime_(validTime) {}
+    : validTime_(validTime), blockName_(params.saberBlockName), skipInverse_(params.skipInverse),
+      filterMode_(params.filterMode) {}
   virtual ~SaberOuterBlockBase() {}
 
   // Accessor
@@ -175,11 +175,13 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
                    const double &,
                    const double &) const;
 
+ protected:
+  const util::DateTime validTime_;
+
  private:
   const std::string blockName_;
   const bool skipInverse_;
   const bool filterMode_;
-  const util::DateTime validTime_;
   virtual void print(std::ostream &) const = 0;
 };
 

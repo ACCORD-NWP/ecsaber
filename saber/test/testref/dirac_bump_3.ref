@@ -192,7 +192,7 @@ Groups:
   Mask size: 100%
 Fields:
   eastward_wind: 2.9664824928771610e-12
-  northward_wind: 1.4446599010701732e-12
+  northward_wind: 1.4446599010701730e-12
 Norm of input parameter inflation: 6.9558608381710329e+01
 Norm of input parameter StdDev: 1.7389652095427326e+02
        Independent levels:  1[2]

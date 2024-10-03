@@ -75,8 +75,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 1.2092028610363344e-06
-  northward_wind: 1.1841205518998257e-06
+  eastward_wind: 1.2092028610363346e-06
+  northward_wind: 1.1841205518998259e-06
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -93,5 +93,5 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 1.2092028610363344e-06
-  northward_wind: 1.1841205518998257e-06
+  eastward_wind: 1.2092028610363346e-06
+  northward_wind: 1.1841205518998259e-06

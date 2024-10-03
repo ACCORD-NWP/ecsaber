@@ -39,7 +39,6 @@ ShadowLevels::ShadowLevels(const oops::GeometryData & outerGeometryData,
                            const oops::FieldSet3D & xb,
                            const oops::FieldSet3D & fg)
   : SaberOuterBlockBase(params, xb.validTime()),
-    validTime_(xb.validTime()),
     gdata_(outerGeometryData),
     comm_(gdata_.comm()),
     outerVars_(outerVars),
