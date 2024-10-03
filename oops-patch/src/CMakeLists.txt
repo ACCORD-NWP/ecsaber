@@ -135,7 +135,7 @@ util/Timer.h
 
 foreach( src_file ${oops_ecmwf_src_files} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-                     ${CMAKE_SOURCE_DIR}/oops/src/${src_file}
+                     ${oops_SOURCE_DIR}/src/${src_file}
                      ${CMAKE_CURRENT_SOURCE_DIR}/oops/${src_file} )
 
     list( APPEND oops-patch_src_files oops/${src_file} )
@@ -147,7 +147,7 @@ util/LibOOPS.h
 
 foreach( src_file ${util-patch_src_files} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-                     ${CMAKE_SOURCE_DIR}/oops/src/${src_file}
+                     ${oops_SOURCE_DIR}/src/${src_file}
                      ${CMAKE_CURRENT_SOURCE_DIR}/${src_file} )
     list( APPEND oops-patch_src_files ${src_file} )
 endforeach()

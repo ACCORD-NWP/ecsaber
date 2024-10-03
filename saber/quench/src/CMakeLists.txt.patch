@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp.bak	2024-09-03 10:47:21.204458414 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt	2024-09-03 10:48:53.820879877 +0200
-@@ -11,16 +11,56 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt.tmp	2024-10-03 16:44:44.139837716 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/CMakeLists.txt	2024-10-03 16:44:23.874738133 +0200
+@@ -11,22 +11,62 @@
  Fields.h
  Geometry.cc
  Geometry.h
@@ -60,8 +60,6 @@
 +Variables.cc
  
  )
- 
-@@ -34,7 +74,7 @@
  
  ecbuild_add_library( TARGET   quench
                       SOURCES  ${quench_src_files}

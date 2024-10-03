@@ -55,6 +55,9 @@ else()
     find_package( atlas 0.33.0 REQUIRED )
 endif()
 
+# OOPS
+find_package( oops REQUIRED )
+
 ## Sources
 add_subdirectory( src )
 
