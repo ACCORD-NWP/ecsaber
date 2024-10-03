@@ -7,6 +7,10 @@
 # ECSABER
 ################################################################################
 
+cmake_minimum_required( VERSION 3.12 )
+
+project( ecsaber VERSION 0.0.1 LANGUAGES CXX Fortran )
+
 # Update flag
 set( ECSABER_UPDATE OFF )
 if( DEFINED ENV{ECSABER_UPDATE} )
@@ -74,12 +78,6 @@ function( patch_apply commandPath )
     endif()
 endfunction()
 
-# QUENCH compilation
-set( ENABLE_QUENCHXX ON )
-if( DEFINED ENV{ENABLE_QUENCHXX} )
-    set( ENABLE_QUENCHXX $ENV{ENABLE_QUENCHXX} )
-endif()
-
 # Download SABER test files
 message( STATUS "Checking SABER test files" )
 set( saber_test_files
@@ -117,6 +115,9 @@ if( NOT EXISTS ${fullpath} )
 endif()
 
 # Add subdirectories
+if( NOT DEFINED ENABLE_QUENCHXX )
+  set( ENABLE_QUENCHXX ON )
+endif()
 add_subdirectory( oops-patch )
 add_subdirectory( vader )
 add_subdirectory( saber )
