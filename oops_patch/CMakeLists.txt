@@ -2,11 +2,11 @@
 #
 
 ################################################################################
-# OOPS-PATCH
+# OOPS_PATCH
 ################################################################################
 
 cmake_minimum_required( VERSION 3.12 )
-project( oops-patch VERSION 0.0.1 LANGUAGES CXX Fortran )
+project( oops_patch VERSION 0.0.1 LANGUAGES CXX Fortran )
 
 option(OPENMP "Build oops with OpenMP support" ON)
 

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp.bak	2024-08-27 12:41:06.079487192 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-08-02 15:43:44.914476932 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp.bak	2024-10-03 17:11:39.129301249 +0200
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-10-03 17:03:51.185426625 +0200
 @@ -3,10 +3,6 @@
  
  include(CMakeFindDependencyMacro)
@@ -11,19 +11,22 @@
  if(@OPENMP@)
      find_dependency(OpenMP REQUIRED COMPONENTS Fortran)
  endif()
-@@ -51,6 +47,11 @@
-     set(saber_oops_FOUND True) #COMPONENT 'oops'
+@@ -46,9 +42,12 @@
+     endif()
  endif()
  
-+if(@oops-patch_FOUND@) # oops-patch_FOUND
-+    find_dependency(oops-patch)
-+    set(saber_oops-patch_FOUND True) #COMPONENT 'oops-patch'
+-if(@oops_FOUND@) # oops_FOUND
++if(NOT oops_FOUND)
+     find_dependency(oops)
+-    set(saber_oops_FOUND True) #COMPONENT 'oops'
 +endif()
 +
++if(NOT oops_patch_FOUND)
++    find_dependency(oops_patch)
+ endif()
+ 
  if(@gsibec_FOUND@) # gsibec_FOUND
-     find_dependency(gsibec)
-     set(saber_gsibec_FOUND True) #COMPONENT 'gsibec'
-@@ -65,10 +66,10 @@
+@@ -65,10 +64,10 @@
      set(saber_vader_FOUND True) #COMPONENT 'vader'
  endif()
  

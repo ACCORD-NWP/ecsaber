@@ -29,7 +29,7 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC eckit )
 target_link_libraries( ${PROJECT_NAME} PUBLIC fckit )
 target_link_libraries( ${PROJECT_NAME} PUBLIC atlas_f )
 target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} )
-target_link_libraries( ${PROJECT_NAME} PUBLIC oops-patch )
+target_link_libraries( ${PROJECT_NAME} PUBLIC oops_patch )
 target_link_libraries( ${PROJECT_NAME} PUBLIC vader )
 
 if( gsibec_FOUND )

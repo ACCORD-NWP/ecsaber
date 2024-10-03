@@ -66,7 +66,7 @@ Variables.cc
 
 ecbuild_add_library( TARGET   quench
                      SOURCES  ${quench_src_files}
-                     PUBLIC_LIBS  oops oops-patch saber
+                     PUBLIC_LIBS  oops oops_patch saber
                      HEADER_DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/quench
                      INSTALL_HEADERS LISTED
                      LINKER_LANGUAGE CXX )
