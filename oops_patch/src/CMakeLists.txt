@@ -111,7 +111,7 @@ foreach( src_file ${oops_jedi_src_files} )
                 ${CMAKE_CURRENT_SOURCE_DIR}/${src_file}
                 ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
 
-    list( APPEND oops-patch_src_files ${src_file} )
+    list( APPEND oops_patch_src_files ${src_file} )
 endforeach()
 patch_apply( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
 
@@ -133,12 +133,16 @@ util/Printable.h
 util/Timer.h
 )
 
+if( NOT DEFINED OOPS_SOURCE_DIR )
+  set( OOPS_SOURCE_DIR ${oops_SOURCE_DIR} )
+endif()
+
 foreach( src_file ${oops_ecmwf_src_files} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-                     ${oops_SOURCE_DIR}/src/${src_file}
+                     ${OOPS_SOURCE_DIR}/src/${src_file}
                      ${CMAKE_CURRENT_SOURCE_DIR}/oops/${src_file} )
 
-    list( APPEND oops-patch_src_files oops/${src_file} )
+    list( APPEND oops_patch_src_files oops/${src_file} )
 endforeach()
 
 list( APPEND util-patch_src_files
@@ -147,13 +151,13 @@ util/LibOOPS.h
 
 foreach( src_file ${util-patch_src_files} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-                     ${oops_SOURCE_DIR}/src/${src_file}
+                     ${OOPS_SOURCE_DIR}/src/${src_file}
                      ${CMAKE_CURRENT_SOURCE_DIR}/${src_file} )
-    list( APPEND oops-patch_src_files ${src_file} )
+    list( APPEND oops_patch_src_files ${src_file} )
 endforeach()
 
-ecbuild_add_library( TARGET          oops-patch
-                     SOURCES         ${oops-patch_src_files}
+ecbuild_add_library( TARGET          oops_patch
+                     SOURCES         ${oops_patch_src_files}
                      PUBLIC_LIBS     NetCDF::NetCDF_Fortran NetCDF::NetCDF_C Eigen3::Eigen eckit fckit atlas_f Boost::boost oops
                      PUBLIC_INCLUDES ${EIGEN3_INCLUDE_DIR}
                                      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

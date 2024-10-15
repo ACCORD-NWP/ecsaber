@@ -34,8 +34,8 @@ find_package( atlas 0.35.0 REQUIRED )
 # oops
 find_package( oops 0.0.0 REQUIRED )
 
-# oops-patch
-find_package( oops-patch 0.0.1 REQUIRED )
+# oops_patch
+find_package( oops_patch 0.0.1 REQUIRED )
 
 # saber
 find_package( saber 0.0.1 REQUIRED )

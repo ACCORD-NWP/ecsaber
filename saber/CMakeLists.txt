@@ -74,7 +74,7 @@ endif()
 
 # OOPS
 find_package( oops REQUIRED )
-find_package( oops-patch REQUIRED )
+find_package( oops_patch REQUIRED )
 
 # Optionals
 find_package( FFTW 3.3.8 QUIET )
