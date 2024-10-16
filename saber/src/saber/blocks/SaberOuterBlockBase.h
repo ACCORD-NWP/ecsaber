@@ -77,7 +77,7 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
 
   // Read block data
   virtual void read()
-    {throw eckit::NotImplemented("read not implemented yet for the block " + this->blockName());}
+    {throw eckit::NotImplemented("read not implemented yet for the block " + this->blockName(), Here());}
 
   // Read model fields
   virtual std::vector<std::pair<std::string, eckit::LocalConfiguration>> getReadConfs() const
