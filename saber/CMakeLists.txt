@@ -48,7 +48,7 @@ if(OPENMP)
 endif()
 find_package( MPI REQUIRED COMPONENTS Fortran )
 find_package( NetCDF REQUIRED COMPONENTS C Fortran )
-find_package( eckit 1.19.0 REQUIRED COMPONENTS MPI )
+find_package( eckit 1.17.1 REQUIRED COMPONENTS MPI )
 find_package( fckit 0.9.5 REQUIRED )
 find_package( atlas 0.35.0 REQUIRED COMPONENTS OMP_Fortran TESSELATION)
 # TODO(Benjamin): check when ATLAS PR #215 is merged into a tagged version to update the version number
