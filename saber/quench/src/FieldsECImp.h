@@ -292,7 +292,9 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
     for (int jo = 0; jo < locs.size(); ++jo) {
       if (geom_->levels(var) == 1) {
         // No vertical interpolation
-        verStencilSize[jo] = 0;
+        verStencil[jo][0] = 0;
+        verWeights[jo][0] = 1.0;
+        verStencilSize[jo] = 1;
       } else {
         // Linear vertical interpolation
         const double z = locs[jo][2];
