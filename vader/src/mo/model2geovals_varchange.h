@@ -30,19 +30,19 @@ namespace mo {
 /// 'surf_param_a' and 'surf_param_b' are  two 'derived' fields used to evaluate
 /// the background pressure at the observation height
 ///
-///          surf_param_a = f(height_levels[0], t_msh)
+///          surf_param_a = f(height_above_mean_sea_level_levels[0], t_msh)
 ///          surf_param_b = f(t_msh, pressure_level_minus_one[0])
 /// where ...
-///     height_levels[0] = model surface height
+///     height_above_mean_sea_level_levels[0] = model surface height
 ///            t_msh = temperature at model surface height
 ///     pressure_level_minus_one[0] = pressure at model surface height
 ///
 /// input data (fields) needed for the calculations:
 ///     height = height on theta model levels (not including surface)
 ///        (it includes metadata "boundary_layer_index" )
-///     height_levels = height on rho model levels
+///     height_above_mean_sea_level_levels = height on rho model levels
 ///     pressure_levels_minus_one = pressure on rho model levels
-///     specific_humidity
+///     water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
 ///
 bool evalParamAParamB(atlas::FieldSet & fields);
 

@@ -6,8 +6,7 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#ifndef SRC_VADER_RECIPES_DRYAIRDENSITYLEVELSMINUSONE_H_
-#define SRC_VADER_RECIPES_DRYAIRDENSITYLEVELSMINUSONE_H_
+#pragma once
 
 #include <map>
 #include <string>
@@ -36,7 +35,7 @@ namespace vader {
 /*! \brief DryAirDensityLevelsMinusOne_A class defines a recipe for dry air density
  *
  *  \details This instantiation of RecipeBase produces dry air density
- *           using potential_temperature, specific humidity,
+ *           using air_potential_temperature, specific humidity,
  *           cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water,
  *           cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
  *           and pressure (air_pressure_levels) as inputs.
@@ -69,5 +68,3 @@ class DryAirDensityLevelsMinusOne_A : public RecipeBase {
 // ------------------------------------------------------------------------------------------------
 
 }  // namespace vader
-
-#endif  // SRC_VADER_RECIPES_DRYAIRDENSITYLEVELSMINUSONE_H_

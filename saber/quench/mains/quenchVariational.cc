@@ -15,9 +15,9 @@
 
 int main(int argc,  char ** argv) {
   oops::Run run(argc, argv);
-  quench::instantiateQuenchMatrices();
   saber::instantiateCovarFactory<quench::Traits>();
   saber::instantiateMinFactory<quench::Traits>();
+  quench::instantiateQuenchMatrices();
   oops::Variational<quench::Traits> var;
   quench::Logbook::start();
   run.execute(var);

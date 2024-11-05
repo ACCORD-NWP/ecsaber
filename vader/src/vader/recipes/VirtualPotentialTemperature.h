@@ -5,8 +5,7 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#ifndef SRC_VADER_RECIPES_VIRTUALPOTENTIALTEMPERATURE_H_
-#define SRC_VADER_RECIPES_VIRTUALPOTENTIALTEMPERATURE_H_
+#pragma once
 
 #include <map>
 #include <string>
@@ -99,5 +98,3 @@ class VirtualPotentialTemperature_B : public RecipeBase {
 
 
 }  // namespace vader
-
-#endif  // SRC_VADER_RECIPES_VIRTUALPOTENTIALTEMPERATURE_H_

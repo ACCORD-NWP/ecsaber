@@ -15,10 +15,10 @@ geometry:
     - dlsvpdT
     - dry_air_density_levels_minus_one
     - eastward_wind
-    - exner
-    - exner_levels_minus_one
+    - dimensionless_exner_function
+    - dimensionless_exner_function_levels_minus_one
     - geostrophic_pressure_levels_minus_one
-    - height
+    - height_above_mean_sea_level
     - ice_cloud_volume_fraction_in_atmosphere_layer
     - liquid_cloud_volume_fraction_in_atmosphere_layer
     - mu
@@ -29,27 +29,27 @@ geometry:
     - muRow1Column2
     - muRow2Column1
     - muRow2Column2
-    - m_ci
-    - m_cl
-    - m_r
-    - m_t
-    - m_v
+    - cloud_ice_mixing_ratio_wrt_dry_air
+    - cloud_liquid_water_mixing_ratio_wrt_dry_air
+    - rain_mixing_ratio_wrt_dry_air
+    - total_water_mixing_ratio_wrt_dry_air
+    - water_vapor_mixing_ratio_wrt_dry_air
     - northward_wind
-    - potential_temperature
+    - air_potential_temperature
     - qrain
     - qsat
     - qt
     - rht
-    - specific_humidity
-    - streamfunction
+    - water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+    - air_horizontal_streamfunction
     - svp
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
     - virtual_potential_temperature
     levels: 70
   - variables:
     - air_pressure_levels
-    - height_levels
+    - height_above_mean_sea_level_levels
     - hydrostatic_exner_levels
     - hydrostatic_pressure_levels
     levels: 71
@@ -62,29 +62,29 @@ background:
   - air_pressure
   - air_pressure_levels_minus_one
   - eastward_wind
-  - exner
-  - exner_levels_minus_one
-  - height
-  - height_levels
+  - dimensionless_exner_function
+  - dimensionless_exner_function_levels_minus_one
+  - height_above_mean_sea_level
+  - height_above_mean_sea_level_levels
   - ice_cloud_volume_fraction_in_atmosphere_layer
   - liquid_cloud_volume_fraction_in_atmosphere_layer
-  - m_ci
-  - m_cl
-  - m_r
-  - m_v
+  - cloud_ice_mixing_ratio_wrt_dry_air
+  - cloud_liquid_water_mixing_ratio_wrt_dry_air
+  - rain_mixing_ratio_wrt_dry_air
+  - water_vapor_mixing_ratio_wrt_dry_air
   - northward_wind
-  - potential_temperature
+  - air_potential_temperature
   filepath: testdata/gauss_state
 
 increment variables:
 - dry_air_density_levels_minus_one
 - eastward_wind
-- exner_levels_minus_one
+- dimensionless_exner_function_levels_minus_one
 - northward_wind
-- potential_temperature
+- air_potential_temperature
 - cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
 - cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
-- specific_humidity
+- water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
 
 background error:
   covariance model: SABER
@@ -94,9 +94,9 @@ background error:
     saber block name: spectral covariance
     active variables:
     - mu
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
     read:
       covariance_file: testdata/spectralcov.nc
       umatrix_netcdf_names:
@@ -114,7 +114,7 @@ background error:
     multiplyad fset filename: fields_final_multiplyad
     left inverse fset filename: fields_final_leftinverse
     field names:
-    - streamfunction
+    - air_horizontal_streamfunction
     skip inverse: true
     save netCDF file: false
   - saber block name: spectral to gauss
@@ -124,9 +124,9 @@ background error:
     - eastward_wind
     - mu
     - northward_wind
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
   # Write out fields after the mo_hydrostatic_pressure transform
   - saber block name: write fields
     output path: testdata/dirac_write_fields
@@ -143,7 +143,7 @@ background error:
     inner variables to compare:
     - unbalanced_pressure_levels_minus_one
     - geostrophic_pressure_levels_minus_one
-    covariance data:
+    read:
       covariance file path: testdata/FPstats.nc
       number of covariance latitude rings: 481
       gp regression bins: 18
@@ -179,14 +179,14 @@ background error:
     - hydrostatic_pressure_levels
     outer variables to compare:
     - air_pressure_levels
-    - exner_levels_minus_one
+    - dimensionless_exner_function_levels_minus_one
   - saber block name: mo_moisture_control
     inner inverse tolerance: 1e-13
     outer inverse tolerance: 1e-4  #TODO to be replaced by relative tolerance
     inner variables to compare:
       - mu
       - virtual_potential_temperature
-    covariance data:
+    read:
       covariance file path: testdata/MUstats.nc
   - saber block name: mo_air_temperature
     skip inverse test: true

@@ -5,13 +5,13 @@ geometry:
     N: 12
   groups:
   - variables:
-    - stream_function
+    - air_horizontal_streamfunction
     levels: 2
   halo: 1
 background:
   date: 2010-01-01T12:00:00Z
   state variables:
-  - stream_function
+  - air_horizontal_streamfunction
 background error:
   covariance model: SABER
   ensemble:
@@ -20,7 +20,7 @@ background error:
         date: 2010-01-01T12:00:00Z
         filepath: testdata/randomization_bump_nicas_L12L2/_MPI_-_OMP__member_%mem%
         state variables:
-        - stream_function
+        - air_horizontal_streamfunction
       pattern: '%mem%'
       nmembers: 10
       zero padding: 6
@@ -32,7 +32,7 @@ background error:
         N: 10
       groups:
       - variables:
-        - stream_function
+        - air_horizontal_streamfunction
         levels: 2
       halo: 1
     ensemble:
@@ -41,7 +41,7 @@ background error:
           date: 2010-01-01T12:00:00Z
           filepath: testdata/randomization_bump_nicas_L10L2_static/_MPI_-_OMP__member_pert_%mem%
           state variables:
-          - stream_function
+          - air_horizontal_streamfunction
         pattern: '%mem%'
         nmembers: 25
         zero padding: 6
@@ -78,11 +78,11 @@ background error:
         explicit length-scales: true
         horizontal length-scale:
         - groups:
-          - stream_function
+          - air_horizontal_streamfunction
           value: 10.0e6
         vertical length-scale:
         - groups:
-          - stream_function
+          - air_horizontal_streamfunction
           value: 2.0
       output model files:
       - parameter: loc_rh

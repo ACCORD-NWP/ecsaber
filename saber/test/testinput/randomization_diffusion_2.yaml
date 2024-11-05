@@ -4,7 +4,7 @@ geometry:
     name: S10
   groups:
   - variables: &vars
-    - stream_function
+    - air_horizontal_streamfunction
     levels: &levels 10
   halo: 1
 

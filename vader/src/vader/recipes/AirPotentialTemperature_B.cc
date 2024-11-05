@@ -46,7 +46,7 @@ std::string AirPotentialTemperature_B::name() const {
 // -------------------------------------------------------------------------------------------------
 
 oops::Variable AirPotentialTemperature_B::product() const {
-    return oops::Variable("potential_temperature");
+    return oops::Variable("air_potential_temperature");
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ bool AirPotentialTemperature_B::executeNL(atlas::FieldSet & afieldset)
     // Get fields
     atlas::Field air_temperature_field = afieldset.field("air_temperature");
     atlas::Field air_pressure_to_kappa_field = afieldset.field("air_pressure_to_kappa");
-    atlas::Field potential_temperature_field = afieldset.field("potential_temperature");
+    atlas::Field potential_temperature_field = afieldset.field("air_potential_temperature");
 
     // Get field arrays
     auto air_temperature = atlas::array::make_view<double, 2>(air_temperature_field);

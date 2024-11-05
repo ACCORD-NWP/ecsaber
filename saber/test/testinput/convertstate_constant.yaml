@@ -5,8 +5,8 @@ input geometry:
     N: 10
   groups:
   - variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - eastward_wind
     - northward_wind
     levels: 2
@@ -18,8 +18,8 @@ output geometry:
     N: 10
   groups:
   - variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - eastward_wind
     - northward_wind
     levels: 2
@@ -52,16 +52,16 @@ states:
 - input:
     date: 2010-01-01T12:00:00Z
     state variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     constant value: 0.3
   output:
     filepath: testdata/convertstate_constant/static_weight
 - input:
     date: 2010-01-01T12:00:00Z
     state variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     constant value: 0.7
   output:
     filepath: testdata/convertstate_constant/ensemble_weight

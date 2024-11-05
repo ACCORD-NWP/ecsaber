@@ -21,7 +21,8 @@ namespace vader
 const char WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::Name[] =
                         "WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A";
 const oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::
-    Ingredients{std::vector<std::string>{"m_v", "m_t"}};
+    Ingredients{std::vector<std::string>{"water_vapor_mixing_ratio_wrt_dry_air",
+                                         "total_water_mixing_ratio_wrt_dry_air"}};
 
 // Register the maker
 static RecipeMaker<WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A> makerTotalWater_A_(
@@ -43,7 +44,7 @@ std::string WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::name() const
 
 oops::Variable WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::product() const
 {
-    return oops::Variable{"specific_humidity"};
+    return oops::Variable{"water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water"};
 }
 
 oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::ingredients() const
@@ -54,14 +55,14 @@ oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::ingredi
 size_t WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::productLevels(
                                            const atlas::FieldSet & afieldset) const
 {
-    return (afieldset["m_t"].shape(1));
+    return (afieldset["total_water_mixing_ratio_wrt_dry_air"].shape(1));
 }
 
 atlas::FunctionSpace WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::productFunctionSpace(
                                            const atlas::FieldSet
                                            & afieldset) const
 {
-    return afieldset["m_t"].functionspace();
+    return afieldset["total_water_mixing_ratio_wrt_dry_air"].functionspace();
 }
 
 bool WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeNL(atlas::FieldSet & afieldset)

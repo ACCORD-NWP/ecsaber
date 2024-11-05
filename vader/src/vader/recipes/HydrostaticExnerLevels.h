@@ -5,8 +5,7 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#ifndef SRC_VADER_RECIPES_HYDROSTATICEXNERLEVELS_H_
-#define SRC_VADER_RECIPES_HYDROSTATICEXNERLEVELS_H_
+#pragma once
 
 #include <map>
 #include <string>
@@ -33,7 +32,7 @@ class HydrostaticExnerLevels_AParameters : public RecipeParametersBase {
 /*! \brief HydrostaticExnerLevels_A class defines a recipe for hydrostatic exner levels
  *
  *  \details This instantiation of RecipeBase produces hydrostatic exner levels
- *           using height_levels, virtual_potential_temperature and
+ *           using height_above_mean_sea_level_levels, virtual_potential_temperature and
  *           air_pressure_levels_minus_one as inputs.
  */
 class HydrostaticExnerLevels_A : public RecipeBase {
@@ -60,5 +59,3 @@ class HydrostaticExnerLevels_A : public RecipeBase {
 };
 
 }  // namespace vader
-
-#endif  // SRC_VADER_RECIPES_HYDROSTATICEXNERLEVELS_H_

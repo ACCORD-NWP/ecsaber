@@ -23,8 +23,10 @@ namespace vader
 // Static attribute initialization
 const char AirDensityLevelsMinusOne_A::Name[] = "AirDensityLevelsMinusOne_A";
 const oops::JediVariables AirDensityLevelsMinusOne_A::
-    Ingredients{std::vector<std::string>{"height", "height_levels", "virtual_potential_temperature",
-                                          "air_pressure_levels_minus_one"}};
+    Ingredients{std::vector<std::string>{"height_above_mean_sea_level",
+                                         "height_above_mean_sea_level_levels",
+                                         "virtual_potential_temperature",
+                                         "air_pressure_levels_minus_one"}};
 
 // Register the maker
 static RecipeMaker<AirDensityLevelsMinusOne_A>

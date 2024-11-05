@@ -23,7 +23,9 @@ namespace vader
 // Static attribute initialization
 const char VirtualPotentialTemperature_B::Name[] = "VirtualPotentialTemperature_B";
 const oops::JediVariables VirtualPotentialTemperature_B::
-    Ingredients{std::vector<std::string>{"specific_humidity", "potential_temperature"}};
+    Ingredients{std::vector<std::string>{
+                                    "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water",
+                                    "air_potential_temperature"}};
 
 // Register the maker
 static RecipeMaker<VirtualPotentialTemperature_B>
@@ -53,13 +55,13 @@ oops::JediVariables VirtualPotentialTemperature_B::ingredients() const
 
 size_t VirtualPotentialTemperature_B::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return afieldset["potential_temperature"].shape(1);
+    return afieldset["air_potential_temperature"].shape(1);
 }
 
 atlas::FunctionSpace VirtualPotentialTemperature_B::productFunctionSpace(const atlas::FieldSet
                                                                  & afieldset) const
 {
-    return afieldset["potential_temperature"].functionspace();
+    return afieldset["air_potential_temperature"].functionspace();
 }
 
 bool VirtualPotentialTemperature_B::executeNL(atlas::FieldSet & afieldset)

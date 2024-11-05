@@ -8,9 +8,9 @@ geometry:
     - eastward_wind
     - mu
     - northward_wind
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
     levels: 70
   partitioner: ectrans
 background:
@@ -30,9 +30,9 @@ background error:
     skip inverse test: true
     active variables:
     - mu
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
     read:
       covariance_file: testdata/spectralcov.nc
       umatrix_netcdf_names:
@@ -45,9 +45,9 @@ background error:
     - eastward_wind
     - mu
     - northward_wind
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
 output variance:  # This section is optional
   mpi pattern: '%MPI%'
   filepath: testdata/randomization_sqrtspectralb_1/variance_%MPI%pes

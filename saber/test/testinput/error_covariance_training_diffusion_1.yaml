@@ -5,7 +5,7 @@ geometry:
   partitioner: cubedsphere
   groups:
   - variables: &vars
-    - stream_function
+    - air_horizontal_streamfunction
     levels: &levels 10
   # TODO: why does Diffusion only work when cubed-sphere halo is 0?
   halo: 0

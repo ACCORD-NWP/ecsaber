@@ -5,8 +5,8 @@ geometry:
     N: 10
   groups:
   - variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - eastward_wind
     - northward_wind
     levels: 2
@@ -68,10 +68,10 @@ background error:
             explicit stddev: true
             stddev:
             - variables:
-              - stream_function
+              - air_horizontal_streamfunction
               value: 1.0
             - variables:
-              - velocity_potential
+              - air_horizontal_velocity_potential
               value: 2.0
       - saber block name: StdDev
         read:
@@ -91,8 +91,8 @@ background error:
             read vertical balance: true
           vertical balance:
             vbal:
-            - balanced variable: velocity_potential
-              unbalanced variable: stream_function
+            - balanced variable: air_horizontal_velocity_potential
+              unbalanced variable: air_horizontal_streamfunction
       - saber block name: BUMP_PsiChiToUV
         read:
           general:
@@ -144,7 +144,7 @@ background error:
               files prefix: dirac_bump_1/_MPI_-_OMP_
               alias:
               - in code: common
-                in file: stream_function
+                in file: air_horizontal_streamfunction
               overriding nicas file: error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__nicas
             drivers:
               multivariate strategy: duplicated

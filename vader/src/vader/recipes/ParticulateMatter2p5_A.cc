@@ -163,7 +163,6 @@ bool ParticulateMatter2p5_A::executeNL(atlas::FieldSet & afieldset)
            atlas::array::make_view<double, 2>(mass_density_of_particulate_matter_2p5_in_air);
 
     int nlevels = pm25at.shape(1);
-    int nlevelsminusone = nlevels-1;
     size_t grid_size = pm25at.size()/nlevels;
     int nvars = AERO6_INGREDIENTS.size();
 //  Assign array position where the first aerosal variable starts
@@ -232,7 +231,6 @@ bool ParticulateMatter2p5_A::executeTL(atlas::FieldSet & afieldsetTL,
 
 
     int nlevels = pm25at.shape(1);
-    int nlevelsminusone = nlevels-1;
     size_t grid_size = pm25at.size()/nlevels;
     int nvars = AERO6_INGREDIENTS.size();
 //  Assign array position where the first aerosal variable starts
@@ -301,7 +299,6 @@ bool ParticulateMatter2p5_A::executeAD(atlas::FieldSet & afieldsetAD,
            atlas::array::make_view<double, 2>(ad_mass_density_of_particulate_matter_2p5_in_air);
 
     int nlevels = pm25at.shape(1);
-    int nlevelsminusone = nlevels-1;
     size_t grid_size = pm25at.size()/nlevels;
     int nvars = AERO6_INGREDIENTS.size();
 //  Assign array position where the first aerosal variable starts

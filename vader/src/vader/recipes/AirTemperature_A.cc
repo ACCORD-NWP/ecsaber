@@ -29,8 +29,8 @@ const char AirTemperature_A::Name[] = "AirTemperature_A";
 // const char APT[] = "air_potential_temperature_at_interface";
 // const char DEF[] = "dimensionless_exner_function_at_interface";
 const char AT[] = "air_temperature";
-const char APT[] = "potential_temperature";
-const char DEF[] = "exner";
+const char APT[] = "air_potential_temperature";
+const char DEF[] = "dimensionless_exner_function";
 const oops::JediVariables AirTemperature_A::Ingredients{std::vector<std::string>{APT, DEF}};
 
 // Register the maker

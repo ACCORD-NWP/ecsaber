@@ -21,8 +21,9 @@ namespace vader
 
 // Static attribute initialization
 const char AirTemperature_B::Name[] = "AirTemperature_B";
-const oops::JediVariables AirTemperature_B::Ingredients{std::vector<std::string>{"virtual_temperature",
-                                                                "specific_humidity"}};
+const oops::JediVariables AirTemperature_B::Ingredients{std::vector<std::string>{
+                                                        "virtual_temperature",
+                                                        "water_vapor_mixing_ratio_wrt_moist_air"}};
 
 // Register the maker
 static RecipeMaker<AirTemperature_B> makerAirTemperature_B_(AirTemperature_B::Name);
@@ -68,7 +69,7 @@ bool AirTemperature_B::executeNL(atlas::FieldSet & afieldset)
 
     atlas::Field virtual_temperature = afieldset.field("virtual_temperature");
     atlas::Field temperature = afieldset.field("air_temperature");
-    atlas::Field specific_humidity = afieldset.field("specific_humidity");
+    atlas::Field specific_humidity = afieldset.field("water_vapor_mixing_ratio_wrt_moist_air");
 
     auto virtual_temperature_view = atlas::array::make_view<double, 2>(virtual_temperature);
     auto temperature_view = atlas::array::make_view<double, 2>(temperature);

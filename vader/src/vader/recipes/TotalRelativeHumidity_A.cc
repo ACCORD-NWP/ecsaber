@@ -15,6 +15,10 @@
 #include "vader/recipes/TotalRelativeHumidity.h"
 
 
+namespace {
+  const char specific_humidity_mo[] = "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water";
+}  // namespace
+
 namespace vader {
 
 
@@ -46,7 +50,7 @@ oops::Variable TotalRelativeHumidity_A::product() const
 }
 
 oops::JediVariables TotalRelativeHumidity_A::ingredients() const {
-  return oops::JediVariables{std::vector<std::string>{"specific_humidity",
+  return oops::JediVariables{std::vector<std::string>{specific_humidity_mo,
           "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
           "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water",
           "qrain",
@@ -60,12 +64,12 @@ oops::JediVariables TotalRelativeHumidity_A::ingredients() const {
 }
 
 size_t TotalRelativeHumidity_A::productLevels(const atlas::FieldSet & afieldset) const {
-  return afieldset.field("specific_humidity").shape(1);
+  return afieldset.field(specific_humidity_mo).shape(1);
 }
 
 atlas::FunctionSpace TotalRelativeHumidity_A::productFunctionSpace(
   const atlas::FieldSet & afieldset) const {
-  return afieldset.field("specific_humidity").functionspace();
+  return afieldset.field(specific_humidity_mo).functionspace();
 }
 
 bool TotalRelativeHumidity_A::executeNL(atlas::FieldSet & afieldset) {

@@ -13,9 +13,9 @@ geometry:
     - eastward_wind
     - mu
     - northward_wind
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
     levels: 70
   partitioner: ectrans
 background:
@@ -39,9 +39,9 @@ background error:
     saber block name: spectral covariance
     active variables:
     - mu
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
     calibration:
       write:
         covariance name: "specvertcov2"

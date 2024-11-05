@@ -21,10 +21,10 @@ namespace vader
 // Static attribute initialization
 const char TotalMixingRatio_A::Name[] = "TotalMixingRatio_A";
 const oops::JediVariables TotalMixingRatio_A::
-    Ingredients{std::vector<std::string>{"m_v",   // CCPP name: water_vapor_mixing_ratio_wrt_dry_air
-                    "m_ci",   // CCPP name: cloud_ice_mixing_ratio_wrt_dry_air
-                    "m_cl",   // CCPP name: cloud_liquid_water_mixing_ratio_wrt_dry_air
-                    "m_r"}};  // CCPP name: rain_mixing_ratio_wrt_dry_air
+    Ingredients{std::vector<std::string>{"water_vapor_mixing_ratio_wrt_dry_air",
+                                         "cloud_ice_mixing_ratio_wrt_dry_air",
+                                         "cloud_liquid_water_mixing_ratio_wrt_dry_air",
+                                         "rain_mixing_ratio_wrt_dry_air"}};
 
 // Register the maker
 static RecipeMaker<TotalMixingRatio_A> makerTotalMixingRatio_A_(TotalMixingRatio_A::Name);
@@ -43,7 +43,7 @@ std::string TotalMixingRatio_A::name() const
 
 oops::Variable TotalMixingRatio_A::product() const
 {
-    return oops::Variable{"m_t"};  // CCPP name: total_water_mixing_ratio_wrt_dry_air
+    return oops::Variable{"total_water_mixing_ratio_wrt_dry_air"};
 }
 
 oops::JediVariables TotalMixingRatio_A::ingredients() const
@@ -53,13 +53,13 @@ oops::JediVariables TotalMixingRatio_A::ingredients() const
 
 size_t TotalMixingRatio_A::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return (afieldset["m_v"].shape(1));
+    return (afieldset["water_vapor_mixing_ratio_wrt_dry_air"].shape(1));
 }
 
 atlas::FunctionSpace TotalMixingRatio_A::productFunctionSpace(const atlas::FieldSet
                                                         & afieldset) const
 {
-    return afieldset["m_v"].functionspace();
+    return afieldset["water_vapor_mixing_ratio_wrt_dry_air"].functionspace();
 }
 
 bool TotalMixingRatio_A::executeNL(atlas::FieldSet & afieldset)

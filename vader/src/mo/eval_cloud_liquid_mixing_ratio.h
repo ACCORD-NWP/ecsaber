@@ -13,10 +13,7 @@ namespace mo {
 
 /// \brief function to evaluate the cloud liquid water mixing ratio
 ///        wrt moist air and condensed water:
-///   qcl = m_cl/m_t
-/// where ...
-///   m_cl = cloud liquid water mixing ratio wrt dry air
-///   m_t  = moist air and condensed water mixing ratio wrt dry air
+///   qcl = cloud_liquid_water_mixing_ratio_wrt_dry_air/total_water_mixing_ratio_wrt_dry_air
 ///
 bool eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
         atlas::FieldSet & stateFlds);

@@ -18,14 +18,14 @@
 #include "recipes/CloudLiquidMixingRatio.h"
 #include "recipes/DryAirDensity.h"
 #include "recipes/DryAirDensityLevelsMinusOne.h"
+#include "recipes/EastwardWindAt10m.h"
 #include "recipes/HydrostaticExnerLevels.h"
+#include "recipes/NorthwardWindAt10m.h"
 #include "recipes/ParticulateMatter2p5.h"
 #include "recipes/RainMixingRatio.h"
 #include "recipes/TotalMixingRatio.h"
 #include "recipes/TotalWater.h"
-#include "recipes/uwind_at_10m.h"
 #include "recipes/VirtualPotentialTemperature.h"
-#include "recipes/vwind_at_10m.h"
 #include "recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater.h"
 #include "recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m.h"
 
@@ -48,23 +48,24 @@ const cookbookConfigType Vader::defaultCookbookDefinition = {
                                       AirDensityLevelsMinusOne_B::Name}},
         {oops::Variable{"hydrostatic_exner_levels"},
                                      {HydrostaticExnerLevels_A::Name}},
-        {oops::Variable{"potential_temperature"},
+        {oops::Variable{"air_potential_temperature"},
                                      {AirPotentialTemperature_A::Name}},
         {oops::Variable{"qrain"},    {RainMixingRatio_A::Name}},
-        {oops::Variable{"m_t"},      {TotalMixingRatio_A::Name}},
+        {oops::Variable{"total_water_mixing_ratio_wrt_dry_air"},
+                                     {TotalMixingRatio_A::Name}},
         {oops::Variable{"qt"},       {TotalWater_A::Name}},
-        {oops::Variable{"specific_humidity"},
+        {oops::Variable{"water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water"},
                                      {WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::Name}},
-        {oops::Variable{"specific_humidity_at_two_meters_above_surface"},
+        {oops::Variable{"water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m"},
                                      {WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::Name}},
-        {oops::Variable{"uwind_at_10m"},
+        {oops::Variable{"eastward_wind_at_10m"},
                                      {uwind_at_10m_A::Name}},
         {oops::Variable{"virtual_potential_temperature"},
                                      {VirtualPotentialTemperature_B::Name,
                                       VirtualPotentialTemperature_A::Name}},
         {oops::Variable{"virtual_temperature"},
                                      {AirVirtualTemperature_A::Name}},
-        {oops::Variable{"vwind_at_10m"},
+        {oops::Variable{"northward_wind_at_10m"},
                                      {vwind_at_10m_A::Name}},
         {oops::Variable{"mass_density_of_particulate_matter_2p5_in_air"},
                                      {ParticulateMatter2p5_A::Name,
