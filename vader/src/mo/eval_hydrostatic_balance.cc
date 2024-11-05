@@ -24,7 +24,7 @@ namespace mo {
 void eval_hydrobal_virtual_potential_temperature_nl(atlas::FieldSet & stateFlds) {
   oops::Log::trace() <<
     "[eval_hydrobal_virtual_potential_temperature_nl] starting ..." << std::endl;
-  auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
+  auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
   auto hexnerView = make_view<const double, 2>(stateFlds["hydrostatic_exner_levels"]);
   auto thetavView = make_view<double, 2>(stateFlds["virtual_potential_temperature"]);
 
@@ -45,7 +45,7 @@ void eval_hydrobal_virtual_potential_temperature_tl(atlas::FieldSet & incFlds,
                                               const atlas::FieldSet & augStateFlds) {
   oops::Log::trace() <<
     "[eval_hydrobal_virtual_potential_temperature_tl()] starting ..." << std::endl;
-  auto hlView = make_view<const double, 2>(augStateFlds["height_levels"]);
+  auto hlView = make_view<const double, 2>(augStateFlds["height_above_mean_sea_level_levels"]);
   auto thetavView = make_view<const double, 2>(augStateFlds["virtual_potential_temperature"]);
   auto hexnerIncView = make_view<const double, 2>(incFlds["hydrostatic_exner_levels"]);
   auto thetavIncView = make_view<double, 2>(incFlds["virtual_potential_temperature"]);
@@ -69,7 +69,7 @@ void eval_hydrobal_virtual_potential_temperature_ad(atlas::FieldSet & hatFlds,
                                               const atlas::FieldSet & augStateFlds) {
   oops::Log::trace() <<
     "[eval_hydrobal_virtual_potential_temperature_ad] starting ..." << std::endl;
-  auto hlView = make_view<const double, 2>(augStateFlds["height_levels"]);
+  auto hlView = make_view<const double, 2>(augStateFlds["height_above_mean_sea_level_levels"]);
   auto thetavView = make_view<const double, 2>(augStateFlds["virtual_potential_temperature"]);
   auto thetavHatView = make_view<double, 2>(hatFlds["virtual_potential_temperature"]);
   auto hexnerHatView = make_view<double, 2>(hatFlds["hydrostatic_exner_levels"]);
@@ -96,7 +96,7 @@ void eval_hydrobal_virtual_potential_temperature_ad(atlas::FieldSet & hatFlds,
 // Note that this is a copy of evalHydrostaticExnerLevels
 void eval_hydrobal_hydrostatic_exner_levels_nl(atlas::FieldSet & fields) {
   oops::Log::trace() << "[eval_hydrobal_hydrostatic_exner_levels_nl()] ... starting" << std::endl;
-  auto rpView = make_view<const double, 2>(fields["height_levels"]);
+  auto rpView = make_view<const double, 2>(fields["height_above_mean_sea_level_levels"]);
   auto vThetaView = make_view<const double, 2>(fields["virtual_potential_temperature"]);
   auto pView = make_view<const double, 2>(fields["air_pressure_levels"]);
   auto hexnerView = make_view<double, 2>(fields["hydrostatic_exner_levels"]);
@@ -122,7 +122,7 @@ void eval_hydrobal_hydrostatic_exner_levels_tl(atlas::FieldSet & incFlds,
                                                const atlas::FieldSet & augStateFlds) {
   oops::Log::trace() << "[eval_hydrobal_hydrostatic_exner_levels_tl()] ... starting" << std::endl;
 
-  auto hlView = make_view<const double, 2>(augStateFlds["height_levels"]);
+  auto hlView = make_view<const double, 2>(augStateFlds["height_above_mean_sea_level_levels"]);
   auto thetavView = make_view<const double, 2>(augStateFlds["virtual_potential_temperature"]);
   auto pView = make_view<const double, 2>(augStateFlds["air_pressure_levels"]);
   auto hexnerView = make_view<const double, 2>(augStateFlds["hydrostatic_exner_levels"]);
@@ -150,7 +150,7 @@ void eval_hydrobal_hydrostatic_exner_levels_tl(atlas::FieldSet & incFlds,
 void eval_hydrobal_hydrostatic_exner_levels_ad(atlas::FieldSet & hatFlds,
                                                const atlas::FieldSet & augStateFlds) {
   oops::Log::trace() << "[eval_hydrobal_hydrostatic_exner_levels_ad()] ... starting" << std::endl;
-  auto hlView = make_view<const double, 2>(augStateFlds["height_levels"]);
+  auto hlView = make_view<const double, 2>(augStateFlds["height_above_mean_sea_level_levels"]);
   auto thetavView = make_view<const double, 2>(augStateFlds["virtual_potential_temperature"]);
   auto pView = make_view<const double, 2>(augStateFlds["air_pressure_levels"]);
   auto hexnerView = make_view<const double, 2>(augStateFlds["hydrostatic_exner_levels"]);

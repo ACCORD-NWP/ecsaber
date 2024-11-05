@@ -5,8 +5,8 @@ geometry:
     N: 10
   groups:
   - variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - eastward_wind
     - northward_wind
     levels: 2
@@ -36,15 +36,15 @@ background error:
         explicit length-scales: true
         horizontal length-scale:
         - groups:
-          - stream_function
+          - air_horizontal_streamfunction
           value: 3000.0e3
         - groups:
-          - velocity_potential
+          - air_horizontal_velocity_potential
           value: 3000.0e3
         vertical length-scale:
         - groups:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           value: 0.0
         smooth interpolation factor: 1.0
   saber outer blocks:

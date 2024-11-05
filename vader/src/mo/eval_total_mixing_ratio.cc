@@ -31,13 +31,15 @@ bool eval_total_mixing_ratio_nl(
           << "[eval_total_mixing_ratio_nl()] starting ..."
           << std::endl;
 
-  const auto ds_m_v  = make_view<const double, 2>(stateFlds["m_v"]);
-  const auto ds_m_ci = make_view<const double, 2>(stateFlds["m_ci"]);
-  const auto ds_m_cl = make_view<const double, 2>(stateFlds["m_cl"]);
-  const auto ds_m_r  = make_view<const double, 2>(stateFlds["m_r"]);
-  auto ds_m_t  = make_view<double, 2>(stateFlds["m_t"]);
+  const auto ds_m_v  = make_view<const double, 2>(stateFlds[
+                                                   "water_vapor_mixing_ratio_wrt_dry_air"]);
+  const auto ds_m_ci = make_view<const double, 2>(stateFlds["cloud_ice_mixing_ratio_wrt_dry_air"]);
+  const auto ds_m_cl = make_view<const double, 2>(stateFlds[
+                                                   "cloud_liquid_water_mixing_ratio_wrt_dry_air"]);
+  const auto ds_m_r  = make_view<const double, 2>(stateFlds["rain_mixing_ratio_wrt_dry_air"]);
+  auto ds_m_t  = make_view<double, 2>(stateFlds["total_water_mixing_ratio_wrt_dry_air"]);
   const idx_t sizeOwned =
-    util::getSizeOwned(stateFlds["m_t"].functionspace());
+    util::getSizeOwned(stateFlds["total_water_mixing_ratio_wrt_dry_air"].functionspace());
 
   atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
     for (idx_t jl = 0; jl < ds_m_t.shape(1); jl++) {
@@ -45,7 +47,7 @@ bool eval_total_mixing_ratio_nl(
                             ds_m_cl(jn, jl) + ds_m_r(jn, jl);
     }
   }
-  stateFlds["m_t"].set_dirty();
+  stateFlds["total_water_mixing_ratio_wrt_dry_air"].set_dirty();
 
   oops::Log::trace()
           << "[eval_total_mixing_ratio_nl()] ... exit"
@@ -62,13 +64,14 @@ void eval_total_mixing_ratio_tl(
           << "[eval_total_mixing_ratio_tl()] starting ..."
           << std::endl;
 
-  const auto inc_m_v  = make_view<const double, 2>(incFlds["m_v"]);
-  const auto inc_m_ci = make_view<const double, 2>(incFlds["m_ci"]);
-  const auto inc_m_cl = make_view<const double, 2>(incFlds["m_cl"]);
-  const auto inc_m_r  = make_view<const double, 2>(incFlds["m_r"]);
-  auto inc_m_t  = make_view<double, 2>(incFlds["m_t"]);
+  const auto inc_m_v  = make_view<const double, 2>(incFlds["water_vapor_mixing_ratio_wrt_dry_air"]);
+  const auto inc_m_ci = make_view<const double, 2>(incFlds["cloud_ice_mixing_ratio_wrt_dry_air"]);
+  const auto inc_m_cl = make_view<const double, 2>(incFlds[
+                                                    "cloud_liquid_water_mixing_ratio_wrt_dry_air"]);
+  const auto inc_m_r  = make_view<const double, 2>(incFlds["rain_mixing_ratio_wrt_dry_air"]);
+  auto inc_m_t  = make_view<double, 2>(incFlds["total_water_mixing_ratio_wrt_dry_air"]);
   const idx_t sizeOwned =
-    util::getSizeOwned(incFlds["m_t"].functionspace());
+    util::getSizeOwned(incFlds["total_water_mixing_ratio_wrt_dry_air"].functionspace());
 
   atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
     for (idx_t jl = 0; jl < inc_m_t.shape(1); jl++) {
@@ -76,7 +79,7 @@ void eval_total_mixing_ratio_tl(
                         inc_m_cl(jn, jl) + inc_m_r(jn, jl);
     }
   }
-  incFlds["m_t"].set_dirty();
+  incFlds["total_water_mixing_ratio_wrt_dry_air"].set_dirty();
 
   oops::Log::trace()
           << "[eval_total_mixing_ratio_tl()] ... exit"
@@ -91,13 +94,13 @@ void eval_total_mixing_ratio_ad(
           << "[eval_total_mixing_ratio_ad()] starting ..."
           << std::endl;
 
-  auto hat_m_v  = make_view<double, 2>(hatFlds["m_v"]);
-  auto hat_m_ci = make_view<double, 2>(hatFlds["m_ci"]);
-  auto hat_m_cl = make_view<double, 2>(hatFlds["m_cl"]);
-  auto hat_m_r  = make_view<double, 2>(hatFlds["m_r"]);
-  auto hat_m_t  = make_view<double, 2>(hatFlds["m_t"]);
+  auto hat_m_v  = make_view<double, 2>(hatFlds["water_vapor_mixing_ratio_wrt_dry_air"]);
+  auto hat_m_ci = make_view<double, 2>(hatFlds["cloud_ice_mixing_ratio_wrt_dry_air"]);
+  auto hat_m_cl = make_view<double, 2>(hatFlds["cloud_liquid_water_mixing_ratio_wrt_dry_air"]);
+  auto hat_m_r  = make_view<double, 2>(hatFlds["rain_mixing_ratio_wrt_dry_air"]);
+  auto hat_m_t  = make_view<double, 2>(hatFlds["total_water_mixing_ratio_wrt_dry_air"]);
   const idx_t sizeOwned =
-    util::getSizeOwned(hatFlds["m_t"].functionspace());
+    util::getSizeOwned(hatFlds["total_water_mixing_ratio_wrt_dry_air"].functionspace());
 
   atlas_omp_parallel_for(idx_t jn = 0; jn < sizeOwned; jn++) {
     for (idx_t jl = 0; jl < hat_m_t.shape(1); jl++) {
@@ -108,11 +111,11 @@ void eval_total_mixing_ratio_ad(
       hat_m_t(jn, jl) = 0.0;
     }
   }
-  hatFlds["m_v"].set_dirty();
-  hatFlds["m_ci"].set_dirty();
-  hatFlds["m_cl"].set_dirty();
-  hatFlds["m_r"].set_dirty();
-  hatFlds["m_t"].set_dirty();
+  hatFlds["water_vapor_mixing_ratio_wrt_dry_air"].set_dirty();
+  hatFlds["cloud_ice_mixing_ratio_wrt_dry_air"].set_dirty();
+  hatFlds["cloud_liquid_water_mixing_ratio_wrt_dry_air"].set_dirty();
+  hatFlds["rain_mixing_ratio_wrt_dry_air"].set_dirty();
+  hatFlds["total_water_mixing_ratio_wrt_dry_air"].set_dirty();
 
   oops::Log::trace()
           << "[eval_total_mixing_ratio_ad()] ... exit"

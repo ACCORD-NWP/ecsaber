@@ -36,8 +36,10 @@ AirPressureExtendedUpByOne_A::AirPressureExtendedUpByOne_A(const Parameters_ & p
 
 oops::JediVariables AirPressureExtendedUpByOne_A::ingredients() const {
     return oops::JediVariables{std::vector<std::string>{
-                            "exner_levels_minus_one", "air_pressure_levels_minus_one",
-                            "potential_temperature", "height_levels"}};
+                            "dimensionless_exner_function_levels_minus_one",
+                            "air_pressure_levels_minus_one",
+                            "air_potential_temperature",
+                            "height_above_mean_sea_level_levels"}};
     // CCPP Names for (hopefully near) future
     // return {"dimensionless_exner_function", "air_pressure",
     //         "air_potential_temperature_at_interface",

@@ -5,8 +5,7 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#ifndef SRC_VADER_RECIPES_VWIND_AT_10M_H_
-#define SRC_VADER_RECIPES_VWIND_AT_10M_H_
+#pragma once
 
 #include <map>
 #include <string>
@@ -20,8 +19,8 @@
 
 namespace vader {
 
-class vwind_at_10m_AParameters : public RecipeParametersBase {
-  OOPS_CONCRETE_PARAMETERS(vwind_at_10m_AParameters, RecipeParametersBase)
+class uwind_at_10m_AParameters : public RecipeParametersBase {
+  OOPS_CONCRETE_PARAMETERS(uwind_at_10m_AParameters, RecipeParametersBase)
 
  public:
   oops::RequiredParameter<std::string> name{
@@ -30,19 +29,19 @@ class vwind_at_10m_AParameters : public RecipeParametersBase {
 };
 
 // ------------------------------------------------------------------------------------------------
-/*! \brief vwind_at_10m_A class defines a recipe for surface northward wind at 10 m
+/*! \brief uwind_at_10m_A class defines a recipe for surface eastward wind at 10 m
  *
- *  \details This instantiation of RecipeBase produces dry surface northward wind at 10 m
- *           using northward wind at the lowest atmospheric level as input.
+ *  \details This instantiation of RecipeBase produces dry surface eastward wind at 10 m
+ *           using eastward wind at the lowest atmospheric level as input.
  */
-class vwind_at_10m_A : public RecipeBase {
+class uwind_at_10m_A : public RecipeBase {
  public:
     static const char Name[];
     static const oops::JediVariables Ingredients;
 
-    typedef vwind_at_10m_AParameters Parameters_;
+    typedef uwind_at_10m_AParameters Parameters_;
 
-    vwind_at_10m_A(const Parameters_ &, const VaderConfigVars &);
+    uwind_at_10m_A(const Parameters_ &, const VaderConfigVars &);
 
     // Recipe base class overrides
     std::string name() const override;
@@ -57,5 +56,3 @@ class vwind_at_10m_A : public RecipeBase {
 };
 
 }  // namespace vader
-
-#endif  // SRC_VADER_RECIPES_VWIND_AT_10M_H_

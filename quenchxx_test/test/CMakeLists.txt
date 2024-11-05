@@ -167,7 +167,7 @@ ecbuild_add_resources( TARGET       quenchxx_test_scripts
 
 ecbuild_add_test( TARGET quenchxx_coding_norms_test
                   TYPE SCRIPT
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/cpplint.py
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/saber_cpplint.py
                   ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR}/interface # TODO: should be extended to interface and internal
                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 

@@ -39,16 +39,16 @@ class DryAirDensityParameters : public SaberBlockParametersBase {
     std::vector<std::string>{
     "dry_air_density_levels_minus_one",
     "air_pressure_levels",
-    "potential_temperature",
-    "specific_humidity",
+    "air_potential_temperature",
+    "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water",
     "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
     "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"}});}
 
   const oops::JediVariables mandatoryStateVars() const override {return oops::JediVariables({
     "dry_air_density_levels_minus_one",
     "air_pressure_levels_minus_one",
-    "potential_temperature",
-    "specific_humidity",
+    "air_potential_temperature",
+    "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water",
     "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
     "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"});}
 
@@ -59,8 +59,8 @@ class DryAirDensityParameters : public SaberBlockParametersBase {
     conf.set("levels", modelLevels + 1);
     vars.push_back({"air_pressure_levels", conf});
     conf.set("levels", modelLevels);
-    vars.push_back({"potential_temperature", conf});
-    vars.push_back({"specific_humidity", conf});
+    vars.push_back({"air_potential_temperature", conf});
+    vars.push_back({"water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water", conf});
     vars.push_back({"cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water", conf});
     vars.push_back({"cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water", conf});
     return vars;

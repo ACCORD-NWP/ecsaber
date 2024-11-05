@@ -7,8 +7,8 @@ geometry:
   - variables:
     - eastward_wind
     - northward_wind
-    - streamfunction
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - unbalanced_pressure_levels_minus_one
     - mu
     levels: 70
@@ -27,8 +27,8 @@ background error:
   saber central block:
     saber block name: spectral covariance
     active variables:
-    - streamfunction
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - unbalanced_pressure_levels_minus_one
     - mu
     read:
@@ -43,8 +43,8 @@ background error:
     active variables:
     - unbalanced_pressure_levels_minus_one
     - mu
-    - streamfunction
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - eastward_wind
     - northward_wind
     outer inverse tolerance: 1e-8

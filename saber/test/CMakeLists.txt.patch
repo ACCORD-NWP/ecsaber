@@ -1,35 +1,35 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-09-03 10:47:22.993466408 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-09-03 10:49:45.578121495 +0200
-@@ -7,9 +7,6 @@
- # Tests activated
- message( STATUS "SABER tests activated:" )
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-11-05 09:32:22.002393431 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-11-05 09:39:26.010326880 +0100
+@@ -8,9 +8,6 @@
+   # Tests activated
+   message( STATUS "SABER-QUENCH tests activated:" )
  
--# Use find_branch function in jedi-cmake
--include( git_functions )
+-  # Use find_branch function in jedi-cmake
+-  include( git_functions )
 -
- # Default SABER_TEST_TIER
- set( SABER_TEST_TIER 1 )
+   # Default SABER_TEST_TIER
+   set( SABER_TEST_TIER 1 )
  
-@@ -147,9 +144,10 @@
-     file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
+@@ -148,9 +145,10 @@
+       file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
-     # Link to yaml file
--    execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
--                     ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
--                     ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
-+    execute_process(COMMAND ${Python3_EXECUTABLE}
-+                    ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_yaml_update.py
-+                    ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
-+                    ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
+       # Link to yaml file
+-      execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+-                       ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
+-                       ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
++      execute_process(COMMAND ${Python3_EXECUTABLE}
++                      ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_yaml_update.py
++                      ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
++                      ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
  
-     # Link to reference file
-     if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -217,7 +215,7 @@
+       # Link to reference file
+       if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
+@@ -218,7 +216,7 @@
  
-                 # Special check for 4D tests
-                 string( FIND ${test} "_4d" found_result )
--                if( found_result EQUAL -1 OR ( found_result GREATER_EQUAL 0 AND ${mpi} GREATER 1 ) )
-+                if( found_result EQUAL -1 )
-                     set( 4dCheck true CACHE BOOL "" FORCE )
-                 else()
-                     set( 4dCheck false CACHE BOOL "" FORCE )
+                   # Special check for 4D tests
+                   string( FIND ${test} "_4d" found_result )
+-                  if( found_result EQUAL -1 OR ( found_result GREATER_EQUAL 0 AND ${mpi} GREATER 1 ) )
++                  if( found_result EQUAL -1 )
+                       set( 4dCheck true CACHE BOOL "" FORCE )
+                   else()
+                       set( 4dCheck false CACHE BOOL "" FORCE )

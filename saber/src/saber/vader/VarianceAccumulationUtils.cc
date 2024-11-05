@@ -222,7 +222,7 @@ void computeVarianceFieldSetInstant(const eckit::mpi::Comm & comm,
         atlas::functionspace::CubedSphereNodeColumns(fset[0].functionspace());
       atlas::Field gridptAreaWeights =
         CSCellArea(comm, fset[0].functionspace(),
-                   static_cast<const std::size_t>(csFspace.sizeOwned()),
+                   static_cast<std::size_t>(csFspace.sizeOwned()),
                    std::string{"grid point area weights"});
       computeBinnedVariances(comm,
                              tag,

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h.tmp	2024-07-19 08:41:32.035710038 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h	2024-07-19 09:08:40.054046842 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h.tmp.bak	2024-11-05 09:32:18.320362895 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Geometry.h	2024-11-05 09:34:01.065175233 +0100
 @@ -28,6 +28,8 @@
  #include "oops/util/parameters/RequiredParameter.h"
  #include "oops/util/Printable.h"
@@ -9,7 +9,7 @@
  namespace eckit {
    class Configuration;
  }
-@@ -271,6 +273,9 @@
+@@ -279,6 +281,9 @@
  
    // Duplicate points
    bool duplicatePoints_;

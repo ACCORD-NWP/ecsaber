@@ -16,9 +16,9 @@ Groups:
   Mask size: 100%
 Fields:
   mu: 9.6264416884083076e+01
-  streamfunction: 3.1773936777152383e+08
+  air_horizontal_streamfunction: 3.1773936777152383e+08
   unbalanced_pressure_levels_minus_one: 2.6969772664181569e+03
-  velocity_potential: 2.9857380090833718e+08
+  air_horizontal_velocity_potential: 2.9857380090833718e+08
 Member 1: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -37,6 +37,6 @@ Groups:
   Mask size: 100%
 Fields:
   mu: 9.1405329946301336e+01
-  streamfunction: 2.8832648453683352e+08
+  air_horizontal_streamfunction: 2.8832648453683352e+08
   unbalanced_pressure_levels_minus_one: 2.8701415673749475e+03
-  velocity_potential: 2.7602620775931126e+08
+  air_horizontal_velocity_potential: 2.7602620775931126e+08

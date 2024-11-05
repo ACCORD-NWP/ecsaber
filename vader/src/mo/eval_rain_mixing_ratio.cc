@@ -23,7 +23,9 @@ bool eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
           << "[eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_nl()] starting ..."
           << std::endl;
 
-  std::vector<std::string> fnames {"m_r", "m_t", "qrain"};
+  std::vector<std::string> fnames {"rain_mixing_ratio_wrt_dry_air",
+                                   "total_water_mixing_ratio_wrt_dry_air",
+                                   "qrain"};
 
   const bool rvalue = eval_ratio_to_second(stateFlds, fnames);
 
@@ -42,7 +44,9 @@ void eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_tl(
           << "[eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_tl()] starting ..."
           << std::endl;
 
-  std::vector<std::string> fnames {"m_r", "m_t", "qrain"};
+  std::vector<std::string> fnames {"rain_mixing_ratio_wrt_dry_air",
+                                   "total_water_mixing_ratio_wrt_dry_air",
+                                   "qrain"};
 
   eval_ratio_to_second_tl(incFlds, stateFlds, fnames);
 
@@ -59,7 +63,9 @@ void eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_ad(
           << "[eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_ad()] starting ..."
           << std::endl;
 
-  std::vector<std::string> fnames {"m_r", "m_t", "qrain"};
+  std::vector<std::string> fnames {"rain_mixing_ratio_wrt_dry_air",
+                                   "total_water_mixing_ratio_wrt_dry_air",
+                                   "qrain"};
 
   eval_ratio_to_second_ad(hatFlds, stateFlds, fnames);
 

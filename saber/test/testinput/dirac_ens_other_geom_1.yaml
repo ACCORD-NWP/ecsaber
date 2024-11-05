@@ -25,8 +25,8 @@
 background:
   date: &date 2010-01-01T12:00:00Z
   state variables: &vars
-  - streamfunction
-  - velocity_potential
+  - air_horizontal_streamfunction
+  - air_horizontal_velocity_potential
 
 geometry:
   function space: NodeColumns
@@ -85,7 +85,7 @@ dirac: &dirac
   level:
   - 1
   variable:
-  - streamfunction
+  - air_horizontal_streamfunction
 
 diagnostic points: *dirac
 

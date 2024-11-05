@@ -44,7 +44,7 @@ Fields:
              Level   2 ~>  0.200E+01 vert. coord.
        Accuracy tests:
           Wavenumber:  1
-             - psi/chi to u:  89.76377%
+             - psi/chi to u:  89.76376%
              - psi/chi to v:  89.76376%
           Wavenumber:  2
              - psi/chi to u:  75.59054%
@@ -70,7 +70,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7713424142713876e+01
+Norm of input parameter StdDev: 5.7539391781678255e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -87,7 +87,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.7713424142713876e+01
+Norm of input parameter stddev - 1: 5.7539391781678255e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -127,8 +127,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 7.7889088634610397e+00
-  northward_wind: 1.8602772965862853e+00
+  eastward_wind: 9.9286541982399914e+00
+  northward_wind: 3.1752229729233865e+00
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -145,8 +145,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 1.8340893134195742e+00
-  northward_wind: 2.4160655365981167e+00
+  eastward_wind: 2.2707840177795426e+00
+  northward_wind: 1.7998957702074296e+00
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -156,7 +156,7 @@ Fields:
              Level   2 ~>  0.200E+01 vert. coord.
        Accuracy tests:
           Wavenumber:  1
-             - psi/chi to u:  89.76377%
+             - psi/chi to u:  89.76376%
              - psi/chi to v:  89.76376%
           Wavenumber:  2
              - psi/chi to u:  75.59054%
@@ -182,7 +182,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7713424142713876e+01
+Norm of input parameter StdDev: 5.7539391781678255e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -199,7 +199,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.7713424142713876e+01
+Norm of input parameter stddev - 1: 5.7539391781678255e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -227,8 +227,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.9664824928771610e-12
-  northward_wind: 1.4446599010701730e-12
+  eastward_wind: 3.7259415926535306e-12
+  northward_wind: 1.3202009593235781e-12
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -245,8 +245,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.9664824928771610e-12
-  northward_wind: 1.4446599010701730e-12
+  eastward_wind: 3.7259415926535306e-12
+  northward_wind: 1.3202009593235781e-12
 Norm of input parameter inflation: 6.9558608381710329e+01
 Norm of input parameter StdDev: 1.7389652095427326e+02
        Independent levels:  1[2]
@@ -276,8 +276,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.4924508363055611e+00
-  northward_wind: 5.9528873490754164e-01
+  eastward_wind: 3.1771693434345925e+00
+  northward_wind: 1.0160713513355568e+00
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
@@ -294,5 +294,5 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 5.8690858029388371e-01
-  northward_wind: 7.7314097171158347e-01
+  eastward_wind: 7.2665088568883618e-01
+  northward_wind: 5.7596664646668794e-01

@@ -20,7 +20,8 @@ namespace vader
 // Static attribute initialization
 const char CloudLiquidMixingRatio_A::Name[] = "CloudLiquidMixingRatio_A";
 const oops::JediVariables CloudLiquidMixingRatio_A::
-    Ingredients{std::vector<std::string>{"m_cl", "m_t"}};
+    Ingredients{std::vector<std::string>{"cloud_liquid_water_mixing_ratio_wrt_dry_air",
+                                         "total_water_mixing_ratio_wrt_dry_air"}};
 
 // Register the maker
 static RecipeMaker<CloudLiquidMixingRatio_A> makerTotalWater_A_(CloudLiquidMixingRatio_A::Name);
@@ -49,13 +50,13 @@ oops::JediVariables CloudLiquidMixingRatio_A::ingredients() const
 
 size_t CloudLiquidMixingRatio_A::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return (afieldset["m_t"].shape(1));
+    return (afieldset["total_water_mixing_ratio_wrt_dry_air"].shape(1));
 }
 
 atlas::FunctionSpace CloudLiquidMixingRatio_A::productFunctionSpace(const atlas::FieldSet
                                                                     & afieldset) const
 {
-    return afieldset["m_t"].functionspace();
+    return afieldset["total_water_mixing_ratio_wrt_dry_air"].functionspace();
 }
 
 bool CloudLiquidMixingRatio_A::executeNL(atlas::FieldSet & afieldset)

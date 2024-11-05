@@ -22,7 +22,7 @@ namespace vader {
 // Static attribute initialization
 const char WindReductionFactorAt10m_A::Name[] = "WindReductionFactorAt10m_A";
 const oops::JediVariables WindReductionFactorAt10m_A::Ingredients{
-      std::vector<std::string>{"surface_eastward_wind", "surface_northward_wind",
+      std::vector<std::string>{"eastward_wind_at_surface", "northward_wind_at_surface",
                                "eastward_wind", "northward_wind"}};
 
 // -------------------------------------------------------------------------------------------------
@@ -66,14 +66,14 @@ oops::JediVariables WindReductionFactorAt10m_A::ingredients() const {
 // -------------------------------------------------------------------------------------------------
 
 size_t WindReductionFactorAt10m_A::productLevels(const atlas::FieldSet & afieldset) const {
-    return afieldset.field("surface_eastward_wind").shape(1);
+    return afieldset.field("eastward_wind_at_surface").shape(1);
 }
 
 // -------------------------------------------------------------------------------------------------
 
 atlas::FunctionSpace WindReductionFactorAt10m_A::productFunctionSpace(const atlas::FieldSet
 & afieldset) const {
-    return afieldset.field("surface_eastward_wind").functionspace();
+    return afieldset.field("eastward_wind_at_surface").functionspace();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -85,8 +85,8 @@ bool WindReductionFactorAt10m_A::executeNL(atlas::FieldSet & afieldset) {
     // Get the fields
     atlas::Field uu = afieldset.field("eastward_wind");
     atlas::Field vv = afieldset.field("northward_wind");
-    atlas::Field u10m = afieldset.field("surface_eastward_wind");
-    atlas::Field v10m = afieldset.field("surface_northward_wind");
+    atlas::Field u10m = afieldset.field("eastward_wind_at_surface");
+    atlas::Field v10m = afieldset.field("northward_wind_at_surface");
     // output:
     atlas::Field f10m = afieldset.field("wind_reduction_factor_at_10m");
 

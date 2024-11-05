@@ -71,7 +71,6 @@ AtlasInterpWrapper::AtlasInterpWrapper(const atlas::grid::Partitioner & srcParti
   } else {
     throw eckit::NotImplemented(dstFspace.type()
       + " destination function space type not supported yet", Here());
-    targetFspace_ = atlas::FunctionSpace();
   }
 
   // Interpolation

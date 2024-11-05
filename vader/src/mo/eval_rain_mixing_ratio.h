@@ -13,10 +13,7 @@ namespace mo {
 
 /// \brief function to evaluate the rain mixing ratio
 ///        wrt moist air and condensed water:
-///   qrain = m_r/m_t
-/// where ...
-///   m_r = rain mixing ratio wrt dry air
-///   m_t = moist air and condensed water mixing ratio wrt dry air
+///   qrain = rain_mixing_ratio_wrt_dry_air/total_water_mixing_ratio_wrt_dry_air
 ///
 bool eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
         atlas::FieldSet & stateFlds);

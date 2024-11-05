@@ -64,10 +64,10 @@ class SyntheticData : public oops::Application {
   // -----------------------------------------------------------------------------
   SyntheticData() {
     oops::instantiateCostFactory<MODEL>();
-    saber::instantiateCovarFactory<MODEL>();
     oops::instantiateMinFactory<MODEL>();
     oops::instantiateObsErrorFactory<MODEL>();
     oops::instantiateTlmFactory<MODEL>();
+    instantiateCovarFactory<MODEL>();
   }
   // -----------------------------------------------------------------------------
   virtual ~SyntheticData() {}

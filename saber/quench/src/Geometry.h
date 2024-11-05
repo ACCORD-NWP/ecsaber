@@ -151,6 +151,9 @@ class GeometryParameters : public oops::Parameters {
   // Aliases for model files
   oops::Parameter<std::vector<AliasParameters>> alias{"alias", {}, this};
 
+  // Latitudes from south to north in files
+  oops::Parameter<bool> latSouthToNorth{"latitude south to north", true, this};
+
   // Interpolation parameters
   oops::OptionalParameter<InterpolationParameters> interpolation{"interpolation", this};
 };
@@ -179,23 +182,23 @@ class Geometry : public util::Printable,
   // Accessors
   const eckit::mpi::Comm & getComm() const
     {return comm_;}
-  const size_t halo() const
+  size_t halo() const
     {return halo_;}
-  const atlas::Grid grid() const
+  atlas::Grid grid() const
     {return grid_;}
-  const std::string gridType() const
+  std::string gridType() const
     {return gridType_;}
-  const atlas::grid::Partitioner partitioner() const
+  atlas::grid::Partitioner partitioner() const
     {return partitioner_;}
-  const atlas::Mesh mesh() const
+  atlas::Mesh mesh() const
     {return mesh_;}
   const atlas::FunctionSpace & functionSpace() const
     {return functionSpace_;}
   const atlas::FieldSet & fields() const
     {return fields_;}
-  const size_t & levels(const size_t & groupIndex) const
+  size_t levels(const size_t & groupIndex) const
     {return groups_[groupIndex].levels_;}
-  const size_t & levels(const std::string & var) const
+  size_t levels(const std::string & var) const
     {return groups_[groupIndex_.at(var)].levels_;}
   size_t groups() const
     {return groups_.size();}
@@ -205,9 +208,11 @@ class Geometry : public util::Printable,
     {return modelData_;}
   const std::vector<eckit::LocalConfiguration> & alias() const
     {return alias_;}
+  bool latSouthToNorth() const
+    {return latSouthToNorth_;}
   const eckit::LocalConfiguration & interpolation() const
     {return interpolation_;}
-  const bool & duplicatePoints() const
+  bool duplicatePoints() const
     {return duplicatePoints_;}
 
  private:
@@ -267,6 +272,9 @@ class Geometry : public util::Printable,
 
   // Aliases
   std::vector<eckit::LocalConfiguration> alias_;
+
+  // Latitudes from south to north in files
+  bool latSouthToNorth_;
 
   // Interpolation configuration
   eckit::LocalConfiguration interpolation_;

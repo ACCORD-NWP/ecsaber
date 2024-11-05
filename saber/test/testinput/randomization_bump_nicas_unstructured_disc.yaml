@@ -400,12 +400,12 @@ geometry:
   partitioner: equal_regions
   groups:
   - variables:
-    - stream_function
+    - air_horizontal_streamfunction
     levels: 2
 background:
   date: '2010-01-01T12:00:00Z'
   state variables:
-  - stream_function
+  - air_horizontal_streamfunction
 background error:
   covariance model: SABER
   saber central block:
@@ -425,11 +425,11 @@ background error:
         explicit length-scales: true
         horizontal length-scale:
         - groups:
-          - stream_function
+          - air_horizontal_streamfunction
           value: 2.0e4
         vertical length-scale:
         - groups:
-          - stream_function
+          - air_horizontal_streamfunction
           value: 3.0
   randomization size: 25
 output states:

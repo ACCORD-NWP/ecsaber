@@ -22,7 +22,7 @@ namespace vader {
 // Static attribute initialization
 const char AirPressureAtInterface_A::Name[] = "AirPressureAtInterface_A";
 const oops::JediVariables AirPressureAtInterface_A::Ingredients{
-      std::vector<std::string>{"surface_pressure"}};
+      std::vector<std::string>{"air_pressure_at_surface"}};
 
 // -------------------------------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ size_t AirPressureAtInterface_A::productLevels(const atlas::FieldSet & afieldset
 
 atlas::FunctionSpace AirPressureAtInterface_A::productFunctionSpace(const atlas::FieldSet
 & afieldset) const {
-    return afieldset.field("surface_pressure").functionspace();
+    return afieldset.field("air_pressure_at_surface").functionspace();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ bool AirPressureAtInterface_A::executeNL(atlas::FieldSet & afieldset) {
     oops::Log::trace() << "AirPressureAtInterface_A::executeNL Starting" << std::endl;
 
     // Get the fields
-    atlas::Field ps = afieldset.field("surface_pressure");
+    atlas::Field ps = afieldset.field("air_pressure_at_surface");
     atlas::Field prsi = afieldset.field("air_pressure_levels");
 
     // Get the units
@@ -94,14 +94,16 @@ bool AirPressureAtInterface_A::executeNL(atlas::FieldSet & afieldset) {
     ASSERT_MSG(prsi_units == ps_units, "In Vader::AirPressureAtInterface_A::executeNL the units "
                "for pressure " + prsi_units + "do not match the surface pressure units" + ps_units);
 
+    // Get number of levels
+    int nLevels = configVariables_.getInt("nLevels");
+
     // Extract ak/bk from client config
     std::vector<double> ak = configVariables_.getDoubleVector
                                                 ("sigma_pressure_hybrid_coordinate_a_coefficient");
     std::vector<double> bk = configVariables_.getDoubleVector
                                                 ("sigma_pressure_hybrid_coordinate_b_coefficient");
-
-    // Get number of levels
-    int nLevels = configVariables_.getInt("nLevels");
+    ASSERT(ak.size() == nLevels+1);
+    ASSERT(bk.size() == nLevels+1);
 
     // Get the grid size
     const int gridSize = ps.shape(0);

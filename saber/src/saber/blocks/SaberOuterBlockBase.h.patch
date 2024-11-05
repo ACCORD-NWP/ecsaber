@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2024-10-03 15:19:12.565116843 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2024-10-03 15:21:35.170740498 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2024-11-05 09:32:16.563348284 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2024-11-05 09:33:13.316807632 +0100
 @@ -18,9 +18,9 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -20,7 +20,7 @@
  
  namespace oops {
    class FieldSet3D;
-@@ -279,13 +280,16 @@
+@@ -280,13 +281,16 @@
      } else {
        incVars.reset(new oops::JediVariables(vars));
      }
@@ -39,7 +39,7 @@
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -315,10 +319,11 @@
+@@ -316,10 +320,11 @@
      } else {
        incVars.reset(new oops::JediVariables(vars));
      }

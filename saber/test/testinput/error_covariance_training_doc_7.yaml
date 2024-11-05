@@ -5,13 +5,13 @@ geometry:
     N: 50
   groups:
   - variables:
-    - stream_function
+    - air_horizontal_streamfunction
     levels: 1
   halo: 1
 background:
   date: 2010-01-01T12:00:00Z
   state variables:
-  - stream_function
+  - air_horizontal_streamfunction
 background error:
   covariance model: SABER
   ensemble:
@@ -20,7 +20,7 @@ background error:
         date: 2010-01-01T12:00:00Z
         filepath: testdata/randomization_doc_5/_MPI_-_OMP__member_%mem%
         state variables:
-        - stream_function
+        - air_horizontal_streamfunction
       pattern: '%mem%'
       nmembers: 50
       zero padding: 6
@@ -63,57 +63,57 @@ background error:
         resolution: 10.0
         interpolation type:
         - groups:
-          - stream_function
+          - air_horizontal_streamfunction
           type: si
       dirac:
       - longitude: -45.0
         latitude: 0.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: -135.0
         latitude: 0.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: 45.0
         latitude: 0.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: 135.0
         latitude: 0.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: -135.0
         latitude: 45.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: -45.0
         latitude: 45.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: 45.0
         latitude: 45.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: 135.0
         latitude: 45.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: -135.0
         latitude: -45.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: -45.0
         latitude: -45.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: 45.0
         latitude: -45.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       - longitude: 135.0
         latitude: -45.0
         level: 1
-        variable: stream_function
+        variable: air_horizontal_streamfunction
       output model files:
       - parameter: dirac_mom
         file:

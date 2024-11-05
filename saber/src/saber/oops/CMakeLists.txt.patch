@@ -1,28 +1,25 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-08-27 12:40:59.873463443 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-08-02 15:43:44.926476978 +0200
-@@ -14,14 +14,35 @@
- # Applications
- ErrorCovarianceToolbox.h
- ProcessPerts.h
-+AssimEnsemble.h
-+EnsembleVariance.h
-+EvilUpdate.h
-+MakeObs.h
-+BGOS.h
-+SyntheticData.h
- 
- # Utilities
-+ECUtilities.cc
-+ECUtilities.h
- Utilities.h
- Utilities.cc
- 
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-11-05 11:24:26.038965982 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-11-05 11:27:33.033826862 +0100
+@@ -22,6 +22,32 @@
  # Factories
  instantiateCovarFactory.h
  instantiateLocalizationFactory.h
-+instantiateMinFactory.h
++
++# Utilities
++ECUtilities.cc
++ECUtilities.h
++
++# Other applications
++AssimEnsemble.h
++EnsembleVariance.h
++MakeObs.h
++BGOS.h
++SyntheticData.h
 +
 +# EVIL
++DRPLanczosEVILMinimizer.h
++EvilUpdate.h
++instantiateMinFactory.h
 +RitzPairs.h
 +PLanczosEVILMinimizer.h
 +RPLanczosEVILMinimizer.h

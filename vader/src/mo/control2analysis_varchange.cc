@@ -25,7 +25,7 @@ namespace mo {
 /// \details Calculate the hydrostatic exner pressure (on levels)
 ///          using air_pressure_minus_one and virtual potential temperature.
 void evalHydrostaticExnerLevels(atlas::FieldSet & stateFlds) {
-  const auto rpView = make_view<const double, 2>(stateFlds["height_levels"]);
+  const auto rpView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
   const auto vthetaView = make_view<const double, 2>(stateFlds["virtual_potential_temperature"]);
   const auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels_minus_one"]);
   auto hexnerView = make_view<double, 2>(stateFlds["hydrostatic_exner_levels"]);

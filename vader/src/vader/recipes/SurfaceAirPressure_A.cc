@@ -44,7 +44,7 @@ std::string SurfaceAirPressure_A::name() const {
 // -------------------------------------------------------------------------------------------------
 
 oops::Variable SurfaceAirPressure_A::product() const {
-    return oops::Variable{"surface_pressure"};
+    return oops::Variable{"air_pressure_at_surface"};
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ bool SurfaceAirPressure_A::executeNL(atlas::FieldSet & afieldset) {
 
     // Get the fields
     atlas::Field delp = afieldset.field("air_pressure_thickness");
-    atlas::Field ps = afieldset.field("surface_pressure");
+    atlas::Field ps = afieldset.field("air_pressure_at_surface");
 
     // Get the units
     std::string delp_units, ps_units, prsi_units;

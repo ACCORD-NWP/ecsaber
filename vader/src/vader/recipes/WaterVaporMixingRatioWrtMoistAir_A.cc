@@ -22,7 +22,8 @@ namespace vader
 
 // Static attribute initialization
 const char WaterVaporMixingRatioWrtMoistAir_A::Name[] = "WaterVaporMixingRatioWrtMoistAir_A";
-const oops::JediVariables WaterVaporMixingRatioWrtMoistAir_A::Ingredients{{"humidity_mixing_ratio"}};
+const oops::JediVariables
+  WaterVaporMixingRatioWrtMoistAir_A::Ingredients{{"humidity_mixing_ratio"}};
 
 // Register the maker
 static RecipeMaker<WaterVaporMixingRatioWrtMoistAir_A> makerWaterVaporMixingRatioWrtMoistAir_(

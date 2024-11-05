@@ -5,8 +5,8 @@ geometry:
   partitioner: cubedsphere
   groups:
   - variables: &vars
-    - streamfunction
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     levels: 70
   halo: 1
 
