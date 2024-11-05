@@ -78,13 +78,13 @@ vader/recipes/TotalRelativeHumidity.h
 vader/recipes/TotalRelativeHumidity_A.cc
 vader/recipes/TotalWater.h
 vader/recipes/TotalWater_A.cc
-vader/recipes/uwind_at_10m_A.cc
-vader/recipes/uwind_at_10m.h
+vader/recipes/EastwardWindAt10m_A.cc
+vader/recipes/EastwardWindAt10m.h
 vader/recipes/VirtualPotentialTemperature_A.cc
 vader/recipes/VirtualPotentialTemperature_B.cc
 vader/recipes/VirtualPotentialTemperature.h
-vader/recipes/vwind_at_10m_A.cc
-vader/recipes/vwind_at_10m.h
+vader/recipes/NorthwardWindAt10m_A.cc
+vader/recipes/NorthwardWindAt10m.h
 vader/recipes/WaterVaporMixingRatioWrtMoistAir.h
 vader/recipes/WaterVaporMixingRatioWrtMoistAir_A.cc
 vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater.h

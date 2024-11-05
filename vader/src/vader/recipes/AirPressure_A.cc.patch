@@ -1,0 +1,12 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/vader/src/vader/recipes/AirPressure_A.cc.tmp	2024-11-05 11:37:17.011503356 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/vader/src/vader/recipes/AirPressure_A.cc	2024-11-05 11:30:35.404664194 +0100
+@@ -21,7 +21,8 @@
+ 
+ // Static attribute initialization
+ const char AirPressure_A::Name[] = "AirPressure_A";
+-const oops::JediVariables AirPressure_A::Ingredients{std::vector<std::string>{"air_pressure_levels"}};
++const oops::JediVariables
++  AirPressure_A::Ingredients{std::vector<std::string>{"air_pressure_levels"}};
+ 
+ // -------------------------------------------------------------------------------------------------
+ 

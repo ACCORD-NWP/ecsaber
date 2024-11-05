@@ -41,6 +41,7 @@
 #include "oops/util/Logger.h"
 #include "oops/util/abor1_cpp.h"
 
+#include "saber/oops/instantiateCovarFactory.h"
 #include "saber/oops/Utilities.h"
 
 namespace saber {
@@ -72,6 +73,7 @@ class EvilUpdate : public oops::Application {
     oops::instantiateMinFactory<MODEL>();
     oops::instantiateObsErrorFactory<MODEL>();
     oops::instantiateTlmFactory<MODEL>();
+    instantiateCovarFactory<MODEL>();
   }
   // -----------------------------------------------------------------------------
   virtual ~EvilUpdate() {}

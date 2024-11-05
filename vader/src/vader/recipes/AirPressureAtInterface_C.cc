@@ -22,7 +22,7 @@ namespace vader {
 // Static attribute initialization
 const char AirPressureAtInterface_C::Name[] = "AirPressureAtInterface_C";
 const oops::JediVariables AirPressureAtInterface_C::Ingredients{
-      std::vector<std::string>{"surface_pressure", "air_pressure",
+      std::vector<std::string>{"air_pressure_at_surface", "air_pressure",
                                "geometric_height_of_layer_interfaces"}};
 
 // -------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ bool AirPressureAtInterface_C::executeNL(atlas::FieldSet & afieldset) {
     oops::Log::trace() << "AirPressureAtInterface_C::executeNL Starting" << std::endl;
 
     // Get the input fields
-    atlas::Field ps = afieldset.field("surface_pressure");
+    atlas::Field ps = afieldset.field("air_pressure_at_surface");
     atlas::Field p = afieldset.field("air_pressure");
     atlas::Field zgrid = afieldset.field("geometric_height_of_layer_interfaces");
     // output:

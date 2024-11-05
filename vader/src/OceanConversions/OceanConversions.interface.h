@@ -5,8 +5,7 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#ifndef SRC_OCEANCONVERSIONS_OCEANCONVERSIONS_INTERFACE_H_
-#define SRC_OCEANCONVERSIONS_OCEANCONVERSIONS_INTERFACE_H_
+#pragma once
 
 namespace vader {
 
@@ -35,5 +34,3 @@ extern "C" {
 }  // extern C
 
 }  // namespace vader
-
-#endif  // SRC_OCEANCONVERSIONS_OCEANCONVERSIONS_INTERFACE_H_

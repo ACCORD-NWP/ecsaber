@@ -5,8 +5,8 @@ geometry:
     N: 12
   groups:
   - variables:
-    - streamfunction
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - unbalanced_pressure_levels_minus_one
     - mu
     levels: 70
@@ -14,8 +14,8 @@ geometry:
 background:
   date: 2010-01-01T12:00:00Z
   state variables:
-  - streamfunction
-  - velocity_potential
+  - air_horizontal_streamfunction
+  - air_horizontal_velocity_potential
   - unbalanced_pressure_levels_minus_one
   - mu
 background error:
@@ -52,8 +52,8 @@ dirac:
   - 1
   - 1
   variable:
-  - streamfunction
-  - velocity_potential
+  - air_horizontal_streamfunction
+  - air_horizontal_velocity_potential
   - unbalanced_pressure_levels_minus_one
   - mu
 diagnostic points:
@@ -73,8 +73,8 @@ diagnostic points:
   - 2
   - 2
   variable:
-  - streamfunction
-  - velocity_potential
+  - air_horizontal_streamfunction
+  - air_horizontal_velocity_potential
   - unbalanced_pressure_levels_minus_one
   - mu
 output dirac:

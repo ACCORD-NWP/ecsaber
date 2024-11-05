@@ -26,8 +26,8 @@ namespace mo {
 void eval_air_density_from_pressure_levels_minus_one_nl(atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_air_density_from_pressure_levels_minus_one_nl()] starting ..."
                      << std::endl;
-  const auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
-  const auto hView = make_view<const double, 2>(stateFlds["height"]);
+  const auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
+  const auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
   const auto vptView = make_view<const double, 2>(stateFlds["virtual_potential_temperature"]);
   const auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels_minus_one"]);
   auto rhoView = make_view<double, 2>(stateFlds["air_density_levels_minus_one"]);
@@ -66,8 +66,8 @@ void eval_air_density_from_pressure_levels_minus_one_tl(atlas::FieldSet & incFld
                                                       const atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_air_density_from_pressure_levels_minus_one_tl()] starting ..."
                      << std::endl;
-  auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
-  auto hView = make_view<const double, 2>(stateFlds["height"]);
+  auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
+  auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
   auto vptView = make_view<const double, 2>(stateFlds["virtual_potential_temperature"]);
   auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels_minus_one"]);
   auto rhoView = make_view<const double, 2>(stateFlds["air_density_levels_minus_one"]);
@@ -108,8 +108,8 @@ void eval_air_density_from_pressure_levels_minus_one_ad(atlas::FieldSet & hatFld
                                                      const atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_air_density_from_pressure_levels_minus_one_ad()] starting ..."
                      << std::endl;
-  auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
-  auto hView = make_view<const double, 2>(stateFlds["height"]);
+  auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
+  auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
   auto vptView = make_view<const double, 2>(stateFlds["virtual_potential_temperature"]);
   auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels_minus_one"]);
   auto rhoView = make_view<const double, 2>(stateFlds["air_density_levels_minus_one"]);
@@ -161,8 +161,8 @@ void eval_air_density_from_pressure_levels_minus_one_ad(atlas::FieldSet & hatFld
 void eval_air_density_from_pressure_levels_nl(atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_air_density_from_pressure_levels_nl()] starting ..."
                      << std::endl;
-  const auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
-  const auto hView = make_view<const double, 2>(stateFlds["height"]);
+  const auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
+  const auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
   const auto vptView = make_view<const double, 2>(stateFlds["virtual_potential_temperature"]);
   const auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels"]);
   auto rhoView = make_view<double, 2>(stateFlds["air_density_levels_minus_one"]);
@@ -201,8 +201,8 @@ void eval_air_density_from_pressure_levels_tl(atlas::FieldSet & incFlds,
                                             const atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_air_density_from_pressure_levels_tl()] starting ..."
                      << std::endl;
-  auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
-  auto hView = make_view<const double, 2>(stateFlds["height"]);
+  auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
+  auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
   auto vptView = make_view<const double, 2>(stateFlds["virtual_potential_temperature"]);
   auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels"]);
   auto rhoView = make_view<const double, 2>(stateFlds["air_density_levels_minus_one"]);
@@ -244,8 +244,8 @@ void eval_air_density_from_pressure_levels_ad(atlas::FieldSet & hatFlds,
                                             const atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_air_density_from_pressure_levels_ad()] starting ..."
                      << std::endl;
-  auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
-  auto hView = make_view<const double, 2>(stateFlds["height"]);
+  auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
+  auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
   auto vptView = make_view<const double, 2>(stateFlds["virtual_potential_temperature"]);
   auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels"]);
   auto rhoView = make_view<const double, 2>(stateFlds["air_density_levels_minus_one"]);

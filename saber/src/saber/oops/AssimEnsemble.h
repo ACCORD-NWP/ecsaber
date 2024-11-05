@@ -19,6 +19,8 @@
 #include "oops/util/Duration.h"
 #include "oops/util/Logger.h"
 
+#include "saber/oops/instantiateCovarFactory.h"
+
 #include "util/MPIWrapper.h"
 
 namespace saber {
@@ -27,7 +29,9 @@ template <typename MODEL>
 class AssimEnsemble : public oops::Application {
  public:
   // -----------------------------------------------------------------------------
-  AssimEnsemble() {}
+  AssimEnsemble() {
+    instantiateCovarFactory<MODEL>();
+  }
 
   // -----------------------------------------------------------------------------
   virtual ~AssimEnsemble() {}

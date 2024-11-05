@@ -34,7 +34,10 @@ bool eval_ratio_to_second(atlas::FieldSet & fields, const std::vector<std::strin
     throw eckit::Exception("Expected 3 variable names in vars", Here());
   }
 
-  // vars[0] = m_x = [ mv | mci | mcl | m_r ]
+  // vars[0] = m_x = [ water_vapor_mixing_ratio_wrt_dry_air        |
+  //                   cloud_ice_mixing_ratio_wrt_dry_air          |
+  //                   cloud_liquid_water_mixing_ratio_wrt_dry_air |
+  //                   rain_mixing_ratio_wrt_dry_air ]
   const auto ds_m_x  = make_view<const double, 2>(fields[vars[0]]);
   const auto ds_m_t  = make_view<const double, 2>(fields[vars[1]]);
   auto ds_tfield  = make_view<double, 2>(fields[vars[2]]);
@@ -62,7 +65,10 @@ void eval_ratio_to_second_tl(atlas::FieldSet & incFields,
     throw eckit::Exception("Expected 3 variable names in vars", Here());
   }
 
-  // vars[0] = m_x = [ mv | mci | mcl | m_r ]
+  // vars[0] = m_x = [ water_vapor_mixing_ratio_wrt_dry_air        |
+  //                   cloud_ice_mixing_ratio_wrt_dry_air          |
+  //                   cloud_liquid_water_mixing_ratio_wrt_dry_air |
+  //                   rain_mixing_ratio_wrt_dry_air ]
   const auto inc_m_x  = make_view<const double, 2>(incFields[vars[0]]);
   const auto inc_m_t  = make_view<const double, 2>(incFields[vars[1]]);
   const auto m_x  = make_view<const double, 2>(fields[vars[0]]);
@@ -92,7 +98,10 @@ void eval_ratio_to_second_ad(atlas::FieldSet & hatFields,
     throw eckit::Exception("Expected 3 variable names in vars", Here());
   }
 
-  // vars[0] = m_x = [ mv | mci | mcl | m_r ]
+  // vars[0] = m_x = [ water_vapor_mixing_ratio_wrt_dry_air        |
+  //                   cloud_ice_mixing_ratio_wrt_dry_air          |
+  //                   cloud_liquid_water_mixing_ratio_wrt_dry_air |
+  //                   rain_mixing_ratio_wrt_dry_air ]
   auto hat_m_x  = make_view<double, 2>(hatFields[vars[0]]);
   auto hat_m_t  = make_view<double, 2>(hatFields[vars[1]]);
   const auto m_x  = make_view<const double, 2>(fields[vars[0]]);

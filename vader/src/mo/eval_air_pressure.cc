@@ -26,9 +26,9 @@ void eval_air_pressure_nl(atlas::FieldSet & stateFlds) {
   //      - it is currently not used as field already exists in file.
 
   // height at pressure levels
-  auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
+  auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
   // height at theta levels
-  auto hView = make_view<const double, 2>(stateFlds["height"]);
+  auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
   auto pView = make_view<const double, 2>(stateFlds["air_pressure_levels"]);
   auto pbarView = make_view<double, 2>(stateFlds["air_pressure"]);
 
@@ -49,9 +49,9 @@ void eval_air_pressure_nl(atlas::FieldSet & stateFlds) {
 
 void eval_air_pressure_tl(atlas::FieldSet & incFlds, const atlas::FieldSet & stateFlds) {
   // height at pressure levels
-  auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
+  auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
   // height at theta levels
-  auto hView = make_view<const double, 2>(stateFlds["height"]);
+  auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
   auto pIncView = make_view<const double, 2>(incFlds["air_pressure_levels"]);
   auto pbarIncView = make_view<double, 2>(incFlds["air_pressure"]);
 
@@ -72,9 +72,9 @@ void eval_air_pressure_tl(atlas::FieldSet & incFlds, const atlas::FieldSet & sta
 
 void eval_air_pressure_ad(atlas::FieldSet & hatFlds, const atlas::FieldSet & stateFlds) {
   // height at pressure levels
-  const auto hlView = make_view<const double, 2>(stateFlds["height_levels"]);
+  const auto hlView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
   // height at theta levels
-  const auto hView = make_view<const double, 2>(stateFlds["height"]);
+  const auto hView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
 
   auto pbarHatView = make_view<double, 2>(hatFlds["air_pressure"]);
   auto pHatView = make_view<double, 2>(hatFlds["air_pressure_levels"]);

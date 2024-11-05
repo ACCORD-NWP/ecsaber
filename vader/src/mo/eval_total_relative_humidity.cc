@@ -22,7 +22,8 @@ namespace mo {
 bool eval_total_relative_humidity_nl(atlas::FieldSet & fields) {
   oops::Log::trace() << "[eval_total_relative_humidity_nl()] starting ..." << std::endl;
 
-  const auto qView = make_view<const double, 2>(fields["specific_humidity"]);
+  const auto qView = make_view<const double, 2>(
+                              fields["water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto qclView = make_view<const double, 2>
                  (fields["cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   const auto qciView = make_view<const double, 2>

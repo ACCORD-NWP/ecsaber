@@ -14,25 +14,30 @@ Localization.h
 # Applications
 ErrorCovarianceToolbox.h
 ProcessPerts.h
-AssimEnsemble.h
-EnsembleVariance.h
-EvilUpdate.h
-MakeObs.h
-BGOS.h
-SyntheticData.h
 
 # Utilities
-ECUtilities.cc
-ECUtilities.h
 Utilities.h
 Utilities.cc
 
 # Factories
 instantiateCovarFactory.h
 instantiateLocalizationFactory.h
-instantiateMinFactory.h
+
+# Utilities
+ECUtilities.cc
+ECUtilities.h
+
+# Other applications
+AssimEnsemble.h
+EnsembleVariance.h
+MakeObs.h
+BGOS.h
+SyntheticData.h
 
 # EVIL
+DRPLanczosEVILMinimizer.h
+EvilUpdate.h
+instantiateMinFactory.h
 RitzPairs.h
 PLanczosEVILMinimizer.h
 RPLanczosEVILMinimizer.h

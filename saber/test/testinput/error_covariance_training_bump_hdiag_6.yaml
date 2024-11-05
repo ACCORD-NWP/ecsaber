@@ -5,13 +5,13 @@ geometry:
     N: 12
   groups:
   - variables:
-    - stream_function
+    - air_horizontal_streamfunction
     levels: 2
   halo: 1
 background:
   date: 2010-01-01T12:00:00Z
   state variables:
-  - stream_function
+  - air_horizontal_streamfunction
 background error:
   covariance model: SABER
   iterative ensemble loading: true
@@ -20,7 +20,7 @@ background error:
     - date: 2010-01-01T12:00:00Z
       filepath: testdata/randomization_bump_nicas_L12L2/_MPI_-_OMP__member_000001
       state variables: &id001
-      - stream_function
+      - air_horizontal_streamfunction
     - date: 2010-01-01T12:00:00Z
       filepath: testdata/randomization_bump_nicas_L12L2/_MPI_-_OMP__member_000002
       state variables: *id001
@@ -56,7 +56,7 @@ background error:
         N: 10
       groups:
       - variables:
-        - stream_function
+        - air_horizontal_streamfunction
         levels: 2
       halo: 1
     ensemble:

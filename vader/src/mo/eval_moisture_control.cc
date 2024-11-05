@@ -21,9 +21,10 @@ namespace mo {
 
 void eval_moisture_control_traj(atlas::FieldSet & fields) {
   auto qtView = make_view<const double, 2>(fields["qt"]);
-  auto qView = make_view<const double, 2>(fields["specific_humidity"]);
-  auto thetaView = make_view<const double, 2>(fields["potential_temperature"]);
-  auto exnerView = make_view<const double, 2>(fields["exner"]);
+  auto qView = make_view<const double, 2>(
+                              fields["water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water"]);
+  auto thetaView = make_view<const double, 2>(fields["air_potential_temperature"]);
+  auto exnerView = make_view<const double, 2>(fields["dimensionless_exner_function"]);
   auto dlsvpdTView = make_view<const double, 2>(fields["dlsvpdT"]);
   auto qsatView = make_view<const double, 2>(fields["qsat"]);
   auto muAView = make_view<const double, 2>(fields["muA"]);
@@ -45,9 +46,9 @@ void eval_moisture_control_traj(atlas::FieldSet & fields) {
   auto muRecipDeterminantView = make_view<double, 2>(fields["muRecipDeterminant"]);
 
   // the comments below are there to allow checking with the VAR code.
-  const idx_t n_levels(fields["potential_temperature"].shape(1));
+  const idx_t n_levels(fields["air_potential_temperature"].shape(1));
   const idx_t sizeOwned =
-        util::getSizeOwned(fields["potential_temperature"].functionspace());
+        util::getSizeOwned(fields["air_potential_temperature"].functionspace());
   atlas_omp_parallel_for(idx_t ih = 0; ih < sizeOwned; ++ih) {
     for (idx_t ilev = 0; ilev < n_levels; ++ilev) {
       muRow1Column1View(ih, ilev) = muAView(ih, ilev) / qsatView(ih, ilev);  // beta2 * muA
@@ -75,7 +76,7 @@ void eval_moisture_control_tl(atlas::FieldSet & incFlds,
   auto muRow1Column2View = make_view<const double, 2>(augStateFlds["muRow1Column2"]);
   auto muRow2Column1View = make_view<const double, 2>(augStateFlds["muRow2Column1"]);
   auto muRow2Column2View = make_view<const double, 2>(augStateFlds["muRow2Column2"]);
-  auto thetaIncView = make_view<const double, 2>(incFlds["potential_temperature"]);
+  auto thetaIncView = make_view<const double, 2>(incFlds["air_potential_temperature"]);
   auto qtIncView = make_view<const double, 2>(incFlds["qt"]);
   auto muIncView = make_view<double, 2>(incFlds["mu"]);
   auto thetavIncView = make_view<double, 2>(incFlds["virtual_potential_temperature"]);
@@ -101,7 +102,7 @@ void eval_moisture_control_ad(atlas::FieldSet & hatFlds,
   auto muRow1Column2View = make_view<const double, 2>(augStateFlds["muRow1Column2"]);
   auto muRow2Column1View = make_view<const double, 2>(augStateFlds["muRow2Column1"]);
   auto muRow2Column2View = make_view<const double, 2>(augStateFlds["muRow2Column2"]);
-  auto thetaHatView = make_view<double, 2>(hatFlds["potential_temperature"]);
+  auto thetaHatView = make_view<double, 2>(hatFlds["air_potential_temperature"]);
   auto qtHatView = make_view<double, 2>(hatFlds["qt"]);
   auto muHatView = make_view<double, 2>(hatFlds["mu"]);
   auto thetavHatView = make_view<double, 2>(hatFlds["virtual_potential_temperature"]);
@@ -120,7 +121,7 @@ void eval_moisture_control_ad(atlas::FieldSet & hatFlds,
       muHatView(ih, ilev) = 0.0;
     }
   }
-  hatFlds["potential_temperature"].set_dirty();
+  hatFlds["air_potential_temperature"].set_dirty();
   hatFlds["qt"].set_dirty();
   hatFlds["mu"].set_dirty();
   hatFlds["virtual_potential_temperature"].set_dirty();
@@ -137,7 +138,7 @@ void eval_moisture_control_inv_tl(atlas::FieldSet & incFlds,
   auto muIncView = make_view<const double, 2>(incFlds["mu"]);
   auto thetavIncView = make_view<const double, 2>(incFlds["virtual_potential_temperature"]);
   auto qtIncView = make_view<double, 2>(incFlds["qt"]);
-  auto thetaIncView = make_view<double, 2>(incFlds["potential_temperature"]);
+  auto thetaIncView = make_view<double, 2>(incFlds["air_potential_temperature"]);
 
   const atlas::idx_t n_levels(incFlds["mu"].shape(1));
   const idx_t sizeOwned =
@@ -159,7 +160,7 @@ void eval_moisture_control_inv_tl(atlas::FieldSet & incFlds,
                            muRow1Column2View(ih, ilev) * thetavIncView(ih, ilev) );
     }
   }
-  incFlds["potential_temperature"].set_dirty();
+  incFlds["air_potential_temperature"].set_dirty();
   incFlds["qt"].set_dirty();
 }
 
@@ -173,7 +174,7 @@ void eval_moisture_control_inv_ad(atlas::FieldSet & hatFlds,
   auto qtHatView = make_view<double, 2>(hatFlds["qt"]);
   auto muHatView = make_view<double, 2>(hatFlds["mu"]);
   auto thetavHatView = make_view<double, 2>(hatFlds["virtual_potential_temperature"]);
-  auto thetaHatView = make_view<double, 2>(hatFlds["potential_temperature"]);
+  auto thetaHatView = make_view<double, 2>(hatFlds["air_potential_temperature"]);
 
   const atlas::idx_t n_levels(hatFlds["mu"].shape(1));
   const idx_t sizeOwned =
@@ -192,7 +193,7 @@ void eval_moisture_control_inv_ad(atlas::FieldSet & hatFlds,
       qtHatView(ih, ilev) = 0.0;
     }
   }
-  hatFlds["potential_temperature"].set_dirty();
+  hatFlds["air_potential_temperature"].set_dirty();
   hatFlds["qt"].set_dirty();
   hatFlds["mu"].set_dirty();
   hatFlds["virtual_potential_temperature"].set_dirty();

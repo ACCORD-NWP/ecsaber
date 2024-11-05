@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc.tmp.bak	2024-10-03 15:19:14.340124594 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc	2024-10-03 15:22:29.625979089 +0200
-@@ -1404,4 +1404,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc.tmp.bak	2024-11-05 09:32:18.449363967 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/quench/src/Fields.cc	2024-11-05 09:34:39.280458135 +0100
+@@ -1416,4 +1416,8 @@
  
  // -----------------------------------------------------------------------------
  

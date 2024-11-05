@@ -8,9 +8,9 @@ geometry:
     - eastward_wind
     - mu
     - northward_wind
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
     levels: 70
   partitioner: ectrans
   halo: 1
@@ -35,17 +35,17 @@ bands:
         normalize filter variance: false
         active variables:
         - mu
-        - streamfunction
+        - air_horizontal_streamfunction
         - unbalanced_pressure_levels_minus_one
-        - velocity_potential
+        - air_horizontal_velocity_potential
       - saber block name: spectral to gauss
         active variables:
         - eastward_wind
         - mu
         - northward_wind
-        - streamfunction
+        - air_horizontal_streamfunction
         - unbalanced_pressure_levels_minus_one
-        - velocity_potential
+        - air_horizontal_velocity_potential
         filter mode: true # instead of running the adjoint code it runs the inverse
 - band:
     residual increment from previous bands: true

@@ -21,8 +21,8 @@ namespace vader
 const char WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::Name[] =
         "WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A";
 const oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::
-        Ingredients{std::vector<std::string>{"specific_humidity"}};
-        // CCPP name: water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+        Ingredients{std::vector<std::string>{
+                                    "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water"}};
 
 // Register the maker
 static RecipeMaker<WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A> makerTotalWater_A_(
@@ -44,7 +44,7 @@ std::string WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::name() const
 
 oops::Variable WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::product() const
 {
-    return oops::Variable{"specific_humidity_at_two_meters_above_surface"};
+    return oops::Variable{"water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m"};
 }
 
 oops::JediVariables WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::ingredients() const
@@ -62,7 +62,7 @@ atlas::FunctionSpace WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::prod
                                             const atlas::FieldSet
                                             & afieldset) const
 {
-    return afieldset["specific_humidity"].functionspace();
+    return afieldset["water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water"].functionspace();
 }
 
 bool WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A::executeNL(atlas::FieldSet & afieldset)

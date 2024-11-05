@@ -43,7 +43,7 @@ AtlasInterpWrapper::AtlasInterpWrapper(const atlas::grid::Partitioner & srcParti
     const atlas::functionspace::NodeColumns fs(srcFspace);
     srcMesh = fs.mesh();
   } else {
-    throw eckit::FunctionalityNotSupported(srcFspace.type()
+    throw eckit::NotImplemented(srcFspace.type()
       + " source function space not supported yet", Here());
   }
 
@@ -69,9 +69,8 @@ AtlasInterpWrapper::AtlasInterpWrapper(const atlas::grid::Partitioner & srcParti
       targetFspace_ = atlas::functionspace::NodeColumns(targetMesh);
     }
   } else {
-    throw eckit::FunctionalityNotSupported(dstFspace.type()
+    throw eckit::NotImplemented(dstFspace.type()
       + " destination function space type not supported yet", Here());
-    targetFspace_ = atlas::FunctionSpace();
   }
 
   // Interpolation
@@ -85,7 +84,7 @@ AtlasInterpWrapper::AtlasInterpWrapper(const atlas::grid::Partitioner & srcParti
     interpConfig.set("type",
                      interpType == "" ? "unstructured-bilinear-lonlat" : interpType);
   } else {
-    throw eckit::FunctionalityNotSupported(srcFspace.type()
+    throw eckit::NotImplemented(srcFspace.type()
       + " source function space type not supported yet", Here());
   }
   interpConfig.set("adjoint", "true");

@@ -13,10 +13,7 @@ namespace mo {
 
 /// \brief function to evaluate the cloud ice water mixing ratio
 ///        wrt moist air and condensed water:
-///   qci = m_ci/m_t
-/// where ...
-///   m_ci = cloud ice water mixing ratio wrt dry air
-///   m_t  = moist air and condensed water mixing ratio wrt dry air
+///   qci = cloud_ice_mixing_ratio_wrt_dry_air/total_water_mixing_ratio_wrt_dry_air
 ///
 bool eval_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
         atlas::FieldSet & stateFlds);

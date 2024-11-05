@@ -21,8 +21,10 @@ namespace vader
 
 // Static attribute initialization
 const char AirVirtualTemperature_A::Name[] = "AirVirtualTemperature_A";
+// Note that water_vapor_mixing_ratio_wrt_moist_air is referred to as "specific humidity"
+// by some groups.
 const oops::JediVariables AirVirtualTemperature_A::Ingredients{
-      std::vector<std::string>{"air_temperature", "specific_humidity"}};
+      std::vector<std::string>{"air_temperature", "water_vapor_mixing_ratio_wrt_moist_air"}};
 
 // Register the maker
 static RecipeMaker<AirVirtualTemperature_A> makerTempToVTemp_(AirVirtualTemperature_A::Name);
@@ -70,7 +72,7 @@ bool AirVirtualTemperature_A::executeNL(atlas::FieldSet & afieldset)
     const double epsilon = configVariables_.getDouble("epsilon");
 
     atlas::Field temperature = afieldset.field("air_temperature");
-    atlas::Field specific_humidity = afieldset.field("specific_humidity");
+    atlas::Field specific_humidity = afieldset.field("water_vapor_mixing_ratio_wrt_moist_air");
     atlas::Field virtual_temperature = afieldset.field("virtual_temperature");
 
     auto temperature_view = atlas::array::make_view<double, 2>(temperature);
@@ -102,9 +104,10 @@ bool AirVirtualTemperature_A::executeTL(atlas::FieldSet & afieldsetTL,
     double epsilon = configVariables_.getDouble("epsilon");
 
     atlas::Field traj_temperature = afieldsetTraj.field("air_temperature");
-    atlas::Field traj_specific_humidity = afieldsetTraj.field("specific_humidity");
+    atlas::Field traj_specific_humidity =
+                                      afieldsetTraj.field("water_vapor_mixing_ratio_wrt_moist_air");
     atlas::Field tl_temperature = afieldsetTL.field("air_temperature");
-    atlas::Field tl_specific_humidity = afieldsetTL.field("specific_humidity");
+    atlas::Field tl_specific_humidity = afieldsetTL.field("water_vapor_mixing_ratio_wrt_moist_air");
     atlas::Field tl_virtual_temperature = afieldsetTL.field("virtual_temperature");
 
     auto tl_temperature_view = atlas::array::make_view<double, 2>(tl_temperature);
@@ -140,9 +143,10 @@ bool AirVirtualTemperature_A::executeAD(atlas::FieldSet & afieldsetAD,
     double epsilon = configVariables_.getDouble("epsilon");
 
     atlas::Field traj_temperature = afieldsetTraj.field("air_temperature");
-    atlas::Field traj_specific_humidity = afieldsetTraj.field("specific_humidity");
+    atlas::Field traj_specific_humidity =
+                                      afieldsetTraj.field("water_vapor_mixing_ratio_wrt_moist_air");
     atlas::Field ad_temperature = afieldsetAD.field("air_temperature");
-    atlas::Field ad_specific_humidity = afieldsetAD.field("specific_humidity");
+    atlas::Field ad_specific_humidity = afieldsetAD.field("water_vapor_mixing_ratio_wrt_moist_air");
     atlas::Field ad_virtual_temperature = afieldsetAD.field("virtual_temperature");
 
     auto ad_temperature_view = atlas::array::make_view<double, 2>(ad_temperature);

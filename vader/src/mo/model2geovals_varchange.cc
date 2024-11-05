@@ -34,18 +34,20 @@ bool evalParamAParamB(atlas::FieldSet & stateFlds)
   oops::Log::trace() << "[evalParamAParamB2()] starting ..." << std::endl;
 
   std::size_t blindex;
-  if (!stateFlds["height"].metadata().has("boundary_layer_index")) {
+  if (!stateFlds["height_above_mean_sea_level"].metadata().has("boundary_layer_index")) {
     oops::Log::error() << "ERROR - data validation failed "
                           "we expect boundary_layer_index value "
                           "in the meta data of the height field" << std::endl;
   }
-  stateFlds["height"].metadata().get("boundary_layer_index", blindex);
+  stateFlds["height_above_mean_sea_level"].metadata().get("boundary_layer_index", blindex);
 
-  const auto heightView = make_view<const double, 2>(stateFlds["height"]);
-  const auto heightLevelsView = make_view<const double, 2>(stateFlds["height_levels"]);
+  const auto heightView = make_view<const double, 2>(stateFlds["height_above_mean_sea_level"]);
+  const auto heightLevelsView =
+                        make_view<const double, 2>(stateFlds["height_above_mean_sea_level_levels"]);
   const auto pressureLevelsView = make_view<const double, 2>
       (stateFlds["air_pressure_levels_minus_one"]);
-  const auto specificHumidityView = make_view<const double, 2>(stateFlds["specific_humidity"]);
+  const auto specificHumidityView = make_view<const double, 2>(
+                           stateFlds["water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water"]);
   auto param_aView = make_view<double, 2>(stateFlds["surf_param_a"]);
   auto param_bView = make_view<double, 2>(stateFlds["surf_param_b"]);
 

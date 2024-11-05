@@ -34,8 +34,8 @@ namespace vader {
 
 // -----------------------------------------------------------------------------
 
-class MoistureControlCovarianceParameters : public oops::Parameters {
-  OOPS_CONCRETE_PARAMETERS(MoistureControlCovarianceParameters, oops::Parameters)
+class MoistureControlReadParameters : public oops::Parameters {
+  OOPS_CONCRETE_PARAMETERS(MoistureControlReadParameters, oops::Parameters)
  public:
   oops::RequiredParameter<std::string> covariance_file_path{"covariance file path", this};
   oops::Parameter<int> mu_bins{"rht bins", "relative humidity bins", 30, this};
@@ -47,19 +47,20 @@ class MoistureControlParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(MoistureControlParameters, SaberBlockParametersBase)
 
  public:
-  oops::RequiredParameter<MoistureControlCovarianceParameters>
-    moistureControlParams{"covariance data", this};
+  // Read parameters
+  oops::OptionalParameter<MoistureControlReadParameters> readParams{"read", this};
+
   oops::JediVariables mandatoryActiveVars() const override {
     return oops::JediVariables({std::vector<std::string>{
         "qt",
         "mu",
-        "potential_temperature",
+        "air_potential_temperature",
         "virtual_potential_temperature"}});
   }
 
   const oops::JediVariables mandatoryStateVars() const override {
-    return oops::JediVariables({"qt", "specific_humidity",
-                            "potential_temperature", "exner",
+    return oops::JediVariables({"qt", "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water",
+                            "air_potential_temperature", "dimensionless_exner_function",
                             "dlsvpdT", "qsat", "rht"});
   }
 
@@ -74,7 +75,7 @@ class MoistureControlParameters : public SaberBlockParametersBase {
   }
 
   oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
-    oops::JediVariables vars({outerVars["potential_temperature"],
+    oops::JediVariables vars({outerVars["air_potential_temperature"],
                           outerVars["qt"]});
     return vars;
   }
@@ -102,6 +103,9 @@ class MoistureControl : public SaberOuterBlockBase {
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
   void leftInverseMultiply(oops::FieldSet3D & fset) const override;
+  void read() override;
+  void directCalibration(const oops::FieldSets & fset) override;
+  void write() const override;
 
  private:
   void print(std::ostream &) const override;
@@ -109,6 +113,8 @@ class MoistureControl : public SaberOuterBlockBase {
   const oops::JediVariables innerVars_;
   const oops::JediVariables activeOuterVars_;
   const oops::JediVariables innerOnlyVars_;
+  const std::size_t nlevs_;
+  Parameters_ params_;
   atlas::FieldSet covFieldSet_;
   atlas::FieldSet augmentedStateFieldSet_;
 };
@@ -117,7 +123,7 @@ class MoistureControl : public SaberOuterBlockBase {
 
 atlas::FieldSet createMuStats(const size_t &,
                               const atlas::FieldSet &,
-                              const MoistureControlCovarianceParameters &);
+                              const MoistureControlReadParameters &);
 
 // -----------------------------------------------------------------------------
 

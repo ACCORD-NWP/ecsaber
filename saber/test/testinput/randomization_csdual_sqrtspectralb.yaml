@@ -7,9 +7,9 @@ geometry:
   groups:
   - variables: &vars
     - mu
-    - streamfunction
+    - air_horizontal_streamfunction
     - unbalanced_pressure_levels_minus_one
-    - velocity_potential
+    - air_horizontal_velocity_potential
     levels: 70
   halo: 1
 background:

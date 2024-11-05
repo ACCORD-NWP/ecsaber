@@ -23,7 +23,7 @@ namespace vader
 // Static attribute initialization
 const char AirPotentialTemperature_A::Name[] = "AirPotentialTemperature_A";
 const oops::JediVariables AirPotentialTemperature_A::Ingredients{
-      std::vector<std::string>{"air_temperature", "surface_pressure"}};
+      std::vector<std::string>{"air_temperature", "air_pressure_at_surface"}};
 
 // Register the maker
 static RecipeMaker<AirPotentialTemperature_A> makerTempToPTemp_(AirPotentialTemperature_A::Name);
@@ -43,8 +43,7 @@ std::string AirPotentialTemperature_A::name() const
 
 oops::Variable AirPotentialTemperature_A::product() const
 {
-    // TODO(vahl): update this to air_potential_temperature (models will also need to adapt)
-    return oops::Variable("potential_temperature");
+    return oops::Variable("air_potential_temperature");
 }
 
 oops::JediVariables AirPotentialTemperature_A::ingredients() const
@@ -73,8 +72,8 @@ bool AirPotentialTemperature_A::executeNL(atlas::FieldSet & afieldset)
     const double kappa = configVariables_.getDouble("kappa");  // Need better name
 
     atlas::Field temperature = afieldset.field("air_temperature");
-    atlas::Field surface_pressure = afieldset.field("surface_pressure");
-    atlas::Field potential_temperature = afieldset.field("potential_temperature");
+    atlas::Field surface_pressure = afieldset.field("air_pressure_at_surface");
+    atlas::Field potential_temperature = afieldset.field("air_potential_temperature");
     std::string t_units, ps_units;
 
     temperature.metadata().get("units", t_units);

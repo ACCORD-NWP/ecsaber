@@ -14,6 +14,10 @@
 #include "oops/util/Logger.h"
 #include "vader/recipes/TotalWater.h"
 
+namespace {
+  const char specific_humidity_mo[] = "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water";
+}  // namespace
+
 namespace vader
 {
 // ------------------------------------------------------------------------------------------------
@@ -21,7 +25,7 @@ namespace vader
 // Static attribute initialization
 const char TotalWater_A::Name[] = "TotalWater_A";
 const oops::JediVariables TotalWater_A::
-    Ingredients{std::vector<std::string>{"specific_humidity",
+    Ingredients{std::vector<std::string>{specific_humidity_mo,
                     "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water",
                     "cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water"}};
 
@@ -52,13 +56,13 @@ oops::JediVariables TotalWater_A::ingredients() const
 
 size_t TotalWater_A::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return (afieldset["specific_humidity"].shape(1));
+    return (afieldset[specific_humidity_mo].shape(1));
 }
 
 atlas::FunctionSpace TotalWater_A::productFunctionSpace(const atlas::FieldSet
                                                         & afieldset) const
 {
-    return afieldset["specific_humidity"].functionspace();
+    return afieldset[specific_humidity_mo].functionspace();
 }
 
 bool TotalWater_A::executeNL(atlas::FieldSet & afieldset)

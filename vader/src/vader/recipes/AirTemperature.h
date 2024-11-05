@@ -56,9 +56,9 @@ class AirTemperature_C_Parameters : public RecipeParametersBase {
  *                                              * dimensionless_exner_function_at_interface
  */
 /*! \brief AirTemperature_A class defines a recipe for air_temperature
- *         from potential_temperature and exner
+ *         from air_potential_temperature and exner
  *
- *         NL air_temperature = potential_temperature * exner
+ *         NL air_temperature = air_potential_temperature * exner
  */
 class AirTemperature_A : public RecipeBase {
  public:

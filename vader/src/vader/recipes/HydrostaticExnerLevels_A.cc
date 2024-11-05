@@ -23,8 +23,8 @@ namespace vader
 // Static attribute initialization
 const char HydrostaticExnerLevels_A::Name[] = "HydrostaticExnerLevels_A";
 const oops::JediVariables HydrostaticExnerLevels_A::
-    Ingredients{std::vector<std::string>{"height_levels", "virtual_potential_temperature",
-                   "air_pressure_levels"}};
+    Ingredients{std::vector<std::string>{"height_above_mean_sea_level_levels",
+                                         "virtual_potential_temperature", "air_pressure_levels"}};
 
 // Register the maker
 static RecipeMaker<HydrostaticExnerLevels_A>
@@ -54,7 +54,7 @@ oops::JediVariables HydrostaticExnerLevels_A::ingredients() const
 
 size_t HydrostaticExnerLevels_A::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return (afieldset["height_levels"].shape(1));
+    return (afieldset["height_above_mean_sea_level_levels"].shape(1));
 }
 
 atlas::FunctionSpace HydrostaticExnerLevels_A::productFunctionSpace(const atlas::FieldSet

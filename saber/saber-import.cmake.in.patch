@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp.bak	2024-10-03 17:11:39.129301249 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-10-03 17:03:51.185426625 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp.bak	2024-11-05 09:32:22.829400274 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-11-05 09:40:30.474699081 +0100
 @@ -3,10 +3,6 @@
  
  include(CMakeFindDependencyMacro)
@@ -11,23 +11,16 @@
  if(@OPENMP@)
      find_dependency(OpenMP REQUIRED COMPONENTS Fortran)
  endif()
-@@ -46,9 +42,12 @@
-     endif()
+@@ -50,14 +46,18 @@
+     find_dependency(oops)
  endif()
  
--if(@oops_FOUND@) # oops_FOUND
-+if(NOT oops_FOUND)
-     find_dependency(oops)
--    set(saber_oops_FOUND True) #COMPONENT 'oops'
-+endif()
-+
 +if(NOT oops_patch_FOUND)
 +    find_dependency(oops_patch)
- endif()
- 
- if(@gsibec_FOUND@) # gsibec_FOUND
-@@ -65,10 +64,10 @@
-     set(saber_vader_FOUND True) #COMPONENT 'vader'
++endif()
++
+ if(NOT vader_FOUND)
+     find_dependency(vader)
  endif()
  
 -if(@FFTW_FOUND@) # FFTW_FOUND
@@ -39,5 +32,5 @@
 +#   set(saber_FFTW_FOUND True) #COMPONENT 'FFTW'
 +#endif()
  
- #Export Fortran compiler version for checking module compatibility
- set(@PROJECT_NAME@_MODULES_Fortran_COMPILER_ID @CMAKE_Fortran_COMPILER_ID@)
+ if(@gsibec_FOUND@) # gsibec_FOUND
+     find_dependency(gsibec)
