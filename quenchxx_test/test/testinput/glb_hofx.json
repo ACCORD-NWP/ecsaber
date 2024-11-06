@@ -1,5 +1,5 @@
 {
-  "resolution": {
+  "Geometry": {
     "function space": "StructuredColumns",
     "grid": {
       "type": "regular_lonlat",
@@ -13,8 +13,8 @@
     ],
     "halo": "1"
   },
-  "model": {},
-  "initial": {
+  "Model": {},
+  "Initial Condition": {
     "date": "2010-01-01T12:00:00Z",
     "variables": ["temperature"],
     "filepath": "testdata/glb_truth_12"

@@ -69,22 +69,6 @@ void receive(const eckit::mpi::Comm & comm, SERIALIZABLE & recvobj,
 // ------------------------------------------------------------------------------------------------
 
 template <typename SERIALIZABLE>
-void sendReceiveReplace(const eckit::mpi::Comm & comm, SERIALIZABLE & sendrecvobj,
-                        const int dest, const int sendtag, const int source, const int recvtag) {
-  util::Timer timer("oops::mpi", "sendReceiveReplace");
-  size_t sz = sendrecvobj.serialSize();
-  std::vector<double> sendrecvbuf;
-  sendrecvobj.serialize(sendrecvbuf);
-  eckit::mpi::Status status = comm.sendReceiveReplace(sendrecvbuf.data(), sz,
-                                                      dest, sendtag, source, recvtag);
-  size_t ii = 0;
-  sendrecvobj.deserialize(sendrecvbuf, ii);
-  ASSERT(ii == sz);
-}
-
-// ------------------------------------------------------------------------------------------------
-
-template <typename SERIALIZABLE>
 void broadcast(const eckit::mpi::Comm & comm, SERIALIZABLE & obj, const size_t root) {
   util::Timer timer("oops::mpi", "broadcast");
   size_t sz = obj.serialSize();
@@ -98,22 +82,6 @@ void broadcast(const eckit::mpi::Comm & comm, SERIALIZABLE & obj, const size_t r
   size_t ii = 0;
   obj.deserialize(buf, ii);
   ASSERT(ii == sz);
-}
-
-// ------------------------------------------------------------------------------------------------
-
-template <typename SERIALIZABLE>
-void reduceInPlace(const eckit::mpi::Comm & comm, SERIALIZABLE & obj, const size_t root) {
-  util::Timer timer("oops::mpi", "reduceInPlace");
-  size_t sz = obj.serialSize();
-  std::vector<double> buf;
-  obj.serialize(buf);
-  comm.reduceInPlace(buf.data(), sz, eckit::mpi::sum(), root);
-  size_t ii = 0;
-  if (comm.rank() == root) {
-    obj.deserialize(buf, ii);
-    ASSERT(ii == sz);
-  }
 }
 
 // ------------------------------------------------------------------------------------------------

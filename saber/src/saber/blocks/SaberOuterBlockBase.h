@@ -143,7 +143,7 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
   // Return flag to skip inverse application
   bool skipInverse() const {return skipInverse_;}
 
-  // Return flag to skip inverse application
+  // Return flag to replace adjoint with inverse in blockchain
   bool filterMode() const {return filterMode_;}
 
   // Return date/time

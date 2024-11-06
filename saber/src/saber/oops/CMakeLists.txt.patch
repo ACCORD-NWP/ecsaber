@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-11-05 11:24:26.038965982 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-11-05 11:27:33.033826862 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-11-06 17:30:06.994005486 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-11-06 17:27:29.714389192 +0100
 @@ -22,6 +22,32 @@
  # Factories
  instantiateCovarFactory.h
