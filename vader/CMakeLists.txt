@@ -5,7 +5,7 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 ################################################################################
-# VADER_PATCH
+# VADER
 ################################################################################
 
 cmake_minimum_required( VERSION 3.12 )
