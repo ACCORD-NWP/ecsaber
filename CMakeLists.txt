@@ -11,6 +11,9 @@ cmake_minimum_required( VERSION 3.12 )
 
 project( ecsaber VERSION 0.0.1 LANGUAGES CXX Fortran )
 
+# ECSABER flag
+set( ECSABER ON CACHE INTERNAL "ECSABER flag" )
+
 # Update flag
 set( ECSABER_UPDATE OFF )
 if( DEFINED ENV{ECSABER_UPDATE} )
