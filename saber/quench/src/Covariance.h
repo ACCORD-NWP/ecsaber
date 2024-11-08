@@ -18,8 +18,8 @@
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
-#include "src/CovarianceECInc.h"
 #include "src/Increment.h"
+#include "src/IncrModCtlVec.h"
 
 namespace quench {
   class Geometry;
@@ -39,10 +39,20 @@ class Covariance : public util::Printable,
   Covariance(const Geometry &,
              const Variables &,
              const eckit::Configuration &,
+             const State &)
+    {}
+  Covariance(const Geometry &,
+             const Variables &,
+             const eckit::Configuration &,
              const State &,
              const State &)
     {}
   ~Covariance()
+    {}
+
+  // Linearize
+  void linearize(const State &,
+                 const Geometry &)
     {}
 
   // Multiply and inverse multiply (identity)
@@ -53,6 +63,14 @@ class Covariance : public util::Printable,
                        Increment & dxo) const
     {dxo = dxi;}
 
+  // Square-root multiply and adjoint
+  void multiplySqrt(const IncrModCtlVec &,
+                    Increment &) const
+    {throw eckit::NotImplemented(Here());}
+  void multiplySqrtTrans(const Increment &,
+                         IncrModCtlVec &) const
+    {throw eckit::NotImplemented(Here());}
+
   // Randomization
   void randomize(Increment & dxo) const
     {dxo.random();}
@@ -61,9 +79,6 @@ class Covariance : public util::Printable,
   // Print
   void print(std::ostream & os) const
     {os << "Covariance";}
-
-/// ECSABER-specific definitions
-#include "src/CovarianceECDef.h"
 };
 
 // -----------------------------------------------------------------------------

@@ -11,6 +11,8 @@ Fields.cc
 Fields.h
 Geometry.cc
 Geometry.h
+GeometryIterator.cc
+GeometryIterator.h
 GeoVaLs.cc
 GeoVaLs.h
 HorizScaleDecomposition.h

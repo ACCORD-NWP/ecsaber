@@ -33,6 +33,10 @@ ecbuild_add_executable( TARGET  saber_quench_makeobs.x
                         SOURCES quenchMakeObs.cc
                         LIBS    quench )
 
+ecbuild_add_executable( TARGET  saber_quench_letkf.x
+                        SOURCES quenchLETKF.cc
+                        LIBS    quench )
+
 ecbuild_add_executable( TARGET  saber_quench_variational.x
                         SOURCES quenchVariational.cc
                         LIBS    quench

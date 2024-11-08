@@ -38,6 +38,7 @@ list( APPEND quenchxx_testinput
   testinput/glb_ensemble_18.json
   testinput/glb_hofx.json
   testinput/glb_interfaces.json
+  testinput/glb_letkf.json
   testinput/glb_makeobs_06.json
   testinput/glb_makeobs_12.json
   testinput/glb_makeobs_18.json
@@ -56,6 +57,7 @@ list( APPEND quenchxx_testinput
   testinput/reg_ensemble_18.json
   testinput/reg_hofx.json
   testinput/reg_interfaces.json
+  testinput/reg_letkf.json
   testinput/reg_makeobs_06.json
   testinput/reg_makeobs_12.json
   testinput/reg_makeobs_18.json
@@ -108,6 +110,7 @@ list( APPEND quenchxx_testref
   testref/glb_ensemble_12.ref
   testref/glb_ensemble_18.ref
   testref/glb_hofx.ref
+  testref/glb_letkf.ref
   testref/glb_makeobs_06.ref
   testref/glb_makeobs_12.ref
   testref/glb_makeobs_18.ref
@@ -125,6 +128,7 @@ list( APPEND quenchxx_testref
   testref/reg_ensemble_12.ref
   testref/reg_ensemble_18.ref
   testref/reg_hofx.ref
+  testref/reg_letkf.ref
   testref/reg_makeobs_06.ref
   testref/reg_makeobs_12.ref
   testref/reg_makeobs_18.ref
@@ -322,6 +326,15 @@ foreach( mpi "1" "4" )
                                "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_hofx.ref"
                           DEPENDS saber_quench_hofx.x )
         
+        ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_letkf_${mpi}
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
+                          ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py
+                               ${mpi}
+                               ${omp}
+                               "${CMAKE_BINARY_DIR}/bin/saber_quench_letkf.x testinput/${DOMAIN}_letkf.json"
+                               "${CMAKE_CURRENT_BINARY_DIR}/testref/${DOMAIN}_letkf.ref"
+                          DEPENDS saber_quench_letkf.x )
+
         ecbuild_add_test( TARGET quenchxx_test_${DOMAIN}_3dvar_${mpi}
                           COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.sh
                           ARGS ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_compare.py

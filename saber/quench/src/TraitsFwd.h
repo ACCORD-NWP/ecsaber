@@ -14,6 +14,7 @@ namespace quench {
 
 class Covariance;
 class Geometry;
+class GeometryIterator;
 class GeoVaLs;
 class HorizScaleDecomposition;
 class Increment;
@@ -41,6 +42,7 @@ struct Traits {
 
   using Covariance = quench::Covariance;
   using Geometry = quench::Geometry;
+  using GeometryIterator = quench::GeometryIterator;
   using GeoVaLs = quench::GeoVaLs;
   using HorizScaleDecomposition = quench::HorizScaleDecomposition;
   using Increment = quench::Increment;

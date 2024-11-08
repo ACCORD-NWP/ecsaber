@@ -2,6 +2,10 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 list( APPEND oops_jedi_src_files
+oops/assimilation/instantiateLocalEnsembleSolverFactory.h
+oops/assimilation/LETKFSolver.h
+oops/assimilation/LocalEnsembleSolver.h
+oops/assimilation/LocalEnsembleSolverParameters.h
 oops/base/DataSetBase.h
 oops/base/FieldSet3D.cc
 oops/base/FieldSet3D.h
@@ -12,6 +16,9 @@ oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
 oops/base/ModelSpaceCovarianceParametersBase.h
+oops/base/ObsLocalizationBase.h
+oops/base/ObsLocalizationParametersBase.h
+oops/base/ObsLocalizations.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
 oops/base/Variable.cc
@@ -31,10 +38,12 @@ oops/generic/LocalInterpolatorBase.cc
 oops/generic/LocalInterpolatorBase.h
 oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
+oops/interface/GeometryIterator.h
 oops/interface/ModelData.h
 oops/mpi/mpi.cc
 oops/mpi/mpi.h
 oops/runs/ConvertState.h
+oops/runs/LocalEnsembleDA.h
 oops/util/AnyOf.h
 oops/util/AssociativeContainers.h
 oops/util/AtlasArrayUtil.cc
@@ -101,6 +110,8 @@ oops/util/ScalarOrMap.h
 oops/util/Serializable.h
 oops/util/stringFunctions.cc
 oops/util/stringFunctions.h
+oops/util/TimeWindow.cc
+oops/util/TimeWindow.h
 oops/util/TypeTraits.h
 )
 

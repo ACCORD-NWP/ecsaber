@@ -35,6 +35,7 @@ namespace eckit {
 }
 
 namespace quench {
+  class GeometryIterator;
 
 // -----------------------------------------------------------------------------
 /// Orography parameters
@@ -214,6 +215,21 @@ class Geometry : public util::Printable,
     {return interpolation_;}
   bool duplicatePoints() const
     {return duplicatePoints_;}
+  const size_t & iteratorDimension() const
+    {return iteratorDimension_;}
+  const size_t & nnodes() const
+    {return nnodes_;}
+  const size_t & nlevs() const
+    {return nlevs_;}
+  const eckit::mpi::Comm & timeComm() const
+    {return eckit::mpi::self();}
+  const std::vector<double> & vert_coord_avg(const std::string & var) const
+    {return groups_[groupIndex_.at(var)].vert_coord_avg_;}
+
+  // Geometry interator
+  GeometryIterator begin() const;
+  GeometryIterator end() const;
+  std::vector<double> verticalCoord(std::string &) const;
 
  private:
   // Print
@@ -282,8 +298,17 @@ class Geometry : public util::Printable,
   // Duplicate points
   bool duplicatePoints_;
 
-/// ECSABER-specific interface
-#include "src/GeometryECDef.h"
+  // Iterator dimension
+  size_t iteratorDimension_;
+
+  // Number of nodes
+  size_t nnodes_;
+
+  // Number of levels
+  size_t nlevs_;
+
+  // Vertical coordiante
+  std::vector<double> vert_coord_avg_;
 };
 
 // -----------------------------------------------------------------------------

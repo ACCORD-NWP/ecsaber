@@ -8,12 +8,20 @@
 
 #pragma once
 
+#include <algorithm>
+#include <limits>
 #include <memory>
 #include <ostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "atlas/field.h"
+#include "atlas/grid.h"
+#include "atlas/mesh.h"
+#include "atlas/meshgenerator.h"
+
+#include "eckit/serialisation/Stream.h"
 
 #include "oops/base/Variables.h"
 #include "oops/util/abor1_cpp.h"
@@ -22,8 +30,10 @@
 #include "oops/util/Printable.h"
 #include "oops/util/Serializable.h"
 
-#include "src/FieldsECInc.h"
+#include "src/GeoVaLs.h"
 #include "src/Interpolation.h"
+#include "src/Locations.h"
+#include "src/Variables.h"
 
 namespace quench {
   class Geometry;
@@ -74,11 +84,20 @@ class Fields : public util::Printable,
     {return fset_;}
   atlas::FieldSet & fieldSet()
     {return fset_;}
+  void synchronizeFields();
 
   // Utilities
   void read(const eckit::Configuration &);
   void write(const eckit::Configuration &) const;
   double norm() const;
+  double min(const Variables &) const;
+  double max(const Variables &) const;
+  void interpolate(const Locations &,
+                   GeoVaLs &) const;
+  void interpolateAD(const Locations &,
+                     const GeoVaLs &);
+  void forceWith(const Fields &,
+                 const Variables &);
   std::shared_ptr<const Geometry> geometry() const
     {return geom_;}
   const Variables & variables() const
@@ -95,6 +114,10 @@ class Fields : public util::Printable,
   void serialize(std::vector<double> &) const;
   void deserialize(const std::vector<double> &,
                    size_t &);
+  friend eckit::Stream & operator<<(eckit::Stream &,
+                                    const Fields &);
+  friend eckit::Stream & operator>>(eckit::Stream &,
+                                    Fields &);
 
   // Grid interpolations
   static std::vector<quench::Interpolation>& interpolations();
@@ -109,6 +132,12 @@ class Fields : public util::Printable,
   // Return grid interpolation
   std::vector<quench::Interpolation>::iterator setupGridInterpolation(const Geometry &) const;
 
+  // Return observation interpolation
+  std::vector<quench::Interpolation>::iterator setupObsInterpolation(const Locations &) const;
+
+  // Reduce duplicate points
+  void reduceDuplicatePoints();
+
   // Geometry
   std::shared_ptr<const Geometry> geom_;
 
@@ -120,9 +149,6 @@ class Fields : public util::Printable,
 
   // Fieldset
   mutable atlas::FieldSet fset_;
-
-/// ECSABER-specific definitions
-#include "src/FieldsECDef.h"
 };
 
 // -----------------------------------------------------------------------------

@@ -30,6 +30,7 @@
 #include "oops/util/Logger.h"
 
 #include "src/Fields.h"
+#include "src/GeometryIterator.h"
 
 #define ERR(e, msg) {std::string s(nc_strerror(e)); throw eckit::Exception(s + ": " + msg, Here());}
 
@@ -282,6 +283,33 @@ Geometry::Geometry(const eckit::Configuration & config,
   comm_.allReduceInPlace(duplicatedPointsCount, eckit::mpi::sum());
   duplicatePoints_ = (duplicatedPointsCount > 0);
 
+  // Iterator dimension
+  iteratorDimension_ = config.getInt("iterator dimension", 2);
+  ASSERT((iteratorDimension_ == 2) || (iteratorDimension_ == 3));
+
+  // Domain size
+  nnodes_ = fields().field("vert_coord_0").shape(0);
+  nlevs_ = fields().field("vert_coord_0").shape(1);
+
+  // Averaged vertical coordinate
+  const auto vert_coordView = atlas::array::make_view<double, 2>(fields().field("vert_coord_0"));
+  for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
+    double vert_coord_avg = 0.0;
+    double counter = 0.0;
+    for (atlas::idx_t jnode = 0; jnode < nnodes_; ++jnode) {
+      if (ghostView(jnode) == 0) {
+        vert_coord_avg += vert_coordView(jnode, jlevel);
+        counter += 1.0;
+      }
+    }
+    comm.allReduceInPlace(vert_coord_avg, eckit::mpi::sum());
+    comm.allReduceInPlace(counter, eckit::mpi::sum());
+    if (counter > 0.0) {
+      vert_coord_avg /= counter;
+    }
+    vert_coord_avg_.push_back(vert_coord_avg);
+  }
+
   // Print summary
   this->print(oops::Log::info());
 
@@ -295,7 +323,9 @@ Geometry::Geometry(const Geometry & other)
   partitioner_(other.partitioner_), mesh_(other.mesh_), groupIndex_(other.groupIndex_),
   levelsAreTopDown_(other.levelsAreTopDown_), modelData_(other.modelData_), alias_(other.alias_),
   latSouthToNorth_(other.latSouthToNorth_), interpolation_(other.interpolation_),
-  duplicatePoints_(other.duplicatePoints_) {
+  duplicatePoints_(other.duplicatePoints_), iteratorDimension_(other.iteratorDimension_),
+  nnodes_(other.nnodes_), nlevs_(other.nlevs_), vert_coord_avg_(other.vert_coord_avg_)
+ {
   oops::Log::trace() << classname() << "::Geometry starting" << std::endl;
 
   // Copy function space
@@ -361,6 +391,24 @@ std::vector<size_t> Geometry::variableSizes(const Variables & vars) const {
 
   oops::Log::trace() << classname() << "::variableSizes done" << std::endl;
   return sizes;
+}
+
+// -----------------------------------------------------------------------------
+
+GeometryIterator Geometry::begin() const {
+  return GeometryIterator(*this, 0, 0);
+}
+
+// -----------------------------------------------------------------------------
+
+GeometryIterator Geometry::end() const {
+  return GeometryIterator(*this, nnodes_, nlevs_);
+}
+
+// -----------------------------------------------------------------------------
+
+std::vector<double> Geometry::verticalCoord(std::string & vcUnits) const {
+  return vert_coord_avg_;
 }
 
 // -----------------------------------------------------------------------------

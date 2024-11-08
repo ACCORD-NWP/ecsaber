@@ -10,6 +10,7 @@
 
 #include "src/Covariance.h"
 #include "src/Geometry.h"
+#include "src/GeometryIterator.h"
 #include "src/GeoVaLs.h"
 #include "src/HorizScaleDecomposition.h"
 #include "src/Increment.h"
