@@ -17,10 +17,10 @@
 
 #include "eckit/geometry/Point3.h"
 
-#include "oops/util/Logger.h"
-#include "oops/util/ObjectCounter.h"
-#include "oops/util/Printable.h"
-#include "oops/util/Timer.h"
+#include "util/Logger.h"
+#include "util/ObjectCounter.h"
+#include "util/Printable.h"
+#include "util/Timer.h"
 
 namespace oops {
 

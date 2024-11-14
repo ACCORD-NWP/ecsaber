@@ -42,7 +42,7 @@
 #include "saber/blocks/SaberCentralBlockBase.h"
 #include "saber/blocks/SaberOuterBlockBase.h"
 #include "saber/oops/ErrorCovarianceParameters.h"
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 
 namespace oops {
   class FieldSet3D;
@@ -64,11 +64,6 @@ oops::JediVariables getUnionOfInnerActiveAndOuterVars(const SaberBlockParameters
 
 oops::JediVariables getInnerOnlyVars(const SaberBlockParametersBase & params,
                                  const oops::JediVariables & outerVars);
-
-// -----------------------------------------------------------------------------
-
-void setMember(eckit::LocalConfiguration &,
-               const int &);
 
 // -----------------------------------------------------------------------------
 
@@ -306,7 +301,7 @@ void readHybridWeight(const oops::Geometry<MODEL> & geom,
   eckit::LocalConfiguration localConf(conf);
 
   // Create variables
-  oops::Variables<MODEL> varsT(templatedVarsConf(vars));
+  oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
 
   // Create Increment
   oops::Increment<MODEL> dx(geom, varsT, date);
@@ -343,7 +338,7 @@ void readEnsembleMember(const oops::Geometry<MODEL> & geom,
       ensembleConf[0].getSubConfigurations("state");
 
     // Create variables
-    oops::Variables<MODEL> varsT(templatedVarsConf(vars));
+    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
 
     // Read state as increment
     oops::Increment<MODEL> dx(geom, varsT, fset.validTime());
@@ -363,7 +358,7 @@ void readEnsembleMember(const oops::Geometry<MODEL> & geom,
       ensembleConf[0].getSubConfigurations("state");
 
     // Create variables
-    oops::Variables<MODEL> varsT(templatedVarsConf(vars));
+    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
 
     // Read Increment
     oops::Increment<MODEL> dx(geom, varsT, fset.validTime());

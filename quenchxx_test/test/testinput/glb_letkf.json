@@ -18,84 +18,31 @@
     "halo": "1"
   },
   "model": {},
-  "control member": {
-    "state": [
-      {
-        "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
-        "filepath": "testdata/glb_bkg_12_000001"
-       }
-     ]
-   },
   "background": {
-    "ensemble": [
-      {
-        "variables": ["temperature"],
-        "members": "10",
+    "members from template": {
+      "template": {
         "state": [
           {
             "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000001",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000002",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000003",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000004",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000005",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000006",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000007",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000008",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000009",
-            "state variables": ["temperature"]
-          },
-          {
-            "date": "2010-01-01T12:00:00Z",
-            "filepath": "testdata/glb_ens_12_000010",
-            "state variables": ["temperature"]
+            "variables": ["temperature"],
+            "filepath": "testdata/glb_ens_12_%mem%"
           }
         ]
-      }
-    ]
+      },
+      "pattern": "%mem%",
+      "zero padding": "6",
+      "nmembers": "10"
+    }
   },
   "observations": {
     "ObsTypes": [
       {
         "ObsType": "default",
         "ObsData": {
-          "ObsDataInScreened": {
+          "ObsDataIn": {
             "filepath": "testdata/glb_obs_12"
           },
-          "ObsDataOutScreened": {
+          "ObsDataOut": {
             "filepath": "testdata/glb_obs_letkf"
           },
           "obsvalue": "ObsValue"
@@ -134,22 +81,22 @@
     }
   },
   "output": {
-    "filepath": "Data/synthetic/glb_letkf_state"
+    "filepath": "testdata/glb_letkf_state"
   },
   "output increment": {
-    "filepath": "Data/synthetic/glb_letkf_increment"
+    "filepath": "testdata/glb_letkf_increment"
   },
   "output ensemble increments": {
-    "filepath": "Data/synthetic/glb_letkf_increment"
+    "filepath": "testdata/glb_letkf_increment"
   },
   "output mean prior": {
-    "filepath": "Data/synthetic/glb_letkf_mean_prior"
+    "filepath": "testdata/glb_letkf_mean_prior"
   },
   "output variance prior": {
-    "filepath": "Data/synthetic/glb_letkf_var_prior"
+    "filepath": "testdata/glb_letkf_var_prior"
   },
   "output variance posterior": {
-    "filepath": "Data/synthetic/glb_letkf_var_posterior"
+    "filepath": "testdata/glb_letkf_var_posterior"
   },
   "test": {
     "reference filename": "testoutput/synthetic/glb_letkf.ref"

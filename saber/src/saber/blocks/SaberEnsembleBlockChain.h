@@ -28,7 +28,7 @@
 #include "saber/blocks/SaberBlockParametersBase.h"
 #include "saber/blocks/SaberOuterBlockChain.h"
 #include "saber/blocks/SaberParametricBlockChain.h"
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 #include "saber/oops/Utilities.h"
 
 namespace saber {
@@ -191,7 +191,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
     // Copy file
     // Read fieldsets as increments
     // Create variables
-    oops::Variables<MODEL> activeVarsT(templatedVarsConf(activeVars));
+    oops::Variables<MODEL> activeVarsT(util::templatedVarsConf(activeVars));
 
     // Create increment
     oops::Increment<MODEL> dx(geom, activeVarsT, fset4dXb[0].validTime());

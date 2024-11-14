@@ -12,6 +12,8 @@
 #include "eckit/config/Configuration.h"
 #include "eckit/exception/Exceptions.h"
 
+#include "oops/util/missingValues.h"
+
 #include "util/DateTime.h"
 #include "util/Duration.h"
 #include "util/Logger.h"
@@ -23,7 +25,8 @@ namespace quench {
 // -----------------------------------------------------------------------------
 
 ObsVector::ObsVector(const ObsSpace & obsSpace)
-  : comm_(obsSpace.getComm()), obsSpace_(obsSpace), data_(obsSpace.sizeLoc()) {
+  : comm_(obsSpace.getComm()), obsSpace_(obsSpace), data_(obsSpace.sizeLoc()),
+    missing_(util::missingValue<double>()) {
   oops::Log::trace() << classname() << "::ObsVector starting" << std::endl;
 
   zero();
@@ -35,7 +38,8 @@ ObsVector::ObsVector(const ObsSpace & obsSpace)
 
 ObsVector::ObsVector(const ObsVector & other,
                      const bool copy)
-  : comm_(other.comm_), obsSpace_(other.obsSpace_), data_(other.data_.size()) {
+  : comm_(other.comm_), obsSpace_(other.obsSpace_), data_(other.data_.size()),
+    missing_(util::missingValue<double>()) {
   oops::Log::trace() << classname() << "::ObsVector starting" << std::endl;
 
   if (copy) {
@@ -142,6 +146,18 @@ void ObsVector::zero() {
 
 // -----------------------------------------------------------------------------
 
+void ObsVector::ones() {
+  oops::Log::trace() << classname() << "::ones starting" << std::endl;
+
+  for (double & val : data_) {
+    val = 1.0;
+  }
+
+  oops::Log::trace() << classname() << "::ones done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
 void ObsVector::invert() {
   oops::Log::trace() << classname() << "::invert starting" << std::endl;
 
@@ -242,6 +258,51 @@ double ObsVector::rms() const {
 
   oops::Log::trace() << classname() << "::rms done" << std::endl;
   return zz;
+}
+
+// -----------------------------------------------------------------------------
+
+void ObsVector::mask(const ObsVector & mask) {
+  oops::Log::trace() << classname() << "::mask starting" << std::endl;
+
+  for (size_t jj = 0; jj < data_.size(); ++jj) {
+    if (mask(jj) == missing_) data_.at(jj) = missing_;
+  }
+
+  oops::Log::trace() << classname() << "::mask starting" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+Eigen::VectorXd ObsVector::packEigen(const ObsVector & mask) const {
+  oops::Log::trace() << classname() << "::packEigen starting" << std::endl;
+
+  Eigen::VectorXd vec(packEigenSize(mask));
+  size_t ii = 0;
+  for (size_t jj = 0; jj < data_.size(); ++jj) {
+    if ((data_[jj] != missing_) && (mask(jj) != missing_)) {
+      vec(ii++) = data_[jj];
+    }
+  }
+
+  oops::Log::trace() << classname() << "::packEigen done" << std::endl;
+  return vec;
+}
+
+// -----------------------------------------------------------------------------
+
+size_t ObsVector::packEigenSize(const ObsVector & mask) const {
+  oops::Log::trace() << classname() << "::packEigenSize starting" << std::endl;
+
+  size_t ii = 0;
+  for (size_t jj = 0; jj < data_.size(); ++jj) {
+    if ((data_[jj] != missing_) && (mask(jj) != missing_)) {
+      ii++;
+    }
+  }
+
+  oops::Log::trace() << classname() << "::packEigenSize done" << std::endl;
+  return ii;
 }
 
 // -----------------------------------------------------------------------------

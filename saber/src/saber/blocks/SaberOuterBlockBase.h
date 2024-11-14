@@ -34,7 +34,7 @@
 #include "oops/util/Printable.h"
 
 #include "saber/blocks/SaberBlockParametersBase.h"
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 
 namespace oops {
   class FieldSet3D;
@@ -281,7 +281,7 @@ void SaberOuterBlockBase::read(const oops::Geometry<MODEL> & geom,
     } else {
       incVars.reset(new oops::JediVariables(vars));
     }
-    oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
+    oops::Variables<MODEL> varsT(util::templatedVarsConf(*incVars));
     oops::Increment<MODEL> dx(geom, varsT, validTime_);
 
     // Read, print norm and push_back
@@ -320,7 +320,7 @@ void SaberOuterBlockBase::write(const oops::Geometry<MODEL> & geom,
     } else {
       incVars.reset(new oops::JediVariables(vars));
     }
-    oops::Variables<MODEL> varsT(templatedVarsConf(*incVars));
+    oops::Variables<MODEL> varsT(util::templatedVarsConf(*incVars));
     oops::Increment<MODEL> dx(geom, varsT, validTime_);
 
     // Write and print norm

@@ -14,9 +14,9 @@
 #include <boost/noncopyable.hpp>
 
 #include "eckit/config/Configuration.h"
+#include "oops/interface/ObservationSpace.h"
 #include "oops/interface/ObsVector.h"
 #include "oops/interface/GeometryIterator.h"
-#include "oops/interface/ObsSpace.h"
 #include "oops/util/Printable.h"
 
 namespace oops {
@@ -41,9 +41,9 @@ class ObsLocalizationBase : public util::Printable,
   /// Method used in oops. Calls `computeLocalization` abstract method, and
   /// passes MODEL-specific classe to the MODEL-specific
   /// implementation of ObsLocalization.
-  void computeLocalization(const GeometryIterator<MODEL> & point,
+  void computeLocalization(const GeometryIterator_ & point,
                            ObsVector<MODEL> & locfactor) const {
-    computeLocalization(point.geometryiter(), locfactor.obsvector());
+    computeLocalization(point, locfactor.obsvector());
   }
 
   /// compute obs-space localization: update \p locfactor with observation-space
@@ -58,7 +58,7 @@ class ObsLocalizationBase : public util::Printable,
 /// ObsLocalization Factory
 template <typename MODEL>
 class ObsLocalizationFactory {
-  typedef ObsSpace<MODEL>  ObsSpace_;
+  typedef ObservationSpace<MODEL>  ObsSpace_;
  public:
   static std::unique_ptr<ObsLocalizationBase<MODEL>> create(const eckit::Configuration &,
                                                             const ObsSpace_ &);
@@ -78,10 +78,10 @@ class ObsLocalizationFactory {
 
 template<class MODEL, class T>
 class ObsLocalizationMaker : public ObsLocalizationFactory<MODEL> {
-  typedef ObsSpace<MODEL>  ObsSpace_;
+  typedef ObservationSpace<MODEL>  ObsSpace_;
   virtual ObsLocalizationBase<MODEL> * make(const eckit::Configuration & conf,
                                             const ObsSpace_ & obspace)
-    { return new T(conf, obspace.obsspace()); }
+    { return new T(conf, obspace.observationspace()); }
  public:
   explicit ObsLocalizationMaker(const std::string & name) :
     ObsLocalizationFactory<MODEL>(name) {}

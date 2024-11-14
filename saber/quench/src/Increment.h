@@ -17,11 +17,14 @@
 
 #include "eckit/exception/Exceptions.h"
 
+#include "oops/base/LocalIncrement.h"
+
 #include "oops/util/DateTime.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 #include "oops/util/Serializable.h"
 
+#include "src/GeometryIterator.h"
 #include "src/Fields.h"
 #include "src/IncrementECInc.h"
 #include "src/State.h"
@@ -54,6 +57,8 @@ class Increment : public util::Printable,
   void zero()
     {fields_->zero();}
   void zero(const util::DateTime &);
+  void ones()
+    {fields_->constantValue(1.0);}
   void dirac(const eckit::Configuration & config)
     {fields_->dirac(config);}
   Increment & operator =(const Increment &);
@@ -69,6 +74,11 @@ class Increment : public util::Printable,
     {fields_->schur_product_with(*dx.fields_);}
   void random()
     {fields_->random();}
+
+  // Local increment
+  oops::LocalIncrement getLocal(const GeometryIterator & geometryIterator) const;
+  void setLocal(const oops::LocalIncrement & localIncrement,
+                const GeometryIterator & geometryIterator);
 
   // I/O and diagnostics
   void read(const eckit::Configuration & config)

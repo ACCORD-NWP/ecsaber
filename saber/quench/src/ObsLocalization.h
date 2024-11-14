@@ -12,29 +12,27 @@
 #include <vector>
 
 #include "eckit/config/Configuration.h"
-
-#include "ioda/ObsSpace.h"
-#include "ioda/ObsVector.h"
+#include "eckit/geometry/Point3.h"
 
 #include "oops/base/ObsLocalizationBase.h"
 
-#include "quenchxx/Traits.h"
+#include "src/ObsSpace.h"
+#include "src/ObsVector.h"
+#include "src/Traits.h"
 
-#include "ufo/ObsTraits.h"
-
-namespace quenchxx {
+namespace quench {
   class GeometryIterator;
 
 // -----------------------------------------------------------------------------
 
-class ObsLocalization: public oops::ObsLocalizationBase<Traits, ufo::ObsTraits> {
+class ObsLocalization: public oops::ObsLocalizationBase<Traits> {
  public:
   ObsLocalization(const eckit::Configuration &,
-                  const ioda::ObsSpace &);
+                  const ObsSpace &);
 
  protected:
   void computeLocalization(const GeometryIterator &,
-                           ioda::ObsVector &) const override;
+                           ObsVector &) const override;
 
  private:
   void print(std::ostream &) const override;
@@ -43,9 +41,7 @@ class ObsLocalization: public oops::ObsLocalizationBase<Traits, ufo::ObsTraits> 
   double locFunc(const double &) const;
 
   // Observations coordinates
-  std::vector<float> obsLon_;
-  std::vector<float> obsLat_;
-  std::vector<float> obsHeight_;
+  std::vector<atlas::Point3> locs_;
 
   // Localization function and scales
   const std::string locFunc_;
@@ -55,4 +51,4 @@ class ObsLocalization: public oops::ObsLocalizationBase<Traits, ufo::ObsTraits> 
 
 // -----------------------------------------------------------------------------
 
-}  // namespace quenchxx
+}  // namespace quench

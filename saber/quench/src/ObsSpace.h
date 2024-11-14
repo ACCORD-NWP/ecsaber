@@ -59,6 +59,8 @@ class ObsSpace : public util::Printable,
   void getdb(const std::string &,
              std::vector<double> &) const;
 
+  std::vector<atlas::Point3> & locations() const
+    {return locs_;}
   std::vector<atlas::Point3> locations(const util::DateTime &,
                                        const util::DateTime &) const;
   std::vector<size_t> timeSelect(const util::DateTime &,

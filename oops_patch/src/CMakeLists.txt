@@ -7,6 +7,7 @@ oops/assimilation/LETKFSolver.h
 oops/assimilation/LocalEnsembleSolver.h
 oops/assimilation/LocalEnsembleSolverParameters.h
 oops/base/DataSetBase.h
+oops/base/DeparturesEnsemble.h
 oops/base/FieldSet3D.cc
 oops/base/FieldSet3D.h
 oops/base/FieldSet4D.cc
@@ -15,12 +16,17 @@ oops/base/FieldSets.cc
 oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
+oops/base/IncrementEnsemble4D.h
+oops/base/LocalIncrement.cc
+oops/base/LocalIncrement.h
 oops/base/ModelSpaceCovarianceParametersBase.h
+oops/base/ObsEnsemble.h
 oops/base/ObsLocalizationBase.h
 oops/base/ObsLocalizationParametersBase.h
 oops/base/ObsLocalizations.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
+oops/base/StateEnsemble4D.h
 oops/base/Variable.cc
 oops/base/Variable.h
 oops/base/Variables.cc
@@ -36,6 +42,8 @@ oops/generic/GlobalInterpolator.cc
 oops/generic/GlobalInterpolator.h
 oops/generic/LocalInterpolatorBase.cc
 oops/generic/LocalInterpolatorBase.h
+oops/generic/PseudoLinearModelIncrement4D.h
+oops/generic/PseudoModelState4D.h
 oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
 oops/interface/GeometryIterator.h
@@ -166,6 +174,11 @@ foreach( src_file ${util-patch_src_files} )
                      ${CMAKE_CURRENT_SOURCE_DIR}/${src_file} )
     list( APPEND oops_patch_src_files ${src_file} )
 endforeach()
+
+list( APPEND oops_patch_src_files
+oops/util/ECUtilities.cc
+oops/util/ECUtilities.h
+)
 
 ecbuild_add_library( TARGET          oops_patch
                      SOURCES         ${oops_patch_src_files}

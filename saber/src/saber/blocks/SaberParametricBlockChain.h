@@ -20,6 +20,7 @@
 #include "oops/base/FieldSets.h"
 #include "oops/interface/ModelData.h"
 #include "oops/util/ConfigHelpers.h"
+#include "oops/util/ECUtilities.h"
 
 #include "saber/blocks/SaberBlockChainBase.h"
 #include "saber/blocks/SaberBlockParametersBase.h"
@@ -300,7 +301,7 @@ SaberParametricBlockChain::SaberParametricBlockChain(const oops::Geometry<MODEL>
     for (size_t ie = 0; ie < ensembleSize; ++ie) {
       oops::Log::info() << "Info     : Write member " << ie << std::endl;
       // Create variables
-      oops::Variables<MODEL> activeVarsT(templatedVarsConf(activeVars));
+      oops::Variables<MODEL> activeVarsT(util::templatedVarsConf(activeVars));
 
       // Increment pointer
       oops::Increment<MODEL> dx(geom, activeVarsT, fset4dXb[0].validTime());

@@ -23,10 +23,6 @@ Utilities.cc
 instantiateCovarFactory.h
 instantiateLocalizationFactory.h
 
-# Utilities
-ECUtilities.cc
-ECUtilities.h
-
 # Other applications
 AssimEnsemble.h
 EnsembleVariance.h

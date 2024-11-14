@@ -15,7 +15,12 @@
 #include "oops/base/Increment4D.h"
 #include "oops/base/Variables.h"
 
-namespace saber {
+namespace util {
+
+// -----------------------------------------------------------------------------
+
+void setMember(eckit::LocalConfiguration &,
+               const size_t &);
 
 // -----------------------------------------------------------------------------
 
@@ -41,4 +46,4 @@ void dirac4D(const eckit::Configuration & conf,
 
 // -----------------------------------------------------------------------------
 
-}  // namespace saber
+}  // namespace util

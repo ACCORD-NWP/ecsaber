@@ -19,26 +19,27 @@
 #include "eckit/geometry/Point3.h"
 #include "eckit/geometry/Sphere.h"
 #include "oops/assimilation/instantiateLocalEnsembleSolverFactory.h"
-//#include "oops/assimilation/LocalEnsembleSolver.h"
+#include "oops/assimilation/LocalEnsembleSolver.h"
 #include "oops/base/Departures.h"
-#include "oops/base/Ensemble.h"
 #include "oops/interface/Geometry.h"
 #include "oops/interface/GeometryIterator.h"
 #include "oops/interface/Increment.h"
 #include "oops/base/Increment4D.h"
-//#include "oops/base/IncrementEnsemble4D.h"
+#include "oops/base/IncrementEnsemble4D.h"
 #include "oops/interface/Model.h"
+#include "oops/base/ObsAuxControls.h"
 #include "oops/base/Observations.h"
 #include "oops/base/ObservationSpaces.h"
 #include "oops/base/ParameterTraitsVariables.h"
 #include "oops/base/State4D.h"
-//#include "oops/base/StateEnsemble4D.h"
-//#include "oops/generic/instantiateObsErrorFactory.h"
-//#include "oops/interface/GeometryIterator.h"
+#include "oops/base/StateEnsemble4D.h"
+#include "oops/generic/instantiateObsErrorFactory.h"
+#include "oops/interface/GeometryIterator.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Duration.h"
+#include "oops/util/ECUtilities.h"
 #include "oops/util/Logger.h"
 #include "oops/util/parameters/OptionalParameter.h"
 #include "oops/util/parameters/Parameter.h"
@@ -129,7 +130,7 @@ class LocalEnsembleDAParameters : public Parameters {
           "local ensemble DA solver and its options", this};
 
   /// Note: these Parameters have to be present if driver.useControlMember==true
-  RequiredParameter<eckit::LocalConfiguration> controlMember{"control member",
+  OptionalParameter<eckit::LocalConfiguration> controlMember{"control member",
           "control member that can be used insteead of the ensemble mean", this};
 
   /// Note: these Parameters have to be present if driver.savePostMean or driver.savePostEns
@@ -162,26 +163,27 @@ class LocalEnsembleDAParameters : public Parameters {
 /// \brief Application for local ensemble data assimilation
 template <typename MODEL> class LocalEnsembleDA : public Application {
   typedef Departures<MODEL>                Departures_;
-  typedef Ensemble<MODEL>                  Ensemble_;
   typedef Geometry<MODEL>                  Geometry_;
   typedef GeometryIterator<MODEL>          GeometryIterator_;
-//  typedef IncrementEnsemble4D<MODEL>       IncrementEnsemble4D_;
+  typedef IncrementEnsemble4D<MODEL>       IncrementEnsemble4D_;
   typedef Increment<MODEL>                 Increment_;
   typedef Increment4D<MODEL>               Increment4D_;
-//  typedef LocalEnsembleSolver<MODEL>       LocalSolver_;
+  typedef LocalEnsembleSolver<MODEL>       LocalSolver_;
   typedef Model<MODEL>                     Model_;
+  typedef ObsAuxControls<MODEL>            ObsAuxCtrls_;
   typedef ObservationSpaces<MODEL>         ObsSpaces_;
   typedef Observations<MODEL>              Observations_;
   typedef State4D<MODEL>                   State4D_;
-  //typedef StateEnsemble4D<MODEL>           StateEnsemble4D_;
+  typedef StateEnsemble4D<MODEL>           StateEnsemble4D_;
   typedef LocalEnsembleDAParameters<MODEL> LocalEnsembleDAParameters_;
+  typedef Variables<MODEL>                 Variables_;
 
  public:
 // -----------------------------------------------------------------------------
 
   explicit LocalEnsembleDA() : Application() {
     instantiateLocalEnsembleSolverFactory<MODEL>();
-//    instantiateObsErrorFactory();
+    instantiateObsErrorFactory<MODEL>();
   }
 
 // -----------------------------------------------------------------------------
@@ -209,51 +211,38 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
     // if any of the obs. spaces uses Halo distribution it will need to know the geometry
     // of the local grid on this PE
     if (params.driver.value().updateObsConfig) updateConfigWithPatchGeometry(geometry, obsConfig);
-    std::cout << obsConfig << std::endl;
 
     // Setup observations
     ObsSpaces_ obsdb(obsConfig, geometry, timeWindow.start(), timeWindow.end());
     Observations_ yobs(obsdb);
+    yobs.read(obsConfig);
+
+    //  Setup observations bias
+    ObsAuxCtrls_ ybias(obsdb, obsConfig);
 
     // Setup model
     const Model_ model(geometry, params.model);
 
-    // Read control member
-    State4D_ controlMember(params.controlMember.value(), geometry, model);
-
     // Read all ensemble members and compute the ensemble mean
-    std::vector<eckit::LocalConfiguration> confEnsemble;
-    confEnsemble = params.background.value().getSubConfigurations("ensemble");
-    const size_t nsubwin = confEnsemble.size();
-    std::vector<std::unique_ptr<Ensemble>> ens4D(nsubwin);
-    for (unsigned jsub = 0; jsub < nsubwin; ++jsub) {
-      ens4D[jsub].reset(new Ensemble_(controlMember[jsub].validTime(), confEnsemble[jsub]));
-      ens4D[jsub]->linearize(controlMember[jsub], geometry);
-    }
-    const size_t nens = ens4D[0]->size();
-    const JediVariables statevars((*ens4D[0])[0]->variables().variables().variablesList());
+    StateEnsemble4D_ ens_xx(geometry, model, params.background);
+    const size_t nens = ens_xx.size();
+    const JediVariables statevars = ens_xx.variables();
     JediVariables incvars;
     if (params.incvars.value() == boost::none) {
       incvars += statevars;
     } else {
       incvars += *params.incvars.value();
     }
-    State4D_ bkg_mean;
-    for (unsigned jsub = 0; jsub < nsubwin; ++jsub) {
-      // if control member is present use that instead of the ensemble mean
-      if (params.driver.value().useControlMember) {
-        bkg_mean.push_back(controlMember[jsub]);
-      } else {
-        bkg_mean.push_back(ens4D[jsub]->mean());
-      }
-    }
+    State4D_ bkg_mean = params.driver.value().useControlMember ?
+      State4D_(*params.controlMember.value(), geometry, model) : ens_xx.mean();
+
+//    util::printRunStats("LocalEnsembleDA before solver ctor");
 
     // set up solver
-//    std::unique_ptr<LocalSolver_> solver =
-//         LocalEnsembleSolverFactory<MODEL>::create(obsdb, geometry, fullConfig,
-//                                                   nens, bkg_mean, incvars);
+    std::unique_ptr<LocalSolver_> solver =
+         LocalEnsembleSolverFactory<MODEL>::create(obsdb, geometry, fullConfig,
+                                                   nens, bkg_mean, incvars);
 
-/*
     // test prints for the prior ensemble
     bool do_test_prints = params.driver.value().doTestPrints;
     if (do_test_prints) {
@@ -262,23 +251,24 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
       }
     }
 
-    util::printRunStats("LocalEnsembleDA before computeHofX");
+//    util::printRunStats("LocalEnsembleDA before computeHofX");
 
     // compute H(x)
-    Observations_ yb_mean = solver->computeHofX(ens_xx, 0, params.driver.value().readHofX);
+    Observations_ yb_mean = solver->computeHofX(ens_xx, 0, params.driver.value().readHofX, model,
+      yobs, ybias);
     if (do_test_prints) {
        Log::test() << "H(x) ensemble background mean: " << std::endl << yb_mean << std::endl;
     }
 
     Departures_ ombg(yobs - yb_mean);
-    ombg.save("ombg");
+//    ombg.save("ombg");
     if (do_test_prints) {
        Log::test() << "background y - H(x): " << std::endl << ombg << std::endl;
     }
 
     // quit early if running in observer-only mode
     if (params.driver.value().runObsOnly.value()) {
-      obsdb.save();
+      obsdb.saveObservations();
       return 0;
     }
 
@@ -291,11 +281,11 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
     IncrementEnsemble4D_ bkg_pert(ens_xx, bkg_mean, incvars);
 
     // initialize empty analysis perturbations
-    IncrementEnsemble4D_ ana_pert(geometry, incvars, ens_xx[0].validTimes(), bkg_pert.size());
+    IncrementEnsemble4D_ ana_pert(geometry, incvars, ens_xx[0].times(), bkg_pert.size());
 
     // run the solver at each gridpoint
     Log::info() << "Beginning core local solver..." << std::endl;
-    util::printRunStats("LocalEnsembleDA before solver", true);
+//    util::printRunStats("LocalEnsembleDA before solver", true);
     solver->measurementUpdate(bkg_pert, ana_pert);
 
     // wait all tasks to finish their solution, so the timing for functions below reports
@@ -303,22 +293,25 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
     oops::mpi::world().barrier();
 
     Log::info() << "Local solver completed." << std::endl;
-    util::printRunStats("LocalEnsembleDA after solver", true);
+//    util::printRunStats("LocalEnsembleDA after solver", true);
 
     // calculate final analysis states
     if (incvars == statevars) {
       for (size_t jj = 0; jj < nens; ++jj) {
-        ens_xx[jj] = bkg_mean;
-        ens_xx[jj] += ana_pert[jj];
+        for (size_t itime = 0; itime < ens_xx[jj].statesNumber(); ++itime) {
+          ens_xx[jj][itime] = bkg_mean[itime];
+          ens_xx[jj][itime] += ana_pert[jj][ana_pert[jj].first()+itime];
+        }
       }
     } else {
-      Increment4D_ ana_increment(geometry, incvars, ens_xx[0].validTimes());
+      const Variables_ incvarsT(templatedVarsConf(incvars));
+      Increment4D_ ana_increment(geometry, incvarsT, ens_xx[0].times());
       for (size_t jj = 0; jj < nens; ++jj) {
-        ana_increment = ana_pert[jj];
-        for (size_t itime = 0; itime < bkg_pert[jj].size(); ++itime) {
+        for (size_t itime = bkg_pert[jj].first(); itime < bkg_pert[jj].last()+1; ++itime) {
+          ana_increment[itime] = ana_pert[jj][itime];
           ana_increment[itime] -= bkg_pert[jj][itime];
+          ens_xx[jj][itime] += ana_increment[itime];
         }
-        ens_xx[jj] += ana_increment;
       }
     }
 
@@ -333,11 +326,10 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
           "configuration not found.");
       }
 
-      eckit::LocalConfiguration
-      IncrementWriteParameters_ output = *params.outputPostEnsInc.value();
+      eckit::LocalConfiguration output = *params.outputPostEnsInc.value();
       for (size_t jj = 0; jj < nens; ++jj) {
-        output.setMember(jj+1);
-        for (size_t itime = 0; itime < ana_pert[0].size(); ++itime) {
+        util::setMember(output, jj+1);
+        for (size_t itime = ana_pert[0].first(); itime < ana_pert[0].last()+1; ++itime) {
           Increment_ ana_increment(ana_pert[jj][itime], true);
           ana_increment -= bkg_pert[jj][itime];
           ana_increment.write(output);
@@ -392,10 +384,9 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
                               "`output increment` configuration not found.");
       }
 
-      eckit::LocalConfiguration
-      IncrementWriteParameters_ output = *params.outputPostMeanInc.value();
-      output.setMember(0);
-      for (size_t itime = 0; itime < ana_mean.size(); ++itime) {
+      eckit::LocalConfiguration output = *params.outputPostMeanInc.value();
+      util::setMember(output, 0);
+      for (size_t itime = 0; itime < ana_mean.statesNumber(); ++itime) {
         Increment_ ana_increment(ana_pert[0][itime], false);
         ana_increment.diff(ana_mean[itime], bkg_mean[itime]);
         ana_increment.write(output);
@@ -411,9 +402,8 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
         throw eckit::BadValue("`save prior variance` is set to true, but `output variance prior` "
                               "configuration not found.");
       }
-      eckit::LocalConfiguration
-      IncrementWriteParameters_ output = *params.outputPriorVar.value();
-      output.setMember(0);
+      eckit::LocalConfiguration output = *params.outputPriorVar.value();
+      util::setMember(output, 0);
       std::string strOut("Forecast variance :");
       saveVariance(output, bkg_pert, do_test_prints, strOut);
     }
@@ -424,9 +414,8 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
         throw eckit::BadValue("`save posterior variance` is set to true, but "
                               "`output variance posterior` configuration not found.");
       }
-      eckit::LocalConfiguration
-      IncrementWriteParameters_ output = *params.outputPostVar.value();
-      output.setMember(0);
+      eckit::LocalConfiguration output = *params.outputPostVar.value();
+      util::setMember(output, 0);
       std::string strOut("Analysis variance :");
       saveVariance(output, ana_pert, do_test_prints, strOut);
     }
@@ -441,26 +430,26 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
       std::unique_ptr<LocalSolver_> posteriorSolver =
          LocalEnsembleSolverFactory<MODEL>::create(obsdb, geometry, fullConfig,
                                                    nens, ana_mean, incvars);
-      Observations_ ya_mean = posteriorSolver->computeHofX(ens_xx, 1, false);
+      Observations_ ya_mean = posteriorSolver->computeHofX(ens_xx, 1, false, model,
+        yobs, ybias);
       Log::test() << "H(x) ensemble analysis mean: " << std::endl << ya_mean << std::endl;
 
       // calculate analysis obs departures
       Departures_ oman(yobs - ya_mean);
-      oman.save("oman");
+//      oman.save("oman");
       Log::test() << "analysis y - H(x): " << std::endl << oman << std::endl;
 
       // display overall background/analysis RMS stats
-      Log::test() << "ombg RMS: " << ombg.rms() << std::endl
-                << "oman RMS: " << oman.rms() << std::endl;
+      Log::test() << "ombg RMS: " << std::sqrt(ombg.dot_product_with(ombg)) << std::endl
+                << "oman RMS: " << std::sqrt(oman.dot_product_with(oman)) << std::endl;
     }
 
     // Save the obsspace only if an hofx was calculated
     // (either prior and/or posterior)
     if ( !params.driver.value().readHofX.value() ||
          params.driver.value().doPostObs.value()) {
-      obsdb.save();
+      obsdb.saveObservations();
     }
-*/
 
     return 0;
   }
@@ -542,14 +531,14 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
       obsConfig.set("obs space.distribution.radius", patchRadius);
     }
   }
-/*
+
   void saveVariance(const eckit::LocalConfiguration & params, const IncrementEnsemble4D_ & perts,
                     const bool do_test_prints, const std::string & strOut) const {
     // save and optionaly print varaince of an IncrementEnsemble4D_ object
     size_t nens = perts.size();
     const double ncVar = 1.0/(static_cast<double>(nens) - 1.0);
     const double ncMean = 1.0/(static_cast<double>(nens));
-    for (size_t itime = 0; itime < perts[0].size(); ++itime) {
+    for (size_t itime = perts[0].first(); itime < perts[0].last()+1; ++itime) {
       // compute the mean
       Increment_ mean(perts[0][itime], false);
       for (size_t iens = 0; iens < nens; ++iens) {
@@ -572,7 +561,6 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
       }
     }
   }
-*/
 
 // -----------------------------------------------------------------------------
 };

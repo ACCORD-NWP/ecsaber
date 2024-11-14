@@ -31,7 +31,7 @@
  #include "oops/util/parameters/RequiredParameter.h"
  
 +#include "saber/oops/instantiateCovarFactory.h"
-+#include "saber/oops/ECUtilities.h"
++#include "oops/util/ECUtilities.h"
  #include "saber/oops/Utilities.h"
  #include "saber/util/HorizontalProfiles.h"
  
@@ -178,7 +178,7 @@
        tmpVars = params.incrementVars.value().value();
      }
 -    const oops::JediVariables vars = tmpVars;
-+    const Variables_ varsT(templatedVarsConf(tmpVars));
++    const Variables_ varsT(util::templatedVarsConf(tmpVars));
  
      // Setup time
      util::DateTime time = xx[0].validTime();

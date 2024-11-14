@@ -121,6 +121,11 @@ void ObsSpace::getdb(const std::string & col,
                      std::vector<double> & vec) const {
   oops::Log::trace() << classname() << "::getdb starting" << std::endl;
 
+//std::cout << "COL: " << col << std::endl;
+//for (const auto & i : data_) {
+//  std::cout << "DATA: " << i.first << std::endl;
+//}
+
   std::map<std::string, std::vector<double> >::const_iterator ic = data_.find(col);
   ASSERT(ic != data_.end());
   vec.resize(nobsLoc_);
@@ -518,7 +523,6 @@ void ObsSpace::read(const std::string & filePath) {
     locsGlb.resize(locs.size());
     dataGlb.resize(cols.size());
     std::vector<int> iobsLocVec(comm_.size(), 0);
-
     for (size_t jo = 0; jo < nobsGlb_; ++jo) {
       size_t offset = 0;
       for (int jt = 0; jt < partition[jo]; ++jt) {

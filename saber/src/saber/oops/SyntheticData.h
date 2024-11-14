@@ -38,7 +38,7 @@
 #include "oops/util/Logger.h"
 
 #include "saber/oops/instantiateCovarFactory.h"
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 #include "saber/oops/Utilities.h"
 
 namespace saber {
@@ -115,7 +115,7 @@ class SyntheticData : public oops::Application {
     // Setup variables
     const std::vector<std::string> varNames = fullConfig.getStringVector("variables");
     oops::JediVariables tmpVars(varNames);
-    const Variables_ varsT(templatedVarsConf(tmpVars));
+    const Variables_ varsT(util::templatedVarsConf(tmpVars));
 
     // Create background perturbation
     Increment_ dx(resol, varsT, xx.state()[0].validTime());

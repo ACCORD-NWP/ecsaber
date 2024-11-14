@@ -19,9 +19,10 @@
 #include "oops/base/Departures.h"
 #include "oops/base/DeparturesEnsemble.h"
 #include "oops/interface/Geometry.h"
+#include "oops/base/IncrementEnsemble4D.h"
 #include "oops/base/ObsErrors.h"
 #include "oops/base/ObsLocalizations.h"
-#include "oops/base/ObsSpaces.h"
+#include "oops/base/ObservationSpaces.h"
 #include "oops/interface/GeometryIterator.h"
 #include "oops/util/Logger.h"
 
@@ -39,15 +40,18 @@ namespace oops {
  * assimilation for spatiotemporal chaos: A local ensemble transform Kalman
  * filter. Physica D: Nonlinear Phenomena, 230(1-2), 112-126.
  */
-template <typename MODEL, typename OBS>
-class LETKFSolver : public LocalEnsembleSolver<MODEL, OBS> {
-  typedef Departures<OBS>             Departures_;
-  typedef DeparturesEnsemble<OBS>     DeparturesEnsemble_;
+template <typename MODEL>
+class LETKFSolver : public LocalEnsembleSolver<MODEL> {
+  typedef Departures<MODEL>           Departures_;
+  typedef DeparturesEnsemble<MODEL>   DeparturesEnsemble_;
   typedef Geometry<MODEL>             Geometry_;
-  typedef GeometryIterator<MODEL>     GeometryIterator_;
-  typedef ObsErrors<OBS>              ObsErrors_;
-  typedef ObsLocalizations<MODEL, OBS> ObsLocalizations_;
-  typedef ObsSpaces<OBS>              ObsSpaces_;
+  typedef typename MODEL::GeometryIterator  GeometryIterator__;
+  typedef IncrementEnsemble4D<MODEL>  IncrementEnsemble4D_;
+  typedef Model<MODEL>                Model_;
+  typedef Observations<MODEL>         Observations_;
+  typedef ObsErrors<MODEL>            ObsErrors_;
+  typedef ObsLocalizations<MODEL>     ObsLocalizations_;
+  typedef ObservationSpaces<MODEL>    ObsSpaces_;
   typedef State4D<MODEL>              State4D_;
 
  public:
@@ -56,9 +60,9 @@ class LETKFSolver : public LocalEnsembleSolver<MODEL, OBS> {
   LETKFSolver(ObsSpaces_ &, const Geometry_ &, const eckit::Configuration &, size_t,
               const State4D_ &, const JediVariables &);
 
-  /// KF update + posterior inflation at a grid point location (GeometryIterator_)
-  void measurementUpdate(const std::vector<Ensemble_> &,
-                         const GeometryIterator_ &, std::vector<Ensemble_> &) override;
+  /// KF update + posterior inflation at a grid point location (GeometryIterator__)
+  void measurementUpdate(const IncrementEnsemble4D_ &,
+                         const GeometryIterator__ &, IncrementEnsemble4D_ &) override;
 
  protected:
   /// Computes weights for ensemble update with local observations
@@ -69,8 +73,8 @@ class LETKFSolver : public LocalEnsembleSolver<MODEL, OBS> {
                               const Eigen::VectorXd & invvarR);
 
   /// Applies weights and adds posterior inflation
-  virtual void applyWeights(const std::vector<Ensemble_> &, std::vector<Ensemble_> &,
-                            const GeometryIterator_ &);
+  virtual void applyWeights(const IncrementEnsemble4D_ &, IncrementEnsemble4D_ &,
+                            const GeometryIterator__ &);
 
   Eigen::MatrixXd Wa_;  // transformation matrix for ens. perts. Xa=Xf*Wa
   Eigen::VectorXd wa_;  // transformation matrix for ens. mean xa=xf*wa
@@ -84,14 +88,14 @@ class LETKFSolver : public LocalEnsembleSolver<MODEL, OBS> {
 
 // -----------------------------------------------------------------------------
 
-template <typename MODEL, typename OBS>
-LETKFSolver<MODEL, OBS>::LETKFSolver(ObsSpaces_ & obspaces, const Geometry_ & geometry,
-                                     const eckit::Configuration & config, size_t nens,
-                                     const State4D_ & xbmean, const JediVariables & incvars)
-  : LocalEnsembleSolver<MODEL, OBS>(obspaces, geometry, config, nens, xbmean, incvars),
+template <typename MODEL>
+LETKFSolver<MODEL>::LETKFSolver(ObsSpaces_ & obspaces, const Geometry_ & geometry,
+                                const eckit::Configuration & config, size_t nens,
+                                const State4D_ & xbmean, const JediVariables & incvars)
+  : LocalEnsembleSolver<MODEL>(obspaces, geometry, config, nens, xbmean, incvars),
     nens_(nens)
 {
-  Log::trace() << "LETKFSolver<MODEL, OBS>::create starting" << std::endl;
+  Log::trace() << "LETKFSolver<MODEL>::create starting" << std::endl;
   Log::info() << "Using EIGEN implementation of LETKF" << std::endl;
 
   // pre-allocate transformation matrices
@@ -101,15 +105,15 @@ LETKFSolver<MODEL, OBS>::LETKFSolver(ObsSpaces_ & obspaces, const Geometry_ & ge
   // pre-allocate eigen sovler matrices
   eival_.resize(nens_);
   eivec_.resize(nens_, nens_);
-  Log::trace() << "LETKFSolver<MODEL, OBS>::create done" << std::endl;
+  Log::trace() << "LETKFSolver<MODEL>::create done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-template <typename MODEL, typename OBS>
-void LETKFSolver<MODEL, OBS>::measurementUpdate(const std::vector<Ensemble_> & bkg_pert,
-                                                const GeometryIterator_ & i,
-                                                std::vector<Ensemble_> & ana_pert) {
+template <typename MODEL>
+void LETKFSolver<MODEL>::measurementUpdate(const IncrementEnsemble4D_ & bkg_pert,
+                                           const GeometryIterator__ & i,
+                                           IncrementEnsemble4D_ & ana_pert) {
   util::Timer timer(classname(), "measurementUpdate");
 
   // create the local subset of observations
@@ -139,10 +143,10 @@ void LETKFSolver<MODEL, OBS>::measurementUpdate(const std::vector<Ensemble_> & b
 
 // -----------------------------------------------------------------------------
 
-template <typename MODEL, typename OBS>
-void LETKFSolver<MODEL, OBS>::computeWeights(const Eigen::VectorXd & dy,
-                                             const Eigen::MatrixXd & Yb,
-                                             const Eigen::VectorXd & diagInvR ) {
+template <typename MODEL>
+void LETKFSolver<MODEL>::computeWeights(const Eigen::VectorXd & dy,
+                                        const Eigen::MatrixXd & Yb,
+                                        const Eigen::VectorXd & diagInvR ) {
   // compute transformation matrix, save in Wa_, wa_
   // uses C++ eigen interface
   // implements LETKF from Hunt et al. 2007
@@ -175,15 +179,15 @@ void LETKFSolver<MODEL, OBS>::computeWeights(const Eigen::VectorXd & dy,
 
 // -----------------------------------------------------------------------------
 
-template <typename MODEL, typename OBS>
-void LETKFSolver<MODEL, OBS>::applyWeights(const std::vector<Ensemble_> & bkg_pert,
-                                           std::vector<Ensemble_> & ana_pert,
-                                           const GeometryIterator_ & i) {
+template <typename MODEL>
+void LETKFSolver<MODEL>::applyWeights(const IncrementEnsemble4D_ & bkg_pert,
+                                      IncrementEnsemble4D_ & ana_pert,
+                                      const GeometryIterator__ & i) {
   // applies Wa_, wa_
   util::Timer timer(classname(), "applyWeights");
 
   // loop through analysis times and ens. members
-  for (size_t itime=0; itime < bkg_pert[0].size(); ++itime) {
+  for (size_t itime=bkg_pert[0].first(); itime < bkg_pert[0].last()+1; ++itime) {
     // make grid point forecast pert ensemble array
     Eigen::MatrixXd Xb;
     bkg_pert.packEigen(Xb, i, itime);

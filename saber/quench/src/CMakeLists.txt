@@ -52,6 +52,8 @@ ObsAuxIncrement.cc
 ObsAuxIncrement.h
 ObsError.cc
 ObsError.h
+ObsLocalization.cc
+ObsLocalization.h
 ObsOperator.cc
 ObsOperator.h
 ObsSpace.cc

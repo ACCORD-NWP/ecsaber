@@ -46,7 +46,7 @@
 #include "oops/util/parameters/RequiredParameter.h"
 
 #include "saber/oops/instantiateCovarFactory.h"
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 #include "saber/oops/Utilities.h"
 #include "saber/util/HorizontalProfiles.h"
 
@@ -169,7 +169,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     if (params.incrementVars.value() != boost::none) {
       tmpVars = params.incrementVars.value().value();
     }
-    const Variables_ varsT(templatedVarsConf(tmpVars));
+    const Variables_ varsT(util::templatedVarsConf(tmpVars));
 
     // Setup time
     util::DateTime time = xx[0].validTime();
@@ -570,7 +570,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
           if (outputPerturbations != boost::none) {
             // Update config
             auto outputPerturbationsUpdated(*outputPerturbations);
-            setMember(outputPerturbationsUpdated, jm+1);
+            util::setMember(outputPerturbationsUpdated, jm+1);
             setMPI(outputPerturbationsUpdated, ntasks);
 
             // Write perturbation
@@ -580,7 +580,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
           if (outputStates != boost::none) {
             // Update config
             auto outputStatesUpdated(*outputStates);
-            setMember(outputStatesUpdated, jm+1);
+            util::setMember(outputStatesUpdated, jm+1);
             setMPI(outputStatesUpdated, ntasks);
 
             // Add background state to perturbation
