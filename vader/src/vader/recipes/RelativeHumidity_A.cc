@@ -64,19 +64,17 @@ atlas::FunctionSpace RelativeHumidity_A::productFunctionSpace
     return afieldset.field("air_temperature").functionspace();
 }
 
-bool RelativeHumidity_A::executeNL(atlas::FieldSet & afieldset)
+void RelativeHumidity_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering RelativeHumidity_A::executeNL function" << std::endl;
 
     // Actually requiring water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water and qsat only
-    const bool rvalue = mo::eval_relative_humidity_nl(afieldset);
+    mo::eval_relative_humidity_nl(afieldset);
 
     oops::Log::trace() << "leaving RelativeHumidity_A::executeNL function" << std::endl;
-
-    return rvalue;
 }
 
-bool RelativeHumidity_A::executeTL(atlas::FieldSet & afieldsetTL,
+void RelativeHumidity_A::executeTL(atlas::FieldSet & afieldsetTL,
                                    const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering RelativeHumidity_A::executeTL function" << std::endl;
@@ -87,11 +85,9 @@ bool RelativeHumidity_A::executeTL(atlas::FieldSet & afieldsetTL,
     mo::eval_relative_humidity_tl(afieldsetTL, afieldsetTraj);
 
     oops::Log::trace() << "leaving RelativeHumidity_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool RelativeHumidity_A::executeAD(atlas::FieldSet & afieldsetAD,
+void RelativeHumidity_A::executeAD(atlas::FieldSet & afieldsetAD,
                                    const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering RelativeHumidity_A::executeAD function" << std::endl;
@@ -99,8 +95,6 @@ bool RelativeHumidity_A::executeAD(atlas::FieldSet & afieldsetAD,
     mo::eval_relative_humidity_ad(afieldsetAD, afieldsetTraj);
 
     oops::Log::trace() << "leaving RelativeHumidity_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

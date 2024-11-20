@@ -10,10 +10,9 @@
 #include <string>
 #include <vector>
 
-#include "oops/base/ModelSpaceCovarianceParametersBase.h"
-
 #include "oops/util/DateTime.h"
 #include "oops/util/parameters/OptionalParameter.h"
+#include "oops/util/parameters/Parameter.h"
 #include "oops/util/parameters/Parameters.h"
 #include "oops/util/parameters/RequiredParameter.h"
 

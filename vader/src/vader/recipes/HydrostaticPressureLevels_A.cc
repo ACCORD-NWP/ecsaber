@@ -58,12 +58,10 @@ atlas::FunctionSpace HydrostaticPressureLevels_A::productFunctionSpace(
   return afieldset.field("hydrostatic_exner_levels").functionspace();
 }
 
-bool HydrostaticPressureLevels_A::executeNL(atlas::FieldSet & afieldset) {
+void HydrostaticPressureLevels_A::executeNL(atlas::FieldSet & afieldset) {
   oops::Log::trace() << "HydrostaticPressureLevels_A::executeNL starting ..." << std::endl;
   mo::evalHydrostaticPressureLevels(afieldset);
-
   oops::Log::trace() << "HydrostaticPressureLevels_A::executeNL ... done" << std::endl;
-  return true;
 }
 
 

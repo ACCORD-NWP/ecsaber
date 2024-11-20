@@ -11,7 +11,6 @@ oops/base/FieldSets.cc
 oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
-oops/base/ModelSpaceCovarianceParametersBase.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
 oops/base/Variable.cc
@@ -57,8 +56,6 @@ oops/util/FunctionSpaceHelpers.h
 oops/util/gatherPrint.h
 oops/util/IntSetParser.cc
 oops/util/IntSetParser.h
-oops/util/missingValues.cc
-oops/util/missingValues.h
 oops/util/NamedEnumerator.h
 oops/util/parameters/ConfigurationParameter.cc
 oops/util/parameters/ConfigurationParameter.h
@@ -101,6 +98,8 @@ oops/util/ScalarOrMap.h
 oops/util/Serializable.h
 oops/util/stringFunctions.cc
 oops/util/stringFunctions.h
+oops/util/TimeWindow.cc
+oops/util/TimeWindow.h
 oops/util/TypeTraits.h
 )
 
@@ -128,6 +127,8 @@ util/Duration.h
 util/formats.h
 util/kinds.F90
 util/Logger.h
+util/missingValues.cc
+util/missingValues.h
 util/ObjectCounter.h
 util/Printable.h
 util/Timer.h

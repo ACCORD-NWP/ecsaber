@@ -60,7 +60,7 @@ atlas::FunctionSpace HumidityMixingRatio_B::productFunctionSpace
     return afieldset.field("humidity_mixing_ratio_kgkg").functionspace();
 }
 
-bool HumidityMixingRatio_B::executeNL(atlas::FieldSet & afieldset)
+void HumidityMixingRatio_B::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering HumidityMixingRatio_B::executeNL function" << std::endl;
 
@@ -71,8 +71,6 @@ bool HumidityMixingRatio_B::executeNL(atlas::FieldSet & afieldset)
     });
 
     oops::Log::trace() << "leaving HumidityMixingRatio_B::executeNL function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

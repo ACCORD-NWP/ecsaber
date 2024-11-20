@@ -11,9 +11,6 @@ cmake_minimum_required( VERSION 3.12 )
 
 project( ecsaber VERSION 0.0.1 LANGUAGES CXX Fortran )
 
-# ECSABER flag
-set( ECSABER ON CACHE INTERNAL "ECSABER flag" )
-
 # Update flag
 set( ECSABER_UPDATE OFF )
 if( DEFINED ENV{ECSABER_UPDATE} )
@@ -124,6 +121,3 @@ endif()
 add_subdirectory( oops_patch )
 add_subdirectory( vader )
 add_subdirectory( saber )
-if( ENABLE_QUENCH )
-    add_subdirectory( quenchxx_test )
-endif()

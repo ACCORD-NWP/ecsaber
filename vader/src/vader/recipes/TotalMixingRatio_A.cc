@@ -62,36 +62,30 @@ atlas::FunctionSpace TotalMixingRatio_A::productFunctionSpace(const atlas::Field
     return afieldset["water_vapor_mixing_ratio_wrt_dry_air"].functionspace();
 }
 
-bool TotalMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
+void TotalMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering TotalMixingRatio_A::executeNL function"
       << std::endl;
     mo::eval_total_mixing_ratio_nl(afieldset);
     oops::Log::trace() << "leaving TotalMixingRatio_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool TotalMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
+void TotalMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering TotalMixingRatio_A::executeTL function"
         << std::endl;
     mo::eval_total_mixing_ratio_tl(afieldsetTL, afieldsetTraj);
     oops::Log::trace() << "leaving TotalMixingRatio_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool TotalMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
+void TotalMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering TotalMixingRatio::executeAD function"
         << std::endl;
     mo::eval_total_mixing_ratio_ad(afieldsetAD, afieldsetTraj);
     oops::Log::trace() << "leaving TotalMixingRatio_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

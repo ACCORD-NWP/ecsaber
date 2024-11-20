@@ -14,7 +14,7 @@
 
 namespace mo {
 
-bool eval_ratio_to_second(atlas::FieldSet & fields,
+void eval_ratio_to_second(atlas::FieldSet & fields,
                           const std::vector<std::string> & vars);
 
 void eval_ratio_to_second_tl(atlas::FieldSet & incFields,

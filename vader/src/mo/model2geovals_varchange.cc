@@ -29,7 +29,7 @@ using atlas::util::Config;
 namespace mo {
 
 
-bool evalParamAParamB(atlas::FieldSet & stateFlds)
+void evalParamAParamB(atlas::FieldSet & stateFlds)
 {
   oops::Log::trace() << "[evalParamAParamB2()] starting ..." << std::endl;
 
@@ -77,8 +77,6 @@ bool evalParamAParamB(atlas::FieldSet & stateFlds)
   stateFlds["surf_param_b"].set_dirty();
 
   oops::Log::trace() << "[evalParamAParamB()] ... exit" << std::endl;
-
-  return true;
 }
 
 }  // namespace mo

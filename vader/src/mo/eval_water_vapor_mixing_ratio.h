@@ -16,7 +16,7 @@ namespace mo {
 ///        of specific humidity):
 ///   q = water_vapor_mixing_ratio_wrt_dry_air/total_water_mixing_ratio_wrt_dry_air
 ///
-bool eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
+void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
         atlas::FieldSet & stateFlds);
 
 void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_tl(
@@ -36,7 +36,7 @@ void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_ad(
 ///   rh   = relative humidity at 2m above surface
 ///   qsat = water vapor mixing ratio wrt moist air and condensed water assuming saturation
 ///
-bool eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_nl(
+void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_nl(
         atlas::FieldSet & stateFlds);
 
 void eval_water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water_at_2m_tl(

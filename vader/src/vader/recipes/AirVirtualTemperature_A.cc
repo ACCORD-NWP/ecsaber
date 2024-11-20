@@ -62,7 +62,7 @@ atlas::FunctionSpace AirVirtualTemperature_A::productFunctionSpace
     return afieldset.field("air_temperature").functionspace();
 }
 
-bool AirVirtualTemperature_A::executeNL(atlas::FieldSet & afieldset)
+void AirVirtualTemperature_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering AirVirtualTemperature_A::executeNL function"
         << std::endl;
@@ -89,13 +89,10 @@ bool AirVirtualTemperature_A::executeNL(atlas::FieldSet & afieldset)
             (1.0 + epsilon * specific_humidity_view(jnode, level));
       }
     }
-
     oops::Log::trace() << "leaving AirVirtualTemperature_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool AirVirtualTemperature_A::executeTL(atlas::FieldSet & afieldsetTL,
+void AirVirtualTemperature_A::executeTL(atlas::FieldSet & afieldsetTL,
                                         const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering AirVirtualTemperature_A::executeTL function"
@@ -128,13 +125,10 @@ bool AirVirtualTemperature_A::executeTL(atlas::FieldSet & afieldsetTL,
              tl_specific_humidity_view(jnode, level));
       }
     }
-
     oops::Log::trace() << "leaving AirVirtualTemperature_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool AirVirtualTemperature_A::executeAD(atlas::FieldSet & afieldsetAD,
+void AirVirtualTemperature_A::executeAD(atlas::FieldSet & afieldsetAD,
                                         const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering AirVirtualTemperature_A::executeAD function"
@@ -172,8 +166,6 @@ bool AirVirtualTemperature_A::executeAD(atlas::FieldSet & afieldsetAD,
     }
 
     oops::Log::trace() << "leaving AirVirtualTemperature_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

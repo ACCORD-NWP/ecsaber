@@ -59,17 +59,15 @@ atlas::FunctionSpace CloudIceMixingRatio_A::productFunctionSpace(const atlas::Fi
     return afieldset["total_water_mixing_ratio_wrt_dry_air"].functionspace();
 }
 
-bool CloudIceMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
+void CloudIceMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering CloudIceMixingRatio_A::executeNL function"
       << std::endl;
     mo::eval_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_nl(afieldset);
     oops::Log::trace() << "leaving CloudIceMixingRatio_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool CloudIceMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
+void CloudIceMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering CloudIceMixingRatio_A::executeTL function"
@@ -77,11 +75,9 @@ bool CloudIceMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
     mo::eval_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_tl(afieldsetTL,
                                                                          afieldsetTraj);
     oops::Log::trace() << "leaving CloudIceMixingRatio_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool CloudIceMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
+void CloudIceMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering CloudIceMixingRatio::executeAD function"
@@ -89,8 +85,6 @@ bool CloudIceMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
     mo::eval_cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water_ad(afieldsetAD,
                                                                          afieldsetTraj);
     oops::Log::trace() << "leaving CloudIceMixingRatio_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

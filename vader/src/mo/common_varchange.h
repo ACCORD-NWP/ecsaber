@@ -17,6 +17,6 @@ namespace mo {
 
 /// \brief function to evaluate saturation specific humidity (qsat)
 /// Needs air pressure [Pa] and svp [Pa] Atlas fields and returns the qsat Atlas field
-bool evalSatSpecificHumidity(atlas::FieldSet & stateFlds);
+void evalSatSpecificHumidity(atlas::FieldSet & stateFlds);
 
 }  // namespace mo

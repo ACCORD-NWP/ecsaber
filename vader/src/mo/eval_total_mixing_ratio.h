@@ -18,7 +18,7 @@ namespace mo {
 ///   M_dry = mass of dry air
 ///   m_t  =  moist air and condensed water mixing ratio wrt dry air
 ///
-bool eval_total_mixing_ratio_nl(
+void eval_total_mixing_ratio_nl(
         atlas::FieldSet & stateFlds);
 
 void eval_total_mixing_ratio_tl(

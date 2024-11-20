@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-07-19 10:07:31.621297661 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-07-19 10:04:53.324736225 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-11-15 16:37:13.777317115 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-11-14 13:01:27.766333176 +0100
 @@ -26,19 +26,15 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
@@ -26,16 +26,17 @@
  #include "oops/util/ConfigFunctions.h"
  #include "oops/util/ConfigHelpers.h"
  #include "oops/util/DateTime.h"
-@@ -49,6 +45,8 @@
+@@ -49,7 +45,8 @@
  #include "oops/util/parameters/Parameters.h"
  #include "oops/util/parameters/RequiredParameter.h"
  
+-#include "saber/oops/ErrorCovarianceParameters.h"
 +#include "saber/oops/instantiateCovarFactory.h"
 +#include "saber/oops/ECUtilities.h"
  #include "saber/oops/Utilities.h"
  #include "saber/util/HorizontalProfiles.h"
  
-@@ -57,22 +55,19 @@
+@@ -58,21 +55,19 @@
  // -----------------------------------------------------------------------------
  
  /// \brief Top-level options taken by the ErrorCovarianceToolbox application.
@@ -47,8 +48,7 @@
 +  OOPS_CONCRETE_PARAMETERS(ErrorCovarianceToolboxParameters, oops::Parameters)
  
   public:
--  typedef oops::ModelSpaceCovarianceParametersWrapper<MODEL> CovarianceParameters_;
--  typedef typename oops::Geometry<MODEL>::Parameters_        GeometryParameters_;
+-  typedef typename oops::Geometry<MODEL>::Parameters_  GeometryParameters_;
 -
    /// Geometry parameters.
 -  oops::RequiredParameter<GeometryParameters_> geometry{"geometry", this};
@@ -59,7 +59,7 @@
 +  oops::RequiredParameter<eckit::LocalConfiguration> background{"Background", this};
  
    /// Background error covariance model.
--  oops::RequiredParameter<CovarianceParameters_> backgroundError{"background error", this};
+-  oops::RequiredParameter<eckit::LocalConfiguration> backgroundError{"background error", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> backgroundError{"Covariance", this};
  
    /// Geometry parameters.
@@ -70,7 +70,7 @@
  template <typename MODEL> class ErrorCovarianceToolbox : public oops::Application {
 -  typedef oops::ModelSpaceCovarianceBase<MODEL>           CovarianceBase_;
 -  typedef oops::CovarianceFactory<MODEL>                  CovarianceFactory_;
--  typedef oops::ModelSpaceCovarianceParametersBase<MODEL> CovarianceParametersBase_;
+-  typedef ModelSpaceCovarianceParametersBase<MODEL>       CovarianceParametersBase_;
 +  typedef oops::ModelSpaceCovariance4DBase<MODEL>         Covariance4DBase_;
 +  typedef oops::Covariance4DFactory<MODEL>                Covariance4DFactory_;
    typedef oops::Geometry<MODEL>                           Geometry_;
@@ -147,7 +147,7 @@
  
      // Get number of MPI tasks and OpenMP threads
      size_t ntasks = commSpace->size();
-@@ -189,32 +147,43 @@
+@@ -189,30 +147,43 @@
      util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
      params.deserialize(fullConfigUpdated);
  
@@ -183,9 +183,8 @@
      // Setup time
      util::DateTime time = xx[0].validTime();
  
-     // Background error covariance parameters
--    const CovarianceParametersBase_ & covarParams
--      = params.backgroundError.value().covarianceParameters;
+-    const eckit::LocalConfiguration covarConf(fullConfigUpdated, "background error");
++    // Background error covariance parameters
 +    const eckit::LocalConfiguration & covarParams
 +      = params.backgroundError.value();
  
@@ -200,7 +199,7 @@
        oops::Log::test() << "Input Dirac increment:" << dxi << std::endl;
  
        // Test configuration
-@@ -230,7 +199,8 @@
+@@ -228,7 +199,8 @@
        }
  
        // Add output Dirac configuration
@@ -210,21 +209,24 @@
        setMPI(outputDiracUpdated, ntasks);
        testConf.set("output dirac", outputDiracUpdated);
  
-@@ -242,32 +212,36 @@
+@@ -240,35 +212,36 @@
  
        // Apply B matrix components recursively
        std::string id;
--      dirac(covarParams.toConfiguration(), testConf, id, geom, vars, xx, dxi);
+-      dirac(covarConf, testConf, id, geom, vars, xx, dxi);
 +      dirac(covarParams, testConf, id, geom, varsT, xx, dxi);
      }
  
+-    // Background error covariance parameters
+-    CovarianceParametersBase_ covarParams;
+-    covarParams.deserialize(covarConf);
 -    const auto & randomizationSize = covarParams.randomizationSize.value();
 -    if ((diracParams == boost::none) || (randomizationSize != boost::none)) {
 +    const auto & randomizationSize = covarParams.getInt("randomization size", 0);
 +    if ((diracParams == boost::none) || (randomizationSize > 0)) {
        // Background error covariance training
 -      std::unique_ptr<CovarianceBase_> Bmat(CovarianceFactory_::create(
--                                            geom, vars, covarParams, xx, xx));
+-                                            geom, vars, covarConf, xx, xx));
 +      std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
 +                                              covarParams, geom, varsT, xx));
 +
@@ -263,7 +265,7 @@
   private:
    std::string appname() const override {
      return "oops::ErrorCovarianceToolbox<" + MODEL::name() + ">";
-@@ -281,15 +255,15 @@
+@@ -282,15 +255,15 @@
  
      // Create diagnostic field
      Increment4D_ diagPoints(data);
@@ -286,7 +288,7 @@
      }
  
      oops::Log::trace() << appname() << "::print_value_at_position done" << std::endl;
-@@ -302,13 +276,13 @@
+@@ -303,13 +276,13 @@
                                const Increment4D_ & data) const {
    oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
  
@@ -302,7 +304,7 @@
  
    // Define maximum length of horizontal profile
    double maxLength = std::numeric_limits<double>::infinity();
-@@ -317,7 +291,7 @@
+@@ -318,7 +291,7 @@
      maxLength = profileConf.getDouble("maximum distance");
    } else {
      // If no maximum length input is given, try to compute a default value from the grid
@@ -311,7 +313,7 @@
      if (fspace.type() == "StructuredColumns") {
        const atlas::functionspace::StructuredColumns fs(fspace);
        if (fs.grid().name().compare(0, 1, "F") == 0) {
-@@ -344,19 +318,19 @@
+@@ -345,19 +318,19 @@
  
    // Get values as a function of separation distance
    auto[distances, covariances, lons, lats, levs, fieldIndexes] =
@@ -337,7 +339,7 @@
                                 distances,
                                 covariances,
                                 lons,
-@@ -386,15 +360,29 @@
+@@ -387,15 +360,29 @@
               const eckit::LocalConfiguration & testConf,
               std::string & id,
               const Geometry_ & geom,
@@ -370,7 +372,7 @@
  
      // Multiply
      Bmat->multiply(dxi, dxo);
-@@ -440,17 +428,13 @@
+@@ -441,17 +428,13 @@
      oops::Log::test() << "Covariance(" << id << ") * Increment:" << dxo << std::endl;
  
      // Look for hybrid or ensemble covariance models
@@ -394,7 +396,7 @@
      }
      if (covarianceModel == "SABER") {
        const std::string saberCentralBlockName =
-@@ -464,7 +448,7 @@
+@@ -465,7 +448,7 @@
            for (const auto & conf : confs) {
              std::string idC(id + std::to_string(componentIndex));
              eckit::LocalConfiguration componentConfig(conf, "covariance");
@@ -403,7 +405,7 @@
              if (covarConf.has("adjoint test")) {
                componentConfig.set("adjoint test", covarConf.getBool("adjoint test"));
              }
-@@ -492,7 +476,15 @@
+@@ -493,7 +476,15 @@
        Localization_ Lmat(geom, vars, locConfig);
  
        // Apply localization
@@ -420,7 +422,7 @@
  
        // Update ID
        std::string idL(id);
-@@ -520,11 +512,11 @@
+@@ -521,11 +512,11 @@
      }
    }
  // -----------------------------------------------------------------------------
@@ -435,7 +437,7 @@
                       const size_t & ntasks) const {
      if (Bmat->randomizationSize() > 0) {
        oops::Log::info() << "Info     : " << std::endl;
-@@ -532,9 +524,9 @@
+@@ -533,9 +524,9 @@
        oops::Log::info() << "Info     : -----------------------" << std::endl;
  
        // Create increments
@@ -448,7 +450,7 @@
  
        // Initialize variance
        variance.zero();
-@@ -559,7 +551,9 @@
+@@ -560,7 +551,9 @@
  
          // Square perturbation
          dxsq = dx;
@@ -459,7 +461,7 @@
  
          // Update variance
          variance += dxsq;
-@@ -575,8 +569,8 @@
+@@ -576,8 +569,8 @@
  
            if (outputPerturbations != boost::none) {
              // Update config
@@ -470,7 +472,7 @@
              setMPI(outputPerturbationsUpdated, ntasks);
  
              // Write perturbation
-@@ -585,8 +579,8 @@
+@@ -586,8 +579,8 @@
  
            if (outputStates != boost::none) {
              // Update config

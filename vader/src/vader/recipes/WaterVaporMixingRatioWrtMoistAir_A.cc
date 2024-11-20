@@ -64,7 +64,7 @@ atlas::FunctionSpace WaterVaporMixingRatioWrtMoistAir_A::productFunctionSpace
     return afieldset.field("humidity_mixing_ratio").functionspace();
 }
 
-bool WaterVaporMixingRatioWrtMoistAir_A::executeNL(atlas::FieldSet & afieldset)
+void WaterVaporMixingRatioWrtMoistAir_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace()
           << "entering WaterVaporMixingRatioWrtMoistAir_A::executeNL function"
@@ -80,8 +80,6 @@ bool WaterVaporMixingRatioWrtMoistAir_A::executeNL(atlas::FieldSet & afieldset)
     oops::Log::trace()
           << "leaving WaterVaporMixingRatioWrtMoistAir_A::executeNL function"
           << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

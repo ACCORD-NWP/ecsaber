@@ -76,40 +76,30 @@ std::string Test_VarC_from_F::name() const
     return Test_VarC_from_F::Name;
 }
 
-bool Test_VarA_from_B::executeNL(atlas::FieldSet & afieldset)
+void Test_VarA_from_B::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering/leaving empty Test_VarA_from_B::executeNL function"
         << std::endl;
-
-    return true;
 }
-bool Test_VarA_from_C_D::executeNL(atlas::FieldSet & afieldset)
+void Test_VarA_from_C_D::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering/leaving empty Test_VarA_from_C_D::executeNL function"
         << std::endl;
-
-    return true;
 }
-bool Test_VarB_from_E::executeNL(atlas::FieldSet & afieldset)
+void Test_VarB_from_E::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering/leaving empty Test_VarB_from_E::executeNL function"
         << std::endl;
-
-    return true;
 }
-bool Test_VarB_from_A::executeNL(atlas::FieldSet & afieldset)
+void Test_VarB_from_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering/leaving empty Test_VarB_from_A::executeNL function"
         << std::endl;
-
-    return true;
 }
-bool Test_VarC_from_F::executeNL(atlas::FieldSet & afieldset)
+void Test_VarC_from_F::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering/leaving empty Test_VarC_from_F::executeNL function"
         << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

@@ -71,7 +71,7 @@ atlas::FunctionSpace AirPressure_B::productFunctionSpace(const atlas::FieldSet &
 
 // -------------------------------------------------------------------------------------------------
 
-bool AirPressure_B::executeNL(atlas::FieldSet & afieldset) {
+void AirPressure_B::executeNL(atlas::FieldSet & afieldset) {
     //
     oops::Log::trace() << "AirPressure_B::executeNL Starting" << std::endl;
 
@@ -97,7 +97,6 @@ bool AirPressure_B::executeNL(atlas::FieldSet & afieldset) {
 
     // Return
     oops::Log::trace() << "AirPressure_B::executeNL Done" << std::endl;
-    return true;
 }
 
 // -------------------------------------------------------------------------------------------------

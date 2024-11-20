@@ -25,7 +25,7 @@ using atlas::idx_t;
 
 // --------------------------------------------------------------------------------------
 
-bool eval_total_mixing_ratio_nl(
+void eval_total_mixing_ratio_nl(
         atlas::FieldSet & stateFlds) {
   oops::Log::trace()
           << "[eval_total_mixing_ratio_nl()] starting ..."
@@ -52,7 +52,6 @@ bool eval_total_mixing_ratio_nl(
   oops::Log::trace()
           << "[eval_total_mixing_ratio_nl()] ... exit"
           << std::endl;
-  return true;
 }
 
 // --------------------------------------------------------------------------------------

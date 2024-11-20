@@ -62,7 +62,7 @@ atlas::FunctionSpace DryAirDensity_A::productFunctionSpace(const atlas::FieldSet
     return afieldset.field("air_pressure").functionspace();
 }
 
-bool DryAirDensity_A::executeNL(atlas::FieldSet & afieldset)
+void DryAirDensity_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering DryAirDensity_A::executeNL function"
       << std::endl;
@@ -83,13 +83,10 @@ bool DryAirDensity_A::executeNL(atlas::FieldSet & afieldset)
         air_dens_view(jnode, level) = air_p_view(jnode, level)/(rdgas*air_t_view(jnode, level));
       }
     }
-
     oops::Log::trace() << "leaving DryAirDensity_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool DryAirDensity_A::executeTL(atlas::FieldSet & afieldsetTL,
+void DryAirDensity_A::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering DryAirDensity_A::executeTL function"
@@ -121,13 +118,10 @@ bool DryAirDensity_A::executeTL(atlas::FieldSet & afieldsetTL,
                                         /air_t_view(jnode, level)/air_t_view(jnode, level);
       }
     }
-
     oops::Log::trace() << "leaving DryAirDensity_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool DryAirDensity_A::executeAD(atlas::FieldSet & afieldsetAD,
+void DryAirDensity_A::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering DryAirDensity::executeAD function"
@@ -162,8 +156,6 @@ bool DryAirDensity_A::executeAD(atlas::FieldSet & afieldsetAD,
       }
     }
     oops::Log::trace() << "leaving DryAirDensity_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

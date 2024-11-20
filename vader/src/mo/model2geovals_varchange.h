@@ -44,6 +44,6 @@ namespace mo {
 ///     pressure_levels_minus_one = pressure on rho model levels
 ///     water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
 ///
-bool evalParamAParamB(atlas::FieldSet & fields);
+void evalParamAParamB(atlas::FieldSet & fields);
 
 }  // namespace mo

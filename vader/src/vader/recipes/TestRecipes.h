@@ -55,9 +55,9 @@ class Test_VarA_from_B : public RecipeBase {
                                 {return atlas::functionspace::PointCloud({
                                     atlas::PointXY(0.0, 0.0)});}
     // bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    // bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    // bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
+    // void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
+    // void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
 
  private:
 };
@@ -88,9 +88,9 @@ class Test_VarA_from_C_D : public RecipeBase {
                                 {return atlas::functionspace::PointCloud({
                                     atlas::PointXY(0.0, 0.0)});}
     // bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    // bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    // bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
+    // void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
+    // void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
 
  private:
 };
@@ -121,9 +121,9 @@ class Test_VarB_from_E : public RecipeBase {
                                 {return atlas::functionspace::PointCloud({
                                     atlas::PointXY(0.0, 0.0)});}
     // bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    // bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    // bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
+    // void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
+    // void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
 
  private:
 };
@@ -156,9 +156,9 @@ class Test_VarB_from_A : public RecipeBase {
                                 {return atlas::functionspace::PointCloud({
                                     atlas::PointXY(0.0, 0.0)});}
     // bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    // bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    // bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
+    // void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
+    // void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
 
  private:
 };
@@ -188,9 +188,9 @@ class Test_VarC_from_F : public RecipeBase {
                                 {return atlas::functionspace::PointCloud({
                                     atlas::PointXY(0.0, 0.0)});}
     // bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    // bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    // bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
+    // void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
+    // void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
 
  private:
 };

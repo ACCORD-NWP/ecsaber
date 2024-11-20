@@ -516,11 +516,7 @@ void Vader::executePlanNL(atlas::FieldSet & afieldset,
         checkOrAddField(afieldset, varPlan.first.name(),
                         varPlan.second->productFunctionSpace(afieldset),
                         varPlan.second->productLevels(afieldset));
-        if (varPlan.second->requiresSetup()) {
-            varPlan.second->setup(afieldset);
-        }
-        const bool recipeSuccess = varPlan.second->executeNL(afieldset);
-        ASSERT(recipeSuccess);  // At least for now, we'll require the execution to be successful
+        varPlan.second->executeNL(afieldset);
         oops::Log::info() << "Variable '" << varPlan.first <<
             "' calculated using Vader recipe " << varPlan.second->name() << std::endl;
     }
@@ -549,12 +545,7 @@ void Vader::executePlanTL(atlas::FieldSet & afieldset,
         checkOrAddField(afieldset, varPlan.first.name(),
                         varPlan.second->productFunctionSpace(afieldset),
                         varPlan.second->productLevels(afieldset));
-        if (varPlan.second->requiresSetup()) {
-            varPlan.second->setup(afieldset);
-        }
-        const bool recipeSuccess =
-            varPlan.second->executeTL(afieldset, trajectory_);
-        ASSERT(recipeSuccess);  // At least for now, we'll require the execution to be successful
+        varPlan.second->executeTL(afieldset, trajectory_);
     }
     oops::Log::trace() << "leaving Vader::executePlanTL" <<  std::endl;
 }
@@ -588,12 +579,7 @@ void Vader::executePlanAD(atlas::FieldSet & afieldset,
                      trajectory_.field(ingredient.name()).functionspace(),
                      trajectory_.field(ingredient.name()).shape(1), true);
         }
-        if (varPlanIt->second->requiresSetup()) {
-            varPlanIt->second->setup(afieldset);
-        }
-        const bool recipeSuccess =
-            varPlanIt->second->executeAD(afieldset, trajectory_);
-        ASSERT(recipeSuccess);  // At least for now, we'll require the execution to be successful
+        varPlanIt->second->executeAD(afieldset, trajectory_);
     }
     oops::Log::trace() << "leaving Vader::executePlanAD" <<  std::endl;
 }

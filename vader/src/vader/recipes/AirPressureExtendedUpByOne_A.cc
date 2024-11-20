@@ -61,11 +61,10 @@ atlas::FunctionSpace AirPressureExtendedUpByOne_A::productFunctionSpace(
 
 // -------------------------------------------------------------------------------------------------
 
-bool AirPressureExtendedUpByOne_A::executeNL(atlas::FieldSet & afieldset) {
+void AirPressureExtendedUpByOne_A::executeNL(atlas::FieldSet & afieldset) {
     oops::Log::trace() << "AirPressureExtendedUpByOne_A::executeNL Starting" << std::endl;
     mo::eval_air_pressure_levels_nl(afieldset);
     oops::Log::trace() << "AirPressureExtendedUpByOne_A::executeNL Done" << std::endl;
-    return true;
 }
 
 // -------------------------------------------------------------------------------------------------

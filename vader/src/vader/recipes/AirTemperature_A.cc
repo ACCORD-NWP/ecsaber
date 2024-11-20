@@ -68,7 +68,7 @@ atlas::FunctionSpace AirTemperature_A::productFunctionSpace(const atlas::FieldSe
     return fields[APT].functionspace();
 }
 
-bool AirTemperature_A::executeNL(atlas::FieldSet & fields)
+void AirTemperature_A::executeNL(atlas::FieldSet & fields)
 {
     oops::Log::trace() << "entering AirTemperature_A::executeNL function" << std::endl;
 
@@ -83,10 +83,9 @@ bool AirTemperature_A::executeNL(atlas::FieldSet & fields)
       }
     }
     oops::Log::trace() << "leaving AirTemperature_A::executeNL function" << std::endl;
-    return true;
 }
 
-bool AirTemperature_A::executeTL(atlas::FieldSet & fields,
+void AirTemperature_A::executeTL(atlas::FieldSet & fields,
                                 const atlas::FieldSet & trajFields)
 {
     oops::Log::trace() << "entering AirTemperature_A::executeNL function" << std::endl;
@@ -106,11 +105,10 @@ bool AirTemperature_A::executeTL(atlas::FieldSet & fields,
       }
     }
     oops::Log::trace() << "leaving AirTemperature_A::executeNL function" << std::endl;
-    return true;
 }
 
 
-bool AirTemperature_A::executeAD(atlas::FieldSet & fields,
+void AirTemperature_A::executeAD(atlas::FieldSet & fields,
                                  const atlas::FieldSet & trajFields)
 {
     oops::Log::trace() << "entering AirTemperature_A::executeNL function" << std::endl;
@@ -131,7 +129,6 @@ bool AirTemperature_A::executeAD(atlas::FieldSet & fields,
       }
     }
     oops::Log::trace() << "leaving AirTemperature_A::executeNL function" << std::endl;
-    return true;
 }
 
 }  // namespace vader

@@ -65,7 +65,7 @@ atlas::FunctionSpace SeaWaterTemperature_A::productFunctionSpace
     return afieldset.field("sea_water_potential_temperature").functionspace();
 }
 
-bool SeaWaterTemperature_A::executeNL(atlas::FieldSet & afieldset)
+void SeaWaterTemperature_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering SeaWaterTemperature_A::executeNL function"
         << std::endl;
@@ -111,10 +111,7 @@ bool SeaWaterTemperature_A::executeNL(atlas::FieldSet & afieldset)
             pressure);
       }
     }
-
     oops::Log::trace() << "leaving SeaWaterTemperature_A::executeNL function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

@@ -1,22 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp	2024-07-19 08:41:30.607709107 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-07-19 08:50:22.588055929 +0200
-@@ -1,5 +1,5 @@
- /*
-- * (C) Crown Copyright 2023-2024 Met Office
-+ * (C) Crown Copyright 2023 Met Office
-  *
-  * This software is licensed under the terms of the Apache Licence Version 2.0
-  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-@@ -7,6 +7,8 @@
- 
- #pragma once
- 
-+#include <omp.h>
-+
- #include <algorithm>
- #include <map>
- #include <memory>
-@@ -19,12 +21,14 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-11-15 16:37:13.696316695 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-11-15 16:38:55.434843994 +0100
+@@ -19,12 +19,14 @@
  #include "eckit/exception/Exceptions.h"
  
  #include "oops/base/FieldSets.h"
@@ -37,7 +21,7 @@
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
  #include "oops/util/ConfigFunctions.h"
-@@ -38,6 +42,9 @@
+@@ -38,6 +40,9 @@
  
  #include "saber/blocks/SaberParametricBlockChain.h"
  #include "saber/oops/ErrorCovarianceParameters.h"
@@ -47,7 +31,7 @@
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -108,7 +115,6 @@
+@@ -108,7 +113,6 @@
    OOPS_CONCRETE_PARAMETERS(OutputWriteParameters, oops::Parameters)
  
   public:
@@ -55,7 +39,7 @@
    typedef ErrorCovarianceParameters<MODEL>                   ErrorCovarianceParameters_;
  
    // This is there to get ErrorCovarianceParameters and in particular
-@@ -121,7 +127,7 @@
+@@ -121,7 +125,7 @@
      genericWrite{"generic write", this};
  
    /// Write parameters using model increment writer
@@ -64,7 +48,7 @@
      modelWrite{"model write", this};
  };
  
-@@ -143,22 +149,19 @@
+@@ -143,20 +147,19 @@
  
  /// \brief Top-level options taken by the ProcessPerts application.
  template <typename MODEL> class ProcessPertsParameters :
@@ -74,8 +58,6 @@
 +  OOPS_CONCRETE_PARAMETERS(ProcessPertsParameters, oops::Parameters)
  
   public:
--  typedef oops::ModelSpaceCovarianceParametersWrapper<MODEL> CovarianceParameters_;
--
 -  typedef typename oops::Geometry<MODEL>::Parameters_    GeometryParameters_;
    typedef BandParameters<MODEL>                          BandParameters_;
  
@@ -92,11 +74,8 @@
  
    oops::RequiredParameter<std::vector<BandParameters_>> bands{"bands", this};
  
-@@ -172,49 +175,76 @@
- template <typename MODEL> class ProcessPerts : public oops::Application {
-   typedef oops::ModelSpaceCovarianceBase<MODEL>             CovarianceBase_;
+@@ -172,46 +175,74 @@
    typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
--  typedef oops::ModelSpaceCovarianceParametersBase<MODEL>   CovarianceParametersBase_;
    typedef oops::Geometry<MODEL>                             Geometry_;
    typedef oops::Increment<MODEL>                            Increment_;
 +  typedef oops::Increment4D<MODEL>                          Increment4D_;
@@ -181,7 +160,7 @@
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars[i].setLevels(vlevs[i]);
      }
-@@ -372,25 +402,25 @@
+@@ -369,25 +400,25 @@
            eckit::LocalConfiguration gconf = it->second;
            util::setMember(gconf, jm+1);
            setConcatenatedString(fullConfig,
@@ -214,7 +193,7 @@
            pert.write(writeParams);
          }
        }
-@@ -399,16 +429,6 @@
+@@ -396,16 +427,6 @@
      return 0;
    }
  // -----------------------------------------------------------------------------

@@ -362,7 +362,7 @@ atlas::FieldSet createAugmentedState(const oops::GeometryData & outerGeometryDat
     oops::Log::error() << "Only Gauss grid on StructuredColumns FunctionSpace"
                           " or cubed-sphere grid on NodeColumns FunctionSpace"
                           " are currently handled." << std::endl;
-    throw eckit::NotImplemented(error_message, Here());
+    throw eckit::FunctionalityNotSupported(error_message, Here());
   }
 
   // Populate field "s"

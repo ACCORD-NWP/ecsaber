@@ -36,7 +36,7 @@ using atlas::idx_t;
 
 namespace mo {
 
-bool evalSatSpecificHumidity(atlas::FieldSet & stateFlds)
+void evalSatSpecificHumidity(atlas::FieldSet & stateFlds)
 {
   oops::Log::trace() << "[evalSatSpecificHumidity()] starting ..." << std::endl;
 
@@ -77,8 +77,6 @@ bool evalSatSpecificHumidity(atlas::FieldSet & stateFlds)
   stateFlds["qsat"].set_dirty();
 
   oops::Log::trace() << "[evalSatSpecificHumidity()] ... exit" << std::endl;
-
-  return true;
 }
 
 }  // namespace mo

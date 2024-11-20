@@ -78,7 +78,7 @@ atlas::FunctionSpace WindReductionFactorAt10m_A::productFunctionSpace(const atla
 
 // -------------------------------------------------------------------------------------------------
 
-bool WindReductionFactorAt10m_A::executeNL(atlas::FieldSet & afieldset) {
+void WindReductionFactorAt10m_A::executeNL(atlas::FieldSet & afieldset) {
     //
     oops::Log::trace() << "WindReductionFactorAt10m_A::executeNL Starting" << std::endl;
 
@@ -115,10 +115,7 @@ bool WindReductionFactorAt10m_A::executeNL(atlas::FieldSet & afieldset) {
           f10m_view(jNode, 0) = 1.0;
         }
     }
-
-    // Return
     oops::Log::trace() << "WindReductionFactorAt10m_A::executeNL Done" << std::endl;
-    return true;
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -70,7 +70,7 @@ atlas::FunctionSpace AirPotentialTemperature_B::productFunctionSpace
 
 // -------------------------------------------------------------------------------------------------
 
-bool AirPotentialTemperature_B::executeNL(atlas::FieldSet & afieldset)
+void AirPotentialTemperature_B::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering AirPotentialTemperature_B::executeNL function" << std::endl;
 
@@ -96,8 +96,6 @@ bool AirPotentialTemperature_B::executeNL(atlas::FieldSet & afieldset)
     }
 
     oops::Log::trace() << "leaving AirPotentialTemperature_B::executeNL function" << std::endl;
-
-    return true;
 }
 
 // -------------------------------------------------------------------------------------------------

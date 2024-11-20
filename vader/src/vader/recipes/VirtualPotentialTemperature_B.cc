@@ -64,28 +64,24 @@ atlas::FunctionSpace VirtualPotentialTemperature_B::productFunctionSpace(const a
     return afieldset["air_potential_temperature"].functionspace();
 }
 
-bool VirtualPotentialTemperature_B::executeNL(atlas::FieldSet & afieldset)
+void VirtualPotentialTemperature_B::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering VirtualPotentialTemperature_B::executeNL function"
                        << std::endl;
     mo::eval_virtual_potential_temperature_nl(afieldset);
     oops::Log::trace() << "leaving VirtualPotentialTemperature_B::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool VirtualPotentialTemperature_B::executeTL(atlas::FieldSet & afieldsetTL,
+void VirtualPotentialTemperature_B::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering VirtualPotentialTemperature_B::executeTL function"
                        << std::endl;
     mo::eval_virtual_potential_temperature_tl(afieldsetTL, afieldsetTraj);
     oops::Log::trace() << "leaving VirtualPotentialTemperature_B::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool VirtualPotentialTemperature_B::executeAD(atlas::FieldSet & afieldsetAD,
+void VirtualPotentialTemperature_B::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering VirtualPotentialTemperature_B::executeAD function"
@@ -93,8 +89,6 @@ bool VirtualPotentialTemperature_B::executeAD(atlas::FieldSet & afieldsetAD,
     mo::eval_virtual_potential_temperature_ad(afieldsetAD, afieldsetTraj);
     oops::Log::trace() << "leaving VirtualPotentialTemperature_B::executeAD function"
                        << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

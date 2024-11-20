@@ -17,7 +17,7 @@ namespace mo {
 
 // --------------------------------------------------------------------------------------
 
-bool eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
+void eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
         atlas::FieldSet & stateFlds) {
   oops::Log::trace()
           << "[eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl()]"
@@ -27,12 +27,11 @@ bool eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
                         "total_water_mixing_ratio_wrt_dry_air",
                         "cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water"};
 
-  const bool rvalue = eval_ratio_to_second(stateFlds, fnames);
+  eval_ratio_to_second(stateFlds, fnames);
 
   oops::Log::trace()
         << "[eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl()] ... exit"
         << std::endl;
-  return rvalue;
 }
 
 // --------------------------------------------------------------------------------------

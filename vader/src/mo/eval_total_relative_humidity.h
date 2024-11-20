@@ -20,6 +20,6 @@ namespace mo {
   ///   qrain = specific rain
   ///   qsat  = saturated specific humidity
   ///
-  bool eval_total_relative_humidity_nl(atlas::FieldSet & fields);
+  void eval_total_relative_humidity_nl(atlas::FieldSet & fields);
 
 }  // namespace mo
