@@ -1,13 +1,9 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-11-06 17:30:06.994005486 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-11-06 17:27:29.714389192 +0100
-@@ -22,6 +22,32 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt.tmp.bak	2024-11-21 12:25:50.747765089 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/CMakeLists.txt	2024-11-20 14:41:00.801851288 +0100
+@@ -22,6 +22,28 @@
  # Factories
  instantiateCovarFactory.h
  instantiateLocalizationFactory.h
-+
-+# Utilities
-+ECUtilities.cc
-+ECUtilities.h
 +
 +# Other applications
 +AssimEnsemble.h

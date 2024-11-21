@@ -45,7 +45,7 @@ class TotalRelativeHumidity_A : public RecipeBase
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
 
-    bool executeNL(atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
 };
 
 // -------------------------------------------------------------------------------------------------

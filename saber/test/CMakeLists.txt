@@ -8,6 +8,9 @@ if( ENABLE_QUENCH )
   # Tests activated
   message( STATUS "SABER-QUENCH tests activated:" )
 
+  # Use find_branch function in jedi-cmake
+  include( git_functions )
+
   # Default SABER_TEST_TIER
   set( SABER_TEST_TIER 1 )
 
@@ -257,9 +260,9 @@ if( ENABLE_QUENCH )
                       ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
                                         MPI ${mpi}
                                         OMP ${omp}
-                                        COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x
+                                        COMMAND ${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x
                                         ARGS testinput/${test}.yaml
-                                        DEPENDS saber_quench_${exename}.x
+                                        DEPENDS quenchxx_${exename}.x
                                         TEST_DEPENDS ${deps_list} )
                   endif()
               endif()
@@ -284,9 +287,9 @@ if( ENABLE_QUENCH )
               ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
                                 MPI ${mpi}
                                 OMP ${omp}
-                                COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
+                                COMMAND ${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x
                                 ARGS testinput/${yaml_prefix}${test}.yaml
-                                DEPENDS saber_quench_error_covariance_toolbox.x
+                                DEPENDS quenchxx_error_covariance_toolbox.x
                                 TEST_DEPENDS ${deps_list} )
           endif()
       endforeach()

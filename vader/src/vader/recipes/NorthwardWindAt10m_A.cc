@@ -58,7 +58,7 @@ atlas::FunctionSpace vwind_at_10m_A::productFunctionSpace(const atlas::FieldSet
     return afieldset["northward_wind"].functionspace();
 }
 
-bool vwind_at_10m_A::executeNL(atlas::FieldSet & afieldset)
+void vwind_at_10m_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering vwind_at_10m_A::executeNL function"
       << std::endl;
@@ -72,11 +72,9 @@ bool vwind_at_10m_A::executeNL(atlas::FieldSet & afieldset)
       vwind_at_10m_A_view(jnode, 0) = northward_wind_view(jnode, 0);
     }
     oops::Log::trace() << "leaving vwind_at_10m_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool vwind_at_10m_A::executeTL(atlas::FieldSet & afieldsetTL,
+void vwind_at_10m_A::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering vwind_at_10m_A::executeTL function"
@@ -90,13 +88,10 @@ bool vwind_at_10m_A::executeTL(atlas::FieldSet & afieldsetTL,
     for ( size_t jnode = 0; jnode < no_of_horizontal_pts ; ++jnode ) {
       tl_vwind_at_10m_A_view(jnode, 0) = tl_northward_wind_view(jnode, 0);
     }
-
     oops::Log::trace() << "leaving vwind_at_10m_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool vwind_at_10m_A::executeAD(atlas::FieldSet & afieldsetAD,
+void vwind_at_10m_A::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering vwind_at_10m_A::executeAD function"
@@ -111,10 +106,7 @@ bool vwind_at_10m_A::executeAD(atlas::FieldSet & afieldsetAD,
       ad_northward_wind_view(jnode, 0) += ad_vwind_at_10m_A_view(jnode, 0);
       ad_vwind_at_10m_A_view(jnode, 0) = 0.0;
     }
-
     oops::Log::trace() << "leaving vwind_at_10m_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

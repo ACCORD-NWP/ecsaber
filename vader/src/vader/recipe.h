@@ -40,12 +40,10 @@ class Recipe  : public util::Printable,
     const oops::JediVariables ingredients() const;
     size_t productLevels(const atlas::FieldSet &) const;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const;
-    bool requiresSetup() const;
     bool hasTLAD() const;
-    bool setup(atlas::FieldSet &);
-    bool executeNL(atlas::FieldSet &);
-    bool executeTL(atlas::FieldSet &, const atlas::FieldSet &);
-    bool executeAD(atlas::FieldSet &, const atlas::FieldSet &);
+    void executeNL(atlas::FieldSet &);
+    void executeTL(atlas::FieldSet &, const atlas::FieldSet &);
+    void executeAD(atlas::FieldSet &, const atlas::FieldSet &);
 
  private:
     void print(std::ostream &) const;

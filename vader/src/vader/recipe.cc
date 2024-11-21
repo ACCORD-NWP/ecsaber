@@ -49,29 +49,19 @@ bool Recipe::hasTLAD() const
     return recipe_->hasTLAD();
 }
 // ------------------------------------------------------------------------------------------------
-bool Recipe::requiresSetup() const
+void Recipe::executeNL(atlas::FieldSet & afieldset)
 {
-    return recipe_->requiresSetup();
+    recipe_->executeNL(afieldset);
 }
 // ------------------------------------------------------------------------------------------------
-bool Recipe::setup(atlas::FieldSet & afieldset)
+void Recipe::executeTL(atlas::FieldSet & afieldsetTL, const atlas::FieldSet & afieldsetTraj)
 {
-    return recipe_->setup(afieldset);
+    recipe_->executeTL(afieldsetTL, afieldsetTraj);
 }
 // ------------------------------------------------------------------------------------------------
-bool Recipe::executeNL(atlas::FieldSet & afieldset)
+void Recipe::executeAD(atlas::FieldSet & afieldsetAD, const atlas::FieldSet & afieldsetTraj)
 {
-    return recipe_->executeNL(afieldset);
-}
-// ------------------------------------------------------------------------------------------------
-bool Recipe::executeTL(atlas::FieldSet & afieldsetTL, const atlas::FieldSet & afieldsetTraj)
-{
-    return recipe_->executeTL(afieldsetTL, afieldsetTraj);
-}
-// ------------------------------------------------------------------------------------------------
-bool Recipe::executeAD(atlas::FieldSet & afieldsetAD, const atlas::FieldSet & afieldsetTraj)
-{
-    return recipe_->executeAD(afieldsetAD, afieldsetTraj);
+    recipe_->executeAD(afieldsetAD, afieldsetTraj);
 }
 // ------------------------------------------------------------------------------------------------
 void Recipe::print(std::ostream &os) const

@@ -59,17 +59,15 @@ atlas::FunctionSpace CloudLiquidMixingRatio_A::productFunctionSpace(const atlas:
     return afieldset["total_water_mixing_ratio_wrt_dry_air"].functionspace();
 }
 
-bool CloudLiquidMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
+void CloudLiquidMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering CloudLiquidMixingRatio_A::executeNL function"
       << std::endl;
     mo::eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl(afieldset);
     oops::Log::trace() << "leaving CloudLiquidMixingRatio_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool CloudLiquidMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
+void CloudLiquidMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
                                          const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering CloudLiquidMixingRatio_A::executeTL function"
@@ -77,11 +75,9 @@ bool CloudLiquidMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
     mo::eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_tl(afieldsetTL,
                                                                                   afieldsetTraj);
     oops::Log::trace() << "leaving CloudLiquidMixingRatio_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool CloudLiquidMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
+void CloudLiquidMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
                                          const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering CloudLiquidMixingRatio::executeAD function"
@@ -89,8 +85,6 @@ bool CloudLiquidMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
     mo::eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_ad(afieldsetAD,
                                                                                   afieldsetTraj);
     oops::Log::trace() << "leaving CloudLiquidMixingRatio_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

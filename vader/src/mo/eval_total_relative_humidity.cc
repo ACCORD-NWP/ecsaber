@@ -19,7 +19,7 @@ using atlas::array::make_view;
 
 namespace mo {
 
-bool eval_total_relative_humidity_nl(atlas::FieldSet & fields) {
+void eval_total_relative_humidity_nl(atlas::FieldSet & fields) {
   oops::Log::trace() << "[eval_total_relative_humidity_nl()] starting ..." << std::endl;
 
   const auto qView = make_view<const double, 2>(
@@ -45,7 +45,6 @@ bool eval_total_relative_humidity_nl(atlas::FieldSet & fields) {
   }
   fields["rht"].set_dirty();
   oops::Log::trace() << "[eval_total_relative_humidity_nl()] ... exit" << std::endl;
-  return true;
 }
 
 }  // namespace mo

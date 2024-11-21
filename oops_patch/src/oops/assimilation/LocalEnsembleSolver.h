@@ -368,7 +368,6 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
     // QC flags and Obs errors are set to that of the H(mean(Xb))
     R_->save("ObsError");
   }
-
   // set inverse variances
   invVarR_.reset(new Departures_(obspaces_));
   R_->inverseVariance(*invVarR_);
@@ -505,7 +504,6 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
     // QC flags and Obs errors are set to that of the H(mean(Xb))
 //    R_->save("ObsError");
   }
-
   // set inverse variances
   invVarR_.reset(new Departures_(obspaces_));
   R_->inverseVariance(*invVarR_);
@@ -521,11 +519,9 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
 
   // calculate H(x) ensemble perturbations
   for (size_t iens = 0; iens < nens; ++iens) {
-    if (readFromDisk) {
-      for (size_t jj = 0; jj < Yb_[iens].size(); ++jj) {
-        Yb_[iens][jj] = obsens[iens][jj];
-        Yb_[iens][jj] -= yb_mean[jj];
-      }
+    for (size_t jj = 0; jj < Yb_[iens].size(); ++jj) {
+      Yb_[iens][jj] = obsens[iens][jj];
+      Yb_[iens][jj] -= yb_mean[jj];
     }
     invVarR_->mask(Yb_[iens]);
     Yb_[iens].mask(*invVarR_);

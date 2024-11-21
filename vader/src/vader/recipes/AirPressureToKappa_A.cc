@@ -71,7 +71,7 @@ atlas::FunctionSpace AirPressureToKappa_A::productFunctionSpace(
 
 // -------------------------------------------------------------------------------------------------
 
-bool AirPressureToKappa_A::executeNL(atlas::FieldSet & afieldset) {
+void AirPressureToKappa_A::executeNL(atlas::FieldSet & afieldset) {
     oops::Log::trace() << "AirPressureToKappa_A::executeNL Starting" << std::endl;
 
     const double kappa = configVariables_.getDouble("kappa");  // Need better name
@@ -104,10 +104,7 @@ bool AirPressureToKappa_A::executeNL(atlas::FieldSet & afieldset) {
                  (kappa*(lnAirPressureAtInterface(hh, vv+1) - lnAirPressureAtInterface(hh, vv)));
       }
     }
-
-    // Return
     oops::Log::trace() << "AirPressureToKappa_A::executeNL Done" << std::endl;
-    return true;
 }
 
 // -------------------------------------------------------------------------------------------------

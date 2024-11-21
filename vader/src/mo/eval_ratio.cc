@@ -26,7 +26,7 @@ using atlas::util::Config;
 
 namespace mo {
 
-bool eval_ratio_to_second(atlas::FieldSet & fields, const std::vector<std::string> & vars)
+void eval_ratio_to_second(atlas::FieldSet & fields, const std::vector<std::string> & vars)
 {
   oops::Log::trace() << "[eval_ratio_to_second()] starting ..." << std::endl;
 
@@ -50,7 +50,6 @@ bool eval_ratio_to_second(atlas::FieldSet & fields, const std::vector<std::strin
   }
   fields[vars[2]].set_dirty();
   oops::Log::trace() << "[eval_ratio_to_second()] ... exit" << std::endl;
-  return true;
 }
 
 // --------------------------------------------------------------------------------------

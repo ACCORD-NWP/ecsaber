@@ -57,12 +57,10 @@ atlas::FunctionSpace SaturationSpecificHumidity_A::productFunctionSpace(
   return afieldset.field("air_pressure").functionspace();
 }
 
-bool SaturationSpecificHumidity_A::executeNL(atlas::FieldSet & afieldset) {
+void SaturationSpecificHumidity_A::executeNL(atlas::FieldSet & afieldset) {
   oops::Log::trace() << "SaturationSpecificHumidity_A::executeNL starting ..." << std::endl;
   mo::evalSatSpecificHumidity(afieldset);
-
   oops::Log::trace() << "SaturationSpecificHumidity_A::executeNL ... done" << std::endl;
-  return true;
 }
 
 

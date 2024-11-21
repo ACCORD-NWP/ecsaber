@@ -59,17 +59,15 @@ atlas::FunctionSpace RainMixingRatio_A::productFunctionSpace(const atlas::FieldS
     return afieldset["total_water_mixing_ratio_wrt_dry_air"].functionspace();
 }
 
-bool RainMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
+void RainMixingRatio_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering RainMixingRatio_A::executeNL function"
       << std::endl;
     mo::eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_nl(afieldset);
     oops::Log::trace() << "leaving RainMixingRatio_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool RainMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
+void RainMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
                                   const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering RainMixingRatio_A::executeTL function"
@@ -77,11 +75,9 @@ bool RainMixingRatio_A::executeTL(atlas::FieldSet & afieldsetTL,
     mo::eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_tl(afieldsetTL,
                                                                     afieldsetTraj);
     oops::Log::trace() << "leaving RainMixingRatio_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool RainMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
+void RainMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
                                   const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering RainMixingRatio::executeAD function"
@@ -89,8 +85,6 @@ bool RainMixingRatio_A::executeAD(atlas::FieldSet & afieldsetAD,
     mo::eval_rain_mixing_ratio_wrt_moist_air_and_condensed_water_ad(afieldsetAD,
                                                                     afieldsetTraj);
     oops::Log::trace() << "leaving RainMixingRatio_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

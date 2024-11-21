@@ -60,7 +60,7 @@ atlas::FunctionSpace SulfateMassFraction_A::productFunctionSpace
     return afieldset.field("sulfate_ppmv").functionspace();
 }
 
-bool SulfateMassFraction_A::executeNL(atlas::FieldSet & afieldset)
+void SulfateMassFraction_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering SulfateMassFraction_A::executeNL function" << std::endl;
 
@@ -74,8 +74,6 @@ bool SulfateMassFraction_A::executeNL(atlas::FieldSet & afieldset)
     });
 
     oops::Log::trace() << "leaving SulfateMassFraction_A::executeNL function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

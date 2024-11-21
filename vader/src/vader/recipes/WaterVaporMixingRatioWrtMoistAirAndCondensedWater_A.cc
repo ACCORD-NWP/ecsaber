@@ -65,7 +65,7 @@ atlas::FunctionSpace WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::produc
     return afieldset["total_water_mixing_ratio_wrt_dry_air"].functionspace();
 }
 
-bool WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeNL(atlas::FieldSet & afieldset)
+void WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace()
         << "entering WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeNL function"
@@ -74,11 +74,9 @@ bool WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeNL(atlas::Field
     oops::Log::trace()
         << "leaving WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeNL function"
         << std::endl;
-
-    return true;
 }
 
-bool WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeTL(atlas::FieldSet & afieldsetTL,
+void WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeTL(atlas::FieldSet & afieldsetTL,
                                    const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace()
@@ -89,11 +87,9 @@ bool WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeTL(atlas::Field
     oops::Log::trace()
         << "leaving WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeTL function"
         << std::endl;
-
-    return true;
 }
 
-bool WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeAD(atlas::FieldSet & afieldsetAD,
+void WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeAD(atlas::FieldSet & afieldsetAD,
                                    const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace()
@@ -104,8 +100,6 @@ bool WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeAD(atlas::Field
     oops::Log::trace()
         << "leaving WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A::executeAD function"
         << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

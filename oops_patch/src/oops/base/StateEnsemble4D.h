@@ -128,6 +128,7 @@ State4D<MODEL> StateEnsemble4D<MODEL>::mean() const {
   State4D_ ensmean4D;
   for (size_t jt = 0; jt < states_[0].statesNumber(); ++jt) {
     Accumulator<MODEL, State_, State_> ensmean(states_[0][jt]);
+
     const double rr = 1.0/static_cast<double>(states_.size());
     for (size_t iens = 0; iens < states_.size(); ++iens) {
       ensmean.accumul(rr, states_[iens][jt]);

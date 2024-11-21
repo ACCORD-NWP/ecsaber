@@ -19,7 +19,6 @@ oops/base/GeometryData.h
 oops/base/IncrementEnsemble4D.h
 oops/base/LocalIncrement.cc
 oops/base/LocalIncrement.h
-oops/base/ModelSpaceCovarianceParametersBase.h
 oops/base/ObsEnsemble.h
 oops/base/ObsLocalizationBase.h
 oops/base/ObsLocalizationParametersBase.h
@@ -74,8 +73,6 @@ oops/util/FunctionSpaceHelpers.h
 oops/util/gatherPrint.h
 oops/util/IntSetParser.cc
 oops/util/IntSetParser.h
-oops/util/missingValues.cc
-oops/util/missingValues.h
 oops/util/NamedEnumerator.h
 oops/util/parameters/ConfigurationParameter.cc
 oops/util/parameters/ConfigurationParameter.h
@@ -147,6 +144,8 @@ util/Duration.h
 util/formats.h
 util/kinds.F90
 util/Logger.h
+util/missingValues.cc
+util/missingValues.h
 util/ObjectCounter.h
 util/Printable.h
 util/Timer.h

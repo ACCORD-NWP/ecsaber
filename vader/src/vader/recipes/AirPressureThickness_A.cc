@@ -71,7 +71,7 @@ atlas::FunctionSpace AirPressureThickness_A::productFunctionSpace
 
 // -------------------------------------------------------------------------------------------------
 
-bool AirPressureThickness_A::executeNL(atlas::FieldSet & afieldset)
+void AirPressureThickness_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering AirPressureThickness_A execute function" << std::endl;
     // Get the fields
@@ -102,7 +102,6 @@ bool AirPressureThickness_A::executeNL(atlas::FieldSet & afieldset)
         }
     }
     oops::Log::trace() << "leaving AirPressureThickness_A execute function" << std::endl;
-    return true;
 }
 
 // -------------------------------------------------------------------------------------------------

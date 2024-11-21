@@ -62,7 +62,7 @@ atlas::FunctionSpace AirPotentialTemperature_A::productFunctionSpace
     return afieldset.field("air_temperature").functionspace();
 }
 
-bool AirPotentialTemperature_A::executeNL(atlas::FieldSet & afieldset)
+void AirPotentialTemperature_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering AirPotentialTemperature_A::executeNL function"
         << std::endl;
@@ -100,10 +100,7 @@ bool AirPotentialTemperature_A::executeNL(atlas::FieldSet & afieldset)
             temperature_view(jnode, level) * pow(p0 / surface_pressure_view(jnode, 0), kappa);
       }
     }
-
     oops::Log::trace() << "leaving AirPotentialTemperature_A::executeNL function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

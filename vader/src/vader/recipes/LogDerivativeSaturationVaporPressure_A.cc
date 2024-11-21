@@ -59,14 +59,13 @@ atlas::FunctionSpace LogDerivativeSaturationVaporPressure_A::productFunctionSpac
   return afieldset.field("air_temperature").functionspace();
 }
 
-bool LogDerivativeSaturationVaporPressure_A::executeNL(atlas::FieldSet & afieldset) {
+void LogDerivativeSaturationVaporPressure_A::executeNL(atlas::FieldSet & afieldset) {
   oops::Log::trace() <<
     "LogDerivativeSaturationVaporPressure_A::executeNL starting ..." << std::endl;
   mo::eval_derivative_ln_svp_wrt_temperature_nl(afieldset);
 
   oops::Log::trace() <<
     "LogDerivativeSaturationVaporPressure_A::executeNL ... done" << std::endl;
-  return true;
 }
 
 

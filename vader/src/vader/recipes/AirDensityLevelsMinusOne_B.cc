@@ -67,36 +67,30 @@ atlas::FunctionSpace AirDensityLevelsMinusOne_B::productFunctionSpace(const atla
     return afieldset.field("air_pressure_levels").functionspace();
 }
 
-bool AirDensityLevelsMinusOne_B::executeNL(atlas::FieldSet & afieldset)
+void AirDensityLevelsMinusOne_B::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering AirDensityLevelsMinusOne_B::executeNL function"
       << std::endl;
     mo::eval_air_density_from_pressure_levels_nl(afieldset);
     oops::Log::trace() << "leaving AirDensityLevelsMinusOne_B::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool AirDensityLevelsMinusOne_B::executeTL(atlas::FieldSet & afieldsetTL,
+void AirDensityLevelsMinusOne_B::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering AirDensityLevelsMinusOne_B::executeTL function"
         << std::endl;
     mo::eval_air_density_from_pressure_levels_tl(afieldsetTL, afieldsetTraj);
     oops::Log::trace() << "leaving AirDensityLevelsMinusOne_B::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool AirDensityLevelsMinusOne_B::executeAD(atlas::FieldSet & afieldsetAD,
+void AirDensityLevelsMinusOne_B::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering AirDensityLevelsMinusOne::executeAD function"
         << std::endl;
     mo::eval_air_density_from_pressure_levels_ad(afieldsetAD, afieldsetTraj);
     oops::Log::trace() << "leaving AirDensityLevelsMinusOne_B::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

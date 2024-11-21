@@ -15,7 +15,7 @@ namespace mo {
 ///        wrt moist air and condensed water:
 ///   qcl = cloud_liquid_water_mixing_ratio_wrt_dry_air/total_water_mixing_ratio_wrt_dry_air
 ///
-bool eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
+void eval_cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water_nl(
         atlas::FieldSet & stateFlds);
 
 

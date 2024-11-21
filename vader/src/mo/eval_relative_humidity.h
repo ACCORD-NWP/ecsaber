@@ -19,7 +19,7 @@ namespace mo {
 ///
 /// Note that we have a bool metadata switch that we need here "cap_super_sat"
 /// If it is not present then we assume that it is false (which is the default)
-bool eval_relative_humidity_nl(atlas::FieldSet & stateFlds);
+void eval_relative_humidity_nl(atlas::FieldSet & stateFlds);
 
 /// \details This calculates the relative humidity increment from the air
 ///          temperature and specific humidity increment as:
@@ -40,7 +40,6 @@ void eval_relative_humidity_at_2m_tl(atlas::FieldSet & incFlds);
 
 /// \details Adjoint of eval_relative_humidity_at_2m_tl
 void eval_relative_humidity_at_2m_ad(atlas::FieldSet & hatFlds);
-
 
 }  // namespace mo
 

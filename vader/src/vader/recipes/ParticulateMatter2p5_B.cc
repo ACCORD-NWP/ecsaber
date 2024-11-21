@@ -65,7 +65,7 @@ atlas::FunctionSpace ParticulateMatter2p5_B::productFunctionSpace
     return afieldset.field("mixing_ratio_of_smoke_wrt_dry_air").functionspace();
 }
 
-bool ParticulateMatter2p5_B::executeNL(atlas::FieldSet & afieldset)
+void ParticulateMatter2p5_B::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering ParticulateMatter2p5_B::executeNL function" << std::endl;
 
@@ -96,13 +96,10 @@ bool ParticulateMatter2p5_B::executeNL(atlas::FieldSet & afieldset)
                             + mixing_ratio_of_dust_wrt_dry_air_view(jnode, level));
       }
     }
-
     oops::Log::trace() << "leaving ParticulateMatter2p5_B::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool ParticulateMatter2p5_B::executeTL(atlas::FieldSet & afieldsetTL,
+void ParticulateMatter2p5_B::executeTL(atlas::FieldSet & afieldsetTL,
                                         const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering ParticulateMatter2p5_B::executeTL function" << std::endl;
@@ -137,15 +134,11 @@ bool ParticulateMatter2p5_B::executeTL(atlas::FieldSet & afieldsetTL,
                         + tl_mixing_ratio_of_dust_wrt_dry_air_view(jnode, level));
       }
     }
-
-
     oops::Log::trace() << "leaving ParticulateMatter2p5_B::executeTL function" << std::endl;
-
-    return true;
 }
 
 
-bool ParticulateMatter2p5_B::executeAD(atlas::FieldSet & afieldsetAD,
+void ParticulateMatter2p5_B::executeAD(atlas::FieldSet & afieldsetAD,
                                         const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering ParticulateMatter2p5_B::executeAD function" << std::endl;
@@ -180,10 +173,7 @@ bool ParticulateMatter2p5_B::executeAD(atlas::FieldSet & afieldsetAD,
         ad_mass_density_of_particulate_matter_2p5_in_air_view(jnode, level) = 0.0f;
       }
     }
-
     oops::Log::trace() << "leaving ParticulateMatter2p5_B::executeAD function" << std::endl;
-
-    return true;
 }
 
 

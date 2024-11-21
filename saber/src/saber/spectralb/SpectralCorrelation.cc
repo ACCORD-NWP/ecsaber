@@ -81,7 +81,7 @@ void SpectralCorrelation::randomize(oops::FieldSet3D & fieldSet) const {
                      << " is not supported. Instead please use 'ID' central block"
                      << " and 'square root of spectral correlation' outer block."
                      << std::endl;
-  throw(eckit::NotImplemented(
+  throw(eckit::FunctionalityNotSupported(
         "use ID and square root of spectral correlation instead.", Here()));
   oops::Log::trace() << classname() << "::randomize done" << std::endl;
 }
@@ -181,7 +181,7 @@ void SpectralCorrelation::directCalibration(const oops::FieldSets &
                        << " is not supported. Instead please use 'spectral covariance"
                        << " central block."
                        << std::endl;
-    throw(eckit::NotImplemented(
+    throw(eckit::FunctionalityNotSupported(
           "use spectral covariance central block instead.", Here()));
   } else {
     const auto & calibrationReadParams = calibparams->calibrationReadParams.value();

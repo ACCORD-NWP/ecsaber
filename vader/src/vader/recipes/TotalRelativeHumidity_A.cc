@@ -72,12 +72,11 @@ atlas::FunctionSpace TotalRelativeHumidity_A::productFunctionSpace(
   return afieldset.field(specific_humidity_mo).functionspace();
 }
 
-bool TotalRelativeHumidity_A::executeNL(atlas::FieldSet & afieldset) {
+void TotalRelativeHumidity_A::executeNL(atlas::FieldSet & afieldset) {
   oops::Log::trace() << "TotalRelativeHumidity_A::executeNL starting ..." << std::endl;
   mo::eval_total_relative_humidity_nl(afieldset);
 
   oops::Log::trace() << "TotalRelativeHumidity_A::executeNL ... done" << std::endl;
-  return true;
 }
 
 

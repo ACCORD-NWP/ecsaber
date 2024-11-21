@@ -83,7 +83,7 @@ void SpectralCovariance::randomize(oops::FieldSet3D & fieldSet) const {
                      << " is not supported. Instead please use 'ID' central block"
                      << " and 'square root of spectral covariance' outer block."
                      << std::endl;
-  throw(eckit::NotImplemented(
+  throw(eckit::FunctionalityNotSupported(
         "use ID and square root of spectral covariance instead.", Here()));
   oops::Log::trace() << classname() << "::randomize done" << std::endl;
 }

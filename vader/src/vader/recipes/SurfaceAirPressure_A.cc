@@ -68,7 +68,7 @@ const {
 
 // -------------------------------------------------------------------------------------------------
 
-bool SurfaceAirPressure_A::executeNL(atlas::FieldSet & afieldset) {
+void SurfaceAirPressure_A::executeNL(atlas::FieldSet & afieldset) {
     //
     oops::Log::trace() << "SurfaceAirPressure_A::executeNL Starting" << std::endl;
 
@@ -108,10 +108,7 @@ bool SurfaceAirPressure_A::executeNL(atlas::FieldSet & afieldset) {
             ps_view(jNode, 0) = ps_view(jNode, 0) + delp_view(jNode, level);
         }
     }
-
-    // Return
     oops::Log::trace() << "SurfaceAirPressure_A::executeNL Done" << std::endl;
-    return true;
 }
 
 }  // namespace vader

@@ -77,7 +77,7 @@ atlas::FunctionSpace AirPressureAtInterface_C::productFunctionSpace(const atlas:
 
 // -------------------------------------------------------------------------------------------------
 
-bool AirPressureAtInterface_C::executeNL(atlas::FieldSet & afieldset) {
+void AirPressureAtInterface_C::executeNL(atlas::FieldSet & afieldset) {
     //
     oops::Log::trace() << "AirPressureAtInterface_C::executeNL Starting" << std::endl;
 
@@ -135,10 +135,7 @@ bool AirPressureAtInterface_C::executeNL(atlas::FieldSet & afieldset) {
                                   + w2*log(p_view(jNode, level+2)) );
         std::cout << std::scientific << prsi_view(jNode, level) << '\n';
     }
-
-    // Return
     oops::Log::trace() << "AirPressureAtInterface_C::executeNL Done" << std::endl;
-    return true;
 }
 
 // -------------------------------------------------------------------------------------------------

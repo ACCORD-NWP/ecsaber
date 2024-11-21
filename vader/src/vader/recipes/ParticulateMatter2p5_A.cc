@@ -142,7 +142,7 @@ atlas::FunctionSpace ParticulateMatter2p5_A::productFunctionSpace
     return afieldset.field(AERO6_INGREDIENTS[4]).functionspace();
 }
 
-bool ParticulateMatter2p5_A::executeNL(atlas::FieldSet & afieldset)
+void ParticulateMatter2p5_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering ParticulateMatter2p5_A::executeNL function"
         << std::endl;
@@ -203,11 +203,9 @@ bool ParticulateMatter2p5_A::executeNL(atlas::FieldSet & afieldset)
       }
     }
     oops::Log::trace() << "leaving ParticulateMatter2p5_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool ParticulateMatter2p5_A::executeTL(atlas::FieldSet & afieldsetTL,
+void ParticulateMatter2p5_A::executeTL(atlas::FieldSet & afieldsetTL,
                                         const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering ParticulateMatter2p5_A::executeTL function"
@@ -270,12 +268,10 @@ bool ParticulateMatter2p5_A::executeTL(atlas::FieldSet & afieldsetTL,
       }
     }
     oops::Log::trace() << "leaving ParticulateMatter2p5_A::executeTL function" << std::endl;
-
-    return true;
 }
 
 
-bool ParticulateMatter2p5_A::executeAD(atlas::FieldSet & afieldsetAD,
+void ParticulateMatter2p5_A::executeAD(atlas::FieldSet & afieldsetAD,
                                         const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering ParticulateMatter2p5_A::executeAD function"
@@ -340,10 +336,7 @@ bool ParticulateMatter2p5_A::executeAD(atlas::FieldSet & afieldsetAD,
         ad_mass_density_of_particulate_matter_2p5_in_air_view(jnode, level) = 0.0f;
       }
     }
-
     oops::Log::trace() << "leaving ParticulateMatter2p5_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

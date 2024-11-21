@@ -65,7 +65,7 @@ atlas::FunctionSpace TotalWater_A::productFunctionSpace(const atlas::FieldSet
     return afieldset[specific_humidity_mo].functionspace();
 }
 
-bool TotalWater_A::executeNL(atlas::FieldSet & afieldset)
+void TotalWater_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering TotalWater_A::executeNL function"
       << std::endl;
@@ -73,30 +73,24 @@ bool TotalWater_A::executeNL(atlas::FieldSet & afieldset)
     // is given by the tangent linear.
     mo::eval_total_water_tl(afieldset, afieldset);
     oops::Log::trace() << "leaving TotalWater_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool TotalWater_A::executeTL(atlas::FieldSet & afieldsetTL,
+void TotalWater_A::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering TotalWater_A::executeTL function"
         << std::endl;
     mo::eval_total_water_tl(afieldsetTL, afieldsetTraj);
     oops::Log::trace() << "leaving TotalWater_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool TotalWater_A::executeAD(atlas::FieldSet & afieldsetAD,
+void TotalWater_A::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering TotalWater::executeAD function"
         << std::endl;
     mo::eval_total_water_ad(afieldsetAD, afieldsetTraj);
     oops::Log::trace() << "leaving TotalWater_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

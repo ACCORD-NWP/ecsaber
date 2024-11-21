@@ -73,7 +73,7 @@ atlas::FunctionSpace AirPressureAtInterface_B::productFunctionSpace
 
 // -------------------------------------------------------------------------------------------------
 
-bool AirPressureAtInterface_B::executeNL(atlas::FieldSet & afieldset) {
+void AirPressureAtInterface_B::executeNL(atlas::FieldSet & afieldset) {
     //
     oops::Log::trace() << "AirPressureAtInterface_B::executeNL Starting" << std::endl;
 
@@ -112,10 +112,7 @@ bool AirPressureAtInterface_B::executeNL(atlas::FieldSet & afieldset) {
             prsi_view(jNode, level) = prsi_view(jNode, level - 1) + delp_view(jNode, level - 1);
         }
     }
-
-    // Return
     oops::Log::trace() << "AirPressureAtInterface_B::executeNL Done" << std::endl;
-    return true;
 }
 
 }  // namespace vader

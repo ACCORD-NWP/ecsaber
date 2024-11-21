@@ -51,7 +51,7 @@ class SurfaceAirPressure_A : public RecipeBase
     oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
-    bool executeNL(atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
 
  private:
     std::map<std::string, double> p0Defaults_;

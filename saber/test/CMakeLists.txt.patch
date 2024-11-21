@@ -1,16 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-11-05 09:32:22.002393431 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-11-05 09:39:26.010326880 +0100
-@@ -8,9 +8,6 @@
-   # Tests activated
-   message( STATUS "SABER-QUENCH tests activated:" )
- 
--  # Use find_branch function in jedi-cmake
--  include( git_functions )
--
-   # Default SABER_TEST_TIER
-   set( SABER_TEST_TIER 1 )
- 
-@@ -148,9 +145,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-11-21 12:25:53.441775337 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-11-21 12:28:16.318318867 +0100
+@@ -148,9 +148,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
        # Link to yaml file
@@ -24,7 +14,7 @@
  
        # Link to reference file
        if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -218,7 +216,7 @@
+@@ -218,7 +219,7 @@
  
                    # Special check for 4D tests
                    string( FIND ${test} "_4d" found_result )
@@ -33,3 +23,27 @@
                        set( 4dCheck true CACHE BOOL "" FORCE )
                    else()
                        set( 4dCheck false CACHE BOOL "" FORCE )
+@@ -259,9 +260,9 @@
+                       ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
+                                         MPI ${mpi}
+                                         OMP ${omp}
+-                                        COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x
++                                        COMMAND ${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x
+                                         ARGS testinput/${test}.yaml
+-                                        DEPENDS saber_quench_${exename}.x
++                                        DEPENDS quenchxx_${exename}.x
+                                         TEST_DEPENDS ${deps_list} )
+                   endif()
+               endif()
+@@ -286,9 +287,9 @@
+               ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
+                                 MPI ${mpi}
+                                 OMP ${omp}
+-                                COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
++                                COMMAND ${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x
+                                 ARGS testinput/${yaml_prefix}${test}.yaml
+-                                DEPENDS saber_quench_error_covariance_toolbox.x
++                                DEPENDS quenchxx_error_covariance_toolbox.x
+                                 TEST_DEPENDS ${deps_list} )
+           endif()
+       endforeach()

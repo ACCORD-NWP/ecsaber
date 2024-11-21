@@ -31,7 +31,7 @@ namespace mo {
 
 // --------------------------------------------------------------------------------------
 
-bool eval_relative_humidity_nl(atlas::FieldSet & stateFlds) {
+void eval_relative_humidity_nl(atlas::FieldSet & stateFlds) {
   oops::Log::trace() << "[eval_relative_humidity_nl()] starting ..." << std::endl;
 
   bool cap_super_sat(false);
@@ -54,7 +54,6 @@ bool eval_relative_humidity_nl(atlas::FieldSet & stateFlds) {
   stateFlds["relative_humidity"].set_dirty();
 
   oops::Log::trace() << "[eval_relative_humidity_nl()] ... exit" << std::endl;
-  return true;
 }
 
 // --------------------------------------------------------------------------------------

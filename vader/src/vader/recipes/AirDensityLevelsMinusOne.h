@@ -44,9 +44,9 @@ class AirDensityLevelsMinusOne_A : public RecipeBase {
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
     bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
+    void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
 
  private:
     const VaderConfigVars & configVariables_;
@@ -76,9 +76,9 @@ class AirDensityLevelsMinusOne_B : public RecipeBase {
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
     bool hasTLAD() const override { return true; }
-    bool executeNL(atlas::FieldSet &) override;
-    bool executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
-    bool executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
+    void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
 
  private:
     const VaderConfigVars & configVariables_;

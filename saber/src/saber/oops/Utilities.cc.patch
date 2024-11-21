@@ -1,33 +1,9 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.cc.tmp	2024-07-19 08:41:30.679709154 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.cc	2024-07-15 14:03:30.130175534 +0200
-@@ -64,6 +64,22 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.cc.tmp.bak	2024-11-21 12:25:50.791765256 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.cc	2024-11-20 14:41:00.802851291 +0100
+@@ -78,6 +78,46 @@
  
  // -----------------------------------------------------------------------------
  
-+void setMember(eckit::LocalConfiguration & conf,
-+               const int & member) {
-+  oops::Log::trace() << "setMember starting" << std::endl;
-+
-+  if (conf.has("member pattern")) {
-+    std::string memberPattern = conf.getString("member pattern");
-+    util::seekAndReplace(conf, memberPattern, std::to_string(member));
-+  } else {
-+    conf.set("member", member);
-+  }
-+
-+  oops::Log::trace() << "setMember done" << std::endl;
-+}
-+
-+// -----------------------------------------------------------------------------
-+
- void setMPI(eckit::LocalConfiguration & conf,
-             const int & mpi) {
-   oops::Log::trace() << "setMPI starting" << std::endl;
-@@ -77,6 +93,46 @@
- }
- 
- // -----------------------------------------------------------------------------
-+
 +void expandEnsembleTemplate(eckit::LocalConfiguration & conf,
 +                            const size_t & nens) {
 +  oops::Log::trace() << "expandEnsembleTemplate starting" << std::endl;
@@ -67,6 +43,7 @@
 +}
 +
 +// -----------------------------------------------------------------------------
- 
++
  void checkFieldsAreNotAllocated(const oops::FieldSet3D & fset,
                                  const oops::JediVariables & vars) {
+   for (const auto& var : vars) {

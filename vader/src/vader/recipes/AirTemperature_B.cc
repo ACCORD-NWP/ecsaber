@@ -60,7 +60,7 @@ atlas::FunctionSpace AirTemperature_B::productFunctionSpace(const atlas::FieldSe
     return afieldset.field("virtual_temperature").functionspace();
 }
 
-bool AirTemperature_B::executeNL(atlas::FieldSet & afieldset)
+void AirTemperature_B::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering AirTemperature_B::executeNL function"
         << std::endl;
@@ -85,10 +85,7 @@ bool AirTemperature_B::executeNL(atlas::FieldSet & afieldset)
             (1.0 + epsilon * specific_humidity_view(jnode, level));
       }
     }
-
     oops::Log::trace() << "leaving AirTemperature_B::executeNL function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

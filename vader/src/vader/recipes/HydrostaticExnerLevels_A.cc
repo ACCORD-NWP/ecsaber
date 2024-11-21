@@ -63,36 +63,30 @@ atlas::FunctionSpace HydrostaticExnerLevels_A::productFunctionSpace(const atlas:
     return afieldset["air_pressure_levels"].functionspace();
 }
 
-bool HydrostaticExnerLevels_A::executeNL(atlas::FieldSet & afieldset)
+void HydrostaticExnerLevels_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering HydrostaticExnerLevels_A::executeNL function"
       << std::endl;
     mo::eval_hydrobal_hydrostatic_exner_levels_nl(afieldset);
     oops::Log::trace() << "leaving HydrostaticExnerLevels_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool HydrostaticExnerLevels_A::executeTL(atlas::FieldSet & afieldsetTL,
+void HydrostaticExnerLevels_A::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering HydrostaticExnerLevels_A::executeTL function"
         << std::endl;
     mo::eval_hydrobal_hydrostatic_exner_levels_tl(afieldsetTL, afieldsetTraj);
     oops::Log::trace() << "leaving HydrostaticExnerLevels_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool HydrostaticExnerLevels_A::executeAD(atlas::FieldSet & afieldsetAD,
+void HydrostaticExnerLevels_A::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering HydrostaticExnerLevels::executeAD function"
         << std::endl;
     mo::eval_hydrobal_hydrostatic_exner_levels_ad(afieldsetAD, afieldsetTraj);
     oops::Log::trace() << "leaving HydrostaticExnerLevels_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader

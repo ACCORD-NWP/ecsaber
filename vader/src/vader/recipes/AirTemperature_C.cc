@@ -65,7 +65,7 @@ atlas::FunctionSpace AirTemperature_C::productFunctionSpace(const atlas::FieldSe
     return fields[PAPT].functionspace();
 }
 
-bool AirTemperature_C::executeNL(atlas::FieldSet & fields)
+void AirTemperature_C::executeNL(atlas::FieldSet & fields)
 {
     oops::Log::trace() << "entering AirTemperature_C::executeNL function" << std::endl;
 
@@ -83,7 +83,6 @@ bool AirTemperature_C::executeNL(atlas::FieldSet & fields)
       }
     }
     oops::Log::trace() << "leaving AirTemperature_C::executeNL function" << std::endl;
-    return true;
 }
 
 }  // namespace vader

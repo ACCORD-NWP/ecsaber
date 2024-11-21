@@ -50,7 +50,7 @@ class AirPressureAtInterface_A : public RecipeBase
     oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
-    bool executeNL(atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
 
  private:
     const VaderConfigVars & configVariables_;
@@ -88,7 +88,7 @@ class AirPressureAtInterface_B : public RecipeBase
     oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
-    bool executeNL(atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
 
  private:
     const VaderConfigVars & configVariables_;
@@ -124,7 +124,7 @@ class AirPressureAtInterface_C : public RecipeBase
     oops::JediVariables ingredients() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
-    bool executeNL(atlas::FieldSet &) override;
+    void executeNL(atlas::FieldSet &) override;
 
  private:
     const VaderConfigVars & configVariables_;

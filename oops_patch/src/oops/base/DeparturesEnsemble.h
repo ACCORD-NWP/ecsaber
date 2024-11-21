@@ -57,7 +57,6 @@ DeparturesEnsemble<MODEL>::DeparturesEnsemble(const ObsSpaces_ & obsdb, const si
 
 template<typename MODEL>
 Eigen::MatrixXd DeparturesEnsemble<MODEL>::packEigen(const Departures_ & mask) const {
-
   std::size_t myNobs = ensemblePerturbs_[0].packEigenSize(mask);
   std::size_t myNens = ensemblePerturbs_.size();
 

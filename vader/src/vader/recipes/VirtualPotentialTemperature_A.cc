@@ -63,36 +63,30 @@ atlas::FunctionSpace VirtualPotentialTemperature_A::productFunctionSpace(const a
     return afieldset["height_above_mean_sea_level_levels"].functionspace();
 }
 
-bool VirtualPotentialTemperature_A::executeNL(atlas::FieldSet & afieldset)
+void VirtualPotentialTemperature_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering VirtualPotentialTemperature_A::executeNL function"
       << std::endl;
     mo::eval_hydrobal_virtual_potential_temperature_nl(afieldset);
     oops::Log::trace() << "leaving VirtualPotentialTemperature_A::executeNL function" << std::endl;
-
-    return true;
 }
 
-bool VirtualPotentialTemperature_A::executeTL(atlas::FieldSet & afieldsetTL,
+void VirtualPotentialTemperature_A::executeTL(atlas::FieldSet & afieldsetTL,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering VirtualPotentialTemperature_A::executeTL function"
         << std::endl;
     mo::eval_hydrobal_virtual_potential_temperature_tl(afieldsetTL, afieldsetTraj);
     oops::Log::trace() << "leaving VirtualPotentialTemperature_A::executeTL function" << std::endl;
-
-    return true;
 }
 
-bool VirtualPotentialTemperature_A::executeAD(atlas::FieldSet & afieldsetAD,
+void VirtualPotentialTemperature_A::executeAD(atlas::FieldSet & afieldsetAD,
                                       const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering VirtualPotentialTemperature::executeAD function"
         << std::endl;
     mo::eval_hydrobal_virtual_potential_temperature_ad(afieldsetAD, afieldsetTraj);
     oops::Log::trace() << "leaving VirtualPotentialTemperature_A::executeAD function" << std::endl;
-
-    return true;
 }
 
 }  // namespace vader
