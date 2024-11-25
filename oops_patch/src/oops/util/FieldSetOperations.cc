@@ -177,57 +177,68 @@ double dotProductFieldsLocal(const atlas::Field & field1,
     // Add contributions
     auto view1 = atlas::array::make_view<double, 2>(field1);
     auto view2 = atlas::array::make_view<double, 2>(field2);
-    if (field1.functionspace().type() == "Spectral") {
-      const atlas::functionspace::Spectral fs(field1.functionspace());
-      const atlas::idx_t N = fs.truncation();
-      const auto zonal_wavenumbers = fs.zonal_wavenumbers();
-      const atlas::idx_t nb_zonal_wavenumbers = zonal_wavenumbers.size();
-      int jnode = 0;
-      for (int jm=0; jm < nb_zonal_wavenumbers; ++jm) {
-        const atlas::idx_t m1 = zonal_wavenumbers(jm);
-        for (std::size_t n1 = m1; n1 <= static_cast<std::size_t>(N); ++n1) {
-          if (m1 == 0) {
-            // Real part only
+    if (field1.functionspace()) {
+      if (field1.functionspace().type() == "Spectral") {
+        const atlas::functionspace::Spectral fs(field1.functionspace());
+        const atlas::idx_t N = fs.truncation();
+        const auto zonal_wavenumbers = fs.zonal_wavenumbers();
+        const atlas::idx_t nb_zonal_wavenumbers = zonal_wavenumbers.size();
+        int jnode = 0;
+        for (int jm=0; jm < nb_zonal_wavenumbers; ++jm) {
+          const atlas::idx_t m1 = zonal_wavenumbers(jm);
+          for (std::size_t n1 = m1; n1 <= static_cast<std::size_t>(N); ++n1) {
+            if (m1 == 0) {
+              // Real part only
+              for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+                if (view1(jnode, jlevel) != util::missingValue<double>()
+                  && view2(jnode, jlevel) != util::missingValue<double>()) {
+                  dp += view1(jnode, jlevel)*view2(jnode, jlevel);
+                }
+              }
+              ++jnode;
+
+              // No imaginary part
+              ++jnode;
+            } else {
+              // Real part
+              for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+                if (view1(jnode, jlevel) != util::missingValue<double>()
+                  && view2(jnode, jlevel) != util::missingValue<double>()) {
+                  dp += 2.0*view1(jnode, jlevel)*view2(jnode, jlevel);
+                }
+              }
+              ++jnode;
+
+              // Imaginary part
+              for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+                if (view1(jnode, jlevel) != util::missingValue<double>()
+                  && view2(jnode, jlevel) != util::missingValue<double>()) {
+                  dp += 2.0*view1(jnode, jlevel)*view2(jnode, jlevel);
+                }
+              }
+              ++jnode;
+            }
+          }
+        }
+      } else {
+        const auto ghostView = atlas::array::make_view<int, 1>(field1.functionspace().ghost());
+        for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
+          if (ghostView(jnode) == 0) {
             for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
               if (view1(jnode, jlevel) != util::missingValue<double>()
                 && view2(jnode, jlevel) != util::missingValue<double>()) {
                 dp += view1(jnode, jlevel)*view2(jnode, jlevel);
               }
             }
-            ++jnode;
-
-            // No imaginary part
-            ++jnode;
-          } else {
-            // Real part
-            for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-              if (view1(jnode, jlevel) != util::missingValue<double>()
-                && view2(jnode, jlevel) != util::missingValue<double>()) {
-                dp += 2.0*view1(jnode, jlevel)*view2(jnode, jlevel);
-              }
-            }
-            ++jnode;
-
-            // Imaginary part
-            for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-              if (view1(jnode, jlevel) != util::missingValue<double>()
-                && view2(jnode, jlevel) != util::missingValue<double>()) {
-                dp += 2.0*view1(jnode, jlevel)*view2(jnode, jlevel);
-              }
-            }
-            ++jnode;
           }
         }
       }
     } else {
-      const auto ghostView = atlas::array::make_view<int, 1>(field1.functionspace().ghost());
       for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
-        if (ghostView(jnode) == 0) {
-          for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-            if (view1(jnode, jlevel) != util::missingValue<double>()
-              && view2(jnode, jlevel) != util::missingValue<double>()) {
-              dp += view1(jnode, jlevel)*view2(jnode, jlevel);
-            }
+        for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+          if (view1(jnode, jlevel) != util::missingValue<double>()
+            && view2(jnode, jlevel) != util::missingValue<double>()) {
+            dp += view1(jnode, jlevel)*view2(jnode, jlevel);
           }
         }
       }

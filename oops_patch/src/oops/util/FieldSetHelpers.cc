@@ -361,9 +361,17 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
   oops::Log::trace() << "copyFieldSet starting" << std::endl;
   fset.clear();
   for (const auto & otherField : otherFset) {
-    // Create Field
-    atlas::Field field = otherField.functionspace().createField<double>(
-      atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
+    // Check whether the input Field is associated with a FunctionSpace
+    atlas::Field field;
+    if (otherField.functionspace()) {
+      // Create Field from FunctionSpace
+      field = otherField.functionspace().createField<double>(
+        atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
+    } else {
+      // Create Field without FunctionSpace
+      field = atlas::Field(otherField.name(), atlas::array::make_datatype<double>(),
+        atlas::array::make_shape(otherField.shape(0), otherField.shape(1)));
+    }
 
     // Copy data
     if (field.rank() == 2) {
