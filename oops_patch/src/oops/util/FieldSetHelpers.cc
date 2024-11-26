@@ -392,6 +392,9 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
     // Add field
     fset.add(field);
   }
+
+  // Copy fieldset name
+  fset.name() = otherFset.name();
 }
 
 // -----------------------------------------------------------------------------

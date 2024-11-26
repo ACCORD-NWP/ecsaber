@@ -163,7 +163,8 @@ class MakeObs : public oops::Application {
 
       //  Save observations
       for (std::size_t jj = 0; jj < yobs->size(); ++jj) {
-        oops::Log::test() << "Generated perturbed observation: " << (*yobs)[jj] << std::endl;
+        oops::Log::test() << "Generated perturbed observation " << jj << " for member " << ie+1
+          << ": " << (*yobs)[jj] << std::endl;
       }
       eckit::LocalConfiguration obsconfMember(obsconf);
       util::seekAndReplace(obsconfMember, pattern, ie+1, zpad);
