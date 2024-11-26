@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-08-27 13:28:24.846908388 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-08-27 13:21:19.994824315 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2024-11-26 14:29:56.657085430 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-11-06 17:23:33.396562374 +0100
 @@ -14,22 +14,18 @@
  
  #include "atlas/field.h"
@@ -242,18 +242,16 @@
    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
      outerVars[i].setLevels(vlevs[i]);
    }
-@@ -177,9 +239,7 @@
+@@ -177,7 +239,7 @@
      const auto & dualResGeomConf = dualResParams->geometry.value();
      if (dualResGeomConf != boost::none) {
        // Create dualRes geometry
--      typename Geometry_::Parameters_ dualResGeomParams;
--      dualResGeomParams.deserialize(*dualResGeomConf);
--      dualResGeom = new Geometry_(dualResGeomParams, geom.getComm());
+-      dualResGeom = new Geometry_(*dualResGeomConf, geom.getComm());
 +      dualResGeom = new Geometry_(*dualResGeomConf);
      }
      // Background and first guess at dual resolution geometry
      const State4D_ xbDualRes(*dualResGeom, xb);
-@@ -200,7 +260,7 @@
+@@ -198,7 +260,7 @@
      std::vector<util::DateTime> dates;
      std::vector<int> ensmems;
      fsetDualResEns = std::make_unique<oops::FieldSets>(dates,
@@ -262,7 +260,7 @@
    }
  
    // Add ensemble output
-@@ -229,165 +289,14 @@
+@@ -227,165 +289,14 @@
      // Hybrid central block
      eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
  
@@ -430,7 +428,7 @@
        }
        for (const auto & cmp : hybridConf.getSubConfigurations("components")) {
          // Initialize component outer variables
-@@ -398,7 +307,7 @@
+@@ -396,7 +307,7 @@
          // Scalar weight
          hybridScalarWeightSqrt_.push_back(std::sqrt(weightConf.getDouble("value", 1.0)));
          // File-base weight
@@ -439,7 +437,7 @@
          if (weightConf.has("file")) {
            // File-base weight
            readHybridWeight(*hybridGeom,
-@@ -475,31 +384,39 @@
+@@ -473,31 +384,39 @@
      // Set weights
      hybridScalarWeightSqrt_.push_back(1.0);
      // File-base weight
@@ -489,7 +487,7 @@
    for (size_t jtime = 0; jtime < fset4dSum.size(); ++jtime) {
      fset4dSum[jtime].init(hybridBlockChain_[0]->outerFunctionSpace(),
                            hybridBlockChain_[0]->outerVariables(),
-@@ -507,62 +424,12 @@
+@@ -505,62 +424,12 @@
    }
  
    if (parallelHybrid_) {
@@ -554,7 +552,7 @@
        hybridBlockChain_[jj]->randomize(fset4dCmp);
  
        // Weight square-root multiplication
-@@ -583,20 +450,20 @@
+@@ -581,20 +450,20 @@
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
    // ATLAS fieldset to Increment_
@@ -583,7 +581,7 @@
  
    // Copy input
    dxo = dxi;
-@@ -611,74 +478,7 @@
+@@ -609,74 +478,7 @@
  
    // Loop over B components
    if (parallelHybrid_) {
@@ -659,7 +657,7 @@
    } else {
      if (hybridBlockChain_.size() > 1) {
          oops::Log::debug() << "Serial execution of Hybrid::multiply" << std::endl;
-@@ -718,27 +518,314 @@
+@@ -716,27 +518,314 @@
    // Apply outer blocks forward
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  

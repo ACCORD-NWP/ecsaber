@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp.bak	2024-07-19 10:06:48.005140908 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2024-07-19 09:49:15.313124191 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp.bak	2024-11-26 14:29:06.700867560 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2024-10-16 14:40:03.731345362 +0200
 @@ -1,22 +1,25 @@
  /*
   * (C) Copyright 2018-2021 UCAR
@@ -31,7 +31,7 @@
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
  #include "oops/util/Logger.h"
-@@ -32,45 +35,28 @@
+@@ -32,33 +35,18 @@
  
  template <typename MODEL> class ConvertStateStatesParameters : public Parameters {
    OOPS_CONCRETE_PARAMETERS(ConvertStateStatesParameters, Parameters)
@@ -66,15 +66,10 @@
 +  OOPS_CONCRETE_PARAMETERS(ConvertStateParameters, Parameters)
  
   public:
--  typedef typename Geometry_::Parameters_ GeometryParameters_;
--
    /// Input Geometry parameters.
--  RequiredParameter<GeometryParameters_> inputGeometry{"input geometry", this};
-+  RequiredParameter<eckit::LocalConfiguration> inputGeometry{"input geometry", this};
- 
+@@ -67,8 +55,8 @@
    /// Output Geometry parameters.
--  RequiredParameter<GeometryParameters_> outputGeometry{"output geometry", this};
-+  RequiredParameter<eckit::LocalConfiguration> outputGeometry{"output geometry", this};
+   RequiredParameter<eckit::LocalConfiguration> outputGeometry{"output geometry", this};
  
 -  /// Variable change parameters (and option to do inverse).
 -  OptionalParameter<VarChangeParameters<MODEL>> varChange{"variable change", this};
@@ -83,7 +78,7 @@
  
    /// States to be converted
    RequiredParameter<std::vector<ConvertStateStatesParameters<MODEL>>> states{"states", this};
-@@ -81,39 +67,29 @@
+@@ -79,39 +67,29 @@
  
  template <typename MODEL> class ConvertState : public Application {
    typedef Geometry<MODEL>               Geometry_;
@@ -131,7 +126,7 @@
  
  //  List of input and output states
      const int nstates = params.states.value().size();
-@@ -127,27 +103,12 @@
+@@ -125,27 +103,12 @@
        Log::info() << "Converting state " << jm+1 << " of " << nstates << std::endl;
  
  //    Read state
@@ -160,7 +155,7 @@
  //    Write state
        eckit::LocalConfiguration outconf(stateParams.toConfiguration(), "output");
        xx.write(outconf);
-@@ -156,16 +117,6 @@
+@@ -154,16 +117,6 @@
      }
      return 0;
    }
@@ -177,7 +172,7 @@
  // -------------------------------------------------------------------------------------------------
   private:
    std::string appname() const override {
-@@ -175,4 +126,3 @@
+@@ -173,4 +126,3 @@
  };
  
  }  // namespace oops

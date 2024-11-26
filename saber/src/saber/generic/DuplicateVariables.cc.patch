@@ -1,0 +1,51 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/generic/DuplicateVariables.cc.tmp	2024-11-26 14:29:56.784085983 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/generic/DuplicateVariables.cc	2024-11-26 14:19:22.453253109 +0100
+@@ -67,18 +67,10 @@
+   for (const VariableGroupParameters & gp : gps) {
+     std::string key = gp.groupVariableName.value();
+     oops::JediVariables v = gp.groupComponents.value();
+-    // copy metadata in to re-expanded fields
+-    std::string interpType;
+-    if (fsetIn[key].metadata().has("interp_type")) {
+-      interpType = fsetIn[key].metadata().get<std::string>("interp_type");
+-    }
+     auto otherView = atlas::array::make_view<double, 2>(fsetIn[key]);
+     for (const auto & component : v) {
+       auto view = atlas::array::make_view<double, 2>(fsetOut[component.name()]);
+       view.assign(otherView);
+-      if (!interpType.empty()) {
+-        fsetOut[component.name()].metadata().set("interp_type", interpType);
+-      }
+     }
+   }
+ }
+@@ -90,19 +82,8 @@
+   for (const VariableGroupParameters & gp : gps) {
+     std::string key = gp.groupVariableName.value();
+     oops::JediVariables v = gp.groupComponents.value();
+-    std::string interpType;
+-
+-    // copy metadata from 0th variable, if present
+-    if (fsetIn[v[0].name()].metadata().has("interp_type")) {
+-      interpType = fsetIn[v[0].name()].metadata().get<std::string>("interp_type");
+-    }
+     auto otherView = atlas::array::make_view<double, 2>(fsetOut[key]);
+     for (const auto & component : v) {
+-      if (!interpType.empty()) {
+-        // check other fields have same 'interp_type' as component0
+-        ASSERT(fsetIn[component.name()].metadata().has("interp_type"));
+-        ASSERT(fsetIn[component.name()].metadata().get<std::string>("interp_type") == interpType);
+-      }
+       auto view = atlas::array::make_view<double, 2>(fsetIn[component.name()]);
+       for (atlas::idx_t jn = 0; jn < fsetOut[key].shape(0); ++jn) {
+         for (atlas::idx_t jl = 0; jl < fsetOut[key].shape(1); ++jl) {
+@@ -111,9 +92,6 @@
+         }
+       }
+     }
+-    if (!interpType.empty()) {
+-      fsetOut[key].metadata().set("interp_type", interpType);
+-    }
+   }
+ }
+ 
