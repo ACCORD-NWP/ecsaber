@@ -959,7 +959,7 @@ void readFieldSet(const eckit::mpi::Comm & comm,
   }
 
   // NetCDF IDs
-  int ncid, retval, dimid, var_id[vars.size()];
+  int ncid, retval, var_id[vars.size()];
 
   if (oneFilePerTask) {
     // Case 1: one file per MPI task
@@ -981,20 +981,7 @@ void readFieldSet(const eckit::mpi::Comm & comm,
       if (ghostView(jnode) == 0) ++nb_nodes;
     }
 
-    // Check the number of nodes
-    if ((retval = nc_inq_dimid(ncid, "nb_nodes", &dimid))) ERR(retval, "nb_nodes");
-    size_t nb_nodes_in_file;
-    if ((retval = nc_inq_dimlen(ncid, dimid, &nb_nodes_in_file))) ERR(retval, "nb_nodes");
-    ASSERT(nb_nodes_in_file == nb_nodes);
-
     for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
-      // Check the number of vertical levels
-      const std::string nzName = "nz_" + vars[jvar];
-      if ((retval = nc_inq_dimid(ncid, nzName.c_str(), &dimid))) ERR(retval, vars[jvar]);
-      size_t nz_in_file;
-      if ((retval = nc_inq_dimlen(ncid, dimid, &nz_in_file))) ERR(retval, vars[jvar]);
-      ASSERT(nz_in_file == variableSizes[jvar]);
-
       // Read data
       std::vector<double> zvar(nb_nodes * variableSizes[jvar]);
       if ((retval = nc_get_var_double(ncid, var_id[jvar], zvar.data()))) ERR(retval, vars[jvar]);
@@ -1049,14 +1036,6 @@ void readFieldSet(const eckit::mpi::Comm & comm,
 
         // Get variables
         for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
-          // Check the number of vertical levels
-          const std::string nzName = "nz_" + vars[jvar];
-          if ((retval = nc_inq_dimid(ncid, nzName.c_str(), &dimid))) ERR(retval, vars[jvar]);
-          size_t nz_in_file;
-          if ((retval = nc_inq_dimlen(ncid, dimid, &nz_in_file))) ERR(retval, vars[jvar]);
-          ASSERT(nz_in_file == variableSizes[jvar]);
-
-          // Get variables
           if ((retval = nc_inq_varid(ncid, vars[jvar].c_str(), &var_id[jvar]))) {
             ERR(retval, vars[jvar]);
           }
@@ -1100,14 +1079,6 @@ void readFieldSet(const eckit::mpi::Comm & comm,
 
         // Get variables
         for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
-          // Check the number of vertical levels
-          const std::string nzName = "nz_" + vars[jvar];
-          if ((retval = nc_inq_dimid(ncid, nzName.c_str(), &dimid))) ERR(retval, vars[jvar]);
-          size_t nz_in_file;
-          if ((retval = nc_inq_dimlen(ncid, dimid, &nz_in_file))) ERR(retval, vars[jvar]);
-          ASSERT(nz_in_file == variableSizes[jvar]);
-
-          // Get variables
           if ((retval = nc_inq_varid(ncid, vars[jvar].c_str(), &var_id[jvar]))) {
             ERR(retval, vars[jvar]);
           }
@@ -1166,13 +1137,6 @@ void readRank3FieldSet(const atlas::FunctionSpace & fspace,
   if ((retval = nc_open(ncfilepath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncfilepath);
 
   for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
-    // Check number of vertical levels
-    const std::string nzName = "nz_" + vars[jvar];
-    if ((retval = nc_inq_dimid(ncid, nzName.c_str(), &dimid))) ERR(retval, vars[jvar]);
-    size_t nz_in_file;
-    if ((retval = nc_inq_dimlen(ncid, dimid, &nz_in_file))) ERR(retval, vars[jvar]);
-    ASSERT(nz_in_file == variableSizes[jvar]);
-
     // Get size of vector dimension
     const std::string nvName = "nv_" + vars[jvar];
     if ((retval = nc_inq_dimid(ncid, nvName.c_str(), &dimid))) ERR(retval, nvName);

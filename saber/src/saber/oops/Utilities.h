@@ -72,11 +72,6 @@ void setMPI(eckit::LocalConfiguration & conf,
 
 // -----------------------------------------------------------------------------
 
-void expandEnsembleTemplate(eckit::LocalConfiguration &,
-                            const size_t &);
-
-// -----------------------------------------------------------------------------
-
 void checkFieldsAreNotAllocated(const oops::FieldSet3D & fset,
                                 const oops::JediVariables & vars);
 
@@ -117,7 +112,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     }
     nens = ensembleConf[0].getInt("members");
     for (auto & ensemble3DConf : ensembleConf) {
-      expandEnsembleTemplate(ensemble3DConf, nens);
+      util::expandEnsembleTemplate(ensemble3DConf, nens);
     }
     outputConf.set("ensemble", ensembleConf);
     varConf = ensembleConf[0];
@@ -134,7 +129,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     }
     nens = ensemblePert[0].getInt("members");
     for (auto & ensemble3DConf : ensembleConf) {
-      expandEnsembleTemplate(ensemble3DConf, nens);
+      util::expandEnsembleTemplate(ensemble3DConf, nens);
     }
     outputConf.set("ensemble", ensemblePert);
     varConf = ensemblePert[0];

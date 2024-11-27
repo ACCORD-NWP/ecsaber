@@ -32,6 +32,16 @@ void setMember(eckit::LocalConfiguration &,
                const size_t &);
 
 // -----------------------------------------------------------------------------
+
+void setMPI(eckit::LocalConfiguration & conf,
+            const int & mpi);
+
+// -----------------------------------------------------------------------------
+
+void expandEnsembleTemplate(eckit::LocalConfiguration &,
+                            const size_t &);
+
+// -----------------------------------------------------------------------------
 // Variables
 // -----------------------------------------------------------------------------
 
