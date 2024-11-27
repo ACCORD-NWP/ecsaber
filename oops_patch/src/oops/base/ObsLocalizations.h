@@ -18,7 +18,7 @@
 #include "oops/base/Departures.h"
 #include "oops/base/ObsLocalizationBase.h"
 #include "oops/base/ObservationSpaces.h"
-
+#include "oops/util/ECUtilities.h"
 #include "oops/util/Printable.h"
 
 namespace oops {
@@ -77,7 +77,7 @@ template <typename MODEL>
 void ObsLocalizations<MODEL>::computeLocalization(const GeometryIterator__ & point,
                                                   Observations_ & locfactor) const {
   //  initialize locafactors to ones and then update them in the loop bellow
-  locfactor.ones();
+  util::ones(locfactor);
   for (size_t jj = 0; jj < local_.size(); ++jj) {
     for (size_t oli = 0; oli < local_[jj].size(); ++oli) {
       if (local_[jj][oli]) local_[jj][oli]->computeLocalization(point, locfactor[jj].obsvector());

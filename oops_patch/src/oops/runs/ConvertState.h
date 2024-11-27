@@ -15,11 +15,11 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
-
-#include "oops/base/ParameterTraitsVariables.h"
 #include "oops/interface/Geometry.h"
+#include "oops/base/ParameterTraitsVariables.h"
 #include "oops/interface/Model.h"
 #include "oops/interface/State.h"
+#include "oops/interface/VariableChange.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/Logger.h"
@@ -35,10 +35,24 @@ namespace oops {
 
 template <typename MODEL> class ConvertStateStatesParameters : public Parameters {
   OOPS_CONCRETE_PARAMETERS(ConvertStateStatesParameters, Parameters)
+  typedef State<MODEL> State_;
 
  public:
   RequiredParameter<eckit::LocalConfiguration> input{"input", this};
   RequiredParameter<eckit::LocalConfiguration> output{"output", this};
+};
+
+/// Options controlling variable change in the ConvertState application.
+template <typename MODEL> class VarChangeParameters : public Parameters {
+  OOPS_CONCRETE_PARAMETERS(VarChangeParameters, Parameters)
+  typedef typename VariableChange<MODEL>::Parameters_ VariableChangeParameters_;
+
+ public:
+  // parameters for variable change.
+  VariableChangeParameters_ varChange{this};
+  Parameter<bool> doInverse{"do inverse",
+                            "apply inverse variable change instead of variable change",
+                            false, this};
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -58,6 +72,9 @@ template <typename MODEL> class ConvertStateParameters : public Parameters {
   /// Model
   Parameter<eckit::LocalConfiguration> model{"model", eckit::LocalConfiguration(), this};
 
+  /// Variable change parameters (and option to do inverse).
+  OptionalParameter<VarChangeParameters<MODEL>> varChange{"variable change", this};
+
   /// States to be converted
   RequiredParameter<std::vector<ConvertStateStatesParameters<MODEL>>> states{"states", this};
 };
@@ -69,6 +86,7 @@ template <typename MODEL> class ConvertState : public Application {
   typedef Geometry<MODEL>               Geometry_;
   typedef Model<MODEL>                  Model_;
   typedef State<MODEL>                  State_;
+  typedef VariableChange<MODEL>         VariableChange_;
   typedef ConvertStateParameters<MODEL> ConvertStateParameters_;
   typedef ConvertStateStatesParameters<MODEL> ConvertStateStatesParameters_;
 
@@ -91,6 +109,19 @@ template <typename MODEL> class ConvertState : public Application {
     // Setup model
     const Model_ model(resol1, params.model);
 
+    // Setup change of variable
+    std::unique_ptr<VariableChange_> vc;
+    oops::JediVariables varout;
+    bool inverse = false;
+    if (params.varChange.value() != boost::none) {
+      eckit::LocalConfiguration chconf(params.varChange.value()->toConfiguration());
+      if (chconf.has("output variables")) {
+        vc.reset(new VariableChange_(chconf, resol2));
+        varout = JediVariables(chconf, "output variables");
+        inverse = chconf.getBool("do inverse", false);
+      }
+    }
+
 //  List of input and output states
     const int nstates = params.states.value().size();
 
@@ -108,6 +139,21 @@ template <typename MODEL> class ConvertState : public Application {
 
 //    Copy and change resolution
       State_ xx(resol2, xxi);
+
+//    Variable transform(s)
+      if (vc) {
+          // Create variable change
+        oops::JediVariables varin = xx.state().variables();
+        if (inverse) {
+          vc->changeVarInverse(xx, varout);
+        } else {
+          vc->changeVar(xx, varout);
+        }
+        Log::test() << "Variable transform: " << *vc << std::endl;
+        Log::test() << "Variable change from: " << varin << std::endl;
+        Log::test() << "Variable change to: " << varout << std::endl;
+        Log::test() << "State after variable transform: " << xx << std::endl;
+      }
 
 //    Write state
       eckit::LocalConfiguration outconf(stateParams.toConfiguration(), "output");

@@ -24,6 +24,7 @@
 #include "oops/base/ObsLocalizations.h"
 #include "oops/base/ObservationSpaces.h"
 #include "oops/interface/GeometryIterator.h"
+#include "oops/util/ECUtilities.h"
 #include "oops/util/Logger.h"
 
 namespace oops {
@@ -118,10 +119,10 @@ void LETKFSolver<MODEL>::measurementUpdate(const IncrementEnsemble4D_ & bkg_pert
 
   // create the local subset of observations
   Departures_ locvector(this->obspaces_);
-  locvector.ones();
+  util::ones(locvector);
   this->obsloc().computeLocalization(i, locvector);
-  locvector.mask(*(this->invVarR_));
-  Eigen::VectorXd local_omb_vec = this->omb_.packEigen(locvector);
+  util::mask(locvector, (*(this->invVarR_)));
+  Eigen::VectorXd local_omb_vec = util::packEigen(this->omb_, locvector);
 
   if (local_omb_vec.size() == 0) {
     // no obs. so no need to update Wa_ and wa_
@@ -132,9 +133,9 @@ void LETKFSolver<MODEL>::measurementUpdate(const IncrementEnsemble4D_ & bkg_pert
     // create local Yb
     Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
     // create local obs errors
-    Eigen::VectorXd local_invVarR_vec = this->invVarR_->packEigen(locvector);
+    Eigen::VectorXd local_invVarR_vec = util::packEigen(*(this->invVarR_), locvector);
     // and apply localization
-    Eigen::VectorXd localization = locvector.packEigen(locvector);
+    Eigen::VectorXd localization = util::packEigen(locvector, locvector);
     local_invVarR_vec.array() *= localization.array();
     computeWeights(local_omb_vec, local_Yb_mat, local_invVarR_vec);
     applyWeights(bkg_pert, ana_pert, i);

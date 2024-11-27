@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-11-15 16:37:13.696316695 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-11-15 16:38:55.434843994 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-11-26 14:29:56.606085208 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-11-26 14:19:22.454253114 +0100
 @@ -19,12 +19,14 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -48,7 +48,7 @@
      modelWrite{"model write", this};
  };
  
-@@ -143,20 +147,19 @@
+@@ -143,19 +147,19 @@
  
  /// \brief Top-level options taken by the ProcessPerts application.
  template <typename MODEL> class ProcessPertsParameters :
@@ -58,11 +58,10 @@
 +  OOPS_CONCRETE_PARAMETERS(ProcessPertsParameters, oops::Parameters)
  
   public:
--  typedef typename oops::Geometry<MODEL>::Parameters_    GeometryParameters_;
    typedef BandParameters<MODEL>                          BandParameters_;
  
    /// Geometry parameters.
--  oops::RequiredParameter<GeometryParameters_> geometry{"geometry", this};
+-  oops::RequiredParameter<eckit::LocalConfiguration> geometry{"geometry", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> geometry{"resolution", this};
  
    /// Background parameters.
@@ -74,7 +73,7 @@
  
    oops::RequiredParameter<std::vector<BandParameters_>> bands{"bands", this};
  
-@@ -172,46 +175,74 @@
+@@ -171,46 +175,74 @@
    typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
    typedef oops::Geometry<MODEL>                             Geometry_;
    typedef oops::Increment<MODEL>                            Increment_;
@@ -160,7 +159,7 @@
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars[i].setLevels(vlevs[i]);
      }
-@@ -369,25 +400,25 @@
+@@ -368,25 +400,25 @@
            eckit::LocalConfiguration gconf = it->second;
            util::setMember(gconf, jm+1);
            setConcatenatedString(fullConfig,
@@ -193,7 +192,7 @@
            pert.write(writeParams);
          }
        }
-@@ -396,16 +427,6 @@
+@@ -395,16 +427,6 @@
      return 0;
    }
  // -----------------------------------------------------------------------------

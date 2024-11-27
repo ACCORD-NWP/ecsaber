@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h.tmp	2024-11-21 11:22:56.892425340 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h	2024-11-21 12:20:48.069613689 +0100
-@@ -21,27 +21,30 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h.tmp.bak	2024-11-27 12:20:20.575071798 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h	2024-11-27 12:22:14.696678245 +0100
+@@ -21,54 +21,59 @@
  #include "oops/assimilation/LocalEnsembleSolverParameters.h"
  #include "oops/base/Departures.h"
  #include "oops/base/DeparturesEnsemble.h"
@@ -38,9 +38,10 @@
 -#include "oops/interface/ObsDataVector.h"
 +//#include "oops/interface/ObsDataVector.h"
  #include "oops/util/abor1_cpp.h"
++#include "oops/util/ECUtilities.h"
  #include "oops/util/Logger.h"
  
-@@ -49,26 +52,27 @@
+ namespace oops {
    class JediVariables;
  
  /// \brief Base class for LETKF-type solvers
@@ -82,7 +83,7 @@
    typedef State<MODEL>                State_;
    typedef State4D<MODEL>              State4D_;
    typedef Increment<MODEL>            Increment_;
-@@ -77,8 +81,6 @@
+@@ -77,8 +82,6 @@
    typedef Model<MODEL>                Model_;
    typedef ModelAuxControl<MODEL>      ModelAux_;
    typedef ModelAuxIncrement<MODEL>    ModelAuxInc_;
@@ -91,7 +92,7 @@
  
   public:
    static const std::string classname() {return "oops::LocalEnsembleSolver";}
-@@ -93,31 +95,35 @@
+@@ -93,31 +96,35 @@
  
    /// computes ensemble H(\p xx), returns mean H(\p xx), saves as hofx \p iteration
    virtual Observations_ computeHofX(const StateEnsemble4D_ & xx, size_t iteration,
@@ -135,7 +136,7 @@
    /// accessor to obs localizations
    const ObsLocalizations_ & obsloc() const {return obsloc_;}
    bool useLinearObserver() { return useLinearObserver_; }
-@@ -142,13 +148,13 @@
+@@ -142,13 +149,13 @@
   private:
    bool useLinearObserver_;
    ObsLocalizations_ obsloc_;          ///< observation space localization
@@ -152,7 +153,7 @@
                                          const Geometry_ & geometry,
                                          const eckit::Configuration & config, size_t nens,
                                          const State4D_ & xbmean, const JediVariables & incvars)
-@@ -159,7 +165,7 @@
+@@ -159,7 +166,7 @@
      xbmean_(xbmean),
      incvars_(incvars),
      obsconf_(config, "observations"),
@@ -161,7 +162,7 @@
      obsloc_(observersconf_, obspaces_) {
    // initialize and print options
  
-@@ -182,34 +188,37 @@
+@@ -182,34 +189,38 @@
      Log::info() << "RTPS inflation is not applied rtpsCoeff is out of bounds (0,1], rtpsCoeff="
                  << inflopt.rtps << std::endl;
    }
@@ -193,8 +194,9 @@
 -                                                   size_t iteration, bool readFromDisk) {
 +template <typename MODEL>
 +Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofX(const StateEnsemble4D_ & ens_xx,
-+  size_t iteration, bool readFromDisk, const Model_ & model, const Observations_ & yobs,
-+  const ObsAuxCtrls_ & ybias) {
++                                                size_t iteration, bool readFromDisk,
++                                                const Model_ & model, const Observations_ & yobs,
++                                                const ObsAuxCtrls_ & ybias) {
    util::Timer timer(classname(), "computeHofX");
  
    Observations_ yb_mean(obspaces_);
@@ -208,7 +210,7 @@
    }
  
    // return mean H(x)
-@@ -217,18 +226,20 @@
+@@ -217,18 +228,20 @@
  }
  // -----------------------------------------------------------------------------
  
@@ -238,7 +240,7 @@
    const util::Duration flength = times[times.size()-1] - times[0];
    // default_tstep = 2*observation window is passed to PseudoModel as the default
    // pseudomodel time step. It is only used when State4D has a single state, to enable
-@@ -237,7 +248,7 @@
+@@ -237,7 +250,7 @@
    // ( max(winbgn, xx.time - tstep/2); min(winend, xx.time + tstep/2) ] are
    // processed in H(x).
    const util::Duration default_tstep = (obspaces_.windowEnd() - obspaces_.windowStart()) * 2;
@@ -247,7 +249,7 @@
  
    // Setup pseudo model to run on ensemble mean
    State_ init_xx = xbmean_[0];
-@@ -287,15 +298,19 @@
+@@ -287,15 +300,19 @@
      yy[jens] = yy_mean;
      yy[jens] += Yb_[jens];
    }
@@ -270,7 +272,7 @@
    util::Timer timer(classname(), "computeHofXLinear");
  
    ASSERT(ens_xx.size() == Yb_.size());
-@@ -307,11 +322,15 @@
+@@ -307,11 +324,15 @@
    if (readFromDisk) {
      // read hofx from disk
      for (size_t jj = 0; jj < nens; ++jj) {
@@ -289,7 +291,7 @@
    } else {
      // compute and save H(x)
  
-@@ -329,10 +348,12 @@
+@@ -329,10 +350,12 @@
      config.set("save obs errors", false);
      config.set("iteration", std::to_string(iteration));
  
@@ -304,7 +306,7 @@
      }
  
      // Compute H(mean(Xb))
-@@ -340,13 +361,16 @@
+@@ -340,13 +363,17 @@
      config.set("save qc", true);
      config.set("save obs errors", true);
  
@@ -314,16 +316,18 @@
 +    y_mean_xb.save(conf);
  
      // QC flags and Obs errors are set to that of the H(mean(Xb))
-     R_->save("ObsError");
+-    R_->save("ObsError");
++//  R_->save("ObsError");
    }
    // set inverse variances
 -  invVarR_.reset(new Departures_(R_->inverseVariance()));
 +  invVarR_.reset(new Departures_(obspaces_));
-+  R_->inverseVariance(*invVarR_);
++  util::ones(*invVarR_);
++  invVarR_.reset(R_->inverseMultiply(*invVarR_));
  
    // calculate H(x) ensemble mean
    Observations_ yb_mean(obsens.mean());
-@@ -360,15 +384,20 @@
+@@ -360,28 +387,36 @@
    // mask H(x) ensemble perturbations
    for (size_t iens = 0; iens < nens; ++iens) {
      if (readFromDisk) {
@@ -333,21 +337,26 @@
 +        Yb_[iens][jj] -= yb_mean[jj];
 +      }
      }
-     invVarR_->mask(Yb_[iens]);
-     Yb_[iens].mask(*invVarR_);
+-    invVarR_->mask(Yb_[iens]);
+-    Yb_[iens].mask(*invVarR_);
++    util::mask(*invVarR_, Yb_[iens]);
++    util::mask(Yb_[iens], *invVarR_);
    }
  
    // calculate obs departures and mask with qc flag
 -  Observations_ yobs(obspaces_, "ObsValue");
 -  omb_ = yobs - yb_mean;
+-  invVarR_->mask(omb_);
+-  omb_.mask(*invVarR_);
 +  for (size_t jj = 0; jj < omb_.size(); ++jj) {
 +    omb_[jj] = yobs[jj];
 +    omb_[jj] -= yb_mean[jj];
 +  }
-   invVarR_->mask(omb_);
-   omb_.mask(*invVarR_);
++  util::mask(*invVarR_, omb_);
++  util::mask(omb_, *invVarR_);
  
-@@ -377,11 +406,14 @@
+   // return mean H(x)
+   return yb_mean;
  }
  // -----------------------------------------------------------------------------
  
@@ -366,7 +375,7 @@
    const util::Duration flength = times[times.size()-1] - times[0];
    // default_tstep = 2*observation window is passed to PseudoModel as the default
    // pseudomodel time step. It is only used when State4D has a single state, to enable
-@@ -391,31 +423,30 @@
+@@ -391,31 +426,30 @@
    // processed in H(x).
    const util::Duration default_tstep = (obspaces_.windowEnd() - obspaces_.windowStart()) * 2;
    // Setup PseudoModelState4D
@@ -412,7 +421,7 @@
    util::Timer timer(classname(), "computeHofXNonLinear");
  
    ASSERT(ens_xx.size() == Yb_.size());
-@@ -427,11 +458,15 @@
+@@ -427,11 +461,15 @@
    if (readFromDisk) {
      // read hofx from disk
      for (size_t jj = 0; jj < nens; ++jj) {
@@ -431,7 +440,7 @@
    } else {
      // compute and save H(x)
  
-@@ -449,9 +484,9 @@
+@@ -449,9 +487,9 @@
      config.set("iteration", std::to_string(iteration));
  
      for (size_t jj = 0; jj < nens; ++jj) {
@@ -443,7 +452,7 @@
      }
  
      // Compute H(mean(Xb))
-@@ -459,15 +494,19 @@
+@@ -459,15 +497,20 @@
      config.set("save qc", true);
      config.set("save obs errors", true);
  
@@ -463,34 +472,41 @@
    // set inverse variances
 -  invVarR_.reset(new Departures_(R_->inverseVariance()));
 +  invVarR_.reset(new Departures_(obspaces_));
-+  R_->inverseVariance(*invVarR_);
++  util::ones(*invVarR_);
++  invVarR_.reset(R_->inverseMultiply(*invVarR_));
  
    // calculate H(x) ensemble mean
    Observations_ yb_mean(obsens.mean());
-@@ -480,14 +519,19 @@
+@@ -480,16 +523,21 @@
  
    // calculate H(x) ensemble perturbations
    for (size_t iens = 0; iens < nens; ++iens) {
 -    Yb_[iens] = obsens[iens] - yb_mean;
+-    invVarR_->mask(Yb_[iens]);
+-    Yb_[iens].mask(*invVarR_);
 +    for (size_t jj = 0; jj < Yb_[iens].size(); ++jj) {
 +      Yb_[iens][jj] = obsens[iens][jj];
 +      Yb_[iens][jj] -= yb_mean[jj];
 +    }
-     invVarR_->mask(Yb_[iens]);
-     Yb_[iens].mask(*invVarR_);
++    util::mask(*invVarR_, Yb_[iens]);
++    util::mask(Yb_[iens], *invVarR_);
    }
  
    // calculate obs departures and mask with qc flag
 -  Observations_ yobs(obspaces_, "ObsValue");
 -  omb_ = yobs - yb_mean;
+-  invVarR_->mask(omb_);
+-  omb_.mask(*invVarR_);
 +  for (size_t jj = 0; jj < omb_.size(); ++jj) {
 +    omb_[jj] = yobs[jj];
 +    omb_[jj] -= yb_mean[jj];
 +  }
-   invVarR_->mask(omb_);
-   omb_.mask(*invVarR_);
++  util::mask(*invVarR_, omb_);
++  util::mask(omb_, *invVarR_);
  
-@@ -498,23 +542,23 @@
+   // return mean H(x)
+   return yb_mean;
+@@ -498,23 +546,23 @@
  
  // -----------------------------------------------------------------------------
  
@@ -523,7 +539,7 @@
                                    const Eigen::MatrixXd & Xb, Eigen::MatrixXd & Xa) const {
      const size_t nens = Xa.cols();
      const LocalEnsembleSolverInflationParameters & inflopt = options_.infl;
-@@ -550,13 +594,13 @@
+@@ -550,13 +598,13 @@
  // =============================================================================
  
  /// \brief factory for LETKF solvers
@@ -540,7 +556,7 @@
                                                          const eckit::Configuration &,
                                                          size_t, const State4D_ &,
                                                          const JediVariables &);
-@@ -564,36 +608,36 @@
+@@ -564,36 +612,36 @@
   protected:
    explicit LocalEnsembleSolverFactory(const std::string &);
   private:
@@ -587,7 +603,7 @@
    if (getMakers().find(name) != getMakers().end()) {
      throw std::runtime_error(name + " already registered in local ensemble solver factory.");
    }
-@@ -602,27 +646,27 @@
+@@ -602,27 +650,27 @@
  
  // -----------------------------------------------------------------------------
  

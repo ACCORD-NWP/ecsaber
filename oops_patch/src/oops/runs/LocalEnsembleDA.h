@@ -518,12 +518,17 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
     eckit::LocalConfiguration obsConfigTypes(obsConfig, "ObsTypes");
     std::vector<eckit::LocalConfiguration> obsConfigs = obsConfigTypes.getSubConfigurations();
 
-    for (auto & conf : obsConfigs) {
-      conf.set("ObsData.distribution.center", patchCenter);
-      conf.set("ObsData.distribution.radius", patchRadius);
-    }
+    if (obsConfigs.size() > 0) {
+      for (auto & conf : obsConfigs) {
+        conf.set("ObsData.distribution.center", patchCenter);
+        conf.set("ObsData.distribution.radius", patchRadius);
+      }
 
-    obsConfig.set("ObsTypes", obsConfigs);
+      obsConfig.set("ObsTypes", obsConfigs);
+    } else {
+      obsConfig.set("ObsData.distribution.center", patchCenter);
+      obsConfig.set("ObsData.distribution.radius", patchRadius);
+    }
   }
 
   void saveVariance(const eckit::LocalConfiguration & params, const IncrementEnsemble4D_ & perts,

@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h.tmp	2024-11-21 11:22:56.874425272 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h	2024-11-20 14:41:00.795851266 +0100
-@@ -18,11 +18,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h.tmp.bak	2024-11-27 12:20:20.558071708 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h	2024-11-27 08:22:20.463853622 +0100
+@@ -18,12 +18,13 @@
  #include "oops/assimilation/LocalEnsembleSolver.h"
  #include "oops/base/Departures.h"
  #include "oops/base/DeparturesEnsemble.h"
@@ -12,9 +12,11 @@
 -#include "oops/base/ObsSpaces.h"
 +#include "oops/base/ObservationSpaces.h"
  #include "oops/interface/GeometryIterator.h"
++#include "oops/util/ECUtilities.h"
  #include "oops/util/Logger.h"
  
-@@ -40,16 +40,18 @@
+ namespace oops {
+@@ -40,16 +41,18 @@
   * assimilation for spatiotemporal chaos: A local ensemble transform Kalman
   * filter. Physica D: Nonlinear Phenomena, 230(1-2), 112-126.
   */
@@ -41,7 +43,7 @@
    typedef State4D<MODEL>              State4D_;
  
   public:
-@@ -58,9 +60,9 @@
+@@ -58,9 +61,9 @@
    LETKFSolver(ObsSpaces_ &, const Geometry_ &, const eckit::Configuration &, size_t,
                const State4D_ &, const JediVariables &);
  
@@ -53,7 +55,7 @@
  
   protected:
    /// Computes weights for ensemble update with local observations
-@@ -72,7 +74,7 @@
+@@ -72,7 +75,7 @@
  
    /// Applies weights and adds posterior inflation
    virtual void applyWeights(const IncrementEnsemble4D_ &, IncrementEnsemble4D_ &,
@@ -62,7 +64,7 @@
  
    Eigen::MatrixXd Wa_;  // transformation matrix for ens. perts. Xa=Xf*Wa
    Eigen::VectorXd wa_;  // transformation matrix for ens. mean xa=xf*wa
-@@ -86,14 +88,14 @@
+@@ -86,14 +89,14 @@
  
  // -----------------------------------------------------------------------------
  
@@ -83,7 +85,7 @@
    Log::info() << "Using EIGEN implementation of LETKF" << std::endl;
  
    // pre-allocate transformation matrices
-@@ -103,15 +105,15 @@
+@@ -103,23 +106,23 @@
    // pre-allocate eigen sovler matrices
    eival_.resize(nens_);
    eivec_.resize(nens_, nens_);
@@ -104,7 +106,30 @@
    util::Timer timer(classname(), "measurementUpdate");
  
    // create the local subset of observations
-@@ -141,10 +143,10 @@
+   Departures_ locvector(this->obspaces_);
+-  locvector.ones();
++  util::ones(locvector);
+   this->obsloc().computeLocalization(i, locvector);
+-  locvector.mask(*(this->invVarR_));
+-  Eigen::VectorXd local_omb_vec = this->omb_.packEigen(locvector);
++  util::mask(locvector, (*(this->invVarR_)));
++  Eigen::VectorXd local_omb_vec = util::packEigen(this->omb_, locvector);
+ 
+   if (local_omb_vec.size() == 0) {
+     // no obs. so no need to update Wa_ and wa_
+@@ -130,9 +133,9 @@
+     // create local Yb
+     Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
+     // create local obs errors
+-    Eigen::VectorXd local_invVarR_vec = this->invVarR_->packEigen(locvector);
++    Eigen::VectorXd local_invVarR_vec = util::packEigen(*(this->invVarR_), locvector);
+     // and apply localization
+-    Eigen::VectorXd localization = locvector.packEigen(locvector);
++    Eigen::VectorXd localization = util::packEigen(locvector, locvector);
+     local_invVarR_vec.array() *= localization.array();
+     computeWeights(local_omb_vec, local_Yb_mat, local_invVarR_vec);
+     applyWeights(bkg_pert, ana_pert, i);
+@@ -141,10 +144,10 @@
  
  // -----------------------------------------------------------------------------
  
@@ -119,7 +144,7 @@
    // compute transformation matrix, save in Wa_, wa_
    // uses C++ eigen interface
    // implements LETKF from Hunt et al. 2007
-@@ -177,15 +179,15 @@
+@@ -177,15 +180,15 @@
  
  // -----------------------------------------------------------------------------
  

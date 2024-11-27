@@ -46,6 +46,7 @@
 #include "oops/interface/ModelAuxControl.h"
 //#include "oops/interface/ObsDataVector.h"
 #include "oops/util/abor1_cpp.h"
+#include "oops/util/ECUtilities.h"
 #include "oops/util/Logger.h"
 
 namespace oops {
@@ -209,8 +210,9 @@ void LocalEnsembleSolver<MODEL>::measurementUpdate
 
 template <typename MODEL>
 Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofX(const StateEnsemble4D_ & ens_xx,
-  size_t iteration, bool readFromDisk, const Model_ & model, const Observations_ & yobs,
-  const ObsAuxCtrls_ & ybias) {
+                                                size_t iteration, bool readFromDisk,
+                                                const Model_ & model, const Observations_ & yobs,
+                                                const ObsAuxCtrls_ & ybias) {
   util::Timer timer(classname(), "computeHofX");
 
   Observations_ yb_mean(obspaces_);
@@ -366,11 +368,12 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
     y_mean_xb.save(conf);
 
     // QC flags and Obs errors are set to that of the H(mean(Xb))
-    R_->save("ObsError");
+//  R_->save("ObsError");
   }
   // set inverse variances
   invVarR_.reset(new Departures_(obspaces_));
-  R_->inverseVariance(*invVarR_);
+  util::ones(*invVarR_);
+  invVarR_.reset(R_->inverseMultiply(*invVarR_));
 
   // calculate H(x) ensemble mean
   Observations_ yb_mean(obsens.mean());
@@ -389,8 +392,8 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
         Yb_[iens][jj] -= yb_mean[jj];
       }
     }
-    invVarR_->mask(Yb_[iens]);
-    Yb_[iens].mask(*invVarR_);
+    util::mask(*invVarR_, Yb_[iens]);
+    util::mask(Yb_[iens], *invVarR_);
   }
 
   // calculate obs departures and mask with qc flag
@@ -398,8 +401,8 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
     omb_[jj] = yobs[jj];
     omb_[jj] -= yb_mean[jj];
   }
-  invVarR_->mask(omb_);
-  omb_.mask(*invVarR_);
+  util::mask(*invVarR_, omb_);
+  util::mask(omb_, *invVarR_);
 
   // return mean H(x)
   return yb_mean;
@@ -506,7 +509,8 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
   }
   // set inverse variances
   invVarR_.reset(new Departures_(obspaces_));
-  R_->inverseVariance(*invVarR_);
+  util::ones(*invVarR_);
+  invVarR_.reset(R_->inverseMultiply(*invVarR_));
 
   // calculate H(x) ensemble mean
   Observations_ yb_mean(obsens.mean());
@@ -523,8 +527,8 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
       Yb_[iens][jj] = obsens[iens][jj];
       Yb_[iens][jj] -= yb_mean[jj];
     }
-    invVarR_->mask(Yb_[iens]);
-    Yb_[iens].mask(*invVarR_);
+    util::mask(*invVarR_, Yb_[iens]);
+    util::mask(Yb_[iens], *invVarR_);
   }
 
   // calculate obs departures and mask with qc flag
@@ -532,8 +536,8 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
     omb_[jj] = yobs[jj];
     omb_[jj] -= yb_mean[jj];
   }
-  invVarR_->mask(omb_);
-  omb_.mask(*invVarR_);
+  util::mask(*invVarR_, omb_);
+  util::mask(omb_, *invVarR_);
 
   // return mean H(x)
   return yb_mean;

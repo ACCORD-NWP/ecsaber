@@ -1,0 +1,33 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/VariableChange.h.tmp	2024-11-27 13:03:52.713796606 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/VariableChange.h	2024-11-27 12:55:40.431473878 +0100
+@@ -12,7 +12,9 @@
+ #include <string>
+ 
+ #include "eckit/config/Configuration.h"
+-#include "oops/base/State.h"
++#include "oops/interface/Variables.h"
++#include "oops/interface/State.h"
++#include "oops/util/ECUtilities.h"
+ #include "oops/util/Logger.h"
+ #include "oops/util/ObjectCounter.h"
+ #include "oops/util/parameters/GenericParameters.h"
+@@ -97,7 +99,8 @@
+ void VariableChange<MODEL>::changeVar(State_ & xx, const JediVariables & vars) const {
+   Log::trace() << "VariableChange<MODEL>::changeVar starting" << std::endl;
+   util::Timer timer(classname(), "changeVar");
+-  chvar_->changeVar(xx.state(), vars);
++  Variables<MODEL> varsT(util::templatedVarsConf(vars));
++  chvar_->changeVar(xx.state(), varsT.variables());
+   Log::trace() << "VariableChange<MODEL>::changeVar done" << std::endl;
+ }
+ 
+@@ -107,7 +110,8 @@
+ void VariableChange<MODEL>::changeVarInverse(State_ & xx, const JediVariables & vars) const {
+   Log::trace() << "VariableChange<MODEL>::changeVarInverse starting" << std::endl;
+   util::Timer timer(classname(), "changeVarInverse");
+-  chvar_->changeVarInverse(xx.state(), vars);
++  Variables<MODEL> varsT(util::templatedVarsConf(vars));
++  chvar_->changeVarInverse(xx.state(), varsT.variables());
+   Log::trace() << "VariableChange<MODEL>::changeVarInverse done" << std::endl;
+ }
+ 

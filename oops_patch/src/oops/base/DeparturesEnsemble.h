@@ -14,6 +14,7 @@
 
 #include "oops/base/Departures.h"
 #include "oops/base/ObservationSpaces.h"
+#include "oops/util/ECUtilities.h"
 #include "oops/util/Logger.h"
 
 namespace oops {
@@ -57,12 +58,12 @@ DeparturesEnsemble<MODEL>::DeparturesEnsemble(const ObsSpaces_ & obsdb, const si
 
 template<typename MODEL>
 Eigen::MatrixXd DeparturesEnsemble<MODEL>::packEigen(const Departures_ & mask) const {
-  std::size_t myNobs = ensemblePerturbs_[0].packEigenSize(mask);
+  std::size_t myNobs = util::packEigenSize(ensemblePerturbs_[0], mask);
   std::size_t myNens = ensemblePerturbs_.size();
 
   Eigen::MatrixXd depEns(myNens, myNobs);
   for (std::size_t iens = 0; iens < myNens; ++iens) {
-    depEns.row(iens) = ensemblePerturbs_[iens].packEigen(mask);
+    depEns.row(iens) = util::packEigen(ensemblePerturbs_[iens], mask);
   }
   Log::trace() << "DeparturesEnsemble::packEigen() completed" << std::endl;
   return depEns;

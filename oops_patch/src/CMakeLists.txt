@@ -47,6 +47,7 @@ oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
 oops/interface/GeometryIterator.h
 oops/interface/ModelData.h
+oops/interface/VariableChange.h
 oops/mpi/mpi.cc
 oops/mpi/mpi.h
 oops/runs/ConvertState.h
@@ -73,6 +74,8 @@ oops/util/FunctionSpaceHelpers.h
 oops/util/gatherPrint.h
 oops/util/IntSetParser.cc
 oops/util/IntSetParser.h
+oops/util/missingValues.cc
+oops/util/missingValues.h
 oops/util/NamedEnumerator.h
 oops/util/parameters/ConfigurationParameter.cc
 oops/util/parameters/ConfigurationParameter.h
@@ -144,8 +147,6 @@ util/Duration.h
 util/formats.h
 util/kinds.F90
 util/Logger.h
-util/missingValues.cc
-util/missingValues.h
 util/ObjectCounter.h
 util/Printable.h
 util/Timer.h

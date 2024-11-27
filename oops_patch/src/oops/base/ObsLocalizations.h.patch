@@ -1,12 +1,12 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/ObsLocalizations.h.tmp	2024-11-21 11:22:57.107426151 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/ObsLocalizations.h	2024-11-20 14:41:00.795851266 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/ObsLocalizations.h.tmp.bak	2024-11-27 12:20:20.835073184 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/ObsLocalizations.h	2024-11-27 12:24:22.605354378 +0100
 @@ -17,7 +17,8 @@
  
  #include "oops/base/Departures.h"
  #include "oops/base/ObsLocalizationBase.h"
 -#include "oops/base/ObsSpaces.h"
 +#include "oops/base/ObservationSpaces.h"
-+
++#include "oops/util/ECUtilities.h"
  #include "oops/util/Printable.h"
  
  namespace oops {
@@ -76,7 +76,8 @@
 +void ObsLocalizations<MODEL>::computeLocalization(const GeometryIterator__ & point,
 +                                                  Observations_ & locfactor) const {
    //  initialize locafactors to ones and then update them in the loop bellow
-   locfactor.ones();
+-  locfactor.ones();
++  util::ones(locfactor);
    for (size_t jj = 0; jj < local_.size(); ++jj) {
      for (size_t oli = 0; oli < local_[jj].size(); ++oli) {
 -      if (local_[jj][oli]) local_[jj][oli]->computeLocalization(point, locfactor[jj]);

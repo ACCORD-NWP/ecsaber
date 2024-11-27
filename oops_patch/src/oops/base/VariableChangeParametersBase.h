@@ -19,8 +19,8 @@ namespace oops {
 class VariableChangeParametersBase : public Parameters {
   OOPS_ABSTRACT_PARAMETERS(VariableChangeParametersBase, Parameters)
  public:
-  OptionalParameter<Variables> inputVariables{"input variables", this};
-  OptionalParameter<Variables> outputVariables{"output variables", this};
+  OptionalParameter<JediVariables> inputVariables{"input variables", this};
+  OptionalParameter<JediVariables> outputVariables{"output variables", this};
 };
 
 }  // namespace oops
