@@ -186,12 +186,12 @@ oops/assimilation/RitzPairs.h
 oops/assimilation/RPLanczosEVILMinimizer.h
 oops/assimilation/SQRTBPLanczosEVILMinimizer.h
 oops/assimilation/SQRTPLanczosEVILMinimizer.h
-oops/runs/AssimEnsemble.h
+oops/runs/AssimEnsemblePatched.h
 oops/runs/BGOS.h
 oops/runs/EnsembleVariance.h
 oops/runs/EvilUpdate_cy46.h
 oops/runs/EvilUpdate.h
-oops/runs/MakeObsEnsemble.h
+oops/runs/MakeObsPatched.h
 oops/runs/SyntheticData_cy46.h
 oops/runs/SyntheticData.h
 oops/util/ECUtilities.cc
