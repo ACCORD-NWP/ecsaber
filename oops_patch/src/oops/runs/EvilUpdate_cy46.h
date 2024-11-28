@@ -24,7 +24,7 @@
 #include "oops/assimilation/HtMatrix.h"
 #include "oops/assimilation/RinvMatrix.h"
 #include "oops/assimilation/instantiateCostFactory.h"
-#include "oops/assimilation/instantiateEvilMinFactory.h"
+#include "oops/assimilation/instantiateEvilMinFactory_cy46.h"
 #include "oops/base/Departures.h"
 #include "oops/base/Ensemble.h"
 #include "oops/base/Increment4D.h"
@@ -189,7 +189,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     // Setup ensemble of backgrounds perturbations
     eckit::LocalConfiguration ensConfig(fullConfig, "ensemble of backgrounds");
     size_t nens = ensConfig.getInt("members");
-    expandEnsembleTemplate(ensConfig, nens);
+    util::expandEnsembleTemplate(ensConfig, nens);
     Ensemble_ Xb(xb.validTime(), ensConfig);
     if (filter == "R") {
       // Randomize ensemble of backgrounds perturbations
@@ -387,7 +387,7 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     // Compute and write ensemble of analyses
     Log::info() << "Compute and write ensemble of analyses" << std::endl;
     eckit::LocalConfiguration xaPertConfTemplate(fullConfig, "ensemble of analyses");
-    expandEnsembleTemplate(xaPertConfTemplate, nens);
+    util::expandEnsembleTemplate(xaPertConfTemplate, nens);
     std::vector<eckit::LocalConfiguration> xaPertConfs =
       xaPertConfTemplate.getSubConfigurations("state");
     for (size_t ie = 0; ie < nens; ++ie) {

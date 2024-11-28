@@ -11,14 +11,14 @@
 
 #include "oops/assimilation/DRPLanczosEVILMinimizer_cy46.h"
 
-namespace saber {
+namespace oops {
 
 // -----------------------------------------------------------------------------
 
-template <typename MODEL> void instantiateMinFactory() {
+template <typename MODEL> void instantiateEvilMinFactory() {
   static MinMaker<MODEL, DRPLanczosEVILMinimizer<MODEL> > makerDRPLanczosEVIL_("DRPLanczosEVIL");
 }
 
 // -----------------------------------------------------------------------------
 
-}  // namespace saber
+}  // namespace oops
