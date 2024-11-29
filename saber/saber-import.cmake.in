@@ -11,7 +11,7 @@ if(NOT MPI_Fortran_FOUND)
     find_dependency(MPI REQUIRED COMPONENTS Fortran)
 endif()
 
-if(NOT NetCDF_Fortran_FOUND)
+if(NOT (NetCDF_C_FOUND AND NetCDF_Fortran_FOUND))
     find_dependency(NetCDF REQUIRED COMPONENTS Fortran)
 endif()
 
