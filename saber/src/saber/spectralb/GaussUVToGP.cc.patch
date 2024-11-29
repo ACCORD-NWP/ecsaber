@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/spectralb/GaussUVToGP.cc.tmp	2024-11-29 15:35:50.393555444 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/spectralb/GaussUVToGP.cc	2024-11-29 11:25:18.894274637 +0100
+@@ -362,7 +362,7 @@
+     oops::Log::error() << "Only Gauss grid on StructuredColumns FunctionSpace"
+                           " or cubed-sphere grid on NodeColumns FunctionSpace"
+                           " are currently handled." << std::endl;
+-    throw eckit::FunctionalityNotSupported(error_message, Here());
++    throw eckit::NotImplemented(error_message, Here());
+   }
+ 
+   // Populate field "s"

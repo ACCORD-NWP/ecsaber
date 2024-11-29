@@ -1,17 +1,15 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp.bak	2024-11-05 09:32:22.829400274 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-11-05 09:40:30.474699081 +0100
-@@ -3,10 +3,6 @@
- 
- include(CMakeFindDependencyMacro)
- 
--if(@jedicmake_FOUND@ AND NOT jedicmake_FOUND)
--    find_dependency(jedicmake REQUIRED)
--endif()
--
- if(@OPENMP@)
-     find_dependency(OpenMP REQUIRED COMPONENTS Fortran)
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp.bak	2024-11-29 15:35:54.154571501 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2024-11-29 15:37:01.293858425 +0100
+@@ -15,7 +15,7 @@
+     find_dependency(MPI REQUIRED COMPONENTS Fortran)
  endif()
-@@ -50,14 +46,18 @@
+ 
+-if(NOT NetCDF_Fortran_FOUND)
++if(NOT (NetCDF_C_FOUND AND NetCDF_Fortran_FOUND))
+     find_dependency(NetCDF REQUIRED COMPONENTS Fortran)
+ endif()
+ 
+@@ -50,14 +50,18 @@
      find_dependency(oops)
  endif()
  
