@@ -3,6 +3,10 @@
 
 include(CMakeFindDependencyMacro)
 
+if(@jedicmake_FOUND@ AND NOT jedicmake_FOUND)
+    find_dependency(jedicmake REQUIRED)
+endif()
+
 if(@OPENMP@)
     find_dependency(OpenMP REQUIRED COMPONENTS Fortran)
 endif()
@@ -11,7 +15,7 @@ if(NOT MPI_Fortran_FOUND)
     find_dependency(MPI REQUIRED COMPONENTS Fortran)
 endif()
 
-if(NOT NetCDF_Fortran_FOUND)
+if(NOT (NetCDF_C_FOUND AND NetCDF_Fortran_FOUND))
     find_dependency(NetCDF REQUIRED COMPONENTS Fortran)
 endif()
 

@@ -2,7 +2,12 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 list( APPEND oops_jedi_src_files
+oops/assimilation/instantiateLocalEnsembleSolverFactory.h
+oops/assimilation/LETKFSolver.h
+oops/assimilation/LocalEnsembleSolver.h
+oops/assimilation/LocalEnsembleSolverParameters.h
 oops/base/DataSetBase.h
+oops/base/DeparturesEnsemble.h
 oops/base/FieldSet3D.cc
 oops/base/FieldSet3D.h
 oops/base/FieldSet4D.cc
@@ -11,8 +16,16 @@ oops/base/FieldSets.cc
 oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
+oops/base/IncrementEnsemble4D.h
+oops/base/LocalIncrement.cc
+oops/base/LocalIncrement.h
+oops/base/ObsEnsemble.h
+oops/base/ObsLocalizationBase.h
+oops/base/ObsLocalizationParametersBase.h
+oops/base/ObsLocalizations.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
+oops/base/StateEnsemble4D.h
 oops/base/Variable.cc
 oops/base/Variable.h
 oops/base/Variables.cc
@@ -28,12 +41,17 @@ oops/generic/GlobalInterpolator.cc
 oops/generic/GlobalInterpolator.h
 oops/generic/LocalInterpolatorBase.cc
 oops/generic/LocalInterpolatorBase.h
+oops/generic/PseudoLinearModelIncrement4D.h
+oops/generic/PseudoModelState4D.h
 oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
+oops/interface/GeometryIterator.h
 oops/interface/ModelData.h
+oops/interface/VariableChange.h
 oops/mpi/mpi.cc
 oops/mpi/mpi.h
 oops/runs/ConvertState.h
+oops/runs/LocalEnsembleDA.h
 oops/util/AnyOf.h
 oops/util/AssociativeContainers.h
 oops/util/AtlasArrayUtil.cc
@@ -156,6 +174,29 @@ foreach( src_file ${util-patch_src_files} )
                      ${CMAKE_CURRENT_SOURCE_DIR}/${src_file} )
     list( APPEND oops_patch_src_files ${src_file} )
 endforeach()
+
+list( APPEND oops_patch_src_files
+oops/assimilation/DRPLanczosEVILMinimizer_cy46.h
+oops/assimilation/DRPLanczosEVILMinimizer.h
+oops/assimilation/instantiateEvilMinFactory_cy46.h
+oops/assimilation/instantiateEvilMinFactory.h
+oops/assimilation/PLanczosEVILMinimizer.h
+oops/assimilation/RitzPairs_cy46.h
+oops/assimilation/RitzPairs.h
+oops/assimilation/RPLanczosEVILMinimizer.h
+oops/assimilation/SQRTBPLanczosEVILMinimizer.h
+oops/assimilation/SQRTPLanczosEVILMinimizer.h
+oops/runs/AssimEnsemblePatched.h
+oops/runs/BGOS.h
+oops/runs/EnsembleVariance.h
+oops/runs/EvilUpdate_cy46.h
+oops/runs/EvilUpdate.h
+oops/runs/MakeObsPatched.h
+oops/runs/SyntheticData_cy46.h
+oops/runs/SyntheticData.h
+oops/util/ECUtilities.cc
+oops/util/ECUtilities.h
+)
 
 ecbuild_add_library( TARGET          oops_patch
                      SOURCES         ${oops_patch_src_files}

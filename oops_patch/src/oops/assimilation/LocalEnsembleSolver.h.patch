@@ -1,0 +1,641 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h.tmp.bak	2024-11-27 12:20:20.575071798 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h	2024-11-27 12:22:14.696678245 +0100
+@@ -21,54 +21,59 @@
+ #include "oops/assimilation/LocalEnsembleSolverParameters.h"
+ #include "oops/base/Departures.h"
+ #include "oops/base/DeparturesEnsemble.h"
+-#include "oops/base/Geometry.h"
++#include "oops/interface/Geometry.h"
+ #include "oops/base/IncrementEnsemble4D.h"
+-#include "oops/base/LinearModel.h"
+-#include "oops/base/Model.h"
++#include "oops/interface/LinearModel.h"
++#include "oops/interface/Model.h"
+ #include "oops/base/ObsAuxControls.h"
++#include "oops/base/ObsAuxIncrements.h"
+ #include "oops/base/ObsEnsemble.h"
+ #include "oops/base/ObsErrors.h"
+ #include "oops/base/Observations.h"
+-#include "oops/base/Observers.h"
+-#include "oops/base/ObserversTLAD.h"
+ #include "oops/base/ObsLocalizations.h"
+-#include "oops/base/ObsSpaces.h"
+-#include "oops/base/State.h"
++#include "oops/base/ObservationSpaces.h"
++#include "oops/base/ObsOperators.h"
++#include "oops/base/ObsAuxControls.h"
++#include "oops/base/Observer.h"
++#include "oops/interface/State.h"
+ #include "oops/base/State4D.h"
+ #include "oops/base/StateEnsemble4D.h"
+ #include "oops/base/TrajectorySaver.h"
+-#include "oops/generic/PseudoLinearModelIncrement4D.h"
++#include "oops/base/Variables.h"
++//#include "oops/generic/PseudoLinearModelIncrement4D.h"
+ #include "oops/generic/PseudoModelState4D.h"
+ #include "oops/interface/GeometryIterator.h"
+ #include "oops/interface/ModelAuxControl.h"
+-#include "oops/interface/ObsDataVector.h"
++//#include "oops/interface/ObsDataVector.h"
+ #include "oops/util/abor1_cpp.h"
++#include "oops/util/ECUtilities.h"
+ #include "oops/util/Logger.h"
+ 
+ namespace oops {
+   class JediVariables;
+ 
+ /// \brief Base class for LETKF-type solvers
+-template <typename MODEL, typename OBS>
++template <typename MODEL>
+ class LocalEnsembleSolver {
+-  typedef Observers<MODEL, OBS>       Observers_;
+-  typedef ObserversTLAD<MODEL, OBS>   ObserversTLAD_;
+-  typedef Departures<OBS>             Departures_;
+-  typedef DeparturesEnsemble<OBS>     DeparturesEnsemble_;
++  typedef Departures<MODEL>           Departures_;
++  typedef DeparturesEnsemble<MODEL>   DeparturesEnsemble_;
+   typedef Geometry<MODEL>             Geometry_;
+   typedef GeometryIterator<MODEL>     GeometryIterator_;
++  typedef typename MODEL::GeometryIterator  GeometryIterator__;
+   typedef IncrementEnsemble4D<MODEL>  IncrementEnsemble4D_;
+-  typedef ObsAuxControls<OBS>         ObsAux_;
+-  typedef ObsAuxIncrements<OBS>       ObsAuxInc_;
+-  typedef ObsDataVector<OBS, int>     ObsDataInt_;
+-  typedef ObsEnsemble<OBS>            ObsEnsemble_;
+-  typedef ObsErrors<OBS>              ObsErrors_;
+-  typedef Observations<OBS>           Observations_;
+-  typedef ObsLocalizations<MODEL, OBS> ObsLocalizations_;
+-  typedef ObsSpaces<OBS>              ObsSpaces_;
++  typedef ObsAuxControls<MODEL>       ObsAux_;
++  typedef ObsAuxIncrements<MODEL>     ObsAuxInc_;
++//  typedef ObsDataVector<OBS, int>     ObsDataInt_;
++  typedef ObsEnsemble<MODEL>          ObsEnsemble_;
++  typedef ObsErrors<MODEL>            ObsErrors_;
++  typedef Observations<MODEL>         Observations_;
++  typedef ObsLocalizations<MODEL>     ObsLocalizations_;
++  typedef ObservationSpaces<MODEL>    ObsSpaces_;
++  typedef ObsOperators<MODEL>         ObsOperators_;
++  typedef ObsAuxControls<MODEL>       ObsAuxCtrls_;
+   typedef StateEnsemble4D<MODEL>      StateEnsemble4D_;
+   typedef PseudoModelState4D<MODEL>   PseudoModel_;
+-  typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
++//  typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
+   typedef State<MODEL>                State_;
+   typedef State4D<MODEL>              State4D_;
+   typedef Increment<MODEL>            Increment_;
+@@ -77,8 +82,6 @@
+   typedef Model<MODEL>                Model_;
+   typedef ModelAuxControl<MODEL>      ModelAux_;
+   typedef ModelAuxIncrement<MODEL>    ModelAuxInc_;
+-  typedef ObsDataVector<OBS, int>     ObsData_;
+-  typedef std::vector<std::shared_ptr<ObsData_>> ObsDataVec_;
+ 
+  public:
+   static const std::string classname() {return "oops::LocalEnsembleSolver";}
+@@ -93,31 +96,35 @@
+ 
+   /// computes ensemble H(\p xx), returns mean H(\p xx), saves as hofx \p iteration
+   virtual Observations_ computeHofX(const StateEnsemble4D_ & xx, size_t iteration,
+-                      bool readFromDisk);
++                      bool readFromDisk, const Model_ & model, const Observations_ & yobs,
++                      const ObsAuxCtrls_ & ybias);
+   Observations_ computeHofXLinear(const StateEnsemble4D_ & xx, size_t iteration,
+-                      bool readFromDisk);
++                      bool readFromDisk, const Model_ & model, const Observations_ & yobs,
++                      const ObsAuxCtrls_ & ybias);
+   Observations_ computeHofXNonLinear(const StateEnsemble4D_ & xx, size_t iteration,
+-                      bool readFromDisk);
++                      bool readFromDisk, const Model_ & model, const Observations_ & yobs,
++                      const ObsAuxCtrls_ & ybias);
+ 
+   /// update background ensemble \p bg to analysis ensemble \p for all points on this PE
+   virtual void measurementUpdate(const IncrementEnsemble4D_ & bg, IncrementEnsemble4D_ & an);
+ 
+   /// update background ensemble \p bg to analysis ensemble \p an at a grid point location \p i
+   virtual void measurementUpdate(const IncrementEnsemble4D_ & bg,
+-                                 const GeometryIterator_ & i, IncrementEnsemble4D_ & an) = 0;
++                                 const GeometryIterator__ & i, IncrementEnsemble4D_ & an) = 0;
+ 
+   /// copy \p an[\p i] = \p bg[\p i] (e.g. when there are no local observations to update state)
+   virtual void copyLocalIncrement(const IncrementEnsemble4D_ & bg,
+-                                  const GeometryIterator_ & i, IncrementEnsemble4D_ & an) const;
++                                  const GeometryIterator__ & i, IncrementEnsemble4D_ & an) const;
+ 
+   /// apply posterior inflation to a local ensemble
+   void posteriorInflation(const Eigen::MatrixXd & Xb, Eigen::MatrixXd & Xa) const;
+ 
+   /// compute H(x) based on 4D state \p xx and put the result into \p yy. Also sets up
+   /// R_ based on the QC filters run during H(x)
+-  void computeHofX4DLinear(const eckit::Configuration &, const StateEnsemble4D_ &, Observations_ &,
+-                           ObsEnsemble_ &);
+-  void computeHofX4DNonLinear(const eckit::Configuration &, const State4D_ &, Observations_ &);
++  void computeHofX4DLinear(const eckit::Configuration &, const Model_ &, const StateEnsemble4D_ &,
++                           Observations_ &, ObsEnsemble_ &);
++  void computeHofX4DNonLinear(const eckit::Configuration &, const Model_ &, const State4D_ &,
++                              const ObsAuxCtrls_ &, Observations_ &);
+   /// accessor to obs localizations
+   const ObsLocalizations_ & obsloc() const {return obsloc_;}
+   bool useLinearObserver() { return useLinearObserver_; }
+@@ -142,13 +149,13 @@
+  private:
+   bool useLinearObserver_;
+   ObsLocalizations_ obsloc_;          ///< observation space localization
+-  std::vector<ObsDataInt_> qcflags_;  ///< quality control flags
++//  std::vector<ObsDataInt_> qcflags_;  ///< quality control flags
+ };
+ 
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-LocalEnsembleSolver<MODEL, OBS>::LocalEnsembleSolver(ObsSpaces_ & obspaces,
++template <typename MODEL>
++LocalEnsembleSolver<MODEL>::LocalEnsembleSolver(ObsSpaces_ & obspaces,
+                                         const Geometry_ & geometry,
+                                         const eckit::Configuration & config, size_t nens,
+                                         const State4D_ & xbmean, const JediVariables & incvars)
+@@ -159,7 +166,7 @@
+     xbmean_(xbmean),
+     incvars_(incvars),
+     obsconf_(config, "observations"),
+-    observersconf_(obsconf_, "observers"),
++    observersconf_(obsconf_, "ObsTypes"),
+     obsloc_(observersconf_, obspaces_) {
+   // initialize and print options
+ 
+@@ -182,34 +189,38 @@
+     Log::info() << "RTPS inflation is not applied rtpsCoeff is out of bounds (0,1], rtpsCoeff="
+                 << inflopt.rtps << std::endl;
+   }
++/*
+   for (size_t jj = 0; jj < obspaces_.size(); ++jj) {
+-    ObsDataInt_ qcflags(obspaces_[jj], obspaces_[jj].obsvariables());
++    ObsVector_ qcflags(obspaces_[jj], obspaces_[jj].obsvariables());
+     qcflags_.push_back(qcflags);
+   }
++*/
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-void LocalEnsembleSolver<MODEL, OBS>::measurementUpdate
++template <typename MODEL>
++void LocalEnsembleSolver<MODEL>::measurementUpdate
+         (const IncrementEnsemble4D_ & bg, IncrementEnsemble4D_ & an) {
+-    for (GeometryIterator_ i = geometry_.begin(); i != geometry_.end(); ++i) {
++    for (auto i = geometry_.geometry().begin(); i != geometry_.geometry().end(); ++i) {
+       measurementUpdate(bg, i, an);
+     }
+ }
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-Observations<OBS> LocalEnsembleSolver<MODEL, OBS>::computeHofX(const StateEnsemble4D_ & ens_xx,
+-                                                   size_t iteration, bool readFromDisk) {
++template <typename MODEL>
++Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofX(const StateEnsemble4D_ & ens_xx,
++                                                size_t iteration, bool readFromDisk,
++                                                const Model_ & model, const Observations_ & yobs,
++                                                const ObsAuxCtrls_ & ybias) {
+   util::Timer timer(classname(), "computeHofX");
+ 
+   Observations_ yb_mean(obspaces_);
+ 
+   if (useLinearObserver()) {
+-    yb_mean = computeHofXLinear(ens_xx, iteration, readFromDisk);
++    yb_mean = computeHofXLinear(ens_xx, iteration, readFromDisk, model, yobs, ybias);
+   } else {
+-    yb_mean = computeHofXNonLinear(ens_xx, iteration, readFromDisk);
++    yb_mean = computeHofXNonLinear(ens_xx, iteration, readFromDisk, model, yobs, ybias);
+   }
+ 
+   // return mean H(x)
+@@ -217,18 +228,20 @@
+ }
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-void LocalEnsembleSolver<MODEL, OBS>::computeHofX4DLinear(const eckit::Configuration & config,
+-                                                          const StateEnsemble4D_ & xx,
+-                                                          Observations_ & yy_mean,
+-                                                          ObsEnsemble_ & yy) {
+-  ModelAux_ moderr(geometry_, eckit::LocalConfiguration());
++template <typename MODEL>
++void LocalEnsembleSolver<MODEL>::computeHofX4DLinear(const eckit::Configuration & config,
++                                                     const Model_ & model,
++                                                     const StateEnsemble4D_ & xx,
++                                                     Observations_ & yy_mean,
++                                                     ObsEnsemble_ & yy) {
++/*
++  ModelAux_ moderr(geometry_, model, eckit::LocalConfiguration());
+   ModelAuxInc_  moderrinc(geometry_, eckit::LocalConfiguration());
+-  ObsAux_  obsaux(obspaces_, observersconf_);
+-  ObsAuxInc_  obsauxinc(obspaces_, observersconf_);
++  ObsAux_  obsaux(obspaces_, obsconf_);
++  ObsAuxInc_  obsauxinc(obspaces_, obsconf_);
+ 
+   // compute forecast length from State4D times
+-  const std::vector<util::DateTime> times = xx[0].validTimes();
++  const std::vector<util::DateTime> times = xx[0].times();
+   const util::Duration flength = times[times.size()-1] - times[0];
+   // default_tstep = 2*observation window is passed to PseudoModel as the default
+   // pseudomodel time step. It is only used when State4D has a single state, to enable
+@@ -237,7 +250,7 @@
+   // ( max(winbgn, xx.time - tstep/2); min(winend, xx.time + tstep/2) ] are
+   // processed in H(x).
+   const util::Duration default_tstep = (obspaces_.windowEnd() - obspaces_.windowStart()) * 2;
+-  R_.reset(new ObsErrors_(observersconf_, obspaces_));
++  R_.reset(new ObsErrors_(obspaces_));
+ 
+   // Setup pseudo model to run on ensemble mean
+   State_ init_xx = xbmean_[0];
+@@ -287,15 +300,19 @@
+     yy[jens] = yy_mean;
+     yy[jens] += Yb_[jens];
+   }
++*/
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-Observations<OBS> LocalEnsembleSolver<MODEL, OBS>::computeHofXLinear(
++template <typename MODEL>
++Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
+                                                    const StateEnsemble4D_ & ens_xx,
+                                                    size_t iteration,
+-                                                   bool readFromDisk) {
++                                                   bool readFromDisk,
++                                                   const Model_ & model,
++                                                   const Observations_ & yobs,
++                                                   const ObsAuxCtrls_ & ybias) {
+   util::Timer timer(classname(), "computeHofXLinear");
+ 
+   ASSERT(ens_xx.size() == Yb_.size());
+@@ -307,11 +324,15 @@
+   if (readFromDisk) {
+     // read hofx from disk
+     for (size_t jj = 0; jj < nens; ++jj) {
+-      obsens[jj].read("hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
++      eckit::LocalConfiguration conf;
++      conf.set("ObsValue", "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
++      obsens[jj].read(conf);
+       Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
+     }
+-    R_.reset(new ObsErrors_(observersconf_, obspaces_));
+-    y_mean_xb.read("hofx_y_mean_xb"+std::to_string(iteration));
++    R_.reset(new ObsErrors_(obspaces_));
++    eckit::LocalConfiguration conf;
++    conf.set("ObsValue", "hofx_y_mean_xb"+std::to_string(iteration));
++    y_mean_xb.read(conf);
+   } else {
+     // compute and save H(x)
+ 
+@@ -329,10 +350,12 @@
+     config.set("save obs errors", false);
+     config.set("iteration", std::to_string(iteration));
+ 
+-    computeHofX4DLinear(config, ens_xx, y_mean_xb, obsens);
++    computeHofX4DLinear(config, model, ens_xx, y_mean_xb, obsens);
+     for (size_t jj = 0; jj < nens; ++jj) {
+       Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
+-      obsens[jj].save("hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
++      eckit::LocalConfiguration conf;
++      conf.set("ObsValue", "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
++      obsens[jj].save(conf);
+     }
+ 
+     // Compute H(mean(Xb))
+@@ -340,13 +363,17 @@
+     config.set("save qc", true);
+     config.set("save obs errors", true);
+ 
+-    y_mean_xb.save("hofx_y_mean_xb"+std::to_string(iteration));
++    eckit::LocalConfiguration conf;
++    conf.set("ObsValue", "hofx_y_mean_xb"+std::to_string(iteration));
++    y_mean_xb.save(conf);
+ 
+     // QC flags and Obs errors are set to that of the H(mean(Xb))
+-    R_->save("ObsError");
++//  R_->save("ObsError");
+   }
+   // set inverse variances
+-  invVarR_.reset(new Departures_(R_->inverseVariance()));
++  invVarR_.reset(new Departures_(obspaces_));
++  util::ones(*invVarR_);
++  invVarR_.reset(R_->inverseMultiply(*invVarR_));
+ 
+   // calculate H(x) ensemble mean
+   Observations_ yb_mean(obsens.mean());
+@@ -360,28 +387,36 @@
+   // mask H(x) ensemble perturbations
+   for (size_t iens = 0; iens < nens; ++iens) {
+     if (readFromDisk) {
+-      Yb_[iens] = obsens[iens] - yb_mean;
++      for (size_t jj = 0; jj < Yb_[iens].size(); ++jj) {
++        Yb_[iens][jj] = obsens[iens][jj];
++        Yb_[iens][jj] -= yb_mean[jj];
++      }
+     }
+-    invVarR_->mask(Yb_[iens]);
+-    Yb_[iens].mask(*invVarR_);
++    util::mask(*invVarR_, Yb_[iens]);
++    util::mask(Yb_[iens], *invVarR_);
+   }
+ 
+   // calculate obs departures and mask with qc flag
+-  Observations_ yobs(obspaces_, "ObsValue");
+-  omb_ = yobs - yb_mean;
+-  invVarR_->mask(omb_);
+-  omb_.mask(*invVarR_);
++  for (size_t jj = 0; jj < omb_.size(); ++jj) {
++    omb_[jj] = yobs[jj];
++    omb_[jj] -= yb_mean[jj];
++  }
++  util::mask(*invVarR_, omb_);
++  util::mask(omb_, *invVarR_);
+ 
+   // return mean H(x)
+   return yb_mean;
+ }
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-void LocalEnsembleSolver<MODEL, OBS>::computeHofX4DNonLinear(const eckit::Configuration & config,
+-                                                    const State4D_ & xx, Observations_ & yy) {
++template <typename MODEL>
++void LocalEnsembleSolver<MODEL>::computeHofX4DNonLinear(const eckit::Configuration & config,
++                                                        const Model_ & model,
++                                                        const State4D_ & xx,
++                                                        const ObsAuxCtrls_ & ybias,
++                                                        Observations_ & yy) {
+   // compute forecast length from State4D times
+-  const std::vector<util::DateTime> times = xx.validTimes();
++  const std::vector<util::DateTime> times = xx.times();
+   const util::Duration flength = times[times.size()-1] - times[0];
+   // default_tstep = 2*observation window is passed to PseudoModel as the default
+   // pseudomodel time step. It is only used when State4D has a single state, to enable
+@@ -391,31 +426,30 @@
+   // processed in H(x).
+   const util::Duration default_tstep = (obspaces_.windowEnd() - obspaces_.windowStart()) * 2;
+   // Setup PseudoModelState4D
+-  std::unique_ptr<PseudoModel_> pseudomodel(new PseudoModel_(xx, default_tstep));
+-  const Model_ model(std::move(pseudomodel));
+-  // Setup model and obs biases; obs errors
+-  R_.reset(new ObsErrors_(observersconf_, obspaces_));
++  PseudoModel_ pseudomodel(xx, default_tstep);
+   // Setup and run the model forecast with observers
+   State_ init_xx = xx[0];
+   PostProcessor<State_> post;
+-  Observers_ hofx(obspaces_, obsconf_);
+-  ModelAux_ moderr(geometry_, eckit::LocalConfiguration());
++  ObsOperators_ hop(obspaces_);
++  ModelAux_ moderr(geometry_, model, eckit::LocalConfiguration());
+   ModelAuxInc_  moderrinc(geometry_, eckit::LocalConfiguration());
+-  ObsAux_  obsaux(obspaces_, observersconf_);
+-  ObsAuxInc_  obsauxinc(obspaces_, observersconf_);
+-
+-  hofx.initialize(geometry_, obsaux, *R_, post, config);
+-  model.forecast(init_xx, moderr, flength, post);
+-  hofx.finalize(yy, qcflags_);
++  std::shared_ptr<Observer<MODEL, State_> > pobs(
++    new Observer<MODEL, State_>(obspaces_, hop, ybias));
++  post.enrollProcessor(pobs);
++  pseudomodel.forecast(init_xx, moderr, flength, post);
++  yy = *pobs->release();
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-Observations<OBS> LocalEnsembleSolver<MODEL, OBS>::computeHofXNonLinear(
++template <typename MODEL>
++Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
+                                                    const StateEnsemble4D_ & ens_xx,
+                                                    size_t iteration,
+-                                                   bool readFromDisk) {
++                                                   bool readFromDisk,
++                                                   const Model_ & model,
++                                                   const Observations_ & yobs,
++                                                   const ObsAuxCtrls_ & ybias) {
+   util::Timer timer(classname(), "computeHofXNonLinear");
+ 
+   ASSERT(ens_xx.size() == Yb_.size());
+@@ -427,11 +461,15 @@
+   if (readFromDisk) {
+     // read hofx from disk
+     for (size_t jj = 0; jj < nens; ++jj) {
+-      obsens[jj].read("hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
++      eckit::LocalConfiguration conf;
++      conf.set("ObsValue", "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
++      obsens[jj].read(conf);
+       Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
+     }
+-    R_.reset(new ObsErrors_(observersconf_, obspaces_));
+-    y_mean_xb.read("hofx_y_mean_xb"+std::to_string(iteration));
++    R_.reset(new ObsErrors_(obspaces_));
++    eckit::LocalConfiguration conf;
++    conf.set("ObsValue", "hofx_y_mean_xb"+std::to_string(iteration));
++    y_mean_xb.read(conf);
+   } else {
+     // compute and save H(x)
+ 
+@@ -449,9 +487,9 @@
+     config.set("iteration", std::to_string(iteration));
+ 
+     for (size_t jj = 0; jj < nens; ++jj) {
+-      computeHofX4DNonLinear(config, ens_xx[jj], obsens[jj]);
++      computeHofX4DNonLinear(config, model, ens_xx[jj], ybias, obsens[jj]);
+       Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
+-      obsens[jj].save("hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
++//      obsens[jj].save("hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
+     }
+ 
+     // Compute H(mean(Xb))
+@@ -459,15 +497,20 @@
+     config.set("save qc", true);
+     config.set("save obs errors", true);
+ 
+-    computeHofX4DNonLinear(config, xbmean_, y_mean_xb);
++    computeHofX4DNonLinear(config, model, xbmean_, ybias, y_mean_xb);
+ 
+-    y_mean_xb.save("hofx_y_mean_xb"+std::to_string(iteration));
++    // Setup model and obs biases; obs errors
++    R_.reset(new ObsErrors_(obspaces_));
++    R_->linearize(yobs);
++//    y_mean_xb.save("hofx_y_mean_xb"+std::to_string(iteration));
+ 
+     // QC flags and Obs errors are set to that of the H(mean(Xb))
+-    R_->save("ObsError");
++//    R_->save("ObsError");
+   }
+   // set inverse variances
+-  invVarR_.reset(new Departures_(R_->inverseVariance()));
++  invVarR_.reset(new Departures_(obspaces_));
++  util::ones(*invVarR_);
++  invVarR_.reset(R_->inverseMultiply(*invVarR_));
+ 
+   // calculate H(x) ensemble mean
+   Observations_ yb_mean(obsens.mean());
+@@ -480,16 +523,21 @@
+ 
+   // calculate H(x) ensemble perturbations
+   for (size_t iens = 0; iens < nens; ++iens) {
+-    Yb_[iens] = obsens[iens] - yb_mean;
+-    invVarR_->mask(Yb_[iens]);
+-    Yb_[iens].mask(*invVarR_);
++    for (size_t jj = 0; jj < Yb_[iens].size(); ++jj) {
++      Yb_[iens][jj] = obsens[iens][jj];
++      Yb_[iens][jj] -= yb_mean[jj];
++    }
++    util::mask(*invVarR_, Yb_[iens]);
++    util::mask(Yb_[iens], *invVarR_);
+   }
+ 
+   // calculate obs departures and mask with qc flag
+-  Observations_ yobs(obspaces_, "ObsValue");
+-  omb_ = yobs - yb_mean;
+-  invVarR_->mask(omb_);
+-  omb_.mask(*invVarR_);
++  for (size_t jj = 0; jj < omb_.size(); ++jj) {
++    omb_[jj] = yobs[jj];
++    omb_[jj] -= yb_mean[jj];
++  }
++  util::mask(*invVarR_, omb_);
++  util::mask(omb_, *invVarR_);
+ 
+   // return mean H(x)
+   return yb_mean;
+@@ -498,23 +546,23 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-void LocalEnsembleSolver<MODEL, OBS>::copyLocalIncrement(const IncrementEnsemble4D_ & bkg_pert,
+-                                                         const GeometryIterator_ & i,
+-                                                         IncrementEnsemble4D_ & ana_pert) const {
++template <typename MODEL>
++void LocalEnsembleSolver<MODEL>::copyLocalIncrement(const IncrementEnsemble4D_ & bkg_pert,
++                                                    const GeometryIterator__ & i,
++                                                    IncrementEnsemble4D_ & ana_pert) const {
+   // ana_pert[i]=bkg_pert[i]
+-  for (size_t itime=0; itime < bkg_pert[0].size(); ++itime) {
++  for (size_t itime=bkg_pert[0].first(); itime < bkg_pert[0].last()+1; ++itime) {
+     for (size_t iens=0; iens < bkg_pert.size(); ++iens) {
+-      LocalIncrement gp = bkg_pert[iens][itime].getLocal(i);
+-      ana_pert[iens][itime].setLocal(gp, i);
++      LocalIncrement gp = bkg_pert[iens][itime].increment().getLocal(i);
++      ana_pert[iens][itime].increment().setLocal(gp, i);
+     }
+   }
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-void LocalEnsembleSolver<MODEL, OBS>::posteriorInflation(
++template <typename MODEL>
++void LocalEnsembleSolver<MODEL>::posteriorInflation(
+                                   const Eigen::MatrixXd & Xb, Eigen::MatrixXd & Xa) const {
+     const size_t nens = Xa.cols();
+     const LocalEnsembleSolverInflationParameters & inflopt = options_.infl;
+@@ -550,13 +598,13 @@
+ // =============================================================================
+ 
+ /// \brief factory for LETKF solvers
+-template <typename MODEL, typename OBS>
++template <typename MODEL>
+ class LocalEnsembleSolverFactory {
+   typedef Geometry<MODEL>           Geometry_;
+-  typedef ObsSpaces<OBS>            ObsSpaces_;
++  typedef ObservationSpaces<MODEL>  ObsSpaces_;
+   typedef State4D<MODEL>            State4D_;
+  public:
+-  static std::unique_ptr<LocalEnsembleSolver<MODEL, OBS>> create(ObsSpaces_ &, const Geometry_ &,
++  static std::unique_ptr<LocalEnsembleSolver<MODEL>> create(ObsSpaces_ &, const Geometry_ &,
+                                                         const eckit::Configuration &,
+                                                         size_t, const State4D_ &,
+                                                         const JediVariables &);
+@@ -564,36 +612,36 @@
+  protected:
+   explicit LocalEnsembleSolverFactory(const std::string &);
+  private:
+-  virtual LocalEnsembleSolver<MODEL, OBS> * make(ObsSpaces_ &, const Geometry_ &,
++  virtual LocalEnsembleSolver<MODEL> * make(ObsSpaces_ &, const Geometry_ &,
+                                         const eckit::Configuration &, size_t,
+                                         const State4D_ &, const JediVariables &) = 0;
+-  static std::map < std::string, LocalEnsembleSolverFactory<MODEL, OBS> * > & getMakers() {
+-    static std::map < std::string, LocalEnsembleSolverFactory<MODEL, OBS> * > makers_;
++  static std::map < std::string, LocalEnsembleSolverFactory<MODEL> * > & getMakers() {
++    static std::map < std::string, LocalEnsembleSolverFactory<MODEL> * > makers_;
+     return makers_;
+   }
+ };
+ 
+ // -----------------------------------------------------------------------------
+ 
+-template<class MODEL, class OBS, class T>
+-class LocalEnsembleSolverMaker : public LocalEnsembleSolverFactory<MODEL, OBS> {
++template<class MODEL, class T>
++class LocalEnsembleSolverMaker : public LocalEnsembleSolverFactory<MODEL> {
+   typedef Geometry<MODEL>           Geometry_;
+-  typedef ObsSpaces<OBS>            ObsSpaces_;
++  typedef ObservationSpaces<MODEL>  ObsSpaces_;
+   typedef State4D<MODEL>            State4D_;
+ 
+-  virtual LocalEnsembleSolver<MODEL, OBS> * make(ObsSpaces_ & obspaces, const Geometry_ & geometry,
++  virtual LocalEnsembleSolver<MODEL> * make(ObsSpaces_ & obspaces, const Geometry_ & geometry,
+                                         const eckit::Configuration & conf, size_t nens,
+                                         const State4D_ & xbmean, const JediVariables & incvars)
+     { return new T(obspaces, geometry, conf, nens, xbmean, incvars); }
+  public:
+   explicit LocalEnsembleSolverMaker(const std::string & name)
+-    : LocalEnsembleSolverFactory<MODEL, OBS>(name) {}
++    : LocalEnsembleSolverFactory<MODEL>(name) {}
+ };
+ 
+ // =============================================================================
+ 
+-template <typename MODEL, typename OBS>
+-LocalEnsembleSolverFactory<MODEL, OBS>::LocalEnsembleSolverFactory(const std::string & name) {
++template <typename MODEL>
++LocalEnsembleSolverFactory<MODEL>::LocalEnsembleSolverFactory(const std::string & name) {
+   if (getMakers().find(name) != getMakers().end()) {
+     throw std::runtime_error(name + " already registered in local ensemble solver factory.");
+   }
+@@ -602,27 +650,27 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
+-template <typename MODEL, typename OBS>
+-std::unique_ptr<LocalEnsembleSolver<MODEL, OBS>>
+-LocalEnsembleSolverFactory<MODEL, OBS>::create(ObsSpaces_ & obspaces, const Geometry_ & geometry,
++template <typename MODEL>
++std::unique_ptr<LocalEnsembleSolver<MODEL>>
++LocalEnsembleSolverFactory<MODEL>::create(ObsSpaces_ & obspaces, const Geometry_ & geometry,
+                                   const eckit::Configuration & conf, size_t nens,
+                                   const State4D_ & xbmean, const JediVariables & incvars) {
+-  Log::trace() << "LocalEnsembleSolver<MODEL, OBS>::create starting" << std::endl;
++  Log::trace() << "LocalEnsembleSolver<MODEL>::create starting" << std::endl;
+   const std::string id = conf.getString("local ensemble DA.solver");
+-  typename std::map<std::string, LocalEnsembleSolverFactory<MODEL, OBS>*>::iterator
++  typename std::map<std::string, LocalEnsembleSolverFactory<MODEL>*>::iterator
+     jloc = getMakers().find(id);
+   if (jloc == getMakers().end()) {
+     Log::error() << id << " does not exist in local ensemble solver factory." << std::endl;
+     Log::error() << "LETKF solver Factory has " << getMakers().size() << " elements:" << std::endl;
+-    for (typename std::map<std::string, LocalEnsembleSolverFactory<MODEL, OBS>*>::const_iterator
++    for (typename std::map<std::string, LocalEnsembleSolverFactory<MODEL>*>::const_iterator
+          jj = getMakers().begin(); jj != getMakers().end(); ++jj) {
+        Log::error() << "A " << jj->first << " LocalEnsembleSolver" << std::endl;
+     }
+     throw std::runtime_error(id + " does not exist in local ensemble solver factory.");
+   }
+-  std::unique_ptr<LocalEnsembleSolver<MODEL, OBS>>
++  std::unique_ptr<LocalEnsembleSolver<MODEL>>
+     ptr(jloc->second->make(obspaces, geometry, conf, nens, xbmean, incvars));
+-  Log::trace() << "LocalEnsembleSolver<MODEL, OBS>::create done" << std::endl;
++  Log::trace() << "LocalEnsembleSolver<MODEL>::create done" << std::endl;
+   return ptr;
+ }
+ 

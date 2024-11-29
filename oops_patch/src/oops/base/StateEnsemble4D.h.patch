@@ -1,0 +1,89 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateEnsemble4D.h.tmp	2024-11-21 11:22:57.148426305 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateEnsemble4D.h	2024-11-21 12:23:58.167336850 +0100
+@@ -14,8 +14,10 @@
+ 
+ #include "eckit/config/LocalConfiguration.h"
+ #include "oops/base/Accumulator.h"
+-#include "oops/base/Geometry.h"
++#include "oops/interface/Geometry.h"
+ #include "oops/base/State4D.h"
++#include "oops/interface/Model.h"
++#include "oops/interface/State.h"
+ #include "oops/util/abor1_cpp.h"
+ #include "oops/util/ConfigFunctions.h"
+ #include "oops/util/Logger.h"
+@@ -29,11 +31,13 @@
+ /// \brief Ensemble of 4D states
+ template<typename MODEL> class StateEnsemble4D {
+   typedef Geometry<MODEL>      Geometry_;
++  typedef Model<MODEL>         Model_;
++  typedef State<MODEL>         State_;
+   typedef State4D<MODEL>       State4D_;
+ 
+  public:
+   /// Create ensemble of 4D states
+-  StateEnsemble4D(const Geometry_ &, const eckit::Configuration &);
++  StateEnsemble4D(const Geometry_ &, const Model_ &, const eckit::Configuration &);
+ 
+   /// calculate ensemble mean
+   State4D_ mean() const;
+@@ -44,16 +48,18 @@
+   const State4D_ & operator[](const int ii) const { return states_[ii]; }
+ 
+   /// Information
+-  const JediVariables & variables() const {return states_[0].variables();}
++  const JediVariables & variables() const {return variables_;}
+ 
+  private:
+   std::vector<State4D_> states_;
++  JediVariables variables_;
+ };
+ 
+ // ====================================================================================
+ 
+ template<typename MODEL>
+ StateEnsemble4D<MODEL>::StateEnsemble4D(const Geometry_ & resol,
++                                        const Model_ & model,
+                                         const eckit::Configuration & config)
+   : states_() {
+   // Abort if both "members" and "members from template" are specified
+@@ -105,8 +111,12 @@
+ 
+   // Loop over all ensemble members
+   for (size_t jj = 0; jj < membersConfig.size(); ++jj) {
+-    states_.emplace_back(State4D_(resol, membersConfig[jj]));
++    states_.emplace_back(State4D_(membersConfig[jj], resol, model));
+   }
++
++  // Define variables
++  variables_ = JediVariables(states_[0][0].state().variables().variablesList());
++
+   Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
+ }
+ 
+@@ -115,15 +125,19 @@
+ template<typename MODEL>
+ State4D<MODEL> StateEnsemble4D<MODEL>::mean() const {
+   // Compute ensemble mean
+-  Accumulator<MODEL, State4D_, State4D_> ensmean(states_[0]);
+-
+-  const double rr = 1.0/static_cast<double>(states_.size());
+-  for (size_t iens = 0; iens < states_.size(); ++iens) {
+-    ensmean.accumul(rr, states_[iens]);
++  State4D_ ensmean4D;
++  for (size_t jt = 0; jt < states_[0].statesNumber(); ++jt) {
++    Accumulator<MODEL, State_, State_> ensmean(states_[0][jt]);
++
++    const double rr = 1.0/static_cast<double>(states_.size());
++    for (size_t iens = 0; iens < states_.size(); ++iens) {
++      ensmean.accumul(rr, states_[iens][jt]);
++    }
++    ensmean4D.push_back(ensmean);
+   }
+ 
+   Log::trace() << "StateEnsemble4D::mean done" << std::endl;
+-  return std::move(ensmean);
++  return ensmean4D;
+ }
+ 
+ // -----------------------------------------------------------------------------

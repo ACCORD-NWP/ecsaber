@@ -361,9 +361,17 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
   oops::Log::trace() << "copyFieldSet starting" << std::endl;
   fset.clear();
   for (const auto & otherField : otherFset) {
-    // Create Field
-    atlas::Field field = otherField.functionspace().createField<double>(
-      atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
+    // Check whether the input Field is associated with a FunctionSpace
+    atlas::Field field;
+    if (otherField.functionspace()) {
+      // Create Field from FunctionSpace
+      field = otherField.functionspace().createField<double>(
+        atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
+    } else {
+      // Create Field without FunctionSpace
+      field = atlas::Field(otherField.name(), atlas::array::make_datatype<double>(),
+        atlas::array::make_shape(otherField.shape(0), otherField.shape(1)));
+    }
 
     // Copy data
     if (field.rank() == 2) {
@@ -384,6 +392,9 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
     // Add field
     fset.add(field);
   }
+
+  // Copy fieldset name
+  fset.name() = otherFset.name();
 }
 
 // -----------------------------------------------------------------------------
@@ -1241,7 +1252,8 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
     // Definition mode
 
     // Create NetCDF file
-    if ((retval = nc_create(ncfilepath.c_str(), NC_CLOBBER, &ncid))) ERR(retval, ncfilepath);
+    if ((retval = nc_create(ncfilepath.c_str(),
+                            NC_64BIT_OFFSET | NC_CLOBBER, &ncid))) ERR(retval, ncfilepath);
 
     // Create horizontal dimension
     if ((retval = nc_def_dim(ncid, "nb_nodes", nb_nodes, &nb_nodes_id))) ERR(retval, "nb_nodes");
@@ -1375,7 +1387,8 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
         // Definition mode
 
         // Create NetCDF file
-        if ((retval = nc_create(ncfilepath.c_str(), NC_CLOBBER, &ncid))) ERR(retval, ncfilepath);
+        if ((retval = nc_create(ncfilepath.c_str(),
+                                NC_64BIT_OFFSET | NC_CLOBBER, &ncid))) ERR(retval, ncfilepath);
 
         // Create dimensions
         if ((retval = nc_def_dim(ncid, "nx", nx, &nx_id))) ERR(retval, "nx");
@@ -1488,7 +1501,8 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
         // Definition mode
 
         // Create NetCDF file
-        if ((retval = nc_create(ncfilepath.c_str(), NC_CLOBBER, &ncid))) ERR(retval, ncfilepath);
+        if ((retval = nc_create(ncfilepath.c_str(),
+                                NC_64BIT_OFFSET | NC_CLOBBER, &ncid))) ERR(retval, ncfilepath);
 
         // Create dimensions
         if ((retval = nc_def_dim(ncid, "nb_nodes", nb_nodes, &nb_nodes_id))) {
@@ -1591,7 +1605,8 @@ void writeRank3FieldSet(const atlas::FieldSet & fset,
 
   // Begin definition mode
   oops::Log::info() << "Info     : Writing file: " << ncfilepath << std::endl;
-  if ((retval = nc_create(ncfilepath.c_str(), NC_CLOBBER, &ncid))) ERR(retval, ncfilepath);
+  if ((retval = nc_create(ncfilepath.c_str(),
+                          NC_64BIT_OFFSET | NC_CLOBBER, &ncid))) ERR(retval, ncfilepath);
 
   // Create horizontal dimension, assign to dimension arrays
   if ((retval = nc_def_dim(ncid, "nb_nodes", nb_nodes, &nb_nodes_id))) ERR(retval, "nb_nodes");

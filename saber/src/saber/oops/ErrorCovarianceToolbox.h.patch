@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-11-26 14:29:56.672085495 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-11-26 14:19:22.453253109 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2024-11-27 12:33:00.266066638 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2024-11-26 15:07:09.493531994 +0100
 @@ -26,19 +26,15 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
@@ -32,7 +32,7 @@
  
 -#include "saber/oops/ErrorCovarianceParameters.h"
 +#include "saber/oops/instantiateCovarFactory.h"
-+#include "saber/oops/ECUtilities.h"
++#include "oops/util/ECUtilities.h"
  #include "saber/oops/Utilities.h"
  #include "saber/util/HorizontalProfiles.h"
  
@@ -176,7 +176,7 @@
        tmpVars = params.incrementVars.value().value();
      }
 -    const oops::JediVariables vars = tmpVars;
-+    const Variables_ varsT(templatedVarsConf(tmpVars));
++    const Variables_ varsT(util::templatedVarsConf(tmpVars));
  
      // Setup time
      util::DateTime time = xx[0].validTime();
@@ -459,25 +459,21 @@
  
          // Update variance
          variance += dxsq;
-@@ -574,8 +569,8 @@
+@@ -574,7 +569,7 @@
  
            if (outputPerturbations != boost::none) {
              // Update config
 -            auto outputPerturbationsUpdated = *outputPerturbations;
--            util::setMember(outputPerturbationsUpdated, jm+1);
 +            auto outputPerturbationsUpdated(*outputPerturbations);
-+            setMember(outputPerturbationsUpdated, jm+1);
+             util::setMember(outputPerturbationsUpdated, jm+1);
              setMPI(outputPerturbationsUpdated, ntasks);
  
-             // Write perturbation
-@@ -584,8 +579,8 @@
+@@ -584,7 +579,7 @@
  
            if (outputStates != boost::none) {
              // Update config
 -            auto outputStatesUpdated = *outputStates;
--            util::setMember(outputStatesUpdated, jm+1);
 +            auto outputStatesUpdated(*outputStates);
-+            setMember(outputStatesUpdated, jm+1);
+             util::setMember(outputStatesUpdated, jm+1);
              setMPI(outputStatesUpdated, ntasks);
  
-             // Add background state to perturbation

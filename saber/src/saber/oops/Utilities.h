@@ -42,7 +42,7 @@
 #include "saber/blocks/SaberCentralBlockBase.h"
 #include "saber/blocks/SaberOuterBlockBase.h"
 #include "saber/oops/ErrorCovarianceParameters.h"
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 
 namespace oops {
   class FieldSet3D;
@@ -67,18 +67,8 @@ oops::JediVariables getInnerOnlyVars(const SaberBlockParametersBase & params,
 
 // -----------------------------------------------------------------------------
 
-void setMember(eckit::LocalConfiguration &,
-               const int &);
-
-// -----------------------------------------------------------------------------
-
 void setMPI(eckit::LocalConfiguration & conf,
             const int & mpi);
-
-// -----------------------------------------------------------------------------
-
-void expandEnsembleTemplate(eckit::LocalConfiguration &,
-                            const size_t &);
 
 // -----------------------------------------------------------------------------
 
@@ -122,7 +112,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     }
     nens = ensembleConf[0].getInt("members");
     for (auto & ensemble3DConf : ensembleConf) {
-      expandEnsembleTemplate(ensemble3DConf, nens);
+      util::expandEnsembleTemplate(ensemble3DConf, nens);
     }
     outputConf.set("ensemble", ensembleConf);
     varConf = ensembleConf[0];
@@ -139,7 +129,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
     }
     nens = ensemblePert[0].getInt("members");
     for (auto & ensemble3DConf : ensembleConf) {
-      expandEnsembleTemplate(ensemble3DConf, nens);
+      util::expandEnsembleTemplate(ensemble3DConf, nens);
     }
     outputConf.set("ensemble", ensemblePert);
     varConf = ensemblePert[0];
@@ -306,7 +296,7 @@ void readHybridWeight(const oops::Geometry<MODEL> & geom,
   eckit::LocalConfiguration localConf(conf);
 
   // Create variables
-  oops::Variables<MODEL> varsT(templatedVarsConf(vars));
+  oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
 
   // Create Increment
   oops::Increment<MODEL> dx(geom, varsT, date);
@@ -343,7 +333,7 @@ void readEnsembleMember(const oops::Geometry<MODEL> & geom,
       ensembleConf[0].getSubConfigurations("state");
 
     // Create variables
-    oops::Variables<MODEL> varsT(templatedVarsConf(vars));
+    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
 
     // Read state as increment
     oops::Increment<MODEL> dx(geom, varsT, fset.validTime());
@@ -363,7 +353,7 @@ void readEnsembleMember(const oops::Geometry<MODEL> & geom,
       ensembleConf[0].getSubConfigurations("state");
 
     // Create variables
-    oops::Variables<MODEL> varsT(templatedVarsConf(vars));
+    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
 
     // Read Increment
     oops::Increment<MODEL> dx(geom, varsT, fset.validTime());

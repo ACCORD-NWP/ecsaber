@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_doc_10.yaml.tmp	2024-11-27 12:33:02.186076651 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_doc_10.yaml	2024-11-27 12:12:22.874479819 +0100
+@@ -8,6 +8,7 @@
+     - air_horizontal_streamfunction
+     levels: 1
+     mask type: sea
++    mask path: ../quench/data/landsea.nc
+   halo: 1
+ background:
+   date: 2010-01-01T12:00:00Z

@@ -1,16 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-11-26 14:29:59.383097303 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-11-26 14:19:22.454253114 +0100
-@@ -8,9 +8,6 @@
-   # Tests activated
-   message( STATUS "SABER-QUENCH tests activated:" )
- 
--  # Use find_branch function in jedi-cmake
--  include( git_functions )
--
-   # Default SABER_TEST_TIER
-   set( SABER_TEST_TIER 1 )
- 
-@@ -148,9 +145,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-11-27 12:33:02.919080473 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-11-26 15:07:09.494531999 +0100
+@@ -148,9 +148,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
        # Link to yaml file
@@ -24,7 +14,7 @@
  
        # Link to reference file
        if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -218,7 +216,7 @@
+@@ -218,7 +219,7 @@
  
                    # Special check for 4D tests
                    string( FIND ${test} "_4d" found_result )
@@ -33,7 +23,7 @@
                        set( 4dCheck true CACHE BOOL "" FORCE )
                    else()
                        set( 4dCheck false CACHE BOOL "" FORCE )
-@@ -259,9 +257,9 @@
+@@ -259,9 +260,9 @@
                        ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
                                          MPI ${mpi}
                                          OMP ${omp}
@@ -45,7 +35,7 @@
                                          TEST_DEPENDS ${deps_list} )
                    endif()
                endif()
-@@ -286,9 +284,9 @@
+@@ -286,9 +287,9 @@
                ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
                                  MPI ${mpi}
                                  OMP ${omp}

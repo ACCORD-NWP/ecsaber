@@ -1,6 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp	2024-07-19 08:41:30.059708750 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2024-07-15 14:03:30.102175366 +0200
-@@ -101,6 +101,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2024-11-21 12:25:50.215763065 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2024-11-20 14:41:00.800851284 +0100
+@@ -20,6 +20,7 @@
+ #include "oops/base/FieldSets.h"
+ #include "oops/interface/ModelData.h"
+ #include "oops/util/ConfigHelpers.h"
++#include "oops/util/ECUtilities.h"
+ 
+ #include "saber/blocks/SaberBlockChainBase.h"
+ #include "saber/blocks/SaberBlockParametersBase.h"
+@@ -101,6 +102,8 @@
    size_t size4D_;
    oops::JediVariables centralVars_;
    atlas::FunctionSpace centralFunctionSpace_;
@@ -9,7 +17,7 @@
  };
  
  // -----------------------------------------------------------------------------
-@@ -117,9 +119,14 @@
+@@ -117,9 +120,14 @@
                         oops::FieldSets & fsetDualResEns,
                         const eckit::LocalConfiguration & covarConf,
                         const eckit::Configuration & conf)
@@ -26,7 +34,7 @@
    oops::Log::trace() << "SaberParametricBlockChain ctor starting" << std::endl;
  
    // If needed create outer block chain
-@@ -137,7 +144,7 @@
+@@ -137,7 +145,7 @@
  
    // Set outer geometry data for central block
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
@@ -35,7 +43,7 @@
  
    SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
    saberCentralBlockParamsWrapper.deserialize(conf.getSubConfiguration("saber central block"));
-@@ -178,7 +185,7 @@
+@@ -178,7 +186,7 @@
  
        for (size_t ie = 0; ie < nens; ++ie) {
          // Read ensemble member
@@ -44,7 +52,7 @@
          readEnsembleMember(geom, outerVariables_, ensembleConf, ie, fset);
  
          // Apply outer blocks inverse (all of them)
-@@ -209,7 +216,7 @@
+@@ -209,7 +217,7 @@
      oops::Log::info() << "Info     : Dual resolution setup" << std::endl;
  
      // Dual resolution setup
@@ -53,7 +61,7 @@
  
      // Ensemble configuration
      eckit::LocalConfiguration dualResEnsembleConf
-@@ -227,7 +234,7 @@
+@@ -227,7 +235,7 @@
  
        for (size_t ie = 0; ie < dualResNens; ++ie) {
          // Read ensemble member
@@ -62,7 +70,7 @@
          readEnsembleMember(dualResGeom, outerVariables_, dualResEnsembleConf, ie, fset);
  
          // Use FieldSet in the central block
-@@ -258,18 +265,18 @@
+@@ -258,18 +266,18 @@
      const eckit::LocalConfiguration outputEnsembleConf(covarConf, "output ensemble");
  
      // Check whether geometry grid is similar to the last outer block inner geometry
@@ -84,12 +92,12 @@
          readEnsembleMember(geom, activeVars, ensembleConf, ie, fsetMem);
  
          // Update mean
-@@ -292,14 +299,16 @@
+@@ -292,14 +300,16 @@
  
      for (size_t ie = 0; ie < ensembleSize; ++ie) {
        oops::Log::info() << "Info     : Write member " << ie << std::endl;
 +      // Create variables
-+      oops::Variables<MODEL> activeVarsT(templatedVarsConf(activeVars));
++      oops::Variables<MODEL> activeVarsT(util::templatedVarsConf(activeVars));
  
        // Increment pointer
 -      oops::Increment<MODEL> dx(geom, activeVars, fset4dXb[0].validTime());
@@ -103,7 +111,7 @@
          readEnsembleMember(geom, activeVars, ensembleConf, ie, fset);
  
          // Remove mean
-@@ -309,10 +318,10 @@
+@@ -309,10 +319,10 @@
          if (outerBlockChain_) outerBlockChain_->leftInverseMultiply(fset);
  
          // ATLAS fieldset to Increment_

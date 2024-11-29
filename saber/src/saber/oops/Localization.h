@@ -30,7 +30,7 @@
 #include "oops/util/Logger.h"
 
 #include "saber/blocks/SaberParametricBlockChain.h"
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 #include "saber/oops/Utilities.h"
 
 namespace saber {

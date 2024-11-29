@@ -42,7 +42,7 @@
 #include "saber/oops/ErrorCovarianceParameters.h"
 #include "saber/oops/instantiateCovarFactory.h"
 
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 #include "saber/oops/Utilities.h"
 
 namespace saber {
@@ -410,7 +410,7 @@ template <typename MODEL> class ProcessPerts : public oops::Application {
           eckit::LocalConfiguration mconf = it->second;
 
           // Should be on the model geometry!
-          const Variables_ pertVarsT(templatedVarsConf(fset4dDxI[0].variables()));
+          const Variables_ pertVarsT(util::templatedVarsConf(fset4dDxI[0].variables()));
           auto pert = Increment_(geom,
                                  pertVarsT,
                                  time);

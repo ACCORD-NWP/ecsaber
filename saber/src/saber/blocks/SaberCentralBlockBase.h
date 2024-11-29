@@ -30,7 +30,7 @@
 #include "oops/util/Printable.h"
 
 #include "saber/blocks/SaberBlockParametersBase.h"
-#include "saber/oops/ECUtilities.h"
+#include "oops/util/ECUtilities.h"
 
 // Forward declaration
 namespace oops {
@@ -229,7 +229,7 @@ void SaberCentralBlockBase::read(const oops::Geometry<MODEL> & geom,
   std::vector<oops::FieldSet3D> fsetVec;
   for (const auto & input : this->getReadConfs()) {
     // Create variables
-    oops::Variables<MODEL> varsT(templatedVarsConf(vars));
+    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
 
     // Create increment
     oops::Increment<MODEL> dx(geom, varsT, validTime_);
@@ -258,7 +258,7 @@ void SaberCentralBlockBase::write(const oops::Geometry<MODEL> & geom) const {
 
   // Write fieldsets as increments
   for (const auto & output : outputs) {
-    oops::Variables<MODEL> varsT(templatedVarsConf(output.second.variables()));
+    oops::Variables<MODEL> varsT(util::templatedVarsConf(output.second.variables()));
     oops::Increment<MODEL> dx(geom, varsT, validTime_);
     dx.increment().fromFieldSet(output.second.fieldSet());
     oops::Log::test() << "Norm of output parameter " << output.second.name()
