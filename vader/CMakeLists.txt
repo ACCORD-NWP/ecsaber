@@ -13,13 +13,13 @@ cmake_minimum_required( VERSION 3.12 )
 project( vader VERSION 1.7.0 LANGUAGES CXX Fortran )
 
 # Copy and update source from VADER
-patch_init( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
-check_diff_recursively( cmake "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
-check_diff_recursively( src "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
-check_diff_recursively( tools "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
-check_diff_recursively( CPPLINT.cfg "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
-check_diff_recursively( vader-import.cmake.in "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
-patch_apply( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+patch_init()
+check_diff_recursively( cmake )
+check_diff_recursively( src )
+check_diff_recursively( tools )
+check_diff_recursively( CPPLINT.cfg )
+check_diff_recursively( vader-import.cmake.in )
+patch_apply()
 
 ## Ecbuild integration
 find_package( ecbuild QUIET )

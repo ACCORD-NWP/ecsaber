@@ -1,5 +1,5 @@
 Input Dirac increment:
-Valid time:2010-01-01T12:00:00Z
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -17,7 +17,7 @@ Groups:
 Fields:
   eastward_wind: 1.0000000000000000e+00
   northward_wind: 0.0000000000000000e+00
-Valid time:2010-01-01T18:00:00Z
+Valid time: 2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -106,7 +106,7 @@ Square-root test for block BUMP_NICAS passed
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
 Covariance(hybrid) * Increment:
-Valid time:2010-01-01T12:00:00Z
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -122,9 +122,9 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 9.9286541982399914e+00
-  northward_wind: 3.1752229729233870e+00
-Valid time:2010-01-01T18:00:00Z
+  eastward_wind: 7.6609986097587879e-01
+  northward_wind: 2.4500177260209449e-01
+Valid time: 2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -140,8 +140,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 2.2707840177795426e+00
-  northward_wind: 1.7998957702074296e+00
+  eastward_wind: 1.7521481618685303e-01
+  northward_wind: 1.3888084646654242e-01
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -206,7 +206,7 @@ Adjoint test for block BUMP_StdDev passed
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Covariance(hybrid1_SABER) * Increment:
-Valid time:2010-01-01T12:00:00Z
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -224,7 +224,7 @@ Groups:
 Fields:
   eastward_wind: 3.7259415926535306e-12
   northward_wind: 1.3202009593235781e-12
-Valid time:2010-01-01T18:00:00Z
+Valid time: 2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -250,7 +250,7 @@ Fields:
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
 Covariance(hybrid2_ensemble) * Increment:
-Valid time:2010-01-01T12:00:00Z
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -266,9 +266,9 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 3.1771693434345925e+00
-  northward_wind: 1.0160713513355568e+00
-Valid time:2010-01-01T18:00:00Z
+  eastward_wind: 1.5321997219495540e+00
+  northward_wind: 4.9000354520426193e-01
+Valid time: 2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -284,8 +284,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  eastward_wind: 7.2665088568883618e-01
-  northward_wind: 5.7596664646668794e-01
+  eastward_wind: 3.5042963237308861e-01
+  northward_wind: 2.7776169293339525e-01
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -297,7 +297,7 @@ Localization(hybrid2_ensemble_localization) diagnostics:
 - Localization at zero separation:
   + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
 Localization(hybrid2_ensemble) * Increment:
-Valid time:2010-01-01T12:00:00Z
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -315,7 +315,7 @@ Groups:
 Fields:
   eastward_wind: 2.2517366841554374e+00
   northward_wind: 2.2517366841554374e+00
-Valid time:2010-01-01T18:00:00Z
+Valid time: 2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840

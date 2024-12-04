@@ -17,6 +17,9 @@ if( DEFINED ENV{ECSABER_UPDATE} )
     set( ECSABER_UPDATE $ENV{ECSABER_UPDATE} )
 endif()
 
+# Process ECSABER tools
+add_subdirectory( tools )
+
 # Check JCSDA base repos
 if( ECSABER_UPDATE )
     if( NOT EXISTS "${CMAKE_SOURCE_DIR}/ecsaber/oops-jedi")
@@ -31,50 +34,65 @@ if( ECSABER_UPDATE )
 endif()
 
 # Update functions
-function( patch_init commandPath )
+function( patch_init )
     if( ECSABER_UPDATE )
         # Remove update script
-        file( REMOVE ${commandPath} )
+        file( REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
 
         # Create update script
-        file( WRITE ${commandPath} "#!/usr/bin/env bash\n" )
+        file( WRITE ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh "#!/usr/bin/env bash\n" )
     endif()
 endfunction()
 
-function( check_diff srcPath dstPath commandPath )
+function( check_diff inputFile outputFile )
     if( ECSABER_UPDATE )
-        # Set JEDIPREFIX flag
-        set( JEDIPREFIX ON )
-
         # Run check_diff script
-        execute_process( COMMAND ${CMAKE_SOURCE_DIR}/ecsaber/script/check_diff.sh ${srcPath} ${dstPath} ${commandPath} ${JEDIPREFIX} )
+        execute_process( COMMAND bash
+                                 ${CMAKE_BINARY_DIR}/bin/ecsaber_check_diff.sh
+                                 ${inputFile}
+                                 ${outputFile}
+                                 "ECSABER"
+                                 ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
     endif()
 endfunction()
 
-function( check_diff_recursively input commandPath )
+function( check_diff_recursively outputDir )
     if( ECSABER_UPDATE )
-        # Set JEDIPREFIX flag
-        set( EXTRA_ARGS ${ARGN})    
-        list( LENGTH EXTRA_ARGS EXTRA_COUNT )
-        if( ${EXTRA_COUNT} GREATER 0)
-            list( GET EXTRA_ARGS 0 JEDIPREFIX )
-        else()
-            set( JEDIPREFIX ON )
-        endif()
+        # Output directory in ECSABER
+        set( ECSABER_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${outputDir})
 
-        # Run check_diff_recursively script
-        execute_process( COMMAND ${CMAKE_SOURCE_DIR}/ecsaber/script/check_diff_recursively.sh ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${input} ${commandPath} ${JEDIPREFIX} )
+        # Input directory in JEDI
+        string( REPLACE "ecsaber/${PROJECT_NAME}" "ecsaber/${PROJECT_NAME}-jedi" JEDI_SOURCE_DIR ${ECSABER_SRC_DIR} )
+
+        if( IS_DIRECTORY ${ECSABER_SRC_DIR} )
+            # Run check_diff_recursively script
+            execute_process( COMMAND bash
+                                     ${CMAKE_BINARY_DIR}/bin/ecsaber_check_diff_recursively.sh
+                                     ${CMAKE_BINARY_DIR}/bin/ecsaber_check_diff.sh
+                                     ${JEDI_SOURCE_DIR}
+                                     ${ECSABER_SRC_DIR}
+                                     "ECSABER"
+                                     ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
+        else()
+            # Run check_diff script
+            execute_process( COMMAND bash
+                                     ${CMAKE_BINARY_DIR}/bin/ecsaber_check_diff.sh
+                                     ${JEDI_SOURCE_DIR}
+                                     ${ECSABER_SRC_DIR}
+                                     "ECSABER"
+                                     ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
+        endif()
     endif()
 endfunction()
 
-function( patch_apply commandPath )
+function( patch_apply )
     if( ECSABER_UPDATE )
         # Run update script
-        execute_process( COMMAND bash ${commandPath}
+        execute_process( COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh
                          COMMAND_ERROR_IS_FATAL ANY )
 
         # Remove update script
-        file( REMOVE ${commandPath} )
+        file( REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
     endif()
 endfunction()
 

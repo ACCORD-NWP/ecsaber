@@ -124,15 +124,13 @@ oops/util/TypeTraits.h
 )
 
 # Copy and update source from OOPS
-patch_init( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+patch_init()
 foreach( src_file ${oops_jedi_src_files} )
     check_diff( ${CMAKE_CURRENT_SOURCE_DIR}/../../oops-jedi/src/${src_file}
-                ${CMAKE_CURRENT_SOURCE_DIR}/${src_file}
-                ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
-
+                ${CMAKE_CURRENT_SOURCE_DIR}/${src_file} )
     list( APPEND oops_patch_src_files ${src_file} )
 endforeach()
-patch_apply( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+patch_apply()
 
 # Check update summary
 add_custom_command( OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/update_result.sh"

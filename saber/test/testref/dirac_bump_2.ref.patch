@@ -1,0 +1,70 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref.tmp	2024-12-04 14:00:30.015681458 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref	2024-12-04 13:54:48.577752930 +0100
+@@ -110,7 +110,7 @@
+ Square-root test for block BUMP_NICAS passed
+ Adjoint test for block Ensemble passed
+ Square-root test for block Ensemble passed
+-Covariance(hybrid) * Increment:
++Covariance(SABER) * Increment:
+ Valid time: 2010-01-01T12:00:00Z
+ Quench geometry grid:
+ - name: L40x21
+@@ -127,8 +127,8 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  eastward_wind: 1.5885846717183985e+00
+-  northward_wind: 5.0803567566774199e-01
++  eastward_wind: 1.5885846717183991e+00
++  northward_wind: 5.0803567566774221e-01
+ Valid time: 2010-01-01T18:00:00Z
+ Quench geometry grid:
+ - name: L40x21
+@@ -145,8 +145,8 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  eastward_wind: 3.6332544284472684e-01
+-  northward_wind: 2.8798332323318876e-01
++  eastward_wind: 3.6332544284472690e-01
++  northward_wind: 2.8798332323318898e-01
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+           Domain area (% of Earth area): 0.100E+03%
+@@ -210,7 +210,7 @@
+              Level   2 ~>  0.200E+01 vert. coord.
+ Adjoint test for block BUMP_NICAS passed
+ Square-root test for block BUMP_NICAS passed
+-Covariance(hybrid1_SABER) * Increment:
++Covariance(SABER1_SABER) * Increment:
+ Valid time: 2010-01-01T12:00:00Z
+ Quench geometry grid:
+ - name: L40x21
+@@ -259,7 +259,7 @@
+ Square-root test for block BUMP_NICAS passed
+ Adjoint test for block Ensemble passed
+ Square-root test for block Ensemble passed
+-Covariance(hybrid2_SABER) * Increment:
++Covariance(SABER2_SABER) * Increment:
+ Valid time: 2010-01-01T12:00:00Z
+ Quench geometry grid:
+ - name: L40x21
+@@ -276,8 +276,8 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  eastward_wind: 3.1771693434345925e+00
+-  northward_wind: 1.0160713513355568e+00
++  eastward_wind: 3.1771693434345933e+00
++  northward_wind: 1.0160713513355570e+00
+ Valid time: 2010-01-01T18:00:00Z
+ Quench geometry grid:
+ - name: L40x21
+@@ -294,5 +294,5 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  eastward_wind: 7.2665088568883618e-01
+-  northward_wind: 5.7596664646668794e-01
++  eastward_wind: 7.2665088568883629e-01
++  northward_wind: 5.7596664646668805e-01

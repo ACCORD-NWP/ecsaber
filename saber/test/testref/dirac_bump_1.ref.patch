@@ -1,0 +1,46 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_1.ref.tmp	2024-12-04 14:00:30.024681507 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_1.ref	2024-12-04 13:54:38.488703416 +0100
+@@ -122,8 +122,8 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  eastward_wind: 1.3541398063751613e+01
+-  northward_wind: 4.0498383512132081e+00
++  eastward_wind: 7.6609986097587879e-01
++  northward_wind: 2.4500177260209449e-01
+ Valid time: 2010-01-01T18:00:00Z
+ Quench geometry grid:
+ - name: L40x21
+@@ -140,8 +140,8 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  eastward_wind: 1.9040437974069926e+00
+-  northward_wind: 3.0954077987719022e+00
++  eastward_wind: 1.7521481618685303e-01
++  northward_wind: 1.3888084646654242e-01
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+           Domain area (% of Earth area): 0.100E+03%
+@@ -266,8 +266,8 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  eastward_wind: 2.7082796127500622e+01
+-  northward_wind: 8.0996767024264411e+00
++  eastward_wind: 1.5321997219495540e+00
++  northward_wind: 4.9000354520426193e-01
+ Valid time: 2010-01-01T18:00:00Z
+ Quench geometry grid:
+ - name: L40x21
+@@ -284,8 +284,8 @@
+   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+   Mask size: 100%
+ Fields:
+-  eastward_wind: 3.8080875948143298e+00
+-  northward_wind: 6.1908155975435024e+00
++  eastward_wind: 3.5042963237308861e-01
++  northward_wind: 2.7776169293339525e-01
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+           Domain area (% of Earth area): 0.100E+03%

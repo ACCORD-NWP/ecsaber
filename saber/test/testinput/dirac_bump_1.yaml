@@ -7,6 +7,8 @@ geometry:
   - variables:
     - air_horizontal_streamfunction
     - air_horizontal_velocity_potential
+    - air_horizontal_streamfunction_transformed
+    - air_horizontal_velocity_potential_transformed
     - eastward_wind
     - northward_wind
     levels: 2
@@ -113,13 +115,13 @@ background error:
           - date: 2010-01-01T12:00:00Z
             filepath: testdata/randomization_bump_nicas_L10L2/_MPI_-_OMP__member_%mem%
             state variables:
-            - eastward_wind
-            - northward_wind
+            - air_horizontal_streamfunction
+            - air_horizontal_velocity_potential
           - date: 2010-01-01T18:00:00Z
             filepath: testdata/randomization_bump_nicas_L10L2T18/_MPI_-_OMP__member_%mem%
             state variables:
-            - eastward_wind
-            - northward_wind
+            - air_horizontal_streamfunction
+            - air_horizontal_velocity_potential
         pattern: '%mem%'
         nmembers: 25
         zero padding: 6
@@ -127,9 +129,12 @@ background error:
       inflation field:
         filepath: testdata/convertstate_constant/inflation
       ensemble transform:
-        variables:
-        - eastward_wind
-        - northward_wind
+        input variables:
+        - air_horizontal_streamfunction_transformed
+        - air_horizontal_velocity_potential_transformed
+        output variables:
+        - air_horizontal_streamfunction
+        - air_horizontal_velocity_potential
         atlas file:
           filepath: testdata/convertstate_constant/ensemble_transform
       localization:
@@ -149,14 +154,17 @@ background error:
             drivers:
               multivariate strategy: duplicated
               read local nicas: true
+      linear variable change:
+        input variables:
+        - air_horizontal_streamfunction
+        - air_horizontal_velocity_potential
+        output variables:
+        - eastward_wind
+        - northward_wind
+        atlas file:
+          filepath: testdata/convertstate_constant/linear_variable_change
     weight:
       value: 0.5
-  linear variable change:
-    variables:
-    - eastward_wind
-    - northward_wind
-    atlas file:
-      filepath: testdata/convertstate_constant/linear_variable_change
 dirac:
 - lon:
   - 0.0

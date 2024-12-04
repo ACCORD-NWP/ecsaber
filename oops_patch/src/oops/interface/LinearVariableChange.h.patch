@@ -1,0 +1,105 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/LinearVariableChange.h.tmp	2024-12-04 12:28:47.167432824 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/LinearVariableChange.h	2024-12-04 08:39:32.770759952 +0100
+@@ -13,10 +13,11 @@
+ 
+ #include <boost/noncopyable.hpp>
+ 
+-#include "oops/base/Geometry.h"
+-#include "oops/base/Increment.h"
++#include "oops/interface/Geometry.h"
++#include "oops/interface/Increment.h"
+ #include "oops/base/LinearVariableChangeParametersBase.h"
+-#include "oops/base/State.h"
++#include "oops/interface/State.h"
++#include "oops/interface/Variables.h"
+ #include "oops/base/Variables.h"
+ #include "oops/util/Logger.h"
+ #include "oops/util/ObjectCounter.h"
+@@ -48,6 +49,7 @@
+   typedef Geometry<MODEL>            Geometry_;
+   typedef Increment<MODEL>           Increment_;
+   typedef State<MODEL>               State_;
++  typedef Variables<MODEL>           Variables_;
+ 
+  public:
+   /// A subclass of oops::LinearVariableChangeParametersBase holding the configuration settings of
+@@ -63,11 +65,11 @@
+ 
+   virtual ~LinearVariableChange();
+ 
+-  void changeVarTraj(const State_ &, const JediVariables &);
+-  void changeVarTL(Increment_ &, const JediVariables &) const;
+-  void changeVarInverseTL(Increment_ &, const JediVariables &) const;
+-  void changeVarAD(Increment_ &, const JediVariables &) const;
+-  void changeVarInverseAD(Increment_ &, const JediVariables &) const;
++  void changeVarTraj(const State_ &, const Variables_ &);
++  void changeVarTL(Increment_ &, const Variables_ &) const;
++  void changeVarInverseTL(Increment_ &, const Variables_ &) const;
++  void changeVarAD(Increment_ &, const Variables_ &) const;
++  void changeVarInverseAD(Increment_ &, const Variables_ &) const;
+ 
+  private:
+   void print(std::ostream &) const;
+@@ -107,30 +109,30 @@
+ // -----------------------------------------------------------------------------
+ 
+ template<typename MODEL>
+-void LinearVariableChange<MODEL>::changeVarTL(Increment_ & dx, const JediVariables & vars) const {
++void LinearVariableChange<MODEL>::changeVarTL(Increment_ & dx, const Variables_ & vars) const {
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarTL starting" << std::endl;
+   util::Timer timer(classname(), "changeVarTL");
+-  chvar_->changeVarTL(dx.increment(), vars);
++  chvar_->changeVarTL(dx.increment(), vars.variables());
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarTL done" << std::endl;
+ }
+ // -----------------------------------------------------------------------------
+ 
+ template<typename MODEL>
+ void LinearVariableChange<MODEL>::changeVarInverseTL(Increment_ & dx,
+-                                                     const JediVariables & vars) const {
++                                                     const Variables_ & vars) const {
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarInverseTL starting" << std::endl;
+   util::Timer timer(classname(), "changeVarInverseTL");
+-  chvar_->changeVarInverseTL(dx.increment(), vars);
++  chvar_->changeVarInverseTL(dx.increment(), vars.variables());
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarInverseTL done" << std::endl;
+ }
+ 
+ // -----------------------------------------------------------------------------
+ 
+ template<typename MODEL>
+-void LinearVariableChange<MODEL>::changeVarAD(Increment_ & dx, const JediVariables & vars) const {
++void LinearVariableChange<MODEL>::changeVarAD(Increment_ & dx, const Variables_ & vars) const {
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarAD starting" << std::endl;
+   util::Timer timer(classname(), "changeVarAD");
+-  chvar_->changeVarAD(dx.increment(), vars);
++  chvar_->changeVarAD(dx.increment(), vars.variables());
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarAD done" << std::endl;
+ }
+ 
+@@ -138,10 +140,10 @@
+ 
+ template<typename MODEL>
+ void LinearVariableChange<MODEL>::changeVarInverseAD(Increment_ & dx,
+-                                                     const JediVariables & vars) const {
++                                                     const Variables_ & vars) const {
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarInverseAD starting" << std::endl;
+   util::Timer timer(classname(), "changeVarInverseAD");
+-  chvar_->changeVarInverseAD(dx.increment(), vars);
++  chvar_->changeVarInverseAD(dx.increment(), vars.variables());
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarInverseAD done" << std::endl;
+ }
+ 
+@@ -149,10 +151,10 @@
+ 
+ template<typename MODEL>
+ void LinearVariableChange<MODEL>::changeVarTraj(const State_ & xFirstGuess,
+-                                                const JediVariables & vars) {
++                                                const Variables_ & vars) {
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarTraj starting" << std::endl;
+   util::Timer timer(classname(), "changeVarTraj");
+-  chvar_->changeVarTraj(xFirstGuess.state(), vars);
++  chvar_->changeVarTraj(xFirstGuess.state(), vars.variables());
+   Log::trace() << "LinearVariableChange<MODEL>::changeVarTraj done" << std::endl;
+ }
+ 

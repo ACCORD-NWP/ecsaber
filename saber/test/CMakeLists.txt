@@ -149,7 +149,7 @@ if( ENABLE_QUENCH )
 
       # Link to yaml file
       execute_process(COMMAND ${Python3_EXECUTABLE}
-                      ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_yaml_update.py
+                      ${CMAKE_BINARY_DIR}/bin/ecsaber_yaml_update.py
                       ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
                       ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
 
@@ -258,10 +258,12 @@ if( ENABLE_QUENCH )
 
                       # Add test
                       ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-                                        MPI ${mpi}
-                                        OMP ${omp}
-                                        COMMAND ${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x
-                                        ARGS testinput/${test}.yaml
+                                        COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.sh
+                                        ARGS ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
+                                             ${mpi}
+                                             ${omp}
+                                             "${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x testinput/${test}.yaml"
+                                             ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref
                                         DEPENDS quenchxx_${exename}.x
                                         TEST_DEPENDS ${deps_list} )
                   endif()
@@ -285,10 +287,12 @@ if( ENABLE_QUENCH )
 
               # Add test
               ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-                                MPI ${mpi}
-                                OMP ${omp}
-                                COMMAND ${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x
-                                ARGS testinput/${yaml_prefix}${test}.yaml
+                                COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.sh
+                                ARGS ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
+                                     ${mpi}
+                                     ${omp}
+                                     "${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x testinput/${test}.yaml"
+                                     ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref
                                 DEPENDS quenchxx_error_covariance_toolbox.x
                                 TEST_DEPENDS ${deps_list} )
           endif()

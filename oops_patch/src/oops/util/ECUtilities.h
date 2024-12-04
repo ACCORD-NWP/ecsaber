@@ -62,6 +62,8 @@ void dirac4D(const eckit::Configuration & conf,
     for (int jt = incr4D.first(); jt <= incr4D.last(); ++jt) {
       if (!confs[jt].empty()) {
         incr4D[jt].increment().dirac(confs[jt]);
+      } else {
+        incr4D[jt].increment().zero();
       }
     }
   }
