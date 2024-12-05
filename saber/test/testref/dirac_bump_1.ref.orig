@@ -129,7 +129,7 @@ Valid time: 2010-01-01T18:00:00Z
 =======
   eastward_wind: 1.3541398063751613e+01
   northward_wind: 4.0498383512132081e+00
-Valid time:2010-01-01T18:00:00Z
+Valid time: 2010-01-01T18:00:00Z
 >>>>>>> feature/lvc_refactor_update2
 Quench geometry grid:
 - name: L40x21
@@ -279,7 +279,7 @@ Valid time: 2010-01-01T18:00:00Z
 =======
   eastward_wind: 2.7082796127500622e+01
   northward_wind: 8.0996767024264411e+00
-Valid time:2010-01-01T18:00:00Z
+Valid time: 2010-01-01T18:00:00Z
 >>>>>>> feature/lvc_refactor_update2
 Quench geometry grid:
 - name: L40x21

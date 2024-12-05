@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_spectralb_localization_1.yaml.tmp	2024-12-04 16:39:16.300572603 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_spectralb_localization_1.yaml	2024-12-04 16:36:14.780671417 +0100
+@@ -100,4 +100,5 @@
+   filepath: testdata/dirac_spectralb_localization_1/%MPI%_dirac_%id%
+ 
+ test:
++  float relative tolerance: 1.0e-6
+   reference filename: testref/dirac_spectralb_localization_1.ref

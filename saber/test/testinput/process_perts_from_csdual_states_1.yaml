@@ -53,4 +53,5 @@ ensemble:
 input variables: *vars
 
 test:
+  float relative tolerance: 1.0e-6
   reference filename: testref/process_perts_from_csdual_states_1.ref
