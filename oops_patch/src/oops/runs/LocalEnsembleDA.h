@@ -440,8 +440,8 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
       Log::test() << "analysis y - H(x): " << std::endl << oman << std::endl;
 
       // display overall background/analysis RMS stats
-      Log::test() << "ombg RMS: " << std::sqrt(ombg.dot_product_with(ombg)) << std::endl
-                << "oman RMS: " << std::sqrt(oman.dot_product_with(oman)) << std::endl;
+      Log::test() << "ombg RMS: " << util::rms(ombg) << std::endl
+                << "oman RMS: " << util::rms(oman) << std::endl;
     }
 
     // Save the obsspace only if an hofx was calculated

@@ -215,6 +215,19 @@ size_t packEigenSize(const oops::Departures<MODEL> & dep,
 }
 
 // -----------------------------------------------------------------------------
+
+template <typename MODEL>
+double rms(oops::Departures<MODEL> & dep) {
+  double zz = 0.0;
+  for (std::size_t jj = 0; jj < dep.size(); ++jj) {
+    zz += dep[jj].rms()*dep[jj].rms();
+  }
+  zz = std::sqrt(zz);
+  return zz;
+}
+
+
+// -----------------------------------------------------------------------------
 // Observations
 // -----------------------------------------------------------------------------
 

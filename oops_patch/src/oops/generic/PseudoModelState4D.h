@@ -70,7 +70,6 @@ PseudoModelState4D<MODEL>::PseudoModelState4D(const State4D_ & state4d,
   : state4d_(state4d), tstep_(tstep) {
   const std::vector<util::DateTime> validTimes = state4d_.times();
   if (validTimes.size() > 1) tstep_ = validTimes[1] - validTimes[0];
-  std::cout << tstep_ << std::endl;
   Log::trace() << "PseudoModelState4D<MODEL>::PseudoModelState4D done" << std::endl;
 }
 
