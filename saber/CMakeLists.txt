@@ -42,9 +42,11 @@ include( ${PROJECT_NAME}_compiler_flags )
 
 ## Dependencies
 # Required
-find_package( jedicmake REQUIRED )  # Prefer find modules from jedi-cmake
+if( ENABLE_QUENCH )
+    find_package( jedicmake REQUIRED )  # Prefer find modules from jedi-cmake
+endif()
 if(OPENMP)
-  find_package( OpenMP REQUIRED COMPONENTS CXX Fortran )
+    find_package( OpenMP REQUIRED COMPONENTS CXX Fortran )
 endif()
 find_package( MPI REQUIRED COMPONENTS Fortran )
 find_package( NetCDF REQUIRED COMPONENTS C Fortran )
@@ -70,8 +72,8 @@ if( ENABLE_MKL AND MKL_FOUND )
 else()
     find_package( LAPACK REQUIRED )
     if( TARGET lapack )
-      ecbuild_debug( "LAPACK found as CMake target lapack" )
-      set( LAPACK_LIBRARIES lapack )
+        ecbuild_debug( "LAPACK found as CMake target lapack" )
+        set( LAPACK_LIBRARIES lapack )
     endif()
 endif()
 
