@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2023-2024 Met Office
+ * (C) Crown Copyright 2023 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -24,8 +24,6 @@
 
 #include "saber/blocks/SaberBlockParametersBase.h"
 #include "saber/blocks/SaberOuterBlockBase.h"
-#include "saber/spectralb/GaussUVToGP.h"
-#include "saber/vader/GpToHp.h"
 #include "saber/vader/PressureParameters.h"
 
 namespace oops {
@@ -34,32 +32,26 @@ namespace oops {
 
 namespace saber {
 namespace vader {
-  class GpToHp;
-}
-
-namespace spectralb {
-  class GaussUVToGP;
 
 // -----------------------------------------------------------------------------
-/// \brief a saber block that creates hydrostatic pressure using
-///        horizontal winds and unbalanced pressure. The "hydrostatic" part is
-///        implied and not enforced in this saber block.
-///        Note also that this saber block expects the outer and inner functionspaces
-///        to be on the same Gaussian mesh.
-///        To do this it uses GaussUVToGp and GpToHp saber blocks
-class HydrostaticPressure : public SaberOuterBlockBase {
+/// \brief This saber block is here is to create "hydrostatic_pressure"
+///        from "geostrophic pressure" and "unbalanced pressure"
+///        Vertical regression is applied to "geostrophic pressure"
+///        as part of this calculation.
+
+class GpToHpm1 : public SaberOuterBlockBase {
  public:
-  static const std::string classname() {return "saber::vader::HydrostaticPressure";}
+  static const std::string classname() {return "saber::vader::GpToHpm1";}
 
-  typedef HydrostaticPressureParameters Parameters_;
+  typedef GpToHpm1Parameters Parameters_;
 
-  HydrostaticPressure(const oops::GeometryData &,
-                   const oops::JediVariables &,
-                   const eckit::Configuration &,
-                   const Parameters_ &,
-                   const oops::FieldSet3D &,
-                   const oops::FieldSet3D &);
-  virtual ~HydrostaticPressure();
+  GpToHpm1(const oops::GeometryData &,
+           const oops::JediVariables &,
+           const eckit::Configuration &,
+           const Parameters_ &,
+           const oops::FieldSet3D &,
+           const oops::FieldSet3D &);
+  virtual ~GpToHpm1();
 
   const oops::GeometryData & innerGeometryData() const override {return innerGeometryData_;}
   const oops::JediVariables & innerVars() const override {return innerVars_;}
@@ -75,15 +67,12 @@ class HydrostaticPressure : public SaberOuterBlockBase {
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
   const oops::JediVariables innerVars_;
-  const oops::JediVariables intermediateTempVars_;
-  /// Gaussian (outer) functionspace
-  const atlas::functionspace::StructuredColumns gaussFunctionSpace_;
+  const oops::JediVariables activeOuterVars_;
+  const oops::JediVariables innerOnlyVars_;
   Parameters_ params_;
-  std::unique_ptr<saber::vader::GpToHp> gptohp_;
-  std::unique_ptr<GaussUVToGP> gaussuvtogp_;
+  atlas::FieldSet covFieldSet_;
+  atlas::FieldSet augmentedStateFieldSet_;
 };
 
-// -----------------------------------------------------------------------------
-
-}  // namespace spectralb
+}  // namespace vader
 }  // namespace saber

@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "oops/base/Variables.h"
+
 #include "oops/util/parameters/OptionalParameter.h"
 #include "oops/util/parameters/Parameter.h"
 #include "oops/util/parameters/Parameters.h"
@@ -61,10 +62,15 @@ class GpToHpReadParameters : public oops::Parameters {
   oops::Parameter<int> gp_regression_bins{"gp regression bins", "gP regression bins", 18, this};
 };
 
-class GpToHpWriteParameters : public oops::Parameters {
-  OOPS_CONCRETE_PARAMETERS(GpToHpWriteParameters, oops::Parameters)
+// -----------------------------------------------------------------------------
+
+class GpToHpCalibrationReadParameters : public oops::Parameters {
+  OOPS_CONCRETE_PARAMETERS(GpToHpCalibrationReadParameters, oops::Parameters)
 
  public:
+  oops::RequiredParameter<std::string> covariance_file_path{"covariance file path", this};
+  oops::RequiredParameter<int> covariance_nlat{"number of covariance latitude rings", this};
+  oops::Parameter<int> gp_regression_bins{"gp regression bins", "gP regression bins", 18, this};
 };
 
 // -----------------------------------------------------------------------------
@@ -76,8 +82,8 @@ class GpToHpParameters : public SaberBlockParametersBase {
   // Read parameters
   oops::OptionalParameter<GpToHpReadParameters> readParams{"read", this};
 
-  // Calibration of block parameters
-  oops::OptionalParameter<GpToHpWriteParameters> calibrationParams{"calibration", this};
+  oops::OptionalParameter<GpToHpCalibrationReadParameters>
+    calibrationReadParams{"calibration read", this};
 
   oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
     std::vector<std::string>{
@@ -101,6 +107,40 @@ class GpToHpParameters : public SaberBlockParametersBase {
 
   oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
     oops::JediVariables vars({outerVars["hydrostatic_pressure_levels"]});
+    return vars;
+  }
+};
+
+// -----------------------------------------------------------------------------
+
+class GpToHpm1Parameters : public SaberBlockParametersBase {
+  OOPS_CONCRETE_PARAMETERS(GpToHpm1Parameters, SaberBlockParametersBase)
+
+ public:
+  // Read parameters
+  oops::OptionalParameter<GpToHpReadParameters> readParams{"read", this};
+
+  oops::OptionalParameter<GpToHpCalibrationReadParameters>
+    calibrationReadParams{"calibration read", this};
+
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
+    std::vector<std::string>{
+    "geostrophic_pressure_levels_minus_one",
+    "hydrostatic_pressure_levels_minus_one",
+    "unbalanced_pressure_levels_minus_one"}});}
+
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    const int modelLevels = outerVars["hydrostatic_pressure_levels_minus_one"].getLevels();
+    eckit::LocalConfiguration conf;
+    conf.set("levels", modelLevels);
+    oops::JediVariables vars;
+    vars.push_back(oops::Variable{"geostrophic_pressure_levels_minus_one", conf});
+    vars.push_back(oops::Variable{"unbalanced_pressure_levels_minus_one", conf});
+    return vars;
+  }
+
+  oops::JediVariables activeOuterVars(const oops::JediVariables& outerVars) const override {
+    oops::JediVariables vars({outerVars["hydrostatic_pressure_levels_minus_one"]});
     return vars;
   }
 };
@@ -146,6 +186,50 @@ class HydrostaticPressureParameters : public SaberBlockParametersBase {
                              Here());
     }
     const int modelLevels = outerVars["hydrostatic_pressure_levels"].getLevels() - 1;
+    eckit::LocalConfiguration conf;
+    conf.set("levels", modelLevels);
+    oops::JediVariables tempVars;
+    tempVars.push_back(oops::Variable{"geostrophic_pressure_levels_minus_one", conf});
+    return tempVars;
+  }
+};
+
+// -----------------------------------------------------------------------------
+
+class HydrostaticPressureMinusOneParameters : public SaberBlockParametersBase {
+  OOPS_CONCRETE_PARAMETERS(HydrostaticPressureMinusOneParameters, SaberBlockParametersBase)
+
+ public:
+  GaussUVToGPParameters gaussUVToGp{this};
+  GpToHpm1Parameters gpToHp{this};
+  oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables({
+    std::vector<std::string>{"eastward_wind",
+    "hydrostatic_pressure_levels_minus_one",
+    "northward_wind",
+    "unbalanced_pressure_levels_minus_one"}});}
+
+  oops::JediVariables activeInnerVars(const oops::JediVariables& outerVars) const override {
+    const int modelLevels = outerVars["hydrostatic_pressure_levels_minus_one"].getLevels();
+    eckit::LocalConfiguration conf;
+    conf.set("levels", modelLevels);
+    oops::JediVariables vars;
+    vars.push_back(oops::Variable{"eastward_wind", conf});
+    vars.push_back(oops::Variable{"northward_wind", conf});
+    vars.push_back(oops::Variable{"unbalanced_pressure_levels_minus_one", conf});
+    return vars;
+  }
+
+  // activeOuterVars() is not needed in this super-block.
+  // It would have contained "hydrostatic_pressure_levels_minus_one".
+
+  oops::JediVariables intermediateTempVars(const oops::JediVariables& outerVars) const {
+    if (outerVars.has("geostrophic_pressure_levels_minus_one")) {
+      throw eckit::UserError("geostrophic_pressure_levels_minus_one is a "
+                             "temporary variable of mo_hydrostatic_pressure "
+                             " and should not be an outer variable of this block.",
+                             Here());
+    }
+    const int modelLevels = outerVars["hydrostatic_pressure_levels_minus_one"].getLevels();
     eckit::LocalConfiguration conf;
     conf.set("levels", modelLevels);
     oops::JediVariables tempVars;

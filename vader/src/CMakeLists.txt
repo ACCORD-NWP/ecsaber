@@ -118,6 +118,8 @@ mo/eval_exner.h
 mo/eval_exner.cc
 mo/eval_geostrophic_to_hydrostatic_pressure.h
 mo/eval_geostrophic_to_hydrostatic_pressure.cc
+mo/eval_geostrophic_to_hydrostatic_pressure_levels_minus_one.h
+mo/eval_geostrophic_to_hydrostatic_pressure_levels_minus_one.cc
 mo/eval_hydrostatic_balance.h
 mo/eval_hydrostatic_balance.cc
 mo/eval_mio_fields.h

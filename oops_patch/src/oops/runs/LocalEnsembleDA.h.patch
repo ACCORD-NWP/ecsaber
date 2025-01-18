@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/LocalEnsembleDA.h.tmp.bak	2024-11-27 12:20:21.190075076 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/LocalEnsembleDA.h	2024-11-27 12:28:31.876664144 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/LocalEnsembleDA.h.tmp.bak	2025-01-18 07:00:41.635516642 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/LocalEnsembleDA.h	2025-01-18 07:05:03.169063815 +0100
 @@ -15,15 +15,21 @@
  #include <vector>
  
@@ -25,8 +25,11 @@
  #include "oops/base/ParameterTraitsVariables.h"
  #include "oops/base/State4D.h"
  #include "oops/base/StateEnsemble4D.h"
-@@ -33,9 +39,14 @@
+@@ -31,12 +37,16 @@
+ #include "oops/interface/GeometryIterator.h"
+ #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
+-#include "oops/util/ConfigHelpers.h"
  #include "oops/util/DateTime.h"
  #include "oops/util/Duration.h"
 +#include "oops/util/ECUtilities.h"
@@ -42,7 +45,7 @@
  
  namespace oops {
  
-@@ -89,15 +100,10 @@
+@@ -90,11 +100,8 @@
  // -----------------------------------------------------------------------------
  /// \brief Top-level options taken by the LocalEnsembleDA application.
  template <typename MODEL>
@@ -55,12 +58,8 @@
 +  OOPS_CONCRETE_PARAMETERS(LocalEnsembleDAParameters, Parameters)
  
   public:
--  typedef typename Increment_::WriteParameters_ IncrementWriteParameters_;
--
    /// Options describing the assimilation time window.
-   RequiredParameter<eckit::LocalConfiguration> timeWindow{"time window", this};
- 
-@@ -118,6 +124,8 @@
+@@ -117,6 +124,8 @@
    OptionalParameter<JediVariables> incvars{"increment variables",
            "analysis increment variables", this};
  
@@ -69,29 +68,7 @@
    RequiredParameter<eckit::LocalConfiguration> localEnsDA{"local ensemble DA",
            "local ensemble DA solver and its options", this};
  
-@@ -135,45 +143,47 @@
-          "parameters for prior mean output", this};
- 
-   /// Note: these Parameters have to be present if driver.savePostMeanInc is true.
--  OptionalParameter<IncrementWriteParameters_> outputPostMeanInc{"output increment",
-+  OptionalParameter<eckit::LocalConfiguration> outputPostMeanInc{"output increment",
-          "parameters for posterior mean increment output", this};
- 
-   /// Note: these Parameters have to be present if driver.savePostEnsInc is true.
--  OptionalParameter<IncrementWriteParameters_> outputPostEnsInc{"output ensemble increments",
-+  OptionalParameter<eckit::LocalConfiguration> outputPostEnsInc{"output ensemble increments",
-          "parameters for posterior ensemble increments output", this};
- 
-   /// Note: these Parameters have to be present if driver.savePriorVar is true.
--  OptionalParameter<IncrementWriteParameters_> outputPriorVar{"output variance prior",
-+  OptionalParameter<eckit::LocalConfiguration> outputPriorVar{"output variance prior",
-          "parameters for prior variance output", this};
- 
-   /// Note: these Parameters have to be present if driver.savePostVar is true.
--  OptionalParameter<IncrementWriteParameters_> outputPostVar{"output variance posterior",
-+  OptionalParameter<eckit::LocalConfiguration> outputPostVar{"output variance posterior",
-          "parameters for posterior variance output", this};
- };
+@@ -152,26 +161,29 @@
  
  // -----------------------------------------------------------------------------
  /// \brief Application for local ensemble data assimilation
@@ -114,7 +91,6 @@
 +  typedef Observations<MODEL>              Observations_;
    typedef State4D<MODEL>                   State4D_;
    typedef StateEnsemble4D<MODEL>           StateEnsemble4D_;
--  typedef typename Increment<MODEL>::WriteParameters_ IncrementWriteParameters_;
    typedef LocalEnsembleDAParameters<MODEL> LocalEnsembleDAParameters_;
 +  typedef Variables<MODEL>                 Variables_;
  
@@ -130,20 +106,15 @@
    }
  
  // -----------------------------------------------------------------------------
-@@ -182,10 +192,10 @@
- 
- // -----------------------------------------------------------------------------
- 
--  int execute(const eckit::Configuration & fullConfig, bool validate) const override {
-+  int execute(const eckit::Configuration & fullConfig) const override {
+@@ -183,6 +195,7 @@
+   int execute(const eckit::Configuration & fullConfig) const override {
      // Deserialize parameters
      LocalEnsembleDAParameters_ params;
--    if (validate) params.validate(fullConfig);
 +    params.validate(fullConfig);
      params.deserialize(fullConfig);
  
      //  Setup observation window
-@@ -193,23 +203,28 @@
+@@ -190,22 +203,28 @@
      Log::info() << "Observation window: " << timeWindow << std::endl;
  
      // Setup geometry
@@ -162,7 +133,6 @@
      // Setup observations
 -    const eckit::mpi::Comm & time = oops::mpi::myself();
 -    ObsSpaces_ obsdb(obsConfig, this->getComm(), timeWindow, time);
--    Observations_ yobs(obsdb, "ObsValue");
 +    ObsSpaces_ obsdb(obsConfig, geometry, timeWindow.start(), timeWindow.end());
 +    Observations_ yobs(obsdb);
 +    yobs.read(obsConfig);
@@ -179,7 +149,7 @@
      const size_t nens = ens_xx.size();
      const JediVariables statevars = ens_xx.variables();
      JediVariables incvars;
-@@ -218,19 +233,15 @@
+@@ -214,19 +233,15 @@
      } else {
        incvars += *params.incvars.value();
      }
@@ -204,7 +174,7 @@
  
      // test prints for the prior ensemble
      bool do_test_prints = params.driver.value().doTestPrints;
-@@ -240,23 +251,24 @@
+@@ -236,24 +251,24 @@
        }
      }
  
@@ -212,6 +182,7 @@
 +//    util::printRunStats("LocalEnsembleDA before computeHofX");
  
      // compute H(x)
+-    Observations_ yobs(obsdb, "ObsValue");
 -    Observations_ yb_mean = solver->computeHofX(ens_xx, 0, params.driver.value().readHofX);
 +    Observations_ yb_mean = solver->computeHofX(ens_xx, 0, params.driver.value().readHofX, model,
 +      yobs, ybias);
@@ -233,7 +204,7 @@
        return 0;
      }
  
-@@ -269,11 +281,11 @@
+@@ -266,11 +281,11 @@
      IncrementEnsemble4D_ bkg_pert(ens_xx, bkg_mean, incvars);
  
      // initialize empty analysis perturbations
@@ -247,7 +218,7 @@
      solver->measurementUpdate(bkg_pert, ana_pert);
  
      // wait all tasks to finish their solution, so the timing for functions below reports
-@@ -281,22 +293,25 @@
+@@ -278,22 +293,25 @@
      oops::mpi::world().barrier();
  
      Log::info() << "Local solver completed." << std::endl;
@@ -280,58 +251,29 @@
        }
      }
  
-@@ -310,10 +325,11 @@
+@@ -307,10 +325,11 @@
            "`save posterior ensemble increment` is set to true, but `output ensemble increments` "
            "configuration not found.");
        }
--      IncrementWriteParameters_ output = *params.outputPostEnsInc.value();
 +
-+      eckit::LocalConfiguration output = *params.outputPostEnsInc.value();
+       eckit::LocalConfiguration output = *params.outputPostEnsInc.value();
        for (size_t jj = 0; jj < nens; ++jj) {
--        output.setMember(jj+1);
+         util::setMember(output, jj+1);
 -        for (size_t itime = 0; itime < ana_pert[0].size(); ++itime) {
-+        util::setMember(output, jj+1);
 +        for (size_t itime = ana_pert[0].first(); itime < ana_pert[0].last()+1; ++itime) {
            Increment_ ana_increment(ana_pert[jj][itime], true);
            ana_increment -= bkg_pert[jj][itime];
            ana_increment.write(output);
-@@ -367,9 +383,10 @@
-         throw eckit::BadValue("`save posterior mean increment` is set to true, but "
-                               "`output increment` configuration not found.");
+@@ -366,7 +385,7 @@
        }
--      IncrementWriteParameters_ output = *params.outputPostMeanInc.value();
--      output.setMember(0);
+       eckit::LocalConfiguration output = *params.outputPostMeanInc.value();
+       util::setMember(output, 0);
 -      for (size_t itime = 0; itime < ana_mean.size(); ++itime) {
-+
-+      eckit::LocalConfiguration output = *params.outputPostMeanInc.value();
-+      util::setMember(output, 0);
 +      for (size_t itime = 0; itime < ana_mean.statesNumber(); ++itime) {
          Increment_ ana_increment(ana_pert[0][itime], false);
          ana_increment.diff(ana_mean[itime], bkg_mean[itime]);
          ana_increment.write(output);
-@@ -385,8 +402,8 @@
-         throw eckit::BadValue("`save prior variance` is set to true, but `output variance prior` "
-                               "configuration not found.");
-       }
--      IncrementWriteParameters_ output = *params.outputPriorVar.value();
--      output.setMember(0);
-+      eckit::LocalConfiguration output = *params.outputPriorVar.value();
-+      util::setMember(output, 0);
-       std::string strOut("Forecast variance :");
-       saveVariance(output, bkg_pert, do_test_prints, strOut);
-     }
-@@ -397,8 +414,8 @@
-         throw eckit::BadValue("`save posterior variance` is set to true, but "
-                               "`output variance posterior` configuration not found.");
-       }
--      IncrementWriteParameters_ output = *params.outputPostVar.value();
--      output.setMember(0);
-+      eckit::LocalConfiguration output = *params.outputPostVar.value();
-+      util::setMember(output, 0);
-       std::string strOut("Analysis variance :");
-       saveVariance(output, ana_pert, do_test_prints, strOut);
-     }
-@@ -411,26 +428,27 @@
+@@ -408,26 +427,27 @@
        // need to create a posterior solver that stores ana_mean internally.
        // This is needed if linear observer is used, because it is linearized arround this mean
        std::unique_ptr<LocalSolver_> posteriorSolver =
@@ -353,8 +295,8 @@
        // display overall background/analysis RMS stats
 -      Log::test() << "ombg RMS: " << ombg.rms() << std::endl
 -                << "oman RMS: " << oman.rms() << std::endl;
-+      Log::test() << "ombg RMS: " << std::sqrt(ombg.dot_product_with(ombg)) << std::endl
-+                << "oman RMS: " << std::sqrt(oman.dot_product_with(oman)) << std::endl;
++      Log::test() << "ombg RMS: " << util::rms(ombg) << std::endl
++                << "oman RMS: " << util::rms(oman) << std::endl;
      }
  
      // Save the obsspace only if an hofx was calculated
@@ -366,7 +308,7 @@
      }
  
      return 0;
-@@ -440,7 +458,7 @@
+@@ -437,7 +457,7 @@
  
   private:
    std::string appname() const override {
@@ -375,7 +317,7 @@
    }
  
    void calculate_patchCenter(const Geometry_ & geometry, std::vector<double> & patchCenter) const {
-@@ -458,7 +476,7 @@
+@@ -455,7 +475,7 @@
      double ymean = 0.0;
      double zmean = 0.0;
      int n = 0;
@@ -384,7 +326,7 @@
        gptmp3 = *i;
        alon = gptmp3[0]*deg2rad;
        alat = gptmp3[1]*deg2rad;
-@@ -489,7 +507,7 @@
+@@ -486,7 +506,7 @@
  
      // compute radius
      eckit::geometry::Point2 center(patchCenter[0], patchCenter[1]);
@@ -393,7 +335,7 @@
        gptmp[0] = (*i)[0];
        gptmp[1] = (*i)[1];
        double dist = eckit::geometry::Sphere::distance(radius_earth, center, gptmp);
-@@ -497,30 +515,29 @@
+@@ -494,20 +514,19 @@
      }
  
      // update observations configs with information on patch center and radius
@@ -421,10 +363,7 @@
      }
    }
  
--  void saveVariance(const IncrementWriteParameters_ & params, const IncrementEnsemble4D_ & perts,
-+  void saveVariance(const eckit::LocalConfiguration & params, const IncrementEnsemble4D_ & perts,
-                     const bool do_test_prints, const std::string & strOut) const {
-     // save and optionaly print varaince of an IncrementEnsemble4D_ object
+@@ -517,7 +536,7 @@
      size_t nens = perts.size();
      const double ncVar = 1.0/(static_cast<double>(nens) - 1.0);
      const double ncMean = 1.0/(static_cast<double>(nens));
@@ -433,21 +372,3 @@
        // compute the mean
        Increment_ mean(perts[0][itime], false);
        for (size_t iens = 0; iens < nens; ++iens) {
-@@ -545,17 +562,6 @@
-   }
- 
- // -----------------------------------------------------------------------------
--  void outputSchema(const std::string & outputPath) const override {
--    LocalEnsembleDAParameters_ params;
--    params.outputSchema(outputPath);
--  }
--// -----------------------------------------------------------------------------
--  void validateConfig(const eckit::Configuration & fullConfig) const override {
--    LocalEnsembleDAParameters_ params;
--    params.validate(fullConfig);
--  }
--
--// -----------------------------------------------------------------------------
- };
- 
- }  // namespace oops

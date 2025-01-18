@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-12-04 13:37:20.576604101 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-12-04 13:29:00.172131109 +0100
-@@ -148,9 +148,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2025-01-18 07:07:28.008111462 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2025-01-18 07:21:58.366862502 +0100
+@@ -160,9 +160,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
        # Link to yaml file
@@ -14,7 +14,7 @@
  
        # Link to reference file
        if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -218,7 +219,7 @@
+@@ -230,7 +231,7 @@
  
                    # Special check for 4D tests
                    string( FIND ${test} "_4d" found_result )
@@ -23,7 +23,7 @@
                        set( 4dCheck true CACHE BOOL "" FORCE )
                    else()
                        set( 4dCheck false CACHE BOOL "" FORCE )
-@@ -257,11 +258,13 @@
+@@ -269,11 +270,13 @@
  
                        # Add test
                        ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
@@ -42,7 +42,7 @@
                                          TEST_DEPENDS ${deps_list} )
                    endif()
                endif()
-@@ -284,11 +287,13 @@
+@@ -296,11 +299,13 @@
  
                # Add test
                ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/util/FieldSetHelpers.cc.tmp	2024-11-29 15:34:24.736190241 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/util/FieldSetHelpers.cc	2024-11-29 15:35:41.526517595 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/util/FieldSetHelpers.cc.tmp.bak	2025-01-18 07:00:41.721517056 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/util/FieldSetHelpers.cc	2025-01-18 07:06:44.922788738 +0100
 @@ -361,9 +361,17 @@
    oops::Log::trace() << "copyFieldSet starting" << std::endl;
    fset.clear();

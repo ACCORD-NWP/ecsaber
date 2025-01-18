@@ -113,6 +113,14 @@ void HydroBal::leftInverseMultiply(oops::FieldSet3D & fset) const {
 
 // -----------------------------------------------------------------------------
 
+void HydroBal::directCalibration(const oops::FieldSets & fsetEns) {
+  oops::Log::trace() << classname() << "::directCalibration starting" << std::endl;
+
+  oops::Log::trace() << classname() << "::directCalibration done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
 void HydroBal::print(std::ostream & os) const {
   os << classname();
 }

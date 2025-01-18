@@ -349,6 +349,10 @@ if "background error" in config:
 # Ensemble
 config = add_ensemble_variables(config)
 
+# Add model
+config["model"] = {}
+config["model"]["tstep"] = "PT6H"
+
 # Write yaml file
 with open(args.outputYaml, "w") as file:
     output = yaml.dump(config, file, sort_keys=False)

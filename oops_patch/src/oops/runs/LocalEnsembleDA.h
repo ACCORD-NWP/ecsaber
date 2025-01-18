@@ -383,7 +383,6 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
         throw eckit::BadValue("`save posterior mean increment` is set to true, but "
                               "`output increment` configuration not found.");
       }
-
       eckit::LocalConfiguration output = *params.outputPostMeanInc.value();
       util::setMember(output, 0);
       for (size_t itime = 0; itime < ana_mean.statesNumber(); ++itime) {

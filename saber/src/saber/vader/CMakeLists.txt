@@ -14,6 +14,8 @@ DryAirDensity.cc
 DryAirDensity.h
 GpToHp.cc
 GpToHp.h
+GpToHpm1.cc
+GpToHpm1.h
 HpToHexner.cc
 HpToHexner.h
 HpHexnerToPExner.cc

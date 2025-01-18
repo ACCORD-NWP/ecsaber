@@ -130,33 +130,42 @@ void MoistureControl::leftInverseMultiply(oops::FieldSet3D & fset) const {
 
 void MoistureControl::read() {
   oops::Log::trace() << classname() << "::read start " <<  std::endl;
-  const auto & readParams = params_.readParams.value();
-  if (readParams != boost::none) {
-    // Covariance FieldSet
-    covFieldSet_ = createMuStats(nlevs_,
-                                 innerGeometryData_.fieldSet(),
-                                 readParams.value());
-
-    std::vector<std::string> additionalStateVariables{
-      "muA", "muH1",  // to be populated in function call from CovarianceStatisticsUtils.h
-      "muRow1Column1", "muRow1Column2",  // to be populated in eval_moisture_control_traj
-      "muRow2Column1", "muRow2Column2",  //   ""
-      "muRecipDeterminant"  //   ""
-    };
-
-    // create fields for temporary variables required here
-    for (const auto & s : additionalStateVariables) {
-      atlas::Field field = innerGeometryData_.functionSpace()->createField<double>(
-          atlas::option::name(s) | atlas::option::levels(nlevs_));
-      augmentedStateFieldSet_.add(field);
+  MoistureControlReadParameters mparams;
+  const auto & calibparams = params_.calibrationParams.value();
+  if (calibparams != boost::none) {
+    const auto & calibrationReadParams = calibparams->calibrationReadParams.value();
+    if (calibrationReadParams != boost::none) {
+       mparams = calibrationReadParams.value();
     }
-
-    // populate "muA" and "muH1"
-    interpMuStats(augmentedStateFieldSet_, covFieldSet_["muH1Stats"]);
-    populateMuA(augmentedStateFieldSet_, covFieldSet_["muAStats"]);
-    // populate "specific moisture control dependencies"
-    mo::eval_moisture_control_traj(augmentedStateFieldSet_);
+  } else {
+    mparams = *params_.readParams.value();
   }
+
+  // Covariance FieldSet
+  covFieldSet_ = createMuStats(nlevs_,
+                               innerGeometryData_.fieldSet(),
+                               mparams);
+
+  std::vector<std::string> additionalStateVariables{
+    "muA", "muH1",  // to be populated in function call from CovarianceStatisticsUtils.h
+    "muRow1Column1", "muRow1Column2",  // to be populated in eval_moisture_control_traj
+    "muRow2Column1", "muRow2Column2",  //   ""
+    "muRecipDeterminant"  //   ""
+  };
+
+  // create fields for temporary variables required here
+  for (const auto & s : additionalStateVariables) {
+    atlas::Field field = innerGeometryData_.functionSpace()->createField<double>(
+        atlas::option::name(s) | atlas::option::levels(nlevs_));
+    augmentedStateFieldSet_.add(field);
+  }
+
+  // populate "muA" and "muH1"
+  interpMuStats(augmentedStateFieldSet_, covFieldSet_["muH1Stats"]);
+  populateMuA(augmentedStateFieldSet_, covFieldSet_["muAStats"]);
+  // populate "specific moisture control dependencies"
+  mo::eval_moisture_control_traj(augmentedStateFieldSet_);
+
   oops::Log::trace() << classname() << "::read done" << std::endl;
 }
 
@@ -164,7 +173,12 @@ void MoistureControl::read() {
 
 void MoistureControl::directCalibration(const oops::FieldSets & fset) {
   oops::Log::trace() << classname() << "::directCalibration start" << std::endl;
-
+  const auto & calibparams = params_.calibrationParams.value();
+  ASSERT(calibparams != boost::none);
+  const auto & calibrationReadParams = calibparams->calibrationReadParams.value();
+  if (calibrationReadParams != boost::none) {
+    MoistureControl::read();
+  }
   oops::Log::trace() << classname() << "::directCalibration end" << std::endl;
 }
 

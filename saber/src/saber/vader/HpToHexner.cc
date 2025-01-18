@@ -103,6 +103,14 @@ void HpToHexner::leftInverseMultiply(oops::FieldSet3D & fset) const {
 
 // -----------------------------------------------------------------------------
 
+void HpToHexner::directCalibration(const oops::FieldSets & fsetEns) {
+  oops::Log::trace() << classname() << "::directCalibration starting" << std::endl;
+
+  oops::Log::trace() << classname() << "::directCalibration done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
 void HpToHexner::print(std::ostream & os) const {
   os << classname();
 }

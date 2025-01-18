@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2024-11-26 14:29:56.606085208 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2024-11-26 14:19:22.454253114 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2025-01-18 07:07:25.438091973 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2025-01-18 07:16:27.218155762 +0100
 @@ -19,12 +19,14 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -31,24 +31,7 @@
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -108,7 +113,6 @@
-   OOPS_CONCRETE_PARAMETERS(OutputWriteParameters, oops::Parameters)
- 
-  public:
--  typedef typename oops::Increment<MODEL>::WriteParameters_  IncrementWriteParameters_;
-   typedef ErrorCovarianceParameters<MODEL>                   ErrorCovarianceParameters_;
- 
-   // This is there to get ErrorCovarianceParameters and in particular
-@@ -121,7 +125,7 @@
-     genericWrite{"generic write", this};
- 
-   /// Write parameters using model increment writer
--  oops::OptionalParameter<IncrementWriteParameters_>
-+  oops::OptionalParameter<eckit::LocalConfiguration>
-     modelWrite{"model write", this};
- };
- 
-@@ -143,19 +147,19 @@
+@@ -142,19 +147,19 @@
  
  /// \brief Top-level options taken by the ProcessPerts application.
  template <typename MODEL> class ProcessPertsParameters :
@@ -73,7 +56,7 @@
  
    oops::RequiredParameter<std::vector<BandParameters_>> bands{"bands", this};
  
-@@ -171,46 +175,74 @@
+@@ -170,44 +175,73 @@
    typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
    typedef oops::Geometry<MODEL>                             Geometry_;
    typedef oops::Increment<MODEL>                            Increment_;
@@ -81,7 +64,6 @@
 +  typedef oops::Model<MODEL>                                Model_;
    typedef oops::State<MODEL>                                State_;
    typedef oops::State4D<MODEL>                              State4D_;
--  typedef typename oops::Increment<MODEL>::WriteParameters_ IncrementWriteParameters_;
 +  typedef oops::Variables<MODEL>                            Variables_;
    typedef ProcessPertsParameters<MODEL>                     ProcessPertsParameters_;
  
@@ -96,12 +78,10 @@
    virtual ~ProcessPerts() {}
  // -----------------------------------------------------------------------------
  
--  int execute(const eckit::Configuration & fullConfig, bool validate) const override {
+-  int execute(const eckit::Configuration & fullConfig) const override {
 +  int execute(const eckit::Configuration & fullConfig) const {
      // Deserialize parameters
      ProcessPertsParameters_ params;
--    if (validate) params.validate(fullConfig);
-+    params.validate(fullConfig);
      params.deserialize(fullConfig);
  
      // Define space and time communicators
@@ -159,7 +139,7 @@
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars[i].setLevels(vlevs[i]);
      }
-@@ -368,25 +400,25 @@
+@@ -365,24 +399,26 @@
            eckit::LocalConfiguration gconf = it->second;
            util::setMember(gconf, jm+1);
            setConcatenatedString(fullConfig,
@@ -184,28 +164,11 @@
 -          pert.fromFieldSet(fset4dDx[0].fieldSet());
 +          pert.increment().fromFieldSet(fset4dDx[0].fieldSet());
  
--          IncrementWriteParameters_ writeParams;
--          writeParams.deserialize(mconf);
--          writeParams.setMember(jm+1);
+-          util::setMember(mconf, jm+1);
+-          pert.write(mconf);
 +          eckit::LocalConfiguration writeParams = mconf;
 +          util::setMember(writeParams, jm+1);
-           pert.write(writeParams);
++          pert.write(writeParams);
          }
        }
-@@ -395,16 +427,6 @@
-     return 0;
-   }
- // -----------------------------------------------------------------------------
--  void outputSchema(const std::string & outputPath) const override {
--    ProcessPertsParameters_ params;
--    params.outputSchema(outputPath);
--  }
--// -----------------------------------------------------------------------------
--  void validateConfig(const eckit::Configuration & fullConfig) const override {
--    ProcessPertsParameters_ params;
--    params.validate(fullConfig);
--  }
--// -----------------------------------------------------------------------------
-  private:
-   std::string appname() const override {
-     return "oops::ProcessPerts<" + MODEL::name() + ">";
+     }

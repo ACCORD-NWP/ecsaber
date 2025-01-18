@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoLinearModelIncrement4D.h.tmp	2024-11-21 11:22:57.289426837 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoLinearModelIncrement4D.h	2024-11-20 14:41:00.795851266 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoLinearModelIncrement4D.h.tmp.bak	2025-01-18 07:00:41.485515919 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoLinearModelIncrement4D.h	2025-01-18 07:01:37.775802152 +0100
 @@ -10,12 +10,12 @@
  #include <string>
  #include <vector>
@@ -17,16 +17,16 @@
  #include "oops/interface/ModelAuxIncrement.h"
  #include "oops/util/Duration.h"
  #include "oops/util/Logger.h"
-@@ -63,7 +63,7 @@
-   /// linear model time step
+@@ -64,7 +64,7 @@
    const util::Duration & timeResolution() const override {return tstep_;}
+   const util::Duration & stepTrajectory() const override {return tstep_;}
    /// linear model variables
 -  const oops::JediVariables & variables() const {return vars_;}
 +  const oops::Variables & variables() const {return vars_;}
  
   private:
    void print(std::ostream &) const override;
-@@ -74,7 +74,7 @@
+@@ -75,7 +75,7 @@
    util::Duration   tstep_;
    /// Index of the current increment
    mutable size_t currentinc_;

@@ -125,7 +125,6 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
   int execute(const eckit::Configuration & fullConfig) const {
     // Deserialize parameters
     ErrorCovarianceToolboxParameters params;
-    params.validate(fullConfig);
     params.deserialize(fullConfig);
 
     // Define space and time communicators

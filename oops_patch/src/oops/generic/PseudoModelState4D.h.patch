@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoModelState4D.h.tmp	2024-11-21 11:22:57.306426901 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoModelState4D.h	2024-11-20 14:41:00.795851266 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoModelState4D.h.tmp.bak	2025-01-18 07:00:41.505516016 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoModelState4D.h	2024-12-12 09:26:05.148402954 +0100
 @@ -11,10 +11,10 @@
  #include <string>
  #include <vector>
@@ -55,14 +55,13 @@
  
    /// Reference to 4D state that is used in the model
    const State4D_ & state4d_;
-@@ -65,15 +68,42 @@
+@@ -65,15 +68,41 @@
  PseudoModelState4D<MODEL>::PseudoModelState4D(const State4D_ & state4d,
                                                const util::Duration & tstep)
    : state4d_(state4d), tstep_(tstep) {
 -  const std::vector<util::DateTime> validTimes = state4d_.validTimes();
 +  const std::vector<util::DateTime> validTimes = state4d_.times();
    if (validTimes.size() > 1) tstep_ = validTimes[1] - validTimes[0];
-+  std::cout << tstep_ << std::endl;
    Log::trace() << "PseudoModelState4D<MODEL>::PseudoModelState4D done" << std::endl;
  }
  
@@ -101,7 +100,7 @@
    currentstate_ = 0;
    xx = state4d_[currentstate_];
    Log::trace() << "PseudoModelState4D<MODEL>::initialize done" << std::endl;
-@@ -81,17 +111,17 @@
+@@ -81,17 +110,17 @@
  
  // -----------------------------------------------------------------------------
  

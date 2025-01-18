@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2024-11-27 14:49:26.053538445 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2024-11-27 14:28:02.292618239 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2025-01-18 07:07:25.451092071 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Utilities.h	2025-01-18 07:17:38.260564667 +0100
 @@ -23,15 +23,14 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -63,7 +63,7 @@
 -    ensemblePertParams.deserialize(ensemblePert);
 -    nens = ensemblePertParams.size();
 -    outputConf.set("ensemble pert", ensemblePert);
--    ensemblePertParams.getIncrementParameters(0).serialize(varConf);
+-    varConf = ensemblePertParams.getIncrementParameters(0);
 -    ++ensembleFound;
 -  }
 -
@@ -157,7 +157,7 @@
        return fsetEns;
      }
  
-@@ -270,15 +269,15 @@
+@@ -270,14 +269,14 @@
        // Read perturbations into oops::FieldSets
        oops::FieldSets fsetEns(fspace, vars, xb.times(),
                                ensemblePertOtherGeom,
@@ -170,12 +170,10 @@
    std::vector<util::DateTime> dates;
    std::vector<int> ensmems;
 -  oops::FieldSets ensemble(dates, xb.commTime(), ensmems, xb.commEns());
--  return ensemble;
-+  oops::FieldSets fsetEns(dates, eckit::mpi::self(), ensmems, eckit::mpi::self());
-+  return fsetEns;
++  oops::FieldSets ensemble(dates, eckit::mpi::self(), ensmems, eckit::mpi::self());
+   return ensemble;
  }
  
- // -------------------------------------------------------------------------------------------------
 @@ -296,14 +295,17 @@
    // Local copy
    eckit::LocalConfiguration localConf(conf);

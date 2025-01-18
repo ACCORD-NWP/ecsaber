@@ -276,8 +276,8 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
   // Return empty ensemble if none was returned before
   std::vector<util::DateTime> dates;
   std::vector<int> ensmems;
-  oops::FieldSets fsetEns(dates, eckit::mpi::self(), ensmems, eckit::mpi::self());
-  return fsetEns;
+  oops::FieldSets ensemble(dates, eckit::mpi::self(), ensmems, eckit::mpi::self());
+  return ensemble;
 }
 
 // -------------------------------------------------------------------------------------------------

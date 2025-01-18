@@ -5,7 +5,7 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#include "saber/vader/GpToHp.h"
+#include "saber/vader/GpToHpm1.h"
 
 #include <memory>
 #include <string>
@@ -21,7 +21,7 @@
 #include "mo/eval_air_pressure_levels.h"
 #include "mo/eval_air_temperature.h"
 #include "mo/eval_exner.h"
-#include "mo/eval_geostrophic_to_hydrostatic_pressure.h"
+#include "mo/eval_geostrophic_to_hydrostatic_pressure_levels_minus_one.h"
 #include "mo/eval_sat_vapour_pressure.h"
 #include "mo/eval_total_mixing_ratio.h"
 #include "mo/eval_virtual_potential_temperature.h"
@@ -42,26 +42,25 @@ namespace {
 
 oops::JediVariables removeOuterOnlyVar(const oops::JediVariables & vars) {
   oops::JediVariables innerVars(vars);
-  innerVars -= innerVars["hydrostatic_pressure_levels"];
+  innerVars -= innerVars["hydrostatic_pressure_levels_minus_one"];
   return innerVars;
 }
-
 
 }  // namespace
 
 // -----------------------------------------------------------------------------
 
-static SaberOuterBlockMaker<GpToHp>
-  makerGpToHp_("mo_hydrostatic_pressure_from_geostrophic_pressure");
+static SaberOuterBlockMaker<GpToHpm1>
+  makerGpToHpm1_("mo_hydrostatic_pressure_levels_minus_one_from_geostrophic_pressure");
 
 // -----------------------------------------------------------------------------
 
-GpToHp::GpToHp(const oops::GeometryData & outerGeometryData,
-               const oops::JediVariables & outerVars,
-               const eckit::Configuration & covarConf,
-               const Parameters_ & params,
-               const oops::FieldSet3D & xb,
-               const oops::FieldSet3D & fg)
+GpToHpm1::GpToHpm1(const oops::GeometryData & outerGeometryData,
+                   const oops::JediVariables & outerVars,
+                   const eckit::Configuration & covarConf,
+                   const Parameters_ & params,
+                   const oops::FieldSet3D & xb,
+                   const oops::FieldSet3D & fg)
   : SaberOuterBlockBase(params, xb.validTime()),
     innerGeometryData_(outerGeometryData),
     innerVars_(removeOuterOnlyVar(getUnionOfInnerActiveAndOuterVars(params, outerVars))),
@@ -71,34 +70,35 @@ GpToHp::GpToHp(const oops::GeometryData & outerGeometryData,
     covFieldSet_(),
     augmentedStateFieldSet_()
 {
-  oops::Log::trace() << classname() << "::GpToHp starting" << std::endl;
+  oops::Log::trace() << classname() << "::GpToHpm1 starting" << std::endl;
   const oops::JediVariables stateVariables = params.mandatoryStateVars();
   augmentedStateFieldSet_.clear();
   for (const auto & s : stateVariables) {
     augmentedStateFieldSet_.add(xb.fieldSet()[s.name()]);
   }
 
-  oops::Log::trace() << classname() << "::GpToHp done" << std::endl;
+  oops::Log::trace() << classname() << "::GpToHpm1 done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-GpToHp::~GpToHp() {
-  oops::Log::trace() << classname() << "::~GpToHp starting" << std::endl;
-  util::Timer timer(classname(), "~GpToHp");
-  oops::Log::trace() << classname() << "::~GpToHp done" << std::endl;
+GpToHpm1::~GpToHpm1() {
+  oops::Log::trace() << classname() << "::~GpToHpm1 starting" << std::endl;
+  util::Timer timer(classname(), "~GpToHpm1");
+  oops::Log::trace() << classname() << "::~GpToHpm1 done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-void GpToHp::multiply(oops::FieldSet3D & fset) const {
+void GpToHpm1::multiply(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::multiply starting" << std::endl;
   // Allocate output fields if they are not already present, e.g when randomizing.
   allocateMissingFields(fset, activeOuterVars_, activeOuterVars_,
                         innerGeometryData_.functionSpace());
 
   // Populate output fields.
-  mo::eval_hydrostatic_pressure_levels_tl(fset.fieldSet(), augmentedStateFieldSet_);
+  mo::eval_hydrostatic_pressure_levels_minus_one_tl(fset.fieldSet(),
+                                                    augmentedStateFieldSet_);
 
   // Remove inner-only variables
   fset.removeFields(innerOnlyVars_);
@@ -107,20 +107,21 @@ void GpToHp::multiply(oops::FieldSet3D & fset) const {
 
 // -----------------------------------------------------------------------------
 
-void GpToHp::multiplyAD(oops::FieldSet3D & fset) const {
+void GpToHpm1::multiplyAD(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::multiplyAD starting" << std::endl;
   // Allocate inner-only variables
   checkFieldsAreNotAllocated(fset, innerOnlyVars_);
   allocateMissingFields(fset, innerOnlyVars_, innerOnlyVars_,
                         innerGeometryData_.functionSpace());
 
-  mo::eval_hydrostatic_pressure_levels_ad(fset.fieldSet(), augmentedStateFieldSet_);
+  mo::eval_hydrostatic_pressure_levels_minus_one_ad(fset.fieldSet(),
+                                                    augmentedStateFieldSet_);
   oops::Log::trace() << classname() << "::multiplyAD done"  << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-void GpToHp::leftInverseMultiply(oops::FieldSet3D & fset) const {
+void GpToHpm1::leftInverseMultiply(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::leftInverseMultiply starting" << std::endl;
   if (!fset.has("geostrophic_pressure_levels_minus_one")) {
     oops::Log::error() << "The inverse of block "
@@ -128,21 +129,24 @@ void GpToHp::leftInverseMultiply(oops::FieldSet3D & fset) const {
           << " is not correctly defined if geostrophic_pressure_levels_minus_one"
           << " is not provided as an input." << std::endl;
     throw eckit::UserError("Please only use leftInverseMultiply of this block "
-                           "within the mo_hydrostatic_pressure block.", Here());
+                           "within the mo_hydrostatic_pressure_levels_minus_one "
+                           "block.", Here());
   }
   //   Allocate inner-only variables except air temperature
   oops::JediVariables innerOnlyVarsForInversion(innerOnlyVars_);
-  innerOnlyVarsForInversion -= innerOnlyVarsForInversion["geostrophic_pressure_levels_minus_one"];
+  innerOnlyVarsForInversion -=
+    innerOnlyVarsForInversion["geostrophic_pressure_levels_minus_one"];
   checkFieldsAreNotAllocated(fset, innerOnlyVarsForInversion);
   allocateMissingFields(fset, innerOnlyVarsForInversion, innerOnlyVarsForInversion,
                         innerGeometryData_.functionSpace());
 
   // Retrieve unbalanced pressure from hydrostatic pressure and geostrophic pressure.
-  mo::eval_hydrostatic_pressure_levels_tl_inv(fset.fieldSet(), augmentedStateFieldSet_);
+  mo::eval_hydrostatic_pressure_levels_minus_one_tl_inv(fset.fieldSet(),
+                                                        augmentedStateFieldSet_);
   oops::Log::trace() << classname() << "::leftInverseMultiply done" << std::endl;
 }
 
-void GpToHp::read() {
+void GpToHpm1::read() {
   oops::Log::trace() << classname() << "::read start " << params_ <<  std::endl;
   const auto & readParams = params_.readParams.value();
   if (readParams != boost::none) {
@@ -162,7 +166,7 @@ void GpToHp::read() {
   oops::Log::trace() << classname() << "::read done" << std::endl;
 }
 
-void GpToHp::directCalibration(const oops::FieldSets & fset) {
+void GpToHpm1::directCalibration(const oops::FieldSets & fset) {
   oops::Log::info() << classname() << "::directCalibration start" << std::endl;
   const auto & calibrationReadParams = params_.calibrationReadParams.value();
   if (calibrationReadParams != boost::none) {
@@ -183,7 +187,7 @@ void GpToHp::directCalibration(const oops::FieldSets & fset) {
   oops::Log::info() << classname() << "::directCalibration end" << std::endl;
 }
 
-void GpToHp::write() const {
+void GpToHpm1::write() const {
   oops::Log::trace() << classname() << "::write start" << std::endl;
   // write regression matrix to file.
   oops::Log::trace() << classname() << "::write end" << std::endl;
@@ -191,7 +195,7 @@ void GpToHp::write() const {
 
 // -----------------------------------------------------------------------------
 
-void GpToHp::print(std::ostream & os) const {
+void GpToHpm1::print(std::ostream & os) const {
   os << classname();
 }
 

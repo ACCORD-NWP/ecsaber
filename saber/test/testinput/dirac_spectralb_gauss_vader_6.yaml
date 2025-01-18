@@ -1,0 +1,138 @@
+background:
+  date: 2010-01-01T12:00:00Z
+  state variables:
+  - air_pressure_levels_minus_one
+  - dry_air_density_levels_minus_one
+  - height_above_mean_sea_level
+  - height_above_mean_sea_level_levels
+  - cloud_ice_mixing_ratio_wrt_dry_air
+  - cloud_liquid_water_mixing_ratio_wrt_dry_air
+  - rain_mixing_ratio_wrt_dry_air
+  - water_vapor_mixing_ratio_wrt_dry_air
+  - total_water_mixing_ratio_wrt_dry_air
+  - air_potential_temperature
+  - water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+  - cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+  - cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+  filepath: testdata/gauss_state
+increment variables:
+- eastward_wind
+- hydrostatic_pressure_levels_minus_one
+- northward_wind
+- mu
+
+geometry:
+  function space: StructuredColumns
+  grid:
+    type: regular_gaussian
+    N: 12
+  groups:
+  - variables:
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
+    - eastward_wind
+    - geostrophic_pressure_levels_minus_one
+    - hydrostatic_pressure_levels_minus_one
+    - mu
+    - northward_wind
+    - unbalanced_pressure_levels_minus_one
+    - air_pressure_levels_minus_one
+    - dry_air_density_levels_minus_one
+    - height_above_mean_sea_level
+    - cloud_ice_mixing_ratio_wrt_dry_air
+    - cloud_liquid_water_mixing_ratio_wrt_dry_air
+    - rain_mixing_ratio_wrt_dry_air
+    - water_vapor_mixing_ratio_wrt_dry_air
+    - total_water_mixing_ratio_wrt_dry_air
+    - air_potential_temperature
+    - water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+    - cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water
+    - cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water
+    levels: 70
+  - variables:
+    - height_above_mean_sea_level_levels
+    levels: 71
+  partitioner: ectrans
+  halo: 1
+
+background error:
+  covariance model: SABER
+  adjoint test: true
+  inverse test: true
+  saber central block:
+    saber block name: spectral covariance
+    active variables:
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
+    - mu
+    - unbalanced_pressure_levels_minus_one
+    read:
+      covariance_file: testdata/spectralcov.nc
+      umatrix_netcdf_names:
+      - PSI_inc_Uv_matrix
+      - CHI_inc_Uv_matrix
+      - MU_inc_Uv_matrix
+      - aP_inc_Uv_matrix
+  saber outer blocks:
+  - saber block name: spectral to gauss
+    skip inverse test: true
+    active variables:
+    - eastward_wind
+    - mu
+    - northward_wind
+    - air_horizontal_streamfunction
+    - unbalanced_pressure_levels_minus_one
+    - air_horizontal_velocity_potential
+  - saber block name: mo_hydrostatic_pressure_levels_minus_one
+    read:
+      covariance file path: testdata/FPstats.nc
+      number of covariance latitude rings: 481
+      gp regression bins: 18
+    active variables:
+    - eastward_wind
+    - hydrostatic_pressure_levels_minus_one
+    - northward_wind
+    - unbalanced_pressure_levels_minus_one
+dirac:
+  lon:
+  - 0.01
+  - 0.01
+  - 0.01
+  lat:
+  - 3.6
+  - 3.6
+  - 3.6
+  level:
+  - 1
+  - 1
+  - 1
+  variable:
+  - eastward_wind
+  - mu
+  - hydrostatic_pressure_levels_minus_one
+diagnostic points:
+  lon:
+  - 20.01
+  - 20.01
+  - 0.01
+  - 0.01
+  lat:
+  - 20.01
+  - 20.01
+  - 89.9
+  - 89.9
+  level:
+  - 2
+  - 2
+  - 1
+  - 1
+  variable:
+  - mu
+  - hydrostatic_pressure_levels_minus_one
+  - mu
+  - hydrostatic_pressure_levels_minus_one
+output dirac:
+  mpi pattern: '%MPI%'
+  filepath: testdata/dirac_spectralb_gauss_vader_6/%MPI%_dirac_%id%
+test:
+  reference filename: testref/dirac_spectralb_gauss_vader_6.ref

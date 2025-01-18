@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp.bak	2024-11-27 13:03:52.760796833 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2024-11-27 13:02:26.379380810 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp.bak	2025-01-18 07:00:41.619516565 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2025-01-18 07:04:26.555817387 +0100
 @@ -1,21 +1,24 @@
  /*
   * (C) Copyright 2018-2021 UCAR
@@ -29,7 +29,7 @@
  #include "oops/interface/VariableChange.h"
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
-@@ -56,9 +59,8 @@
+@@ -43,9 +46,8 @@
  // -------------------------------------------------------------------------------------------------
  
  /// Options taken by the ConvertState application.
@@ -41,17 +41,17 @@
  
   public:
    /// Input Geometry parameters.
-@@ -67,6 +69,9 @@
+@@ -54,6 +56,9 @@
    /// Output Geometry parameters.
    RequiredParameter<eckit::LocalConfiguration> outputGeometry{"output geometry", this};
  
 +  /// Model
-+  Parameter<eckit::LocalConfiguration> model{"model", eckit::LocalConfiguration(), this};
++  RequiredParameter<eckit::LocalConfiguration> model{"model", this};
 +
    /// Variable change parameters (and option to do inverse).
-   OptionalParameter<VarChangeParameters<MODEL>> varChange{"variable change", this};
+   OptionalParameter<eckit::LocalConfiguration> varChange{"variable change", this};
  
-@@ -79,6 +84,7 @@
+@@ -66,6 +71,7 @@
  
  template <typename MODEL> class ConvertState : public Application {
    typedef Geometry<MODEL>               Geometry_;
@@ -59,7 +59,7 @@
    typedef State<MODEL>                  State_;
    typedef VariableChange<MODEL>         VariableChange_;
    typedef ConvertStateParameters<MODEL> ConvertStateParameters_;
-@@ -86,19 +92,22 @@
+@@ -73,18 +79,22 @@
  
   public:
  // -------------------------------------------------------------------------------------------------
@@ -68,11 +68,9 @@
  // -------------------------------------------------------------------------------------------------
    virtual ~ConvertState() {}
  // -------------------------------------------------------------------------------------------------
--  int execute(const eckit::Configuration & fullConfig, bool validate) const override {
-+  int execute(const eckit::Configuration & fullConfig) const override {
+   int execute(const eckit::Configuration & fullConfig) const override {
  //  Deserialize parameters
      ConvertStateParameters_ params;
--    if (validate) params.validate(fullConfig);
 +    params.validate(fullConfig);
      params.deserialize(fullConfig);
  
@@ -87,7 +85,7 @@
  
      // Setup change of variable
      std::unique_ptr<VariableChange_> vc;
-@@ -125,7 +134,7 @@
+@@ -111,7 +121,7 @@
        Log::info() << "Converting state " << jm+1 << " of " << nstates << std::endl;
  
  //    Read state
@@ -96,7 +94,7 @@
        Log::test() << "Input state: " << xxi << std::endl;
  
  //    Copy and change resolution
-@@ -134,7 +143,7 @@
+@@ -120,7 +130,7 @@
  //    Variable transform(s)
        if (vc) {
            // Create variable change
@@ -105,24 +103,7 @@
          if (inverse) {
            vc->changeVarInverse(xx, varout);
          } else {
-@@ -154,16 +163,6 @@
-     }
-     return 0;
-   }
--// -----------------------------------------------------------------------------
--  void outputSchema(const std::string & outputPath) const override {
--    ConvertStateParameters_ params;
--    params.outputSchema(outputPath);
--  }
--// -----------------------------------------------------------------------------
--  void validateConfig(const eckit::Configuration & fullConfig) const override {
--    ConvertStateParameters_ params;
--    params.validate(fullConfig);
--  }
- // -------------------------------------------------------------------------------------------------
-  private:
-   std::string appname() const override {
-@@ -173,4 +172,3 @@
+@@ -149,4 +159,3 @@
  };
  
  }  // namespace oops
