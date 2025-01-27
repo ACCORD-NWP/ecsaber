@@ -218,10 +218,12 @@ size_t packEigenSize(const oops::Departures<MODEL> & dep,
 
 template <typename MODEL>
 double rms(oops::Departures<MODEL> & dep) {
-  double zz = 0.0;
+  double zz = dep.dot_product_with(dep);
+  unsigned int n = 0;
   for (std::size_t jj = 0; jj < dep.size(); ++jj) {
-    zz += dep[jj].rms()*dep[jj].rms();
+    n += dep[jj].size();
   }
+  if (n > 0) zz = zz/static_cast<double>(n);
   zz = std::sqrt(zz);
   return zz;
 }

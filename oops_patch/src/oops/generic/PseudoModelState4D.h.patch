@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoModelState4D.h.tmp.bak	2025-01-18 07:00:41.505516016 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoModelState4D.h	2024-12-12 09:26:05.148402954 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoModelState4D.h.tmp.bak	2025-01-27 14:06:35.110187640 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/PseudoModelState4D.h	2025-01-27 12:36:58.000299691 +0100
 @@ -11,10 +11,10 @@
  #include <string>
  #include <vector>
@@ -21,7 +21,7 @@
 -class PseudoModelState4D : public ModelBase<MODEL> {
 +class PseudoModelState4D : public util::Printable,
 +                           private eckit::NonCopyable,
-+                           private util::ObjectCounter<Model<MODEL> > {
++                           private util::ObjectCounter<PseudoModelState4D<MODEL> > {
    typedef Geometry<MODEL>          Geometry_;
    typedef ModelAuxControl<MODEL>   ModelAux_;
    typedef State<MODEL>             State_;

@@ -30,7 +30,6 @@ oops/base/Variable.cc
 oops/base/Variable.h
 oops/base/Variables.cc
 oops/base/Variables.h
-oops/base/WriteParametersBase.h
 oops/generic/AtlasInterpolator.cc
 oops/generic/AtlasInterpolator.h
 oops/generic/Diffusion.cc
@@ -83,8 +82,6 @@ oops/util/parameters/EmptyParameters.h
 oops/util/parameters/GenericParameters.h
 oops/util/parameters/HasDiracParameters_.h
 oops/util/parameters/HasParameters_.h
-oops/util/parameters/HasReadParameters_.h
-oops/util/parameters/HasWriteParameters_.h
 oops/util/parameters/IgnoreOtherParameters.cc
 oops/util/parameters/IgnoreOtherParameters.h
 oops/util/parameters/NumericConstraints.h

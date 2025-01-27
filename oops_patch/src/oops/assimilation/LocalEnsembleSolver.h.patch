@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h.tmp.bak	2024-11-27 12:20:20.575071798 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h	2024-11-27 12:22:14.696678245 +0100
-@@ -21,54 +21,59 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h.tmp.bak	2025-01-27 14:06:34.660185241 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LocalEnsembleSolver.h	2025-01-27 13:12:36.879940208 +0100
+@@ -21,54 +21,63 @@
  #include "oops/assimilation/LocalEnsembleSolverParameters.h"
  #include "oops/base/Departures.h"
  #include "oops/base/DeparturesEnsemble.h"
@@ -10,6 +10,7 @@
 -#include "oops/base/LinearModel.h"
 -#include "oops/base/Model.h"
 +#include "oops/interface/LinearModel.h"
++#include "oops/base/LinearObsOperators.h"
 +#include "oops/interface/Model.h"
  #include "oops/base/ObsAuxControls.h"
 +#include "oops/base/ObsAuxIncrements.h"
@@ -25,13 +26,13 @@
 +#include "oops/base/ObsOperators.h"
 +#include "oops/base/ObsAuxControls.h"
 +#include "oops/base/Observer.h"
++#include "oops/base/ObserverTL.h"
 +#include "oops/interface/State.h"
  #include "oops/base/State4D.h"
  #include "oops/base/StateEnsemble4D.h"
  #include "oops/base/TrajectorySaver.h"
--#include "oops/generic/PseudoLinearModelIncrement4D.h"
 +#include "oops/base/Variables.h"
-+//#include "oops/generic/PseudoLinearModelIncrement4D.h"
+ #include "oops/generic/PseudoLinearModelIncrement4D.h"
  #include "oops/generic/PseudoModelState4D.h"
  #include "oops/interface/GeometryIterator.h"
  #include "oops/interface/ModelAuxControl.h"
@@ -66,6 +67,7 @@
 -  typedef Observations<OBS>           Observations_;
 -  typedef ObsLocalizations<MODEL, OBS> ObsLocalizations_;
 -  typedef ObsSpaces<OBS>              ObsSpaces_;
++  typedef LinearObsOperators<MODEL>   LinearObsOperators_;
 +  typedef ObsAuxControls<MODEL>       ObsAux_;
 +  typedef ObsAuxIncrements<MODEL>     ObsAuxInc_;
 +//  typedef ObsDataVector<OBS, int>     ObsDataInt_;
@@ -77,13 +79,14 @@
 +  typedef ObsOperators<MODEL>         ObsOperators_;
 +  typedef ObsAuxControls<MODEL>       ObsAuxCtrls_;
    typedef StateEnsemble4D<MODEL>      StateEnsemble4D_;
-   typedef PseudoModelState4D<MODEL>   PseudoModel_;
--  typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
+-  typedef PseudoModelState4D<MODEL>   PseudoModel_;
+   typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
++  typedef PseudoModelState4D<MODEL>   PseudoModel_;
 +//  typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
    typedef State<MODEL>                State_;
    typedef State4D<MODEL>              State4D_;
    typedef Increment<MODEL>            Increment_;
-@@ -77,8 +82,6 @@
+@@ -77,8 +86,6 @@
    typedef Model<MODEL>                Model_;
    typedef ModelAuxControl<MODEL>      ModelAux_;
    typedef ModelAuxIncrement<MODEL>    ModelAuxInc_;
@@ -92,7 +95,7 @@
  
   public:
    static const std::string classname() {return "oops::LocalEnsembleSolver";}
-@@ -93,31 +96,35 @@
+@@ -93,31 +100,35 @@
  
    /// computes ensemble H(\p xx), returns mean H(\p xx), saves as hofx \p iteration
    virtual Observations_ computeHofX(const StateEnsemble4D_ & xx, size_t iteration,
@@ -130,13 +133,13 @@
 -                           ObsEnsemble_ &);
 -  void computeHofX4DNonLinear(const eckit::Configuration &, const State4D_ &, Observations_ &);
 +  void computeHofX4DLinear(const eckit::Configuration &, const Model_ &, const StateEnsemble4D_ &,
-+                           Observations_ &, ObsEnsemble_ &);
++                           const ObsAuxCtrls_ &, Observations_ &, ObsEnsemble_ &);
 +  void computeHofX4DNonLinear(const eckit::Configuration &, const Model_ &, const State4D_ &,
 +                              const ObsAuxCtrls_ &, Observations_ &);
    /// accessor to obs localizations
    const ObsLocalizations_ & obsloc() const {return obsloc_;}
    bool useLinearObserver() { return useLinearObserver_; }
-@@ -142,13 +149,13 @@
+@@ -142,13 +153,13 @@
   private:
    bool useLinearObserver_;
    ObsLocalizations_ obsloc_;          ///< observation space localization
@@ -153,7 +156,7 @@
                                          const Geometry_ & geometry,
                                          const eckit::Configuration & config, size_t nens,
                                          const State4D_ & xbmean, const JediVariables & incvars)
-@@ -159,7 +166,7 @@
+@@ -159,7 +170,7 @@
      xbmean_(xbmean),
      incvars_(incvars),
      obsconf_(config, "observations"),
@@ -162,7 +165,7 @@
      obsloc_(observersconf_, obspaces_) {
    // initialize and print options
  
-@@ -182,34 +189,38 @@
+@@ -182,34 +193,38 @@
      Log::info() << "RTPS inflation is not applied rtpsCoeff is out of bounds (0,1], rtpsCoeff="
                  << inflopt.rtps << std::endl;
    }
@@ -210,7 +213,7 @@
    }
  
    // return mean H(x)
-@@ -217,18 +228,20 @@
+@@ -217,18 +232,21 @@
  }
  // -----------------------------------------------------------------------------
  
@@ -224,9 +227,10 @@
 +void LocalEnsembleSolver<MODEL>::computeHofX4DLinear(const eckit::Configuration & config,
 +                                                     const Model_ & model,
 +                                                     const StateEnsemble4D_ & xx,
++                                                     const ObsAuxCtrls_ & ybias,
 +                                                     Observations_ & yy_mean,
 +                                                     ObsEnsemble_ & yy) {
-+/*
++
 +  ModelAux_ moderr(geometry_, model, eckit::LocalConfiguration());
    ModelAuxInc_  moderrinc(geometry_, eckit::LocalConfiguration());
 -  ObsAux_  obsaux(obspaces_, observersconf_);
@@ -240,7 +244,7 @@
    const util::Duration flength = times[times.size()-1] - times[0];
    // default_tstep = 2*observation window is passed to PseudoModel as the default
    // pseudomodel time step. It is only used when State4D has a single state, to enable
-@@ -237,7 +250,7 @@
+@@ -237,53 +255,47 @@
    // ( max(winbgn, xx.time - tstep/2); min(winend, xx.time + tstep/2) ] are
    // processed in H(x).
    const util::Duration default_tstep = (obspaces_.windowEnd() - obspaces_.windowStart()) * 2;
@@ -249,12 +253,70 @@
  
    // Setup pseudo model to run on ensemble mean
    State_ init_xx = xbmean_[0];
-@@ -287,15 +300,19 @@
+-  std::unique_ptr<PseudoModel_> pseudomodel(new PseudoModel_(xbmean_, default_tstep));
+-  const Model_ model(std::move(pseudomodel));
++  PseudoModel_ pseudomodel(xbmean_, default_tstep);
+ 
+   // setup postprocessors and nonlinear observers for the "nonlinear" model run on the mean
+   PostProcessor<State_> post;
+-  PostProcessorTLAD<MODEL> posttraj;
+-  Observers_ hofx(obspaces_, obsconf_);
++  ObsOperators_ hop(obspaces_);
++  std::shared_ptr<Observer<MODEL, State_> > pobs(
++    new Observer<MODEL, State_>(obspaces_, hop, ybias, util::Duration(0), false));
+ 
+   // setup postprocessors and linear observers for the "linear" model run on the ensemble
+   // perturbations
+   PostProcessor<Increment_> posttl;
+-  PostProcessorTLAD<MODEL> posttrajtl;
+-  ObserversTLAD_ linear_hofx(obspaces_, obsconf_);
+-
+-  // initialize nonlinear model postprocessor
+-  hofx.initialize(geometry_, obsaux, *R_, post, config);
++  PostProcessorTL<Increment_> posttrajtl;
++  LinearObsOperators_ htlad(obspaces_);
++  std::shared_ptr<ObserverTL<MODEL, Increment_> > pobsTL(
++    new ObserverTL<MODEL, Increment_>(obspaces_, htlad, obsauxinc, util::Duration(0), false));
+ 
+-  // add linearized H(x) to the nonlinear model postprocessor
+-  linear_hofx.initializeTraj(geometry_, obsaux, posttraj);
+   // create TrajectorySaver with hofx_linear, and enroll in post
+-  post.enrollProcessor(new TrajectorySaver<MODEL>(eckit::LocalConfiguration(),
+-                                                  geometry_, posttraj));
++  post.enrollProcessor(pobs);
++  posttrajtl.enrollProcessor(pobsTL);
+ 
+   // run nonlinear model on the ensemble mean
+-  model.forecast(init_xx, moderr, flength, post);
++  pseudomodel.forecast(init_xx, moderr, flength, post);
+ 
+   // compute nonlinear H(x_mean)
+-  hofx.finalize(yy_mean, qcflags_);
+-  linear_hofx.finalizeTraj(qcflags_);
++  yy_mean = *pobs->release();
+ 
+   // add linearized H(x) to the linear model postprocessor
+-  linear_hofx.initializeTL(posttrajtl);
+   for (size_t jens = 0; jens < xx.size(); ++jens) {
+     // Setup PseudoLinearModelIncrement4D to run on ensemble perturbation
+-    Increment4D_ dx(geometry_, xx[jens].variables(), times);
++    const oops::Variables<MODEL> varsT(templatedVarsConf(xx.variables()));
++    Increment4D_ dx(geometry_, varsT, times);
+     dx.diff(xx[jens], xbmean_);
+     Increment_ init_dx = dx[0];
+-    std::unique_ptr<PseudoLinearModel_> pseudolinearmodel =
+-         std::make_unique<PseudoLinearModel_>(dx, default_tstep);
+-    const LinearModel_ linear_model(std::move(pseudolinearmodel));
++    PseudoLinearModel_ pseudolinearmodel(dx, default_tstep);
+     // run linear model on the ensemble perturbation, compute linear H*dx
+-    linear_model.forecastTL(init_dx, moderrinc, flength, posttl, posttrajtl);
+-    linear_hofx.finalizeTL(obsauxinc, Yb_[jens]);
++    pseudolinearmodel.forecastTL(init_dx, moderrinc, flength, posttl, posttrajtl);
++    Yb_[jens] = *pobsTL->releaseOutputFromTL();
      yy[jens] = yy_mean;
      yy[jens] += Yb_[jens];
    }
-+*/
- }
+@@ -291,11 +303,14 @@
  
  // -----------------------------------------------------------------------------
  
@@ -272,7 +334,7 @@
    util::Timer timer(classname(), "computeHofXLinear");
  
    ASSERT(ens_xx.size() == Yb_.size());
-@@ -307,11 +324,15 @@
+@@ -307,11 +322,15 @@
    if (readFromDisk) {
      // read hofx from disk
      for (size_t jj = 0; jj < nens; ++jj) {
@@ -291,12 +353,12 @@
    } else {
      // compute and save H(x)
  
-@@ -329,10 +350,12 @@
+@@ -329,10 +348,12 @@
      config.set("save obs errors", false);
      config.set("iteration", std::to_string(iteration));
  
 -    computeHofX4DLinear(config, ens_xx, y_mean_xb, obsens);
-+    computeHofX4DLinear(config, model, ens_xx, y_mean_xb, obsens);
++    computeHofX4DLinear(config, model, ens_xx, ybias, y_mean_xb, obsens);
      for (size_t jj = 0; jj < nens; ++jj) {
        Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
 -      obsens[jj].save("hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
@@ -306,7 +368,7 @@
      }
  
      // Compute H(mean(Xb))
-@@ -340,13 +363,17 @@
+@@ -340,13 +361,17 @@
      config.set("save qc", true);
      config.set("save obs errors", true);
  
@@ -327,7 +389,7 @@
  
    // calculate H(x) ensemble mean
    Observations_ yb_mean(obsens.mean());
-@@ -360,28 +387,36 @@
+@@ -360,28 +385,36 @@
    // mask H(x) ensemble perturbations
    for (size_t iens = 0; iens < nens; ++iens) {
      if (readFromDisk) {
@@ -375,7 +437,7 @@
    const util::Duration flength = times[times.size()-1] - times[0];
    // default_tstep = 2*observation window is passed to PseudoModel as the default
    // pseudomodel time step. It is only used when State4D has a single state, to enable
-@@ -391,31 +426,30 @@
+@@ -391,31 +424,30 @@
    // processed in H(x).
    const util::Duration default_tstep = (obspaces_.windowEnd() - obspaces_.windowStart()) * 2;
    // Setup PseudoModelState4D
@@ -421,7 +483,7 @@
    util::Timer timer(classname(), "computeHofXNonLinear");
  
    ASSERT(ens_xx.size() == Yb_.size());
-@@ -427,11 +461,15 @@
+@@ -427,11 +459,15 @@
    if (readFromDisk) {
      // read hofx from disk
      for (size_t jj = 0; jj < nens; ++jj) {
@@ -440,7 +502,7 @@
    } else {
      // compute and save H(x)
  
-@@ -449,9 +487,9 @@
+@@ -449,9 +485,9 @@
      config.set("iteration", std::to_string(iteration));
  
      for (size_t jj = 0; jj < nens; ++jj) {
@@ -452,7 +514,7 @@
      }
  
      // Compute H(mean(Xb))
-@@ -459,15 +497,20 @@
+@@ -459,15 +495,20 @@
      config.set("save qc", true);
      config.set("save obs errors", true);
  
@@ -477,7 +539,7 @@
  
    // calculate H(x) ensemble mean
    Observations_ yb_mean(obsens.mean());
-@@ -480,16 +523,21 @@
+@@ -480,16 +521,21 @@
  
    // calculate H(x) ensemble perturbations
    for (size_t iens = 0; iens < nens; ++iens) {
@@ -506,7 +568,7 @@
  
    // return mean H(x)
    return yb_mean;
-@@ -498,23 +546,23 @@
+@@ -498,23 +544,23 @@
  
  // -----------------------------------------------------------------------------
  
@@ -539,7 +601,7 @@
                                    const Eigen::MatrixXd & Xb, Eigen::MatrixXd & Xa) const {
      const size_t nens = Xa.cols();
      const LocalEnsembleSolverInflationParameters & inflopt = options_.infl;
-@@ -550,13 +598,13 @@
+@@ -550,13 +596,13 @@
  // =============================================================================
  
  /// \brief factory for LETKF solvers
@@ -556,7 +618,7 @@
                                                          const eckit::Configuration &,
                                                          size_t, const State4D_ &,
                                                          const JediVariables &);
-@@ -564,36 +612,36 @@
+@@ -564,36 +610,36 @@
   protected:
    explicit LocalEnsembleSolverFactory(const std::string &);
   private:
@@ -603,7 +665,7 @@
    if (getMakers().find(name) != getMakers().end()) {
      throw std::runtime_error(name + " already registered in local ensemble solver factory.");
    }
-@@ -602,27 +650,27 @@
+@@ -602,27 +648,27 @@
  
  // -----------------------------------------------------------------------------
  

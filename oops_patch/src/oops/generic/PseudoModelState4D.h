@@ -26,7 +26,7 @@ namespace oops {
 template <typename MODEL>
 class PseudoModelState4D : public util::Printable,
                            private eckit::NonCopyable,
-                           private util::ObjectCounter<Model<MODEL> > {
+                           private util::ObjectCounter<PseudoModelState4D<MODEL> > {
   typedef Geometry<MODEL>          Geometry_;
   typedef ModelAuxControl<MODEL>   ModelAux_;
   typedef State<MODEL>             State_;
