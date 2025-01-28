@@ -77,7 +77,6 @@ class LocalEnsembleSolver {
   typedef StateEnsemble4D<MODEL>      StateEnsemble4D_;
   typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
   typedef PseudoModelState4D<MODEL>   PseudoModel_;
-//  typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
   typedef State<MODEL>                State_;
   typedef State4D<MODEL>              State4D_;
   typedef Increment<MODEL>            Increment_;
@@ -193,12 +192,11 @@ LocalEnsembleSolver<MODEL>::LocalEnsembleSolver(ObsSpaces_ & obspaces,
     Log::info() << "RTPS inflation is not applied rtpsCoeff is out of bounds (0,1], rtpsCoeff="
                 << inflopt.rtps << std::endl;
   }
-/*
-  for (size_t jj = 0; jj < obspaces_.size(); ++jj) {
-    ObsVector_ qcflags(obspaces_[jj], obspaces_[jj].obsvariables());
-    qcflags_.push_back(qcflags);
-  }
-*/
+
+//  for (size_t jj = 0; jj < obspaces_.size(); ++jj) {
+//    ObsVector_ qcflags(obspaces_[jj], obspaces_[jj].obsvariables());
+//    qcflags_.push_back(qcflags);
+//  }
 }
 
 // -----------------------------------------------------------------------------
@@ -322,15 +320,12 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
   if (readFromDisk) {
     // read hofx from disk
     for (size_t jj = 0; jj < nens; ++jj) {
-      eckit::LocalConfiguration conf;
-      conf.set("ObsValue", "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
-      obsens[jj].read(conf);
+      obsens[jj].read(util::setObsValue(obsconf_,
+        "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1)));
       Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
     }
     R_.reset(new ObsErrors_(obspaces_));
-    eckit::LocalConfiguration conf;
-    conf.set("ObsValue", "hofx_y_mean_xb"+std::to_string(iteration));
-    y_mean_xb.read(conf);
+    y_mean_xb.read(util::setObsValue(obsconf_, "hofx_y_mean_xb"+std::to_string(iteration)));
   } else {
     // compute and save H(x)
 
@@ -351,9 +346,8 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
     computeHofX4DLinear(config, model, ens_xx, ybias, y_mean_xb, obsens);
     for (size_t jj = 0; jj < nens; ++jj) {
       Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
-      eckit::LocalConfiguration conf;
-      conf.set("ObsValue", "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
-      obsens[jj].save(conf);
+      obsens[jj].save(util::setObsValue(obsconf_,
+        "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1)));
     }
 
     // Compute H(mean(Xb))
@@ -361,12 +355,10 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
     config.set("save qc", true);
     config.set("save obs errors", true);
 
-    eckit::LocalConfiguration conf;
-    conf.set("ObsValue", "hofx_y_mean_xb"+std::to_string(iteration));
-    y_mean_xb.save(conf);
+    y_mean_xb.save(util::setObsValue(obsconf_, "hofx_y_mean_xb"+std::to_string(iteration)));
 
     // QC flags and Obs errors are set to that of the H(mean(Xb))
-//  R_->save("ObsError");
+//    R_->save("ObsError");
   }
   // set inverse variances
   invVarR_.reset(new Departures_(obspaces_));
@@ -459,15 +451,12 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
   if (readFromDisk) {
     // read hofx from disk
     for (size_t jj = 0; jj < nens; ++jj) {
-      eckit::LocalConfiguration conf;
-      conf.set("ObsValue", "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
-      obsens[jj].read(conf);
+      obsens[jj].read(util::setObsValue(obsconf_,
+        "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1)));
       Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
     }
     R_.reset(new ObsErrors_(obspaces_));
-    eckit::LocalConfiguration conf;
-    conf.set("ObsValue", "hofx_y_mean_xb"+std::to_string(iteration));
-    y_mean_xb.read(conf);
+    y_mean_xb.read(util::setObsValue(obsconf_, "hofx_y_mean_xb"+std::to_string(iteration)));
   } else {
     // compute and save H(x)
 
@@ -487,7 +476,8 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
     for (size_t jj = 0; jj < nens; ++jj) {
       computeHofX4DNonLinear(config, model, ens_xx[jj], ybias, obsens[jj]);
       Log::test() << "H(x) for member " << jj+1 << ":" << std::endl << obsens[jj] << std::endl;
-//      obsens[jj].save("hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1));
+      obsens[jj].save(util::setObsValue(obsconf_,
+        "hofx"+std::to_string(iteration)+"_"+std::to_string(jj+1)));
     }
 
     // Compute H(mean(Xb))
@@ -500,7 +490,7 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
     // Setup model and obs biases; obs errors
     R_.reset(new ObsErrors_(obspaces_));
     R_->linearize(yobs);
-//    y_mean_xb.save("hofx_y_mean_xb"+std::to_string(iteration));
+    y_mean_xb.save(util::setObsValue(obsconf_, "hofx_y_mean_xb"+std::to_string(iteration)));
 
     // QC flags and Obs errors are set to that of the H(mean(Xb))
 //    R_->save("ObsError");
@@ -549,7 +539,7 @@ void LocalEnsembleSolver<MODEL>::copyLocalIncrement(const IncrementEnsemble4D_ &
                                                     const GeometryIterator__ & i,
                                                     IncrementEnsemble4D_ & ana_pert) const {
   // ana_pert[i]=bkg_pert[i]
-  for (size_t itime=bkg_pert[0].first(); itime < bkg_pert[0].last()+1; ++itime) {
+  for (size_t itime=bkg_pert[0].first(); itime <= bkg_pert[0].last(); ++itime) {
     for (size_t iens=0; iens < bkg_pert.size(); ++iens) {
       LocalIncrement gp = bkg_pert[iens][itime].increment().getLocal(i);
       ana_pert[iens][itime].increment().setLocal(gp, i);

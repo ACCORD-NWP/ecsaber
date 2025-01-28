@@ -109,6 +109,8 @@ oops/util/parameters/RequiredParameter.h
 oops/util/parameters/RequiredPolymorphicParameter.h
 oops/util/PartialDateTime.cc
 oops/util/PartialDateTime.h
+oops/util/printRunStats.cc
+oops/util/printRunStats.h
 oops/util/Random.h
 oops/util/RandomField.h
 oops/util/ScalarOrMap.h
@@ -144,7 +146,6 @@ util/kinds.F90
 util/Logger.h
 util/ObjectCounter.h
 util/Printable.h
-util/Timer.h
 )
 
 if( NOT DEFINED OOPS_SOURCE_DIR )

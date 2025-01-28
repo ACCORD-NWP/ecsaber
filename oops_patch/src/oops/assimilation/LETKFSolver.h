@@ -188,7 +188,7 @@ void LETKFSolver<MODEL>::applyWeights(const IncrementEnsemble4D_ & bkg_pert,
   util::Timer timer(classname(), "applyWeights");
 
   // loop through analysis times and ens. members
-  for (size_t itime=bkg_pert[0].first(); itime < bkg_pert[0].last()+1; ++itime) {
+  for (size_t itime=bkg_pert[0].first(); itime <= bkg_pert[0].last(); ++itime) {
     // make grid point forecast pert ensemble array
     Eigen::MatrixXd Xb;
     bkg_pert.packEigen(Xb, i, itime);

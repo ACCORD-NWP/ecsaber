@@ -7,6 +7,8 @@
 
 #include "oops/util/ECUtilities.h"
 
+#include <chrono>
+
 #include "oops/util/ConfigFunctions.h"
 
 namespace util {
@@ -79,6 +81,37 @@ void expandEnsembleTemplate(eckit::LocalConfiguration & conf,
   }
 
   oops::Log::trace() << "expandEnsembleTemplate done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+eckit::LocalConfiguration setObsValue(const std::string & obsvalue) {
+  eckit::LocalConfiguration obsConfig;
+  obsConfig.set("obsvalue", obsvalue);
+  return obsConfig;
+}
+
+// -----------------------------------------------------------------------------
+
+eckit::LocalConfiguration setObsValue(const eckit::Configuration & inputObsConfig,
+                                      const std::string & obsvalue) {
+  eckit::LocalConfiguration obsConfig(inputObsConfig);
+  std::vector<eckit::LocalConfiguration> obsTypesConfig;
+  obsConfig.get("ObsTypes", obsTypesConfig);
+  for (auto & item : obsTypesConfig) {
+    item.set("ObsData.obsvalue", obsvalue);
+  }
+  obsConfig.set("ObsTypes", obsTypesConfig);
+  return obsConfig;
+}
+
+// -----------------------------------------------------------------------------
+
+static std::chrono::steady_clock::time_point start_time(std::chrono::steady_clock::now());
+
+double timeStamp() {
+  const std::chrono::steady_clock::time_point t(std::chrono::steady_clock::now());
+  return std::chrono::duration<double>(t - start_time).count();
 }
 
 // -----------------------------------------------------------------------------

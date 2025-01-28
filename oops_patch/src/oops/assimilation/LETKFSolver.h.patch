@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h.tmp.bak	2024-11-27 12:20:20.558071708 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h	2024-11-27 08:22:20.463853622 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h.tmp.bak	2025-01-28 07:26:44.882062872 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h	2025-01-28 07:24:35.239993053 +0100
 @@ -18,12 +18,13 @@
  #include "oops/assimilation/LocalEnsembleSolver.h"
  #include "oops/base/Departures.h"
@@ -161,7 +161,7 @@
  
    // loop through analysis times and ens. members
 -  for (size_t itime=0; itime < bkg_pert[0].size(); ++itime) {
-+  for (size_t itime=bkg_pert[0].first(); itime < bkg_pert[0].last()+1; ++itime) {
++  for (size_t itime=bkg_pert[0].first(); itime <= bkg_pert[0].last(); ++itime) {
      // make grid point forecast pert ensemble array
      Eigen::MatrixXd Xb;
      bkg_pert.packEigen(Xb, i, itime);
