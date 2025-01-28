@@ -1,8 +1,6 @@
 /*
- * (C) Copyright 2022 UCAR
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
  */
 
 #pragma once
@@ -11,8 +9,11 @@
 #include <numeric>
 #include <vector>
 
+#include "atlas/field.h"
+
 #include "eckit/config/Configuration.h"
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/mpi/Comm.h"
 
 #include "oops/assimilation/ControlObsVector.h"
 #include "oops/base/Departures.h"
@@ -50,12 +51,25 @@ eckit::LocalConfiguration setObsValue(const std::string &);
 eckit::LocalConfiguration setObsValue(const eckit::Configuration &,
                                       const std::string &);
 
-
 // -----------------------------------------------------------------------------
 // Timestamp
 // -----------------------------------------------------------------------------
 
 double timeStamp();
+
+// -----------------------------------------------------------------------------
+// FieldSet
+// -----------------------------------------------------------------------------
+
+void copyFieldSetWithoutFunctionSpace(const atlas::FieldSet &,
+                                      atlas::FieldSet &);
+
+// -----------------------------------------------------------------------------
+
+double dotProductFieldSetsWithoutFunctionSpace(const atlas::FieldSet &,
+                                               const atlas::FieldSet &,
+                                               const std::vector<std::string> &,
+                                               const eckit::mpi::Comm &);
 
 // -----------------------------------------------------------------------------
 // Variables

@@ -10,7 +10,6 @@
 #include <cmath>
 
 #include "atlas/array.h"
-#include "atlas/field.h"
 #include "atlas/functionspace.h"
 
 #include "eckit/exception/Exceptions.h"
@@ -33,7 +32,7 @@ void zeroFieldSet(atlas::FieldSet & fset) {
       auto view = atlas::array::make_view<double, 2>(field);
       view.assign(0.0);
     } else {
-      ABORT("zeroFieldSet: wrong rank");
+      throw eckit::Exception("zeroFieldSet: wrong rank", Here());
     }
   }
 
@@ -64,7 +63,7 @@ void addFieldSets(atlas::FieldSet & fset,
         }
       }
     } else {
-      ABORT("addFieldSets: wrong rank");
+      throw eckit::Exception("addFieldSets: wrong rank", Here());
     }
 
     // If either term in the sum is out-of-date, then the result will be out-of-date
@@ -96,7 +95,7 @@ void subtractFieldSets(atlas::FieldSet & fset,
         }
       }
     } else {
-      ABORT("subFieldSets: wrong rank");
+      throw eckit::Exception("subFieldSets: wrong rank", Here());
     }
 
     // If either term in the subtraction is out-of-date, then the result will be out-of-date
@@ -123,7 +122,7 @@ void multiplyFieldSet(atlas::FieldSet & fset,
         }
       }
     } else {
-      ABORT("multiplyFieldSet: wrong rank");
+      throw eckit::Exception("multiplyFieldSet: wrong rank", Here());
     }
   }
   oops::Log::trace() << "multiplyFieldSet done" << std::endl;
@@ -151,7 +150,7 @@ void multiplyFieldSets(atlas::FieldSet & fset,
         }
       }
     } else {
-      ABORT("multiplyFieldSets: wrong rank");
+      throw eckit::Exception("multiplyFieldSets: wrong rank", Here());
     }
 
     // If either term in the product is out-of-date, then the result will be out-of-date
@@ -166,9 +165,13 @@ void multiplyFieldSets(atlas::FieldSet & fset,
 double dotProductFieldsLocal(const atlas::Field & field1,
                              const atlas::Field & field2) {
   oops::Log::trace() << "dotProductFieldsLocal starting" << std::endl;
+
+  // Check fields names
   ASSERT(field1.name() == field2.name());
-  // Compute dot product
+
+  // Compute local dot product
   double dp = 0.0;
+
   if (field1.rank() == 2 && field2.rank() == 2) {
     // Check fields consistency
     ASSERT(field1.shape(0) == field2.shape(0));
@@ -177,78 +180,67 @@ double dotProductFieldsLocal(const atlas::Field & field1,
     // Add contributions
     auto view1 = atlas::array::make_view<double, 2>(field1);
     auto view2 = atlas::array::make_view<double, 2>(field2);
-    if (field1.functionspace()) {
-      if (field1.functionspace().type() == "Spectral") {
-        const atlas::functionspace::Spectral fs(field1.functionspace());
-        const atlas::idx_t N = fs.truncation();
-        const auto zonal_wavenumbers = fs.zonal_wavenumbers();
-        const atlas::idx_t nb_zonal_wavenumbers = zonal_wavenumbers.size();
-        int jnode = 0;
-        for (int jm=0; jm < nb_zonal_wavenumbers; ++jm) {
-          const atlas::idx_t m1 = zonal_wavenumbers(jm);
-          for (std::size_t n1 = m1; n1 <= static_cast<std::size_t>(N); ++n1) {
-            if (m1 == 0) {
-              // Real part only
-              for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-                if (view1(jnode, jlevel) != util::missingValue<double>()
-                  && view2(jnode, jlevel) != util::missingValue<double>()) {
-                  dp += view1(jnode, jlevel)*view2(jnode, jlevel);
-                }
-              }
-              ++jnode;
-
-              // No imaginary part
-              ++jnode;
-            } else {
-              // Real part
-              for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-                if (view1(jnode, jlevel) != util::missingValue<double>()
-                  && view2(jnode, jlevel) != util::missingValue<double>()) {
-                  dp += 2.0*view1(jnode, jlevel)*view2(jnode, jlevel);
-                }
-              }
-              ++jnode;
-
-              // Imaginary part
-              for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-                if (view1(jnode, jlevel) != util::missingValue<double>()
-                  && view2(jnode, jlevel) != util::missingValue<double>()) {
-                  dp += 2.0*view1(jnode, jlevel)*view2(jnode, jlevel);
-                }
-              }
-              ++jnode;
-            }
-          }
-        }
-      } else {
-        const auto ghostView = atlas::array::make_view<int, 1>(field1.functionspace().ghost());
-        for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
-          if (ghostView(jnode) == 0) {
+    if (field1.functionspace().type() == "Spectral") {
+      const atlas::functionspace::Spectral fs(field1.functionspace());
+      const atlas::idx_t N = fs.truncation();
+      const auto zonal_wavenumbers = fs.zonal_wavenumbers();
+      const atlas::idx_t nb_zonal_wavenumbers = zonal_wavenumbers.size();
+      int jnode = 0;
+      for (int jm=0; jm < nb_zonal_wavenumbers; ++jm) {
+        const atlas::idx_t m1 = zonal_wavenumbers(jm);
+        for (std::size_t n1 = m1; n1 <= static_cast<std::size_t>(N); ++n1) {
+          if (m1 == 0) {
+            // Real part only
             for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
               if (view1(jnode, jlevel) != util::missingValue<double>()
                 && view2(jnode, jlevel) != util::missingValue<double>()) {
                 dp += view1(jnode, jlevel)*view2(jnode, jlevel);
               }
             }
+            ++jnode;
+
+            // No imaginary part
+            ++jnode;
+          } else {
+            // Real part
+            for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+              if (view1(jnode, jlevel) != util::missingValue<double>()
+                && view2(jnode, jlevel) != util::missingValue<double>()) {
+                dp += 2.0*view1(jnode, jlevel)*view2(jnode, jlevel);
+              }
+            }
+            ++jnode;
+
+            // Imaginary part
+            for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+              if (view1(jnode, jlevel) != util::missingValue<double>()
+                && view2(jnode, jlevel) != util::missingValue<double>()) {
+                dp += 2.0*view1(jnode, jlevel)*view2(jnode, jlevel);
+              }
+            }
+            ++jnode;
           }
         }
       }
     } else {
+      const auto ghostView = atlas::array::make_view<int, 1>(field1.functionspace().ghost());
       for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
-        for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
-          if (view1(jnode, jlevel) != util::missingValue<double>()
-            && view2(jnode, jlevel) != util::missingValue<double>()) {
-            dp += view1(jnode, jlevel)*view2(jnode, jlevel);
+        if (ghostView(jnode) == 0) {
+          for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+            if (view1(jnode, jlevel) != util::missingValue<double>()
+              && view2(jnode, jlevel) != util::missingValue<double>()) {
+              dp += view1(jnode, jlevel)*view2(jnode, jlevel);
+            }
           }
         }
       }
     }
   } else {
-    ABORT("dotProductFieldsLocal: wrong rank");
+    throw eckit::Exception("dotProductFieldsLocal: wrong rank", Here());
   }
 
+  // Return local dot product
   oops::Log::trace() << "dotProductFieldsLocal done" << std::endl;
-  // Return dot product
   return dp;
 }
 
@@ -257,9 +249,13 @@ double dotProductFieldsLocal(const atlas::Field & field1,
 double dotProductFields(const atlas::Field & field1,
                         const atlas::Field & field2,
                         const eckit::mpi::Comm & comm) {
+  // Compute local dot product
   double dp = dotProductFieldsLocal(field1, field2);
+
   // Allreduce
   comm.allReduceInPlace(dp, eckit::mpi::sum());
+
+  // Return dot product
   return dp;
 }
 
@@ -273,17 +269,19 @@ double dotProductFieldSets(const atlas::FieldSet & fset1,
 
   // Compute dot product
   double dp = 0.0;
+
   for (const auto & var : vars) {
     // Check fields presence
     if (fset1.has(var) && fset2.has(var)) {
       dp += dotProductFieldsLocal(fset1.field(var), fset2.field(var));
     }
   }
+
   // Allreduce
   comm.allReduceInPlace(dp, eckit::mpi::sum());
 
-  oops::Log::trace() << "dotProductFieldSets done" << std::endl;
   // Return dot product
+  oops::Log::trace() << "dotProductFieldSets done" << std::endl;
   return dp;
 }
 
@@ -326,12 +324,12 @@ void divideFieldSets(atlas::FieldSet & fset,
             // If the numerator is 0, then it's ok for the denominator to be 0; this is probably
             // a case of 0/0 in the halo, and we opt to return 0 (i.e., no change to the field).
             // If the numerator is finite (= this else branch), this is a divide-by-zero error:
-            ABORT("divideFieldSets: divide by zero");
+            throw eckit::Exception("divideFieldSets: divide by zero", Here());
           }
         }
       }
     } else {
-      ABORT("divideFieldSets: wrong rank");
+      throw eckit::Exception("divideFieldSets: wrong rank", Here());
     }
 
     // If either term in the division is out-of-date, then the result will be out-of-date
@@ -368,13 +366,13 @@ void divideFieldSets(atlas::FieldSet & fset,
             if (std::abs(divView(jnode, jlevel)) > 0.0) {
               view(jnode, jlevel) /= divView(jnode, jlevel);
             } else {
-                ABORT("divideFieldSets with mask: divide by zero");
+                throw eckit::Exception("divideFieldSets with mask: divide by zero", Here());
             }
           }
         }
       }
     } else {
-      ABORT("divideFieldSets with mask: wrong rank");
+      throw eckit::Exception("divideFieldSets with mask: wrong rank", Here());
     }
 
     // If either term in the division is out-of-date, then the result will be out-of-date
@@ -401,7 +399,7 @@ void sqrtFieldSet(atlas::FieldSet & fset) {
         }
       }
     } else {
-      ABORT("sqrtFieldSet: wrong rank");
+      throw eckit::Exception("sqrtFieldSet: wrong rank", Here());
     }
   }
 

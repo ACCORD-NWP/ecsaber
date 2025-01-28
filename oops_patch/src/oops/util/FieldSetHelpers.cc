@@ -15,21 +15,20 @@
 #include <tuple>
 
 #include "atlas/array.h"
-#include "atlas/field.h"
 #include "atlas/util/function/VortexRollup.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/mpi/Comm.h"
 #include "eckit/utils/Hash.h"
 
-#include "oops/util/abor1_cpp.h"
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/FloatCompare.h"
 #include "oops/util/Logger.h"
 #include "oops/util/missingValues.h"
 #include "oops/util/RandomField.h"
 
-#define ERR(e, msg) {std::string s(nc_strerror(e)); ABORT(s + " : " + msg);}
+#define ERR(e, msg) {std::string s(nc_strerror(e)); \
+  throw eckit::Exception(s + " : " + msg, Here());}
 
 namespace util {
 
@@ -108,7 +107,7 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
     } else if (fspace.type() == "Spectral") {
       // Not needed
     } else {
-      ABORT(fspace.type() + " function space not supported yet");
+      throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
     }
   }
 
@@ -263,7 +262,7 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
         const atlas::functionspace::Spectral fs(fspace);
         fs.scatter(globalField, field);
       } else {
-        ABORT(fspace.type() + " function space not supported yet");
+        throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
       }
     }
 
@@ -361,17 +360,9 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
   oops::Log::trace() << "copyFieldSet starting" << std::endl;
   fset.clear();
   for (const auto & otherField : otherFset) {
-    // Check whether the input Field is associated with a FunctionSpace
-    atlas::Field field;
-    if (otherField.functionspace()) {
-      // Create Field from FunctionSpace
-      field = otherField.functionspace().createField<double>(
-        atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
-    } else {
-      // Create Field without FunctionSpace
-      field = atlas::Field(otherField.name(), atlas::array::make_datatype<double>(),
-        atlas::array::make_shape(otherField.shape(0), otherField.shape(1)));
-    }
+    // Create Field
+    atlas::Field field = otherField.functionspace().createField<double>(
+      atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
 
     // Copy data
     if (field.rank() == 2) {
@@ -383,7 +374,7 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
         }
       }
     } else {
-      ABORT("copyFieldSet: wrong rank");
+      throw eckit::Exception("copyFieldSet: wrong rank", Here());
     }
 
     // Copy metadata
@@ -588,7 +579,7 @@ bool compareFieldSets(const eckit::mpi::Comm & comm,
         }
       }
     } else {
-      ABORT("compareFieldSets: wrong rank");
+      throw eckit::Exception("compareFieldSets: wrong rank", Here());
     }
   }
 
@@ -638,7 +629,7 @@ bool compareFieldSets(const atlas::FieldSet & fset1,
         }
       }
     } else {
-      ABORT("compareFieldSets: wrong rank");
+      throw eckit::Exception("compareFieldSets: wrong rank", Here());
     }
   }
   // Comparison successful!
@@ -687,7 +678,7 @@ std::string getGridUid(const atlas::FunctionSpace & fspace) {
   } else if (fspace.type() == "PointCloud") {
     return customUidFromLonLat(fspace);
   } else {
-    ABORT(fspace.type() + " function space not supported yet");
+    throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
     return "";
   }
 }
@@ -704,7 +695,7 @@ std::string getGridUid(const atlas::FieldSet & fset) {
     // Check that other fields have the same UID
     for (const auto & field : fset) {
       if (getGridUid(field.functionspace()) != uid) {
-        ABORT("All fields should have the same grid");
+        throw eckit::Exception("All fields should have the same grid", Here());
       }
     }
 
@@ -1143,7 +1134,7 @@ void readFieldSet(const eckit::mpi::Comm & comm,
         if ((retval = nc_close(ncid))) ERR(retval, ncfilepath);
       }
     } else {
-      ABORT(fspace.type() + " function space not supported yet");
+      throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
     }
 
     // Scatter data from main processor
@@ -1625,7 +1616,7 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
         if ((retval = nc_close(ncid))) ERR(retval, ncfilepath);
       }
     } else {
-      ABORT(fspace.type() + " function space not supported yet");
+      throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
     }
   }
 }

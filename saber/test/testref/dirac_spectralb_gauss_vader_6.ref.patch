@@ -1,0 +1,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_spectralb_gauss_vader_6.ref.tmp	2025-01-28 14:13:08.313216478 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_spectralb_gauss_vader_6.ref	2025-01-25 09:08:10.995058772 +0100
+@@ -1,5 +1,5 @@
+ Input Dirac increment:
+-Valid time:2010-01-01T12:00:00Z
++Valid time: 2010-01-01T12:00:00Z
+ Quench geometry grid:
+ - name: F12
+ - size: 1152
+@@ -41,7 +41,7 @@
+   + Value for variable mu, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): 1.0074701039470375e-03
+   + Value for variable mu, subwindow 0, at (longitude, latitude, vertical index) point (22.50000, 18.36339, 2): 2.3663406888128884e-03
+ Covariance(SABER) * Increment:
+-Valid time:2010-01-01T12:00:00Z
++Valid time: 2010-01-01T12:00:00Z
+ Quench geometry grid:
+ - name: F12
+ - size: 1152

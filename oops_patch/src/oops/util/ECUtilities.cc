@@ -1,18 +1,23 @@
 /*
- * (C) Copyright 2022 UCAR
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
  */
 
 #include "oops/util/ECUtilities.h"
 
 #include <chrono>
 
+#include "atlas/array.h"
+
+#include "eckit/exception/Exceptions.h"
+
 #include "oops/util/ConfigFunctions.h"
+#include "oops/util/missingValues.h"
 
 namespace util {
 
+// -----------------------------------------------------------------------------
+// Configuration
 // -----------------------------------------------------------------------------
 
 void setMember(eckit::LocalConfiguration & conf,
@@ -106,6 +111,8 @@ eckit::LocalConfiguration setObsValue(const eckit::Configuration & inputObsConfi
 }
 
 // -----------------------------------------------------------------------------
+// Timestamp
+// -----------------------------------------------------------------------------
 
 static std::chrono::steady_clock::time_point start_time(std::chrono::steady_clock::now());
 
@@ -114,6 +121,8 @@ double timeStamp() {
   return std::chrono::duration<double>(t - start_time).count();
 }
 
+// -----------------------------------------------------------------------------
+// Variables
 // -----------------------------------------------------------------------------
 
 eckit::LocalConfiguration templatedVarsConf(const oops::JediVariables & vars) {
