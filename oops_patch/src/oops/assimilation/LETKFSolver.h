@@ -121,7 +121,7 @@ void LETKFSolver<MODEL>::measurementUpdate(const IncrementEnsemble4D_ & bkg_pert
   Departures_ locvector(this->obspaces_);
   util::ones(locvector);
   this->obsloc().computeLocalization(i, locvector);
-  util::mask(locvector, (*(this->invVarR_)));
+  util::mask(locvector, (*this->invVarR_));
   Eigen::VectorXd local_omb_vec = util::packEigen(this->omb_, locvector);
 
   if (local_omb_vec.size() == 0) {
@@ -133,7 +133,7 @@ void LETKFSolver<MODEL>::measurementUpdate(const IncrementEnsemble4D_ & bkg_pert
     // create local Yb
     Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
     // create local obs errors
-    Eigen::VectorXd local_invVarR_vec = util::packEigen(*(this->invVarR_), locvector);
+    Eigen::VectorXd local_invVarR_vec = util::packEigen(*this->invVarR_, locvector);
     // and apply localization
     Eigen::VectorXd localization = util::packEigen(locvector, locvector);
     local_invVarR_vec.array() *= localization.array();

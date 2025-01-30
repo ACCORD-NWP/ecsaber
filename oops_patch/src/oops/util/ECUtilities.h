@@ -58,20 +58,6 @@ eckit::LocalConfiguration setObsValue(const eckit::Configuration &,
 double timeStamp();
 
 // -----------------------------------------------------------------------------
-// FieldSet
-// -----------------------------------------------------------------------------
-
-void copyFieldSetWithoutFunctionSpace(const atlas::FieldSet &,
-                                      atlas::FieldSet &);
-
-// -----------------------------------------------------------------------------
-
-double dotProductFieldSetsWithoutFunctionSpace(const atlas::FieldSet &,
-                                               const atlas::FieldSet &,
-                                               const std::vector<std::string> &,
-                                               const eckit::mpi::Comm &);
-
-// -----------------------------------------------------------------------------
 // Variables
 // -----------------------------------------------------------------------------
 
@@ -97,6 +83,15 @@ void dirac4D(const eckit::Configuration & conf,
       }
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+// Increment
+// -----------------------------------------------------------------------------
+
+template <typename MODEL>
+void ones(oops::Increment<MODEL> & dx) {
+  dx.increment().ones();
 }
 
 // -----------------------------------------------------------------------------
@@ -257,7 +252,6 @@ double rms(oops::Departures<MODEL> & dep) {
   zz = std::sqrt(zz);
   return zz;
 }
-
 
 // -----------------------------------------------------------------------------
 // Observations

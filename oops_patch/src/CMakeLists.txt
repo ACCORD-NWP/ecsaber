@@ -2,6 +2,10 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 list( APPEND oops_jedi_src_files
+oops/assimilation/GETKFSolver.h
+oops/assimilation/gletkfInterface.h
+oops/assimilation/gletkf_interface.f90
+oops/assimilation/gletkf_mod.f90
 oops/assimilation/instantiateLocalEnsembleSolverFactory.h
 oops/assimilation/LETKFSolver.h
 oops/assimilation/LocalEnsembleSolver.h
@@ -16,6 +20,7 @@ oops/base/FieldSets.cc
 oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
+oops/base/IncrementEnsemble.h
 oops/base/IncrementEnsemble4D.h
 oops/base/LocalIncrement.cc
 oops/base/LocalIncrement.h
@@ -25,6 +30,7 @@ oops/base/ObsLocalizationParametersBase.h
 oops/base/ObsLocalizations.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
+oops/base/StateEnsemble.h
 oops/base/StateEnsemble4D.h
 oops/base/Variable.cc
 oops/base/Variable.h
@@ -44,6 +50,7 @@ oops/generic/PseudoLinearModelIncrement4D.h
 oops/generic/PseudoModelState4D.h
 oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
+oops/generic/VerticalLocEV.h
 oops/interface/GeometryIterator.h
 oops/interface/ModelData.h
 oops/interface/VariableChange.h

@@ -34,7 +34,6 @@
 #include "oops/base/ObsLocalizations.h"
 #include "oops/base/ObservationSpaces.h"
 #include "oops/base/ObsOperators.h"
-#include "oops/base/ObsAuxControls.h"
 #include "oops/base/Observer.h"
 #include "oops/base/ObserverTL.h"
 #include "oops/interface/State.h"
@@ -73,7 +72,6 @@ class LocalEnsembleSolver {
   typedef ObsLocalizations<MODEL>     ObsLocalizations_;
   typedef ObservationSpaces<MODEL>    ObsSpaces_;
   typedef ObsOperators<MODEL>         ObsOperators_;
-  typedef ObsAuxControls<MODEL>       ObsAuxCtrls_;
   typedef StateEnsemble4D<MODEL>      StateEnsemble4D_;
   typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
   typedef PseudoModelState4D<MODEL>   PseudoModel_;
@@ -100,13 +98,13 @@ class LocalEnsembleSolver {
   /// computes ensemble H(\p xx), returns mean H(\p xx), saves as hofx \p iteration
   virtual Observations_ computeHofX(const StateEnsemble4D_ & xx, size_t iteration,
                       bool readFromDisk, const Model_ & model, const Observations_ & yobs,
-                      const ObsAuxCtrls_ & ybias);
+                      const ObsAux_ & ybias);
   Observations_ computeHofXLinear(const StateEnsemble4D_ & xx, size_t iteration,
                       bool readFromDisk, const Model_ & model, const Observations_ & yobs,
-                      const ObsAuxCtrls_ & ybias);
+                      const ObsAux_ & ybias);
   Observations_ computeHofXNonLinear(const StateEnsemble4D_ & xx, size_t iteration,
                       bool readFromDisk, const Model_ & model, const Observations_ & yobs,
-                      const ObsAuxCtrls_ & ybias);
+                      const ObsAux_ & ybias);
 
   /// update background ensemble \p bg to analysis ensemble \p for all points on this PE
   virtual void measurementUpdate(const IncrementEnsemble4D_ & bg, IncrementEnsemble4D_ & an);
@@ -125,9 +123,9 @@ class LocalEnsembleSolver {
   /// compute H(x) based on 4D state \p xx and put the result into \p yy. Also sets up
   /// R_ based on the QC filters run during H(x)
   void computeHofX4DLinear(const eckit::Configuration &, const Model_ &, const StateEnsemble4D_ &,
-                           const ObsAuxCtrls_ &, Observations_ &, ObsEnsemble_ &);
+                           const ObsAux_ &, Observations_ &, ObsEnsemble_ &);
   void computeHofX4DNonLinear(const eckit::Configuration &, const Model_ &, const State4D_ &,
-                              const ObsAuxCtrls_ &, Observations_ &);
+                              const ObsAux_ &, Observations_ &);
   /// accessor to obs localizations
   const ObsLocalizations_ & obsloc() const {return obsloc_;}
   bool useLinearObserver() { return useLinearObserver_; }
@@ -214,7 +212,7 @@ template <typename MODEL>
 Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofX(const StateEnsemble4D_ & ens_xx,
                                                 size_t iteration, bool readFromDisk,
                                                 const Model_ & model, const Observations_ & yobs,
-                                                const ObsAuxCtrls_ & ybias) {
+                                                const ObsAux_ & ybias) {
   util::Timer timer(classname(), "computeHofX");
 
   Observations_ yb_mean(obspaces_);
@@ -234,7 +232,7 @@ template <typename MODEL>
 void LocalEnsembleSolver<MODEL>::computeHofX4DLinear(const eckit::Configuration & config,
                                                      const Model_ & model,
                                                      const StateEnsemble4D_ & xx,
-                                                     const ObsAuxCtrls_ & ybias,
+                                                     const ObsAux_ & ybias,
                                                      Observations_ & yy_mean,
                                                      ObsEnsemble_ & yy) {
 
@@ -308,7 +306,7 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXLinear(
                                                    bool readFromDisk,
                                                    const Model_ & model,
                                                    const Observations_ & yobs,
-                                                   const ObsAuxCtrls_ & ybias) {
+                                                   const ObsAux_ & ybias) {
   util::Timer timer(classname(), "computeHofXLinear");
 
   ASSERT(ens_xx.size() == Yb_.size());
@@ -403,7 +401,7 @@ template <typename MODEL>
 void LocalEnsembleSolver<MODEL>::computeHofX4DNonLinear(const eckit::Configuration & config,
                                                         const Model_ & model,
                                                         const State4D_ & xx,
-                                                        const ObsAuxCtrls_ & ybias,
+                                                        const ObsAux_ & ybias,
                                                         Observations_ & yy) {
   // compute forecast length from State4D times
   const std::vector<util::DateTime> times = xx.times();
@@ -439,7 +437,7 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofXNonLinear(
                                                    bool readFromDisk,
                                                    const Model_ & model,
                                                    const Observations_ & yobs,
-                                                   const ObsAuxCtrls_ & ybias) {
+                                                   const ObsAux_ & ybias) {
   util::Timer timer(classname(), "computeHofXNonLinear");
 
   ASSERT(ens_xx.size() == Yb_.size());
