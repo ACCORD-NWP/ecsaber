@@ -3,8 +3,8 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 list( APPEND oops_jedi_src_files
 oops/assimilation/GETKFSolver.h
-oops/assimilation/gletkfInterface.h
 oops/assimilation/gletkf_interface.f90
+oops/assimilation/gletkfInterface.h
 oops/assimilation/gletkf_mod.f90
 oops/assimilation/instantiateLocalEnsembleSolverFactory.h
 oops/assimilation/LETKFSolver.h
@@ -20,8 +20,9 @@ oops/base/FieldSets.cc
 oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
-oops/base/IncrementEnsemble.h
 oops/base/IncrementEnsemble4D.h
+oops/base/IncrementEnsemble.h
+oops/base/LinearVariableChangeParametersBase.h
 oops/base/LocalIncrement.cc
 oops/base/LocalIncrement.h
 oops/base/ObsEnsemble.h
@@ -30,9 +31,10 @@ oops/base/ObsLocalizationParametersBase.h
 oops/base/ObsLocalizations.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
-oops/base/StateEnsemble.h
 oops/base/StateEnsemble4D.h
+oops/base/StateEnsemble.h
 oops/base/Variable.cc
+oops/base/VariableChangeParametersBase.h
 oops/base/Variable.h
 oops/base/Variables.cc
 oops/base/Variables.h
@@ -88,26 +90,25 @@ oops/util/parameters/ConfigurationParameter.cc
 oops/util/parameters/ConfigurationParameter.h
 oops/util/parameters/EmptyParameters.h
 oops/util/parameters/GenericParameters.h
-oops/util/parameters/HasDiracParameters_.h
 oops/util/parameters/HasParameters_.h
 oops/util/parameters/IgnoreOtherParameters.cc
 oops/util/parameters/IgnoreOtherParameters.h
 oops/util/parameters/NumericConstraints.h
 oops/util/parameters/ObjectJsonSchema.cc
 oops/util/parameters/ObjectJsonSchema.h
-oops/util/parameters/OptionalParameter.h
 oops/util/parameters/OptionalParameter.cc
+oops/util/parameters/OptionalParameter.h
 oops/util/parameters/OptionalPolymorphicParameter.h
-oops/util/parameters/Parameter.h
 oops/util/parameters/ParameterBase.cc
 oops/util/parameters/ParameterBase.h
 oops/util/parameters/ParameterConstraint.h
+oops/util/parameters/Parameter.h
 oops/util/parameters/Parameters.cc
 oops/util/parameters/Parameters.h
 oops/util/parameters/ParametersOrConfiguration.h
+oops/util/parameters/ParameterTraitsAnyOf.h
 oops/util/parameters/ParameterTraits.cc
 oops/util/parameters/ParameterTraits.h
-oops/util/parameters/ParameterTraitsAnyOf.h
 oops/util/parameters/ParameterTraitsScalarOrMap.h
 oops/util/parameters/PolymorphicParameter.h
 oops/util/parameters/PolymorphicParameterTraits.h
@@ -119,8 +120,8 @@ oops/util/PartialDateTime.cc
 oops/util/PartialDateTime.h
 oops/util/printRunStats.cc
 oops/util/printRunStats.h
-oops/util/Random.h
 oops/util/RandomField.h
+oops/util/Random.h
 oops/util/ScalarOrMap.h
 oops/util/Serializable.h
 oops/util/stringFunctions.cc
