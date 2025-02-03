@@ -15,6 +15,8 @@
 #include "atlas/field.h"
 #include "atlas/functionspace.h"
 
+#include "eckit/config/Configuration.h"
+
 #include "oops/base/Variables.h"
 
 #include "saber/vader/PressureParameters.h"
@@ -31,7 +33,6 @@ std::vector<double> interpWeights(std::vector<std::vector<double>> &,
                                   double);
 
 atlas::Field createGpRegressionWeights(const atlas::FunctionSpace &,
-                                       const atlas::FieldSet &,
                                        const std::string &,
                                        const std::size_t,
                                        const std::size_t);
@@ -43,9 +44,8 @@ void populateMuA(atlas::FieldSet &,
                  const atlas::Field &);
 
 atlas::FieldSet createGpRegressionStats(const atlas::FunctionSpace &,
-                                        const atlas::FieldSet &,
                                         const oops::JediVariables &,
-                                        const GpToHpReadParameters &);
+                                        const eckit::Configuration &);
 
 }  // namespace vader
 }  // namespace saber

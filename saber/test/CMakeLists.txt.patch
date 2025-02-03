@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2024-11-27 12:33:02.919080473 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2024-11-26 15:07:09.494531999 +0100
-@@ -148,9 +148,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2025-02-03 11:27:23.523350734 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2025-02-03 11:29:18.070013627 +0100
+@@ -160,9 +160,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
        # Link to yaml file
@@ -8,13 +8,13 @@
 -                       ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
 -                       ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
 +      execute_process(COMMAND ${Python3_EXECUTABLE}
-+                      ${CMAKE_CURRENT_SOURCE_DIR}/ecmwf_yaml_update.py
++                      ${CMAKE_BINARY_DIR}/bin/ecsaber_yaml_update.py
 +                      ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
 +                      ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
  
        # Link to reference file
        if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -218,7 +219,7 @@
+@@ -230,7 +231,7 @@
  
                    # Special check for 4D tests
                    string( FIND ${test} "_4d" found_result )
@@ -23,26 +23,38 @@
                        set( 4dCheck true CACHE BOOL "" FORCE )
                    else()
                        set( 4dCheck false CACHE BOOL "" FORCE )
-@@ -259,9 +260,9 @@
+@@ -269,11 +270,12 @@
+ 
+                       # Add test
                        ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-                                         MPI ${mpi}
-                                         OMP ${omp}
+-                                        MPI ${mpi}
+-                                        OMP ${omp}
 -                                        COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x
-+                                        COMMAND ${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x
-                                         ARGS testinput/${test}.yaml
+-                                        ARGS testinput/${test}.yaml
 -                                        DEPENDS saber_quench_${exename}.x
++                                        COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
++                                        ARGS ${mpi}
++                                             ${omp}
++                                             ${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x
++                                             testinput/${test}.yaml
 +                                        DEPENDS quenchxx_${exename}.x
                                          TEST_DEPENDS ${deps_list} )
                    endif()
                endif()
-@@ -286,9 +287,9 @@
+@@ -296,11 +298,12 @@
+ 
+               # Add test
                ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-                                 MPI ${mpi}
-                                 OMP ${omp}
+-                                MPI ${mpi}
+-                                OMP ${omp}
 -                                COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
-+                                COMMAND ${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x
-                                 ARGS testinput/${yaml_prefix}${test}.yaml
+-                                ARGS testinput/${yaml_prefix}${test}.yaml
 -                                DEPENDS saber_quench_error_covariance_toolbox.x
++                                COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
++                                ARGS ${mpi}
++                                     ${omp}
++                                     ${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x
++                                     testinput/${test}.yaml
 +                                DEPENDS quenchxx_error_covariance_toolbox.x
                                  TEST_DEPENDS ${deps_list} )
            endif()

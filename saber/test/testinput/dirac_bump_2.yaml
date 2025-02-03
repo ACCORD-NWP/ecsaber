@@ -159,12 +159,6 @@ background error:
                 read local nicas: true
     weight:
       value: 0.5
-  linear variable change:
-    variables:
-    - eastward_wind
-    - northward_wind
-    atlas file:
-      filepath: testdata/convertstate_constant/linear_variable_change
 dirac:
 - lon:
   - 0.0

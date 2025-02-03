@@ -24,6 +24,7 @@
 #include "oops/base/ModelSpaceCovariance4DBase.h"
 #include "oops/interface/Geometry.h"
 #include "oops/interface/Increment.h"
+#include "oops/interface/LinearVariableChange.h"
 #include "oops/interface/State.h"
 #include "oops/interface/Variables.h"
 
@@ -60,6 +61,7 @@ class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
   typedef oops::IncrCtlVec<MODEL>                              IncrCtlVec_;
   typedef oops::IncrEnsCtlVec<MODEL>                           IncrEnsCtlVec_;
   typedef oops::IncrModCtlVec<MODEL>                           IncrModCtlVec_;
+  typedef oops::LinearVariableChange<MODEL>                    LinearVariableChange_;
   typedef oops::State4D<MODEL>                                 State4D_;
   typedef oops::Variables<MODEL>                               Variables_;
 
@@ -114,10 +116,12 @@ class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
   std::unique_ptr<oops::ModelSpaceCovarianceBase<MODEL>> static_;
   /// Geometry UID
   std::vector<std::string> uid_;
-  /// Increment variables
-  const Variables_ incVars_;
   /// Parameters
   Parameters_ params;
+  /// Linear variable change
+  std::unique_ptr<Variables_> BVars_;
+  std::unique_ptr<Variables_> anaVars_;
+  std::vector<std::unique_ptr<LinearVariableChange_>> linVarChg_;
 };
 
 // -----------------------------------------------------------------------------
@@ -126,14 +130,38 @@ template<typename MODEL>
 ErrorCovariance4D<MODEL>::ErrorCovariance4D(const Geometry_ & geom,
                                             const Variables_ & incVars,
                                             const eckit::Configuration & config,
-                                            const State4D_ &)
+                                            const State4D_ & xb)
   : oops::ModelSpaceCovariance4DBase<MODEL>::ModelSpaceCovariance4DBase(geom, config),
-    parallelHybrid_(false), static_(), incVars_(incVars)
+    parallelHybrid_(false), static_()
 {
   oops::Log::trace() << "ErrorCovariance4D::ErrorCovariance4D starting" << std::endl;
 
   // Save parameters
   params.validateAndDeserialize(config);
+
+  const eckit::LocalConfiguration cvconf = config.getSubConfiguration("linear variable change");
+  if (!cvconf.empty()) {
+     // Setup linear variable changes
+    if (cvconf.has("input variables")) {
+      eckit::LocalConfiguration inputVars;
+      inputVars.set("variables", cvconf.getStringVector("input variables"));
+      BVars_.reset(new Variables_(inputVars));
+    }
+    eckit::LocalConfiguration outputVars;
+    if (cvconf.has("output variables")) {
+      outputVars.set("variables", cvconf.getStringVector("output variables"));
+    }
+    anaVars_.reset(new Variables_(outputVars));
+    for (size_t jt = 0; jt < xb.statesNumber(); ++jt) {
+      linVarChg_.push_back(std::make_unique<LinearVariableChange_>(geom, cvconf));
+      linVarChg_[jt]->changeVarTraj(xb[jt], *anaVars_);
+    }
+  } else {
+    // Setup B and analysis variables
+    BVars_.reset(new Variables_(incVars));
+    anaVars_.reset(new Variables_(incVars));
+  }
+
 
   oops::Log::trace() << "ErrorCovariance4D::ErrorCovariance4D done" << std::endl;
 }
@@ -200,8 +228,8 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
     }
 
   // Initialize outer variables
-  const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVars_.variables());
-  oops::JediVariables outerVars(incVars_.variables().variablesList());
+  const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(BVars_->variables());
+  oops::JediVariables outerVars(BVars_->variables().variablesList());
   for (std::size_t i = 0; i < vlevs.size() ; ++i) {
     outerVars[i].setLevels(vlevs[i]);
   }
@@ -454,6 +482,14 @@ void ErrorCovariance4D<MODEL>::randomize(Increment4D_ & dx) const {
     dx[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
   }
 
+  if (linVarChg_.size() > 0) {
+    // Apply linear variable changes
+    ASSERT(linVarChg_.size() == dx.last()-dx.first()+1);
+  for (int jtime = dx.first(); jtime <= dx.last(); ++jtime) {
+      linVarChg_[jtime]->changeVarTL(dx[jtime], *anaVars_);
+    }
+  }
+
   oops::Log::trace() << "ErrorCovariance4D<MODEL>::randomize done" << std::endl;
 }
 
@@ -467,13 +503,26 @@ void ErrorCovariance4D<MODEL>::advectedMultiply(const Increment4D_ &dxi,
 
   // Copy input
   dxo = dxi;
-  oops::FieldSet4D fset4dInit(dxi);
+
+  // Setup FieldSet4D
+  std::unique_ptr<oops::FieldSet4D> fset4dInit;
+  if (linVarChg_.size() > 0) {
+    ASSERT(linVarChg_.size() == dxi.last()-dxi.first()+1);
+    // Copy input increment and apply adjoint variable change (to control variables)
+    Increment4D_ dxiTmp(dxi);
+    for (int jtime = dxi.first(); jtime <= dxi.last(); ++jtime) {
+      linVarChg_[jtime]->changeVarAD(dxiTmp[jtime], *BVars_);
+    }
+    fset4dInit.reset(new oops::FieldSet4D(dxiTmp));
+  } else {
+    fset4dInit.reset(new oops::FieldSet4D(dxi));
+  }
 
   // Apply outer blocks adjoint
-  if (outerBlockChain_) outerBlockChain_->applyOuterBlocksAD(fset4dInit);
+  if (outerBlockChain_) outerBlockChain_->applyOuterBlocksAD(*fset4dInit);
 
   // Initialize sum to zero
-  oops::FieldSet4D fset4dSum = oops::copyFieldSet4D(fset4dInit);
+  oops::FieldSet4D fset4dSum = oops::copyFieldSet4D(*fset4dInit);
   fset4dSum.zero();
 
   // Loop over B components
@@ -485,7 +534,7 @@ void ErrorCovariance4D<MODEL>::advectedMultiply(const Increment4D_ &dxi,
     }
     for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
       // Create temporary FieldSet
-      oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(fset4dInit);
+      oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(*fset4dInit);
 
       // Apply weight
       if (hybridScalarWeightSqrt_[jj] != 1.0) {
@@ -521,6 +570,13 @@ void ErrorCovariance4D<MODEL>::advectedMultiply(const Increment4D_ &dxi,
   // ATLAS fieldset to Increment4D_
   for (int jtime = dxo.first(); jtime <= dxo.last(); ++jtime) {
     dxo[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
+  }
+
+  if (linVarChg_.size() > 0) {
+    // Apply control to analysis/model variable change
+    for (int jtime = dxo.first(); jtime <= dxo.last(); ++jtime) {
+      linVarChg_[jtime]->changeVarTL(dxo[jtime], *anaVars_);
+    }
   }
 
   oops::Log::trace() << "ErrorCovariance4D<MODEL>::advectedMultiply done" << std::endl;
@@ -587,6 +643,13 @@ void ErrorCovariance4D<MODEL>::advectedMultiplySqrt(const IncrCtlVec_ &dv,
     dx[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
   }
 
+  if (linVarChg_.size() > 0) {
+    // Apply control to analysis/model variable change
+    for (int jtime = dx.first(); jtime <= dx.last(); ++jtime) {
+      linVarChg_[jtime]->changeVarTL(dx[jtime], *anaVars_);
+    }
+  }
+
   oops::Log::trace() << "ErrorCovariance4D<MODEL>::advectedMultiplySqrt done" << std::endl;
 }
 
@@ -597,17 +660,28 @@ void ErrorCovariance4D<MODEL>::advectedMultiplySqrtTrans(const Increment4D_ &dx,
                                                          IncrCtlVec_ &dv) const {
   oops::Log::trace() << "ErrorCovariance4D<MODEL>::advectedMultiplySqrtTrans starting" << std::endl;
 
-  // Create input FieldSet
-  oops::FieldSet4D fset4dInit(dx);
+  // Setup FieldSet4D
+  std::unique_ptr<oops::FieldSet4D> fset4dInit;
+  if (linVarChg_.size() > 0) {
+    ASSERT(linVarChg_.size() == dx.last()-dx.first()+1);
+    // Copy input increment and apply adjoint variable change (to control variables)
+    Increment4D_ dxTmp(dx);
+    for (int jtime = dxTmp.first(); jtime <= dxTmp.last(); ++jtime) {
+      linVarChg_[jtime]->changeVarAD(dxTmp[jtime], *BVars_);
+    }
+    fset4dInit.reset(new oops::FieldSet4D(dxTmp));
+  } else {
+    fset4dInit.reset(new oops::FieldSet4D(dx));
+  }
 
   // Apply outer blocks adjoint
-  if (outerBlockChain_) outerBlockChain_->applyOuterBlocksAD(fset4dInit);
+  if (outerBlockChain_) outerBlockChain_->applyOuterBlocksAD(*fset4dInit);
 
   // Loop over B components
   size_t offset = 0;
   for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
     // Create temporary FieldSet
-    oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(fset4dInit);
+    oops::FieldSet4D fset4dCmp = oops::copyFieldSet4D(*fset4dInit);
 
     // Apply weight
     if (hybridScalarWeightSqrt_[jj] != 1.0) {

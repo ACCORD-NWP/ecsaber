@@ -34,11 +34,11 @@ static SaberOuterBlockMaker<HpHexnerToPExner>
 // -----------------------------------------------------------------------------
 
 HpHexnerToPExner::HpHexnerToPExner(const oops::GeometryData & outerGeometryData,
-                     const oops::JediVariables & outerVars,
-                     const eckit::Configuration & covarConf,
-                     const Parameters_ & params,
-                     const oops::FieldSet3D & xb,
-                     const oops::FieldSet3D & fg)
+                                   const oops::JediVariables & outerVars,
+                                   const eckit::Configuration & covarConf,
+                                   const Parameters_ & params,
+                                   const oops::FieldSet3D & xb,
+                                   const oops::FieldSet3D & fg)
   : SaberOuterBlockBase(params, xb.validTime()),
     innerGeometryData_(outerGeometryData),
     innerVars_(getUnionOfInnerActiveAndOuterVars(params, outerVars)),
@@ -155,6 +155,14 @@ void HpHexnerToPExner::leftInverseMultiply(oops::FieldSet3D & fset) const {
   }
 
   oops::Log::trace() << classname() << "::leftInverseMultiply done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void HpHexnerToPExner::directCalibration(const oops::FieldSets & fset) {
+  oops::Log::trace() << classname() << "::directCalibration start" << std::endl;
+  oops::Log::info() << classname() << "::directCalibration (empty step)" << std::endl;
+  oops::Log::trace() << classname() << "::directCalibration end" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

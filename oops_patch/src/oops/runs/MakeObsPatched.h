@@ -78,7 +78,7 @@ class MakeObsPatched : public Application {
                                                   "Initial Condition");
     Log::info() << "Initial configuration is:" << initialConfig << std::endl;
     State_ xx(geom, model, initialConfig);
-    Log::test() << "Initial state: " << xx.norm() << std::endl;
+    Log::test() << "State: " << std::endl << xx << std::endl;
 
     //  Setup augmented state
     ModelAux_ moderr(geom, model, initialConfig);
@@ -105,9 +105,13 @@ class MakeObsPatched : public Application {
 
     //  Run forecast and release observations
     model.forecast(xx, moderr, fclen, post);
-    Log::test() << "Final state: " << xx.norm() << std::endl;
     Log::info() << "MakeObs: Finished observation generation." << std::endl;
     std::unique_ptr<Observations_> yobs(pobs->release());
+    Log::test() << "H(x):"  << std::endl;
+    for (std::size_t jj = 0; jj < yobs->size(); ++jj) {
+      Log::test() << (*yobs)[jj] << std::endl;
+    }
+    Log::test() << "End H(x)"  << std::endl;
 
     // Setup empty departures
     Departures_ ydep(obspace);
@@ -119,15 +123,17 @@ class MakeObsPatched : public Application {
     // Generate perturbations, first step
     matR.randomize(ydep);
     *yobs += ydep;
+    Log::test() << "Perturbed H(x):"  << std::endl;
+    for (std::size_t jj = 0; jj < yobs->size(); ++jj) {
+      Log::test() << (*yobs)[jj] << std::endl;
+    }
+    Log::test() << "End Perturbed H(x)"  << std::endl;
 
     // Member replacement
     std::string pattern = obsconf.getString("pattern", "%member%");
     size_t zpad = obsconf.getInt("zero padding", 0);
 
     // Save perturbed observations
-    for (std::size_t jj = 0; jj < yobs->size(); ++jj) {
-      Log::test() << "Generated observation: " << (*yobs)[jj] << std::endl;
-    }
     eckit::LocalConfiguration obsconfControl(obsconf);
     util::seekAndReplace(obsconfControl, pattern, 0, zpad);
     yobs->save(obsconfControl);
@@ -160,12 +166,14 @@ class MakeObsPatched : public Application {
     for (size_t ie = 0; ie < members; ++ie) {
       // Add perturbation
       *yobs += ypertVec[ie];
-
-      //  Save observations
+      Log::test() << "Perturbed H(x) for member " << ie+1 << ":" << std::endl;
       for (std::size_t jj = 0; jj < yobs->size(); ++jj) {
         Log::test() << "Generated perturbed observation " << jj << " for member " << ie+1
           << ": " << (*yobs)[jj] << std::endl;
       }
+      Log::test() << "End perturbed H(x) for member " << ie+1 << std::endl;
+
+      //  Save observations
       eckit::LocalConfiguration obsconfMember(obsconf);
       util::seekAndReplace(obsconfMember, pattern, ie+1, zpad);
       yobs->save(obsconfMember);

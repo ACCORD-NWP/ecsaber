@@ -1,16 +1,23 @@
 /*
- * (C) Copyright 2022 UCAR
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
  */
 
 #include "oops/util/ECUtilities.h"
 
+#include <chrono>
+
+#include "atlas/array.h"
+
+#include "eckit/exception/Exceptions.h"
+
 #include "oops/util/ConfigFunctions.h"
+#include "oops/util/missingValues.h"
 
 namespace util {
 
+// -----------------------------------------------------------------------------
+// Configuration
 // -----------------------------------------------------------------------------
 
 void setMember(eckit::LocalConfiguration & conf,
@@ -81,6 +88,41 @@ void expandEnsembleTemplate(eckit::LocalConfiguration & conf,
   oops::Log::trace() << "expandEnsembleTemplate done" << std::endl;
 }
 
+// -----------------------------------------------------------------------------
+
+eckit::LocalConfiguration setObsValue(const std::string & obsvalue) {
+  eckit::LocalConfiguration obsConfig;
+  obsConfig.set("obsvalue", obsvalue);
+  return obsConfig;
+}
+
+// -----------------------------------------------------------------------------
+
+eckit::LocalConfiguration setObsValue(const eckit::Configuration & inputObsConfig,
+                                      const std::string & obsvalue) {
+  eckit::LocalConfiguration obsConfig(inputObsConfig);
+  std::vector<eckit::LocalConfiguration> obsTypesConfig;
+  obsConfig.get("ObsTypes", obsTypesConfig);
+  for (auto & item : obsTypesConfig) {
+    item.set("ObsData.obsvalue", obsvalue);
+  }
+  obsConfig.set("ObsTypes", obsTypesConfig);
+  return obsConfig;
+}
+
+// -----------------------------------------------------------------------------
+// Timestamp
+// -----------------------------------------------------------------------------
+
+static std::chrono::steady_clock::time_point start_time(std::chrono::steady_clock::now());
+
+double timeStamp() {
+  const std::chrono::steady_clock::time_point t(std::chrono::steady_clock::now());
+  return std::chrono::duration<double>(t - start_time).count();
+}
+
+// -----------------------------------------------------------------------------
+// Variables
 // -----------------------------------------------------------------------------
 
 eckit::LocalConfiguration templatedVarsConf(const oops::JediVariables & vars) {

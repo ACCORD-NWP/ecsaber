@@ -47,15 +47,16 @@ HydrostaticPressure::HydrostaticPressure(const oops::GeometryData & outerGeometr
     innerVars_(getUnionOfInnerActiveAndOuterVars(params, outerVars)),
     intermediateTempVars_(params.intermediateTempVars(outerVars)),
     gaussFunctionSpace_(outerGeometryData.functionSpace()),
+    params_(params),
     gptohp_(std::make_unique<saber::vader::GpToHp>(outerGeometryData,
                                                    outerVars,
                                                    covarConf,
-                                                   params.gpToHp,
+                                                   params_.gpToHp,
                                                    xb, fg)),
     gaussuvtogp_(std::make_unique<GaussUVToGP>(outerGeometryData,
                                                gptohp_->innerVars(),
                                                covarConf,
-                                               params.gaussUVToGp, xb, fg))
+                                               params_.gaussUVToGp, xb, fg))
 {
   oops::Log::trace() << classname() << "::HydrostaticPressure starting" << std::endl;
   oops::Log::trace() << classname() << "::HydrostaticPressure done" << std::endl;

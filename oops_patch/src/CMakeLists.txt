@@ -2,6 +2,10 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 list( APPEND oops_jedi_src_files
+oops/assimilation/GETKFSolver.h
+oops/assimilation/gletkfInterface.h
+oops/assimilation/gletkf_interface.f90
+oops/assimilation/gletkf_mod.f90
 oops/assimilation/instantiateLocalEnsembleSolverFactory.h
 oops/assimilation/LETKFSolver.h
 oops/assimilation/LocalEnsembleSolver.h
@@ -16,6 +20,7 @@ oops/base/FieldSets.cc
 oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
+oops/base/IncrementEnsemble.h
 oops/base/IncrementEnsemble4D.h
 oops/base/LocalIncrement.cc
 oops/base/LocalIncrement.h
@@ -25,12 +30,12 @@ oops/base/ObsLocalizationParametersBase.h
 oops/base/ObsLocalizations.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
+oops/base/StateEnsemble.h
 oops/base/StateEnsemble4D.h
 oops/base/Variable.cc
 oops/base/Variable.h
 oops/base/Variables.cc
 oops/base/Variables.h
-oops/base/WriteParametersBase.h
 oops/generic/AtlasInterpolator.cc
 oops/generic/AtlasInterpolator.h
 oops/generic/Diffusion.cc
@@ -45,6 +50,7 @@ oops/generic/PseudoLinearModelIncrement4D.h
 oops/generic/PseudoModelState4D.h
 oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
+oops/generic/VerticalLocEV.h
 oops/interface/GeometryIterator.h
 oops/interface/ModelData.h
 oops/interface/VariableChange.h
@@ -83,8 +89,6 @@ oops/util/parameters/EmptyParameters.h
 oops/util/parameters/GenericParameters.h
 oops/util/parameters/HasDiracParameters_.h
 oops/util/parameters/HasParameters_.h
-oops/util/parameters/HasReadParameters_.h
-oops/util/parameters/HasWriteParameters_.h
 oops/util/parameters/IgnoreOtherParameters.cc
 oops/util/parameters/IgnoreOtherParameters.h
 oops/util/parameters/NumericConstraints.h
@@ -112,6 +116,8 @@ oops/util/parameters/RequiredParameter.h
 oops/util/parameters/RequiredPolymorphicParameter.h
 oops/util/PartialDateTime.cc
 oops/util/PartialDateTime.h
+oops/util/printRunStats.cc
+oops/util/printRunStats.h
 oops/util/Random.h
 oops/util/RandomField.h
 oops/util/ScalarOrMap.h
@@ -124,15 +130,13 @@ oops/util/TypeTraits.h
 )
 
 # Copy and update source from OOPS
-patch_init( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+patch_init()
 foreach( src_file ${oops_jedi_src_files} )
     check_diff( ${CMAKE_CURRENT_SOURCE_DIR}/../../oops-jedi/src/${src_file}
-                ${CMAKE_CURRENT_SOURCE_DIR}/${src_file}
-                ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
-
+                ${CMAKE_CURRENT_SOURCE_DIR}/${src_file} )
     list( APPEND oops_patch_src_files ${src_file} )
 endforeach()
-patch_apply( "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+patch_apply()
 
 # Check update summary
 add_custom_command( OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/update_result.sh"
@@ -149,7 +153,6 @@ util/kinds.F90
 util/Logger.h
 util/ObjectCounter.h
 util/Printable.h
-util/Timer.h
 )
 
 if( NOT DEFINED OOPS_SOURCE_DIR )

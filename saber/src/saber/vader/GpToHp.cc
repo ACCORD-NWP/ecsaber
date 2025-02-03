@@ -16,16 +16,7 @@
 
 #include "eckit/exception/Exceptions.h"
 
-#include "mo/common_varchange.h"
-#include "mo/control2analysis_varchange.h"
-#include "mo/eval_air_pressure_levels.h"
-#include "mo/eval_air_temperature.h"
-#include "mo/eval_exner.h"
 #include "mo/eval_geostrophic_to_hydrostatic_pressure.h"
-#include "mo/eval_sat_vapour_pressure.h"
-#include "mo/eval_total_mixing_ratio.h"
-#include "mo/eval_virtual_potential_temperature.h"
-#include "mo/eval_water_vapor_mixing_ratio.h"
 
 #include "oops/base/FieldSet3D.h"
 #include "oops/base/Variables.h"
@@ -109,6 +100,7 @@ void GpToHp::multiply(oops::FieldSet3D & fset) const {
 
 void GpToHp::multiplyAD(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::multiplyAD starting" << std::endl;
+
   // Allocate inner-only variables
   checkFieldsAreNotAllocated(fset, innerOnlyVars_);
   allocateMissingFields(fset, innerOnlyVars_, innerOnlyVars_,
@@ -146,11 +138,13 @@ void GpToHp::read() {
   oops::Log::trace() << classname() << "::read start " << params_ <<  std::endl;
   const auto & readParams = params_.readParams.value();
   if (readParams != boost::none) {
+    eckit::LocalConfiguration lconf;
+    readParams.value().serialize(lconf);
+    const eckit::Configuration & conf = lconf;
     // Covariance FieldSet
     covFieldSet_ = createGpRegressionStats(innerGeometryData_.functionSpace(),
-                                           innerGeometryData_.fieldSet(),
                                            innerVars_,
-                                           readParams.value());
+                                           conf);
     // also copy variables from covariance fieldset if required
     if (covFieldSet_.has("interpolation_weights")) {
       augmentedStateFieldSet_.add(covFieldSet_["vertical_regression_matrices"]);
@@ -161,14 +155,24 @@ void GpToHp::read() {
 }
 
 void GpToHp::directCalibration(const oops::FieldSets & fset) {
-  oops::Log::trace() << classname() << "::directCalibration start" << std::endl;
-  // read in Gp x Gp vertical covariance and Hp x Gp covariance.
+  oops::Log::info() << classname() << "::directCalibration start" << std::endl;
+  const auto & calibrationReadParams = params_.calibrationReadParams.value();
+  if (calibrationReadParams != boost::none) {
+    eckit::LocalConfiguration lconf;
+    calibrationReadParams.value().serialize(lconf);
+    const eckit::Configuration & conf = lconf;
+    // Covariance FieldSet
+    covFieldSet_ = createGpRegressionStats(innerGeometryData_.functionSpace(),
+                                           innerVars_,
+                                           conf);
 
-  // calculate an approximation to the inverse of Gp xGp.
-  // by first calculating the eigenvalues and eigenvectors.
-
-  // calculate vertical regression statistics for each band.
-  oops::Log::trace() << classname() << "::directCalibration end" << std::endl;
+    // also copy variables from covariance fieldset if required
+    if (covFieldSet_.has("interpolation_weights")) {
+      augmentedStateFieldSet_.add(covFieldSet_["vertical_regression_matrices"]);
+      augmentedStateFieldSet_.add(covFieldSet_["interpolation_weights"]);
+    }
+  }
+  oops::Log::info() << classname() << "::directCalibration end" << std::endl;
 }
 
 void GpToHp::write() const {

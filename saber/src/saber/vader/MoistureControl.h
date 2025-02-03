@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2022 Met Office
+ * (C) Crown Copyright 2022-2024 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -41,12 +41,23 @@ class MoistureControlReadParameters : public oops::Parameters {
   oops::Parameter<int> mu_bins{"rht bins", "relative humidity bins", 30, this};
 };
 
+
+class MoistureControlCalibrationParameters : public oops::Parameters {
+  OOPS_CONCRETE_PARAMETERS(MoistureControlCalibrationParameters, oops::Parameters)
+
+ public:
+  oops::OptionalParameter<MoistureControlReadParameters> calibrationReadParams{"read", this};
+};
+
+
 // -----------------------------------------------------------------------------
 
 class MoistureControlParameters : public SaberBlockParametersBase {
   OOPS_CONCRETE_PARAMETERS(MoistureControlParameters, SaberBlockParametersBase)
 
  public:
+  oops::OptionalParameter<MoistureControlCalibrationParameters>
+    calibrationParams{"calibration", this};
   // Read parameters
   oops::OptionalParameter<MoistureControlReadParameters> readParams{"read", this};
 

@@ -7,6 +7,8 @@ input geometry:
   - variables:
     - air_horizontal_streamfunction
     - air_horizontal_velocity_potential
+    - air_horizontal_streamfunction_transformed
+    - air_horizontal_velocity_potential_transformed
     - eastward_wind
     - northward_wind
     levels: 2
@@ -20,6 +22,8 @@ output geometry:
   - variables:
     - air_horizontal_streamfunction
     - air_horizontal_velocity_potential
+    - air_horizontal_streamfunction_transformed
+    - air_horizontal_velocity_potential_transformed
     - eastward_wind
     - northward_wind
     levels: 2
@@ -28,6 +32,8 @@ states:
 - input:
     date: 2010-01-01T12:00:00Z
     state variables:
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - eastward_wind
     - northward_wind
     constant value: 1.2
@@ -36,6 +42,8 @@ states:
 - input:
     date: 2010-01-01T12:00:00Z
     state variables:
+    - air_horizontal_streamfunction_transformed
+    - air_horizontal_velocity_potential_transformed
     - eastward_wind
     - northward_wind
     constant value: 3.0
@@ -44,8 +52,8 @@ states:
 - input:
     date: 2010-01-01T12:00:00Z
     state variables:
-    - eastward_wind
-    - northward_wind
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     constant value: 2.5
   output:
     filepath: testdata/convertstate_constant/linear_variable_change
@@ -65,3 +73,5 @@ states:
     constant value: 0.7
   output:
     filepath: testdata/convertstate_constant/ensemble_weight
+test:
+  reference filename: testref/convertstate_constant.ref

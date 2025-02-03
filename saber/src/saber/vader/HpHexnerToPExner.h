@@ -90,6 +90,8 @@ class HpHexnerToPExner : public SaberOuterBlockBase {
   void multiplyAD(oops::FieldSet3D &) const override;
   void leftInverseMultiply(oops::FieldSet3D &) const override;
 
+  void directCalibration(const oops::FieldSets & fset) override;
+
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;

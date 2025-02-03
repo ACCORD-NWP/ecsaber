@@ -84,6 +84,7 @@ class GaussToCS : public SaberOuterBlockBase {
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
   void leftInverseMultiply(oops::FieldSet3D &) const override;
+  void directCalibration(const oops::FieldSets &) override;
 
   oops::FieldSet3D generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
                                          const oops::JediVariables & innerVars) const override;

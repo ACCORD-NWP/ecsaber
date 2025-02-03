@@ -1,5 +1,5 @@
 Input Dirac increment:
-Valid time:2010-01-01T12:00:00Z
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: F12
 - size: 1152
@@ -19,7 +19,7 @@ Fields:
   unbalanced_pressure_levels_minus_one: 1.4142135623730951e+00
 Extracting covariances as a function of separation distance
 Covariance(SABER) * Increment:
-Valid time:2010-01-01T12:00:00Z
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: F12
 - size: 1152

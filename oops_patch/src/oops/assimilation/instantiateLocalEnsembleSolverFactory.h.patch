@@ -1,11 +1,8 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/instantiateLocalEnsembleSolverFactory.h.tmp	2024-11-21 11:22:56.861425223 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/instantiateLocalEnsembleSolverFactory.h	2024-11-20 14:41:00.795851266 +0100
-@@ -8,17 +8,17 @@
- #ifndef OOPS_ASSIMILATION_INSTANTIATELOCALENSEMBLESOLVERFACTORY_H_
- #define OOPS_ASSIMILATION_INSTANTIATELOCALENSEMBLESOLVERFACTORY_H_
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/instantiateLocalEnsembleSolverFactory.h.tmp.bak	2025-01-31 15:41:04.540507487 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/instantiateLocalEnsembleSolverFactory.h	2025-01-30 08:03:17.421747809 +0100
+@@ -10,15 +10,15 @@
  
--#include "oops/assimilation/GETKFSolver.h"
-+//#include "oops/assimilation/GETKFSolver.h"
+ #include "oops/assimilation/GETKFSolver.h"
  #include "oops/assimilation/LETKFSolver.h"
 -#include "oops/assimilation/LETKFSolverGSI.h"
 +//#include "oops/assimilation/LETKFSolverGSI.h"
@@ -20,7 +17,7 @@
 +template <typename MODEL> void instantiateLocalEnsembleSolverFactory() {
 +  static LocalEnsembleSolverMaker<MODEL, LETKFSolver<MODEL> > makerLETKF_("LETKF");
 +//  static LocalEnsembleSolverMaker<MODEL, LETKFSolverGSI<MODEL> > makerGSI_("GSI LETKF");
-+//  static LocalEnsembleSolverMaker<MODEL, GETKFSolver<MODEL> > makerGETKF_("GETKF");
++  static LocalEnsembleSolverMaker<MODEL, GETKFSolver<MODEL> > makerGETKF_("GETKF");
  }
  
  }  // namespace oops

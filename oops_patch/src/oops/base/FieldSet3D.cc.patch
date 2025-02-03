@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet3D.cc.tmp	2024-07-19 08:26:29.435121727 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet3D.cc	2024-07-15 14:03:30.070175172 +0200
-@@ -16,11 +16,14 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet3D.cc.tmp.bak	2025-02-03 11:25:40.856754376 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet3D.cc	2025-02-03 11:27:13.897294917 +0100
+@@ -18,11 +18,14 @@
  
  #include "eckit/exception/Exceptions.h"
  
@@ -15,7 +15,7 @@
  namespace oops {
  
  // -----------------------------------------------------------------------------
-@@ -276,7 +279,7 @@
+@@ -332,7 +335,7 @@
  
  size_t FieldSet3D::serialSize() const {
    // size of valid time + number of variables
@@ -24,7 +24,7 @@
    for (const auto & field : fset_) {
      assert(field.rank() == 2);
      // size of field + dimension sizes (2) + variable name hash (1)
-@@ -293,7 +296,10 @@
+@@ -349,7 +352,10 @@
    vect.reserve(vect.size() + fset_size);
  
    // serialize valid time and number of variables
@@ -36,7 +36,7 @@
    vect.push_back(fset_.size());
  
    static_assert(sizeof(double) == sizeof(size_t));
-@@ -318,8 +324,11 @@
+@@ -374,8 +380,11 @@
  // -----------------------------------------------------------------------------
  
  void FieldSet3D::deserialize(const std::vector<double> & vect, size_t & index) {

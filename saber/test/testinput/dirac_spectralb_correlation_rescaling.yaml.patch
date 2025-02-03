@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_spectralb_correlation_rescaling.yaml.tmp	2024-12-04 16:39:16.246572336 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_spectralb_correlation_rescaling.yaml	2024-12-04 16:35:55.966577928 +0100
+@@ -56,4 +56,5 @@
+   filepath: testdata/dirac_spectralb_correlation_rescaling/%MPI%_dirac_%id%
+ 
+ test:
++  float relative tolerance: 1.0e-6
+   reference filename: testref/dirac_spectralb_correlation_rescaling.ref

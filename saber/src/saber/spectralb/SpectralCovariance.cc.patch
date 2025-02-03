@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/spectralb/SpectralCovariance.cc.tmp	2024-11-29 15:35:50.510555944 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/spectralb/SpectralCovariance.cc	2024-11-29 11:25:18.895274642 +0100
-@@ -83,7 +83,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/spectralb/SpectralCovariance.cc.tmp.bak	2025-02-03 11:27:20.966335909 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/spectralb/SpectralCovariance.cc	2025-02-03 09:47:39.506565602 +0100
+@@ -85,7 +85,7 @@
                       << " is not supported. Instead please use 'ID' central block"
                       << " and 'square root of spectral covariance' outer block."
                       << std::endl;

@@ -1,8 +1,6 @@
 /*
- * (C) Copyright 2022 UCAR
- *
- * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * (C) Copyright 2023 Meteorologisk Institutt
+ * 
  */
 
 #pragma once
@@ -11,8 +9,11 @@
 #include <numeric>
 #include <vector>
 
+#include "atlas/field.h"
+
 #include "eckit/config/Configuration.h"
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/mpi/Comm.h"
 
 #include "oops/assimilation/ControlObsVector.h"
 #include "oops/base/Departures.h"
@@ -42,6 +43,21 @@ void expandEnsembleTemplate(eckit::LocalConfiguration &,
                             const size_t &);
 
 // -----------------------------------------------------------------------------
+
+eckit::LocalConfiguration setObsValue(const std::string &);
+
+// -----------------------------------------------------------------------------
+
+eckit::LocalConfiguration setObsValue(const eckit::Configuration &,
+                                      const std::string &);
+
+// -----------------------------------------------------------------------------
+// Timestamp
+// -----------------------------------------------------------------------------
+
+double timeStamp();
+
+// -----------------------------------------------------------------------------
 // Variables
 // -----------------------------------------------------------------------------
 
@@ -62,9 +78,20 @@ void dirac4D(const eckit::Configuration & conf,
     for (int jt = incr4D.first(); jt <= incr4D.last(); ++jt) {
       if (!confs[jt].empty()) {
         incr4D[jt].increment().dirac(confs[jt]);
+      } else {
+        incr4D[jt].increment().zero();
       }
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+// Increment
+// -----------------------------------------------------------------------------
+
+template <typename MODEL>
+void ones(oops::Increment<MODEL> & dx) {
+  dx.increment().ones();
 }
 
 // -----------------------------------------------------------------------------
@@ -210,6 +237,20 @@ size_t packEigenSize(const oops::Departures<MODEL> & dep,
     len += util::packEigenSize(dep[idep], mask[idep]);
   }
   return len;
+}
+
+// -----------------------------------------------------------------------------
+
+template <typename MODEL>
+double rms(oops::Departures<MODEL> & dep) {
+  double zz = dep.dot_product_with(dep);
+  unsigned int n = 0;
+  for (std::size_t jj = 0; jj < dep.size(); ++jj) {
+    n += dep[jj].size();
+  }
+  if (n > 0) zz = zz/static_cast<double>(n);
+  zz = std::sqrt(zz);
+  return zz;
 }
 
 // -----------------------------------------------------------------------------

@@ -45,7 +45,7 @@
 #include "oops/util/parameters/Parameter.h"
 #include "oops/util/parameters/Parameters.h"
 #include "oops/util/parameters/RequiredParameter.h"
-//#include "oops/util/printRunStats.h"
+#include "oops/util/printRunStats.h"
 #include "oops/util/TimeWindow.h"
 
 namespace oops {
@@ -236,7 +236,7 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
     State4D_ bkg_mean = params.driver.value().useControlMember ?
       State4D_(*params.controlMember.value(), geometry, model) : ens_xx.mean();
 
-//    util::printRunStats("LocalEnsembleDA before solver ctor");
+    util::printRunStats("LocalEnsembleDA before solver ctor");
 
     // set up solver
     std::unique_ptr<LocalSolver_> solver =
@@ -251,7 +251,7 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
       }
     }
 
-//    util::printRunStats("LocalEnsembleDA before computeHofX");
+    util::printRunStats("LocalEnsembleDA before computeHofX");
 
     // compute H(x)
     Observations_ yb_mean = solver->computeHofX(ens_xx, 0, params.driver.value().readHofX, model,
@@ -261,7 +261,7 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
     }
 
     Departures_ ombg(yobs - yb_mean);
-//    ombg.save("ombg");
+    ombg.save(util::setObsValue("ombg"));
     if (do_test_prints) {
        Log::test() << "background y - H(x): " << std::endl << ombg << std::endl;
     }
@@ -285,7 +285,7 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
 
     // run the solver at each gridpoint
     Log::info() << "Beginning core local solver..." << std::endl;
-//    util::printRunStats("LocalEnsembleDA before solver", true);
+    util::printRunStats("LocalEnsembleDA before solver", true);
     solver->measurementUpdate(bkg_pert, ana_pert);
 
     // wait all tasks to finish their solution, so the timing for functions below reports
@@ -293,7 +293,7 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
     oops::mpi::world().barrier();
 
     Log::info() << "Local solver completed." << std::endl;
-//    util::printRunStats("LocalEnsembleDA after solver", true);
+    util::printRunStats("LocalEnsembleDA after solver", true);
 
     // calculate final analysis states
     if (incvars == statevars) {
@@ -307,7 +307,7 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
       const Variables_ incvarsT(templatedVarsConf(incvars));
       Increment4D_ ana_increment(geometry, incvarsT, ens_xx[0].times());
       for (size_t jj = 0; jj < nens; ++jj) {
-        for (size_t itime = bkg_pert[jj].first(); itime < bkg_pert[jj].last()+1; ++itime) {
+        for (size_t itime = bkg_pert[jj].first(); itime <= bkg_pert[jj].last(); ++itime) {
           ana_increment[itime] = ana_pert[jj][itime];
           ana_increment[itime] -= bkg_pert[jj][itime];
           ens_xx[jj][itime] += ana_increment[itime];
@@ -329,7 +329,7 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
       eckit::LocalConfiguration output = *params.outputPostEnsInc.value();
       for (size_t jj = 0; jj < nens; ++jj) {
         util::setMember(output, jj+1);
-        for (size_t itime = ana_pert[0].first(); itime < ana_pert[0].last()+1; ++itime) {
+        for (size_t itime = ana_pert[0].first(); itime <= ana_pert[0].last(); ++itime) {
           Increment_ ana_increment(ana_pert[jj][itime], true);
           ana_increment -= bkg_pert[jj][itime];
           ana_increment.write(output);
@@ -383,7 +383,6 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
         throw eckit::BadValue("`save posterior mean increment` is set to true, but "
                               "`output increment` configuration not found.");
       }
-
       eckit::LocalConfiguration output = *params.outputPostMeanInc.value();
       util::setMember(output, 0);
       for (size_t itime = 0; itime < ana_mean.statesNumber(); ++itime) {
@@ -436,12 +435,12 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
 
       // calculate analysis obs departures
       Departures_ oman(yobs - ya_mean);
-//      oman.save("oman");
+      oman.save(util::setObsValue("oman"));
       Log::test() << "analysis y - H(x): " << std::endl << oman << std::endl;
 
       // display overall background/analysis RMS stats
-      Log::test() << "ombg RMS: " << std::sqrt(ombg.dot_product_with(ombg)) << std::endl
-                << "oman RMS: " << std::sqrt(oman.dot_product_with(oman)) << std::endl;
+      Log::test() << "ombg RMS: " << util::rms(ombg) << std::endl
+                << "oman RMS: " << util::rms(oman) << std::endl;
     }
 
     // Save the obsspace only if an hofx was calculated
@@ -537,7 +536,7 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
     size_t nens = perts.size();
     const double ncVar = 1.0/(static_cast<double>(nens) - 1.0);
     const double ncMean = 1.0/(static_cast<double>(nens));
-    for (size_t itime = perts[0].first(); itime < perts[0].last()+1; ++itime) {
+    for (size_t itime = perts[0].first(); itime <= perts[0].last(); ++itime) {
       // compute the mean
       Increment_ mean(perts[0][itime], false);
       for (size_t iens = 0; iens < nens; ++iens) {

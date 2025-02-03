@@ -124,7 +124,7 @@ def expand_ensemble_template(d):
     return newd
 
 # Add ensemble variables
-def add_ensemble_variables(config):
+def add_ensemble_variables(config, addVariables):
     if "ensemble" in config:
         covariance = config["ensemble"]
         ensemble = covariance["members"]
@@ -139,7 +139,8 @@ def add_ensemble_variables(config):
                 if "variables" in ensemble[0][0]:
                     conf3D["variables"] = ensemble[0][0]["variables"]
                 else:
-                    conf3D["variables"] = variables
+                    if addVariables:
+                        conf3D["variables"] = variables
                 conf3D["members"] = len(ensemble[0])
                 config["ensemble"].append(conf3D)
         else:
@@ -148,7 +149,8 @@ def add_ensemble_variables(config):
             if "variables" in ensemble[0]:
                 covariance["variables"] = ensemble[0]["variables"]
             else:
-                covariance["variables"] = nvariables
+                if addVariables:
+                    covariance["variables"] = variables
             covariance["members"] = len(ensemble)
 
     if "ensemble pert" in config:
@@ -158,8 +160,6 @@ def add_ensemble_variables(config):
         covariance["date"] = date
         if "variables" in ensemble[0]:
             covariance["variables"] = ensemble[0]["variables"]
-        else:
-            covariance["variables"] = variables
         covariance.pop("members")
         covariance["members"] = len(ensemble)
 
@@ -173,8 +173,6 @@ def add_ensemble_variables(config):
             covariance["date"] = date
             if "variables" in ensemble[0]:
                 covariance["variables"] = ensemble[0]["variables"]
-            else:
-                covariance["variables"] = variables
             covariance.pop("members")
             covariance["members"] = len(ensemble)
 
@@ -185,8 +183,6 @@ def add_ensemble_variables(config):
             covariance["date"] = date
             if "variables" in ensemble[0]:
                 covariance["variables"] = ensemble[0]["variables"]
-            else:
-                covariance["variables"] = variables
             covariance.pop("members")
             covariance["members"] = len(ensemble)
 
@@ -267,13 +263,13 @@ if "background error" in config:
     config.pop("background error")
 
     # Ensemble at covariance root
-    config["Covariance"] = add_ensemble_variables(config["Covariance"])
+    config["Covariance"] = add_ensemble_variables(config["Covariance"], False)
 
     # Ensemble at SABER hybrid components root
     if config["Covariance"]["covariance"] == "SABER":
         if config["Covariance"]["saber central block"]["saber block name"] == "Hybrid":
             for component in config["Covariance"]["saber central block"]["components"]:
-                component["covariance"] = add_ensemble_variables(component["covariance"])
+                component["covariance"] = add_ensemble_variables(component["covariance"], False)
 
     # OOPS hybrid case
     if config["Covariance"]["covariance"] == "hybrid":
@@ -292,7 +288,7 @@ if "background error" in config:
             centralBlock["components"] = components
             config["Covariance"]["saber central block"] = centralBlock
             for component in components:
-                component["covariance"] = add_ensemble_variables(component["covariance"])
+                component["covariance"] = add_ensemble_variables(component["covariance"], False)
             adjTest = False
             sqrtTest = False
             for component in components:
@@ -314,7 +310,7 @@ if "background error" in config:
             static_weight = components[0]["weight"]["value"]
             if covariance["covariance model"] == "SABER":
                 config["Covariance"]["static_covariance"] = covariance
-            covariance = add_ensemble_variables(covariance)
+            covariance = add_ensemble_variables(covariance, True)
             config["Covariance"]["static_weight"] = {}
             config["Covariance"]["static_weight"]["matrix"] = "hybrid_weight"
             config["Covariance"]["static_weight"]["weight"] = static_weight            
@@ -327,7 +323,7 @@ if "background error" in config:
                     covariance["localization"]["localization"] = covariance["localization"]["localization method"]
                     covariance["localization"].pop("localization method")
                     covariance["localization"]["variables"] = variables
-                covariance = add_ensemble_variables(covariance)
+                covariance = add_ensemble_variables(covariance, True)
                 config["Covariance"]["ensemble_covariance"] = covariance
                 config["Covariance"]["ensemble_weight"] = {}
                 config["Covariance"]["ensemble_weight"]["matrix"] = "hybrid_weight"
@@ -347,7 +343,11 @@ if "background error" in config:
         config["Covariance"].pop("linear variable change")
 
 # Ensemble
-config = add_ensemble_variables(config)
+config = add_ensemble_variables(config, False)
+
+# Add model
+config["model"] = {}
+config["model"]["tstep"] = "PT6H"
 
 # Write yaml file
 with open(args.outputYaml, "w") as file:

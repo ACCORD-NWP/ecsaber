@@ -42,19 +42,6 @@ template <typename MODEL> class ConvertStateStatesParameters : public Parameters
   RequiredParameter<eckit::LocalConfiguration> output{"output", this};
 };
 
-/// Options controlling variable change in the ConvertState application.
-template <typename MODEL> class VarChangeParameters : public Parameters {
-  OOPS_CONCRETE_PARAMETERS(VarChangeParameters, Parameters)
-  typedef typename VariableChange<MODEL>::Parameters_ VariableChangeParameters_;
-
- public:
-  // parameters for variable change.
-  VariableChangeParameters_ varChange{this};
-  Parameter<bool> doInverse{"do inverse",
-                            "apply inverse variable change instead of variable change",
-                            false, this};
-};
-
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
 
@@ -70,10 +57,10 @@ template <typename MODEL> class ConvertStateParameters : public Parameters {
   RequiredParameter<eckit::LocalConfiguration> outputGeometry{"output geometry", this};
 
   /// Model
-  Parameter<eckit::LocalConfiguration> model{"model", eckit::LocalConfiguration(), this};
+  RequiredParameter<eckit::LocalConfiguration> model{"model", this};
 
   /// Variable change parameters (and option to do inverse).
-  OptionalParameter<VarChangeParameters<MODEL>> varChange{"variable change", this};
+  OptionalParameter<eckit::LocalConfiguration> varChange{"variable change", this};
 
   /// States to be converted
   RequiredParameter<std::vector<ConvertStateStatesParameters<MODEL>>> states{"states", this};
@@ -114,7 +101,7 @@ template <typename MODEL> class ConvertState : public Application {
     oops::JediVariables varout;
     bool inverse = false;
     if (params.varChange.value() != boost::none) {
-      eckit::LocalConfiguration chconf(params.varChange.value()->toConfiguration());
+      eckit::LocalConfiguration chconf(params.varChange.value().value());
       if (chconf.has("output variables")) {
         vc.reset(new VariableChange_(chconf, resol2));
         varout = JediVariables(chconf, "output variables");
@@ -163,12 +150,12 @@ template <typename MODEL> class ConvertState : public Application {
     }
     return 0;
   }
-// -------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
  private:
   std::string appname() const override {
     return "oops::ConvertState<" + MODEL::name() + ">";
   }
-// -------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 };
 
 }  // namespace oops

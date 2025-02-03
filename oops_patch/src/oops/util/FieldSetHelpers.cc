@@ -15,21 +15,20 @@
 #include <tuple>
 
 #include "atlas/array.h"
-#include "atlas/field.h"
 #include "atlas/util/function/VortexRollup.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/mpi/Comm.h"
 #include "eckit/utils/Hash.h"
 
-#include "oops/util/abor1_cpp.h"
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/FloatCompare.h"
 #include "oops/util/Logger.h"
 #include "oops/util/missingValues.h"
 #include "oops/util/RandomField.h"
 
-#define ERR(e, msg) {std::string s(nc_strerror(e)); ABORT(s + " : " + msg);}
+#define ERR(e, msg) {std::string s(nc_strerror(e)); \
+  throw eckit::Exception(s + " : " + msg, Here());}
 
 namespace util {
 
@@ -108,7 +107,7 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
     } else if (fspace.type() == "Spectral") {
       // Not needed
     } else {
-      ABORT(fspace.type() + " function space not supported yet");
+      throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
     }
   }
 
@@ -263,7 +262,7 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm & comm,
         const atlas::functionspace::Spectral fs(fspace);
         fs.scatter(globalField, field);
       } else {
-        ABORT(fspace.type() + " function space not supported yet");
+        throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
       }
     }
 
@@ -361,17 +360,9 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
   oops::Log::trace() << "copyFieldSet starting" << std::endl;
   fset.clear();
   for (const auto & otherField : otherFset) {
-    // Check whether the input Field is associated with a FunctionSpace
-    atlas::Field field;
-    if (otherField.functionspace()) {
-      // Create Field from FunctionSpace
-      field = otherField.functionspace().createField<double>(
-        atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
-    } else {
-      // Create Field without FunctionSpace
-      field = atlas::Field(otherField.name(), atlas::array::make_datatype<double>(),
-        atlas::array::make_shape(otherField.shape(0), otherField.shape(1)));
-    }
+    // Create Field
+    atlas::Field field = otherField.functionspace().createField<double>(
+      atlas::option::name(otherField.name()) | atlas::option::levels(otherField.shape(1)));
 
     // Copy data
     if (field.rank() == 2) {
@@ -383,7 +374,7 @@ void copyFieldSet(const atlas::FieldSet & otherFset, atlas::FieldSet & fset) {
         }
       }
     } else {
-      ABORT("copyFieldSet: wrong rank");
+      throw eckit::Exception("copyFieldSet: wrong rank", Here());
     }
 
     // Copy metadata
@@ -588,7 +579,7 @@ bool compareFieldSets(const eckit::mpi::Comm & comm,
         }
       }
     } else {
-      ABORT("compareFieldSets: wrong rank");
+      throw eckit::Exception("compareFieldSets: wrong rank", Here());
     }
   }
 
@@ -638,7 +629,7 @@ bool compareFieldSets(const atlas::FieldSet & fset1,
         }
       }
     } else {
-      ABORT("compareFieldSets: wrong rank");
+      throw eckit::Exception("compareFieldSets: wrong rank", Here());
     }
   }
   // Comparison successful!
@@ -687,7 +678,7 @@ std::string getGridUid(const atlas::FunctionSpace & fspace) {
   } else if (fspace.type() == "PointCloud") {
     return customUidFromLonLat(fspace);
   } else {
-    ABORT(fspace.type() + " function space not supported yet");
+    throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
     return "";
   }
 }
@@ -704,7 +695,7 @@ std::string getGridUid(const atlas::FieldSet & fset) {
     // Check that other fields have the same UID
     for (const auto & field : fset) {
       if (getGridUid(field.functionspace()) != uid) {
-        ABORT("All fields should have the same grid");
+        throw eckit::Exception("All fields should have the same grid", Here());
       }
     }
 
@@ -891,6 +882,22 @@ void printDiagValues(const eckit::mpi::Comm & timeComm,
 
 // -----------------------------------------------------------------------------
 
+void checkDimensionSize(const int & ncid,
+                        const std::string dimName,
+                        const size_t & dimSize) {
+  oops::Log::trace() << "checkDimensionSize starting" << std::endl;
+
+  int retval, dimid;
+  if ((retval = nc_inq_dimid(ncid, dimName.c_str(), &dimid))) ERR(retval, dimName);
+  size_t dim_in_file;
+  if ((retval = nc_inq_dimlen(ncid, dimid, &dim_in_file))) ERR(retval, dimName);
+  ASSERT(dim_in_file == dimSize);
+
+  oops::Log::trace() << "checkDimensionSize done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
 void readFieldSet(const eckit::mpi::Comm & comm,
                   const atlas::FunctionSpace & fspace,
                   const std::vector<size_t> & variableSizes,
@@ -900,6 +907,9 @@ void readFieldSet(const eckit::mpi::Comm & comm,
   // Options with one file per MPI task
   const bool oneFilePerTask = config.getBool("one file per task", false);
   ASSERT(oneFilePerTask || (fspace.type() != "PointCloud"));
+
+  // Option to check dimensions
+  const bool checkDims = config.getBool("check dimensions", true);
 
   // Build filepath
   std::string filepath = config.getString("filepath");
@@ -939,7 +949,7 @@ void readFieldSet(const eckit::mpi::Comm & comm,
   if (tempretval == NC_NOERR) {  // i.e. if flag exists
     if ((tempretval = nc_close(tempncid))) ERR(tempretval, ncfilepath);
     ASSERT(oneFilePerTask);
-    readRank3FieldSet(fspace, variableSizes, vars, fset, ncfilepath);
+    readRank3FieldSet(fspace, variableSizes, vars, fset, ncfilepath, checkDims);
     fset.set_dirty();  // code is too complicated, mark dirty to be safe
     return;
   }
@@ -981,7 +991,17 @@ void readFieldSet(const eckit::mpi::Comm & comm,
       if (ghostView(jnode) == 0) ++nb_nodes;
     }
 
+    if (checkDims) {
+      // Check the number of nodes
+      checkDimensionSize(ncid, "nb_nodes", nb_nodes);
+    }
+
     for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
+      if (checkDims) {
+        // Check the number of vertical levels
+        checkDimensionSize(ncid, "nz_" + vars[jvar], variableSizes[jvar]);
+      }
+
       // Read data
       std::vector<double> zvar(nb_nodes * variableSizes[jvar]);
       if ((retval = nc_get_var_double(ncid, var_id[jvar], zvar.data()))) ERR(retval, vars[jvar]);
@@ -1034,8 +1054,13 @@ void readFieldSet(const eckit::mpi::Comm & comm,
         // Open NetCDF file
         if ((retval = nc_open(ncfilepath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncfilepath);
 
-        // Get variables
         for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
+          if (checkDims) {
+            // Check the number of vertical levels
+            checkDimensionSize(ncid, "nz_" + vars[jvar], variableSizes[jvar]);
+          }
+
+          // Get variables
           if ((retval = nc_inq_varid(ncid, vars[jvar].c_str(), &var_id[jvar]))) {
             ERR(retval, vars[jvar]);
           }
@@ -1077,8 +1102,13 @@ void readFieldSet(const eckit::mpi::Comm & comm,
         // Open NetCDF file
         if ((retval = nc_open(ncfilepath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncfilepath);
 
-        // Get variables
         for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
+          if (checkDims) {
+            // Check the number of vertical levels
+            checkDimensionSize(ncid, "nz_" + vars[jvar], variableSizes[jvar]);
+          }
+
+          // Get variables
           if ((retval = nc_inq_varid(ncid, vars[jvar].c_str(), &var_id[jvar]))) {
             ERR(retval, vars[jvar]);
           }
@@ -1104,7 +1134,7 @@ void readFieldSet(const eckit::mpi::Comm & comm,
         if ((retval = nc_close(ncid))) ERR(retval, ncfilepath);
       }
     } else {
-      ABORT(fspace.type() + " function space not supported yet");
+      throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
     }
 
     // Scatter data from main processor
@@ -1128,7 +1158,8 @@ void readRank3FieldSet(const atlas::FunctionSpace & fspace,
                        const std::vector<size_t> & variableSizes,
                        const std::vector<std::string> & vars,
                        atlas::FieldSet & fset,
-                       const std::string & ncfilepath) {
+                       const std::string & ncfilepath,
+                       const bool & checkDims) {
   // Initialize NetCDF return value and IDs
   int retval, ncid, dimid, varid[vars.size()];
   size_t rank3Size;
@@ -1137,6 +1168,11 @@ void readRank3FieldSet(const atlas::FunctionSpace & fspace,
   if ((retval = nc_open(ncfilepath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncfilepath);
 
   for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
+    if (checkDims) {
+      // Check number of vertical levels
+      checkDimensionSize(ncid, "nz_" + vars[jvar], variableSizes[jvar]);
+    }
+
     // Get size of vector dimension
     const std::string nvName = "nv_" + vars[jvar];
     if ((retval = nc_inq_dimid(ncid, nvName.c_str(), &dimid))) ERR(retval, nvName);
@@ -1580,7 +1616,7 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
         if ((retval = nc_close(ncid))) ERR(retval, ncfilepath);
       }
     } else {
-      ABORT(fspace.type() + " function space not supported yet");
+      throw eckit::Exception(fspace.type() + " function space not supported yet", Here());
     }
   }
 }

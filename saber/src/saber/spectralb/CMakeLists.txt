@@ -28,6 +28,8 @@ if( atlas_TRANS_FOUND OR atlas_ECTRANS_FOUND )
     GaussUVToGP.h
     HydrostaticPressure.cc
     HydrostaticPressure.h
+    HydrostaticPressurem1.cc
+    HydrostaticPressurem1.h
     )
 endif()
 

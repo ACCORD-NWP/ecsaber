@@ -404,6 +404,14 @@ void GaussToCS::leftInverseMultiply(oops::FieldSet3D & fieldSet) const {
 
 // -----------------------------------------------------------------------------
 
+void GaussToCS::directCalibration(const oops::FieldSets & fset) {
+  oops::Log::trace() << classname() << "::directCalibration start" << std::endl;
+
+  oops::Log::trace() << classname() << "::directCalibration end" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
 oops::FieldSet3D GaussToCS::generateInnerFieldSet(const oops::GeometryData & innerGeometryData,
                                                   const oops::JediVariables & innerVars) const {
   oops::FieldSet3D fset(this->validTime(), innerGeometryData.comm());

@@ -78,6 +78,7 @@ class HydrostaticPressure : public SaberOuterBlockBase {
   const oops::JediVariables intermediateTempVars_;
   /// Gaussian (outer) functionspace
   const atlas::functionspace::StructuredColumns gaussFunctionSpace_;
+  Parameters_ params_;
   std::unique_ptr<saber::vader::GpToHp> gptohp_;
   std::unique_ptr<GaussUVToGP> gaussuvtogp_;
 };

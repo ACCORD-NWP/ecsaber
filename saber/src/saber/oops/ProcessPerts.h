@@ -194,7 +194,6 @@ template <typename MODEL> class ProcessPerts : public oops::Application {
   int execute(const eckit::Configuration & fullConfig) const {
     // Deserialize parameters
     ProcessPertsParameters_ params;
-    params.validate(fullConfig);
     params.deserialize(fullConfig);
 
     // Define space and time communicators

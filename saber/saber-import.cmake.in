@@ -3,7 +3,7 @@
 
 include(CMakeFindDependencyMacro)
 
-if(@jedicmake_FOUND@ AND NOT jedicmake_FOUND)
+if(NOT jedicmake_FOUND)
     find_dependency(jedicmake REQUIRED)
 endif()
 
