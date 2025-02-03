@@ -270,12 +270,11 @@ if( ENABLE_QUENCH )
 
                       # Add test
                       ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-                                        COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.sh
-                                        ARGS ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
-                                             ${mpi}
+                                        COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
+                                        ARGS ${mpi}
                                              ${omp}
-                                             "${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x testinput/${test}.yaml"
-                                             ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref
+                                             ${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x
+                                             testinput/${test}.yaml
                                         DEPENDS quenchxx_${exename}.x
                                         TEST_DEPENDS ${deps_list} )
                   endif()
@@ -299,12 +298,11 @@ if( ENABLE_QUENCH )
 
               # Add test
               ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-                                COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.sh
-                                ARGS ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
-                                     ${mpi}
+                                COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
+                                ARGS ${mpi}
                                      ${omp}
-                                     "${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x testinput/${test}.yaml"
-                                     ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref
+                                     ${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x
+                                     testinput/${test}.yaml
                                 DEPENDS quenchxx_error_covariance_toolbox.x
                                 TEST_DEPENDS ${deps_list} )
           endif()

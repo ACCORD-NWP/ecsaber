@@ -128,11 +128,38 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       ensemblePert.push_back(inputConf.getSubConfiguration("ensemble pert"));
     }
     nens = ensemblePert[0].getInt("members");
-    for (auto & ensemble3DConf : ensembleConf) {
+    for (auto & ensemble3DConf : ensemblePert) {
       util::expandEnsembleTemplate(ensemble3DConf, nens);
     }
     outputConf.set("ensemble", ensemblePert);
     varConf = ensemblePert[0];
+    ++ensembleFound;
+  }
+
+  // Increment ensemble from difference of two states
+  std::vector<eckit::LocalConfiguration> ensembleBase;
+  std::vector<eckit::LocalConfiguration> ensemblePairs;
+  if (inputConf.has("ensemble base") && inputConf.has("ensemble pairs")) {
+    if (util::isVector(inputConf.getSubConfiguration("ensemble base"))) {
+      ensembleBase = inputConf.getSubConfigurations("ensemble base");
+    } else {
+      ensembleBase.push_back(inputConf.getSubConfiguration("ensemble base"));
+    }
+    if (util::isVector(inputConf.getSubConfiguration("ensemble pairs"))) {
+      ensemblePairs = inputConf.getSubConfigurations("ensemble pairs");
+    } else {
+      ensemblePairs.push_back(inputConf.getSubConfiguration("ensemble pairs"));
+    }
+    nens = ensembleBase[0].getInt("members");
+    for (auto & ensemble3DConf : ensembleBase) {
+      util::expandEnsembleTemplate(ensemble3DConf, nens);
+    }
+    for (auto & ensemble3DConf : ensemblePairs) {
+      util::expandEnsembleTemplate(ensemble3DConf, nens);
+    }
+    varConf = ensembleBase[0];;
+    outputConf.set("ensemble base", ensembleBase);
+    outputConf.set("ensemble pairs", ensemblePairs);
     ++ensembleFound;
   }
 
@@ -190,6 +217,7 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
                         << std::endl;
 
       for (unsigned jsub = 0; jsub < xb.times().size(); ++jsub) {
+        ensembleConf[jsub].set("variables", vars.variables());
         std::shared_ptr<oops::Ensemble<MODEL>> ens_k(new oops::Ensemble<MODEL>(xb[jsub].validTime(),
           ensembleConf[jsub]));
         ens_k->linearize(xb[jsub], geom);
@@ -198,6 +226,10 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
         }
         oops::EnsemblesCollection<MODEL>::getInstance().put(xb[jsub].validTime(), ens_k);
       }
+      std::vector<int> ensmems(nens);
+      std::iota(ensmems.begin(), ensmems.end(), 0);
+      oops::FieldSets fsetEns(xb, ensmems);
+      return fsetEns;
     }
 
     // Increment ensemble from increments on disk
@@ -205,21 +237,24 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
       oops::Log::info() << "Info     : Increment ensemble from increments on disk" << std::endl;
 
       for (unsigned jsub = 0; jsub < xb.times().size(); ++jsub) {
+        ensemblePert[jsub].set("variables", vars.variables());
         std::shared_ptr<oops::Ensemble<MODEL>> ens_k(new oops::Ensemble<MODEL>(xb[jsub].validTime(),
           ensemblePert[jsub]));
         ens_k->build(xb[jsub], geom);
         ens_k->read();
         oops::EnsemblesCollection<MODEL>::getInstance().put(xb[jsub].validTime(), ens_k);
       }
-    }
-
-    if (ensembleConf.size() > 0 || ensemblePert.size() > 0) {
-      // Transform Ensemble into FieldSets
-      oops::Log::info() << "Info     : Transform Ensemble into FieldSets" << std::endl;
       std::vector<int> ensmems(nens);
       std::iota(ensmems.begin(), ensmems.end(), 0);
       oops::FieldSets fsetEns(xb, ensmems);
       return fsetEns;
+    }
+
+    // Increment ensemble from difference of two states
+    if (ensembleBase.size() > 0 && ensemblePairs.size() > 0) {
+      oops::Log::info() << "Info     : Increment ensemble from difference of two states"
+                        << std::endl;
+      throw eckit::Exception("not implemented yet", Here());
     }
 
     // Increment ensemble from increments on disk on other geometry

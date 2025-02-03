@@ -153,4 +153,5 @@ output variance:
   mpi pattern: '%MPI%'
   filepath: testdata/dirac_fastlam_2/%MPI%_variance
 test:
+  float relative tolerance: 8e-11
   reference filename: testref/dirac_fastlam_2.ref

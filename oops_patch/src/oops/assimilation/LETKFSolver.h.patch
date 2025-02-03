@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h.tmp.bak	2025-01-28 07:26:44.882062872 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h	2025-01-28 07:24:35.239993053 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h.tmp.bak	2025-01-31 15:41:04.555507582 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h	2025-01-30 08:02:46.150750908 +0100
 @@ -18,12 +18,13 @@
  #include "oops/assimilation/LocalEnsembleSolver.h"
  #include "oops/base/Departures.h"
@@ -112,7 +112,7 @@
    this->obsloc().computeLocalization(i, locvector);
 -  locvector.mask(*(this->invVarR_));
 -  Eigen::VectorXd local_omb_vec = this->omb_.packEigen(locvector);
-+  util::mask(locvector, (*(this->invVarR_)));
++  util::mask(locvector, (*this->invVarR_));
 +  Eigen::VectorXd local_omb_vec = util::packEigen(this->omb_, locvector);
  
    if (local_omb_vec.size() == 0) {
@@ -122,7 +122,7 @@
      Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
      // create local obs errors
 -    Eigen::VectorXd local_invVarR_vec = this->invVarR_->packEigen(locvector);
-+    Eigen::VectorXd local_invVarR_vec = util::packEigen(*(this->invVarR_), locvector);
++    Eigen::VectorXd local_invVarR_vec = util::packEigen(*this->invVarR_, locvector);
      // and apply localization
 -    Eigen::VectorXd localization = locvector.packEigen(locvector);
 +    Eigen::VectorXd localization = util::packEigen(locvector, locvector);

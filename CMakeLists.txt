@@ -115,8 +115,8 @@ gsi-coeffs-gmao-global-l72x72y46_opt3.nc4
 Lv.nc
 MIO_coefficients.nc
 MUstats.nc
-ptheta_bar_mean.nc
 Prho_bar_Mean.nc
+ptheta_bar_mean.nc
 spectralcov.nc
 )
 foreach( file ${saber_test_files} )
