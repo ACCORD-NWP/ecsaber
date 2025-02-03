@@ -52,7 +52,7 @@ oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
 oops/generic/VerticalLocEV.h
 oops/interface/GeometryIterator.h
-oops/interface/LinearChangeVariable.h
+oops/interface/LinearVariableChange.h
 oops/interface/ModelData.h
 oops/interface/VariableChange.h
 oops/mpi/mpi.cc
