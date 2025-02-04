@@ -155,6 +155,8 @@ util/kinds.F90
 util/Logger.h
 util/ObjectCounter.h
 util/Printable.h
+util/Timer.cc
+util/Timer.h
 )
 
 if( NOT DEFINED OOPS_SOURCE_DIR )
