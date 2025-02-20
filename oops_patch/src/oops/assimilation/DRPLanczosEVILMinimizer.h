@@ -21,10 +21,9 @@
 #include "oops/assimilation/RitzPairs.h"
 #include "oops/assimilation/SpectralLMP.h"
 #include "oops/assimilation/TriDiagSolve.h"
-#include "oops/util/Logger.h"
-#include "oops/util/formats.h"
-
+#include "util/Logger.h"
 #include "util/dot_product.h"
+#include "util/formats.h"
 
 namespace oops {
 
@@ -39,26 +38,34 @@ class DRPLanczosEVILMinimizer : public DRMinimizer<MODEL> {
 
  public:
   const std::string classname() const override { return "DRPLanczosEVILMinimizer"; }
-  DRPLanczosEVILMinimizer(const eckit::Configuration & conf, const CostFct_ & J)
-  : DRMinimizer<MODEL>(J), config_(conf), lmp_(conf) {}
+  DRPLanczosEVILMinimizer(const eckit::Configuration &, const CostFct_ &);
   ~DRPLanczosEVILMinimizer() {}
 
  private:
   double solve(CtrlInc_ &, CtrlInc_ &, CtrlInc_ &, const Bmat_ &,
-               const HtRinvH_ &, const double, const double, const int,
-               const double) override;
+               const HtRinvH_ &, const CtrlInc_ &, const double, const double,
+               const int, const double) override;
 
   const eckit::LocalConfiguration config_;
   SpectralLMP<CtrlInc_> lmp_;
 };
+
+// =============================================================================
+
+template <typename MODEL>
+DRPLanczosEVILMinimizer<MODEL>::DRPLanczosEVILMinimizer(
+    const eckit::Configuration &conf, const CostFct_ &J)
+    : DRMinimizer<MODEL>(J),
+      config_(conf),
+      lmp_(conf) {}
 
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
 double DRPLanczosEVILMinimizer<MODEL>::solve(
     CtrlInc_ &dx, CtrlInc_ &dxh, CtrlInc_ &rr, const Bmat_ &B,
-    const HtRinvH_ &HtRinvH, const double costJ0Jb, const double costJ0JoJc,
-    const int maxiter, const double tolerance) {
+    const HtRinvH_ &HtRinvH, const CtrlInc_ &gradJb, const double costJ0Jb,
+    const double costJ0JoJc, const int maxiter, const double tolerance) {
   // dx   increment
   // dxh  B^{-1} dx
   // rr   (sum B^{-1} dx_i^{b} +) G^T H^{-1} d
@@ -160,15 +167,19 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(
 
     // Compute the quadratic cost function
     // J[du_{i}] = J[0] - 0.5 s_{i}^T Z_{i}^T r_{0}
-    // Jb[du_{i}] = 0.5 s_{i}^T V_{i}^T Z_{i} s_{i}
+    // Jb[du_{i}] = 0.5 s_{i}^T H_{i}^T Z_{i} s_{i} + gradJb^T Z_{i} s_{i}
     double costJ = costJ0;
-    double costJb = costJ0Jb;
+
+    // Calculate the solution (dxh = Binv dx)
     dx.zero();
-    for (int jj = 0; jj < jiter + 1; ++jj) {
+    dxh.zero();
+    for (unsigned int jj = 0; jj < ss.size(); ++jj) {
       dx.axpy(ss[jj], ritzPairs.tVEC(jj));
-      // costJ -= 0.5 * ss[jj] * dot_product(*zvecs_[jj], rr);
-      costJb += 0.5 * ss[jj] * dot_product(ritzPairs.vVEC(jj), ritzPairs.tVEC(jj)) * ss[jj];
+      dxh.axpy(ss[jj], ritzPairs.zVEC(jj));
     }
+    double costJb =
+        costJ0Jb + dot_product(dx, gradJb) + 0.5 * dot_product(dx, dxh);
+
     costJ -= 0.5 * dot_product(dx, rr);
     double costJoJc = costJ - costJb;
 
@@ -199,6 +210,7 @@ double DRPLanczosEVILMinimizer<MODEL>::solve(
 
   // Calculate the solution (dxh = Binv dx)
   dx.zero();
+  dxh.zero();
   for (unsigned int jj = 0; jj < ss.size(); ++jj) {
     dx.axpy(ss[jj], ritzPairs.tVEC(jj));
     dxh.axpy(ss[jj], ritzPairs.zVEC(jj));
