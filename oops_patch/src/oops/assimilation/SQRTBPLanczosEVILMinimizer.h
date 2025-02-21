@@ -22,12 +22,10 @@
 #include "oops/assimilation/SpectralSqrtLMP.h"
 #include "oops/assimilation/TriDiagSolve.h"
 #include "oops/assimilation/UtHtRinvHUMatrix.h"
-#include "oops/util/Logger.h"
-#include "oops/util/abor1_cpp.h"
-#include "oops/util/formats.h"
-
-#include "util/dot_product.h"
 #include "util/LogbookWriter.h"
+#include "util/Logger.h"
+#include "util/dot_product.h"
+#include "util/formats.h"
 
 namespace oops {
 
@@ -48,9 +46,8 @@ class SQRTBPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
   ~SQRTBPLanczosEVILMinimizer() {}
 
  private:
-  double solve(CtrlVec_ &, CtrlVec_ &, const Jbmat_ &, const UtHtRinvHU_ &,
-               const bool &, const size_t &, const size_t &, const double &,
-               const double &, const double &) final;
+  double solve(CtrlVec_ &, CtrlVec_ &, const Jbmat_ &,
+               const UtHtRinvHU_ &) final;
 
   void releaseResources();
 
@@ -60,7 +57,8 @@ class SQRTBPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
 
   /// Quadratic cost function calculations
   void setupQuadCost(const double &costJ0Jb, const double &costJ0JoJc);
-  void calcQuadCost(const CtrlVec_ &, const std::vector<double> &);
+  void calcQuadCost(const CtrlVec_ &, const std::vector<double> &,
+                    const CtrlVec_ &);
   void printQuadCost(const size_t &) const;
 
   /// Other diagnostics
@@ -123,19 +121,27 @@ SQRTBPLanczosEVILMinimizer<MODEL>::SQRTBPLanczosEVILMinimizer(
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
-double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
-    CtrlVec_ &dv, CtrlVec_ &rr, const Jbmat_ &Jb, const UtHtRinvHU_ &UtHtRinvHU,
-    const bool &linfoconv, const size_t &maxiter, const size_t &miniter,
-    const double &tolerance, const double &costJ0Jb, const double &costJ0JoJc) {
-  // dv   control vector
+double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
+                                            const Jbmat_ &Jb,
+                                            const UtHtRinvHU_ &UtHtRinvHU) {
+  // Setup controls
+  const bool &linfoConv = SQRTMinimizer<MODEL>::linfoConv_;
+  const size_t &maxIter = SQRTMinimizer<MODEL>::ninner_;
+  const size_t &minIter = SQRTMinimizer<MODEL>::ninnerMin_;
+  const double &tolerance = SQRTMinimizer<MODEL>::gnreduc_;
+  const double &costJ0Jb = SQRTMinimizer<MODEL>::costJ0Jb_;
+  const double &costJ0JoJc = SQRTMinimizer<MODEL>::costJ0JoJc_;
+  const CtrlVec_ &gradJb = *(SQRTMinimizer<MODEL>::gradJb_);
 
+  // Auxiliary vectors
+  std::vector<double> ss;
+  std::vector<double> dd;
+
+  // Control vectors
   CtrlVec_ dv0(dv);
   CtrlVec_ jbzz(dv, false);
   CtrlVec_ vv(rr, false);
   CtrlVec_ zz(rr, false);
-
-  std::vector<double> ss;
-  std::vector<double> dd;
 
   // J0
   this->setupQuadCost(costJ0Jb, costJ0JoJc);
@@ -163,7 +169,6 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
   // vvecs[0] = v_{1} ---> for re-orthogonalization
   vvecs_.push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(vv)));
   zvecs_.push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(zz)));
-
   ritzPairs_.vVEC().push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(vv)));
   ritzPairs_.zVEC().push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(zz)));
 
@@ -172,8 +177,9 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
   bool convergenceReached = false;
   size_t jiter = 0;
 
-  while (jiter < maxiter) {
-    Log::info() << "SQRTBPLanczos Starting Iteration " << jiter + 1 << std::endl;
+  while (jiter < maxIter) {
+    Log::info() << "SQRTBPLanczosEVIL Starting Iteration " << jiter + 1
+                << std::endl;
 
     util::LogbookWriter<size_t> log("InnerLoop", jiter + 1);
 
@@ -236,13 +242,13 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
     ritzPairs_.betas().push_back(beta);
 
     // Compute the quadratic cost function
-    this->calcQuadCost(rr, ss);  // Check this part !!!!!!!!
+    this->calcQuadCost(rr, ss, gradJb);  // Check this part !!!!!!!!
 
     // Compute the Ritz information
     bool ritzFailureCheckFlag = this->calcRitzInformation();
 
     // Convergence criterion
-    if (linfoconv) {
+    if (linfoConv) {
       // Information content based convergence criterion
       //  - Information content defined as 0.5 dv^T dv
       //  - We should measure the change in the solution vector length
@@ -274,7 +280,7 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
 
     // Check if convergence criteria are met
     if (ritzFailureCheckFlag) break;
-    if (normReduction < tolerance && jiter >= miniter) {
+    if (normReduction < tolerance && jiter >= minIter) {
       convergenceReached = true;
       break;
     }
@@ -285,14 +291,14 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
 
   // Print summary
   Log::info() << "Summary of SQRTBPLanczos solver: " << std::endl
-              << " Information based convergence criterion: " << linfoconv
+              << " Information based convergence criterion: " << linfoConv
               << std::endl
               << " Number of iterations performed: " << jiter << std::endl
-              << " Maximum allowed number of iterations: " << maxiter
+              << " Maximum allowed number of iterations: " << maxIter
               << std::endl
-              << " Minimum allowed number of iterations: " << miniter
+              << " Minimum allowed number of iterations: " << minIter
               << std::endl;
-  if (linfoconv) {
+  if (linfoConv) {
     Log::info() << " Required relative gain in information content: "
                 << tolerance << std::endl
                 << " Last relative gain in information content: "
@@ -326,7 +332,8 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(
   ritzPairs_.process(conf_, "control");
 
   // Update LMP
-  if (SQRTMinimizer<MODEL>::iter_ < SQRTMinimizer<MODEL>::maxiter_)
+  if (SQRTMinimizer<MODEL>::outerIteration_ <
+      SQRTMinimizer<MODEL>::lastOuterIteration_)
     lmp_.update(zvecs_, alphas_, betas_);
 
   // Clean up
@@ -372,8 +379,9 @@ void SQRTBPLanczosEVILMinimizer<MODEL>::setupQuadCost(const double &costJ0Jb,
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
-void SQRTBPLanczosEVILMinimizer<MODEL>::calcQuadCost(
-    const CtrlVec_ &rr, const std::vector<double> &ss) {
+void SQRTBPLanczosEVILMinimizer<MODEL>::calcQuadCost(const CtrlVec_ &rr,
+                                                     const std::vector<double> &ss,
+                                                     const CtrlVec_ &gradJb) {
   // Compute the quadratic cost function
   // J[du_{i}] = J[0] - 0.5 s_{i}^T Z_{i}^T r_{0}
   // Jb[du_{i}] = 0.5 s_{i}^T V_{i}^T Z_{i} s_{i}
@@ -381,13 +389,17 @@ void SQRTBPLanczosEVILMinimizer<MODEL>::calcQuadCost(
   //       space;
   costJ_ = costJ0_;
   costJb_ = costJ0Jb_;
-  costJbLocal_ = 0.0;
-  for (size_t jj = 0; jj < ss.size(); ++jj) {
-    costJ_ -= 0.5 * ss[jj] * dot_product(*zvecs_[jj], rr);
-    costJbLocal_ +=
-        0.5 * ss[jj] * dot_product(*vvecs_[jj], *zvecs_[jj]) * ss[jj];
+
+  // Calculate the solution
+  CtrlVec_ dx(rr);
+  dx.zero();
+  for (unsigned int jj = 0; jj < ss.size(); ++jj) {
+    dx.axpy(ss[jj], *zvecs_[jj]);
   }
+  costJ_ -= 0.5 * dot_product(rr, dx);
+  costJbLocal_ = dot_product(dx, gradJb) + 0.5 * dot_product(dx, dx);
   costJb_ += costJbLocal_;
+
   costJoJc_ = costJ_ - costJb_;
 }
 
