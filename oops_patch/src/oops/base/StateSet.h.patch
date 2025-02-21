@@ -1,0 +1,33 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateSet.h.tmp	2025-02-21 15:24:11.791603617 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateSet.h	2025-02-21 15:22:10.790039665 +0100
+@@ -18,9 +18,9 @@
+ #include "eckit/exception/Exceptions.h"
+ 
+ #include "oops/base/DataSetBase.h"
+-#include "oops/base/Geometry.h"
+-#include "oops/base/Increment.h"
+-#include "oops/base/State.h"
++#include "oops/interface/Geometry.h"
++#include "oops/interface/Increment.h"
++#include "oops/interface/State.h"
+ #include "oops/interface/State.h"
+ #include "oops/mpi/mpi.h"
+ #include "oops/util/DateTime.h"
+@@ -37,7 +37,7 @@
+   typedef State<MODEL>                    State_;
+ 
+  public:
+-  StateSet(const Geometry_ &, const JediVariables &,
++  StateSet(const Geometry_ &, const Variables &,
+            const std::vector<util::DateTime> &, const eckit::mpi::Comm &,
+            const std::vector<int> & ens = {0},
+            const eckit::mpi::Comm & commEns = oops::mpi::myself());
+@@ -68,7 +68,7 @@
+ 
+ template<typename MODEL>
+ StateSet<MODEL>::StateSet(const Geometry_ & resol,
+-                          const JediVariables & vars,
++                          const Variables & vars,
+                           const std::vector<util::DateTime> & times,
+                           const eckit::mpi::Comm & commTime,
+                           const std::vector<int> & ens,

@@ -23,6 +23,7 @@
 #include "oops/base/ObsErrors.h"
 #include "oops/base/ObsLocalizations.h"
 #include "oops/base/ObservationSpaces.h"
+#include "oops/base/State4D.h"
 #include "oops/interface/GeometryIterator.h"
 #include "oops/util/ECUtilities.h"
 #include "oops/util/Logger.h"
@@ -122,7 +123,7 @@ void LETKFSolver<MODEL>::measurementUpdate(const IncrementEnsemble4D_ & bkg_pert
   util::ones(locvector);
   this->obsloc().computeLocalization(i, locvector);
   util::mask(locvector, (*this->invVarR_));
-  Eigen::VectorXd local_omb_vec = util::packEigen(this->omb_, locvector);
+  const Eigen::VectorXd local_omb_vec = util::packEigen(this->omb_, locvector);
 
   if (local_omb_vec.size() == 0) {
     // no obs. so no need to update Wa_ and wa_
@@ -131,11 +132,10 @@ void LETKFSolver<MODEL>::measurementUpdate(const IncrementEnsemble4D_ & bkg_pert
   } else {
     // if obs are present do normal KF update
     // create local Yb
-    Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
-    // create local obs errors
+    const Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
+    // create local obs errors and apply localization
+    const Eigen::VectorXd localization = util::packEigen(locvector, locvector);
     Eigen::VectorXd local_invVarR_vec = util::packEigen(*this->invVarR_, locvector);
-    // and apply localization
-    Eigen::VectorXd localization = util::packEigen(locvector, locvector);
     local_invVarR_vec.array() *= localization.array();
     computeWeights(local_omb_vec, local_Yb_mat, local_invVarR_vec);
     applyWeights(bkg_pert, ana_pert, i);
@@ -154,28 +154,28 @@ void LETKFSolver<MODEL>::computeWeights(const Eigen::VectorXd & dy,
   util::Timer timer(classname(), "computeWeights");
 
   const LocalEnsembleSolverInflationParameters & inflopt = this->options_.infl;
+  const double infl = inflopt.mult;
 
   // fill in the work matrix
   // work = Y^T R^-1 Y + (nens-1)/infl I
-  const double infl = inflopt.mult;
   Eigen::MatrixXd work = Yb*(diagInvR.asDiagonal()*Yb.transpose());
   work.diagonal() += Eigen::VectorXd::Constant(nens_, (nens_-1)/infl);
 
   // eigenvalues and eigenvectors of the above matrix
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(work);
+  const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(work);
   eival_ = es.eigenvalues().real();
   eivec_ = es.eigenvectors().real();
 
   // Pa   = [ Yb^T R^-1 Yb + (nens-1)/infl I ] ^-1
-  work = eivec_ * eival_.cwiseInverse().asDiagonal() * eivec_.transpose();
+  work.noalias() = eivec_ * eival_.cwiseInverse().asDiagonal() * eivec_.transpose();
 
   // Wa = sqrt[ (nens-1) Pa ]
-  Wa_ = eivec_
+  Wa_.noalias() = eivec_
       * ((nens_-1) * eival_.array().inverse()).sqrt().matrix().asDiagonal()
       * eivec_.transpose();
 
   // wa = Pa Yb^T R^-1 dy
-  wa_ = work * (Yb * (diagInvR.asDiagonal()*dy));
+  wa_.noalias() = work * (Yb * (diagInvR.asDiagonal()*dy));
 }
 
 // -----------------------------------------------------------------------------
@@ -194,7 +194,7 @@ void LETKFSolver<MODEL>::applyWeights(const IncrementEnsemble4D_ & bkg_pert,
     bkg_pert.packEigen(Xb, i, itime);
 
     // postmulptiply
-    Eigen::VectorXd xa = Xb*wa_;   // ensemble mean update
+    const Eigen::VectorXd xa = Xb*wa_;   // ensemble mean update
     Eigen::MatrixXd Xa = Xb*Wa_;   // ensemble perturbation update
 
     // posterior inflation if rtps and rttp coefficients belong to (0,1]

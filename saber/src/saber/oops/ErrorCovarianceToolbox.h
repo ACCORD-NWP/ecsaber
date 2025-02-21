@@ -26,15 +26,17 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/mpi/Comm.h"
 
-#include "oops/base/Increment4D.h"
-#include "oops/base/State4D.h"
 #include "oops/interface/Geometry.h"
 #include "oops/interface/Increment.h"
-#include "oops/interface/Model.h"
+#include "oops/base/Increment4D.h"
+#include "saber/oops/instantiateCovarFactory.h"
+#include "oops/base/ModelSpaceCovariance4DBase.h"
+#include "oops/base/PostProcessor.h"
 #include "oops/interface/State.h"
+#include "oops/base/State4D.h"
+#include "oops/interface/Model.h"
 #include "oops/interface/Variables.h"
 #include "oops/runs/Application.h"
-#include "oops/util/AtlasArrayUtil.h"
 #include "oops/util/ConfigFunctions.h"
 #include "oops/util/ConfigHelpers.h"
 #include "oops/util/DateTime.h"
@@ -45,7 +47,7 @@
 #include "oops/util/parameters/Parameters.h"
 #include "oops/util/parameters/RequiredParameter.h"
 
-#include "saber/oops/instantiateCovarFactory.h"
+#include "saber/oops/ErrorCovarianceParameters.h"
 #include "oops/util/ECUtilities.h"
 #include "saber/oops/Utilities.h"
 #include "saber/util/HorizontalProfiles.h"
@@ -124,7 +126,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 // -----------------------------------------------------------------------------
   int execute(const eckit::Configuration & fullConfig) const {
     // Deserialize parameters
-    ErrorCovarianceToolboxParameters params;
+    ErrorCovarianceToolboxParameters_ params;
     params.deserialize(fullConfig);
 
     // Define space and time communicators
@@ -160,7 +162,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     }
     const Model_ model(geom, modelConf);
 
-    // Setup background state
+    // Setup background
     const State4D_ xx(params.background, geom, model);
 
     // Setup variables
@@ -173,9 +175,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     // Setup time
     util::DateTime time = xx[0].validTime();
 
-    // Background error covariance parameters
-    const eckit::LocalConfiguration & covarParams
-      = params.backgroundError.value();
+    const eckit::LocalConfiguration covarConf(fullConfigUpdated, "Covariance");
 
     // Dirac test
     const auto & diracParams = params.dirac.value();
@@ -198,8 +198,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       }
 
       // Add output Dirac configuration
-      const auto & outputDirac = params.outputDirac.value();
-      auto outputDiracUpdated(*outputDirac);
+      eckit::LocalConfiguration outputDiracUpdated = params.outputDirac.value().value();
       setMPI(outputDiracUpdated, ntasks);
       testConf.set("output dirac", outputDiracUpdated);
 
@@ -211,26 +210,26 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
       // Apply B matrix components recursively
       std::string id;
-      dirac(covarParams, testConf, id, geom, varsT, xx, dxi);
+      dirac(covarConf, testConf, id, geom, varsT, xx, dxi);
     }
 
-    const auto & randomizationSize = covarParams.getInt("randomization size", 0);
+    const auto & randomizationSize = covarConf.getInt("randomization size", 0);
     if ((diracParams == boost::none) || (randomizationSize > 0)) {
       // Background error covariance training
       std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
-                                              covarParams, geom, varsT, xx));
+                                              covarConf, geom, varsT, xx));
 
       // Linearize
       eckit::LocalConfiguration linConf;
-      const std::string covarianceModel(covarParams.getString("covariance"));
+      const std::string covarianceModel(covarConf.getString("covariance"));
       if (covarianceModel == "hybrid") {
         eckit::LocalConfiguration jbConf;
-        jbConf.set("Covariance", covarParams);
+        jbConf.set("Covariance", covarConf);
         linConf.set("Jb", jbConf);
       } else if (covarianceModel == "ensemble") {
-        linConf.set("ensemble_covariance", covarParams);
+        linConf.set("ensemble_covariance", covarConf);
       } else {
-        linConf = covarParams;
+        linConf = covarConf;
       }
       Bmat->linearize(xx, geom, linConf);
 
@@ -511,7 +510,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     }
   }
 // -----------------------------------------------------------------------------
-  void randomization(const ErrorCovarianceToolboxParameters & params,
+  void randomization(const ErrorCovarianceToolboxParameters_ & params,
                      const Geometry_ & geom,
                      const Variables_ & vars,
                      const State4D_ & xx,
@@ -568,7 +567,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
           if (outputPerturbations != boost::none) {
             // Update config
-            auto outputPerturbationsUpdated(*outputPerturbations);
+            auto outputPerturbationsUpdated = *outputPerturbations;
             util::setMember(outputPerturbationsUpdated, jm+1);
             setMPI(outputPerturbationsUpdated, ntasks);
 
@@ -578,7 +577,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
           if (outputStates != boost::none) {
             // Update config
-            auto outputStatesUpdated(*outputStates);
+            auto outputStatesUpdated = *outputStates;
             util::setMember(outputStatesUpdated, jm+1);
             setMPI(outputStatesUpdated, ntasks);
 

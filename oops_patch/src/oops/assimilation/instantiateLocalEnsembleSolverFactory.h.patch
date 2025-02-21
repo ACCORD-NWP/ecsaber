@@ -1,11 +1,16 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/instantiateLocalEnsembleSolverFactory.h.tmp.bak	2025-01-31 15:41:04.540507487 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/instantiateLocalEnsembleSolverFactory.h	2025-01-30 08:03:17.421747809 +0100
-@@ -10,15 +10,15 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/instantiateLocalEnsembleSolverFactory.h.tmp	2025-02-21 14:32:30.189618941 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/instantiateLocalEnsembleSolverFactory.h	2025-02-21 14:33:56.767101084 +0100
+@@ -9,22 +9,22 @@
+ #define OOPS_ASSIMILATION_INSTANTIATELOCALENSEMBLESOLVERFACTORY_H_
  
  #include "oops/assimilation/GETKFSolver.h"
+-#include "oops/assimilation/GETKFSolverPert.h"
++//#include "oops/assimilation/GETKFSolverPert.h"
  #include "oops/assimilation/LETKFSolver.h"
 -#include "oops/assimilation/LETKFSolverGSI.h"
+-#include "oops/assimilation/LETKFSolverPert.h"
 +//#include "oops/assimilation/LETKFSolverGSI.h"
++//#include "oops/assimilation/LETKFSolverPert.h"
  #include "oops/assimilation/LocalEnsembleSolver.h"
  
  namespace oops {
@@ -13,11 +18,19 @@
 -template <typename MODEL, typename OBS> void instantiateLocalEnsembleSolverFactory() {
 -  static LocalEnsembleSolverMaker<MODEL, OBS, LETKFSolver<MODEL, OBS> > makerLETKF_("LETKF");
 -  static LocalEnsembleSolverMaker<MODEL, OBS, LETKFSolverGSI<MODEL, OBS> > makerGSI_("GSI LETKF");
+-  static LocalEnsembleSolverMaker<MODEL, OBS, LETKFSolverPert<MODEL, OBS>
+-         > makerLETKFPert_("Perturbed LETKF");
 -  static LocalEnsembleSolverMaker<MODEL, OBS, GETKFSolver<MODEL, OBS> > makerGETKF_("GETKF");
+-  static LocalEnsembleSolverMaker<MODEL, OBS, GETKFSolverPert<MODEL, OBS>
+-         > makerGETKFPert_("Perturbed GETKF");
 +template <typename MODEL> void instantiateLocalEnsembleSolverFactory() {
 +  static LocalEnsembleSolverMaker<MODEL, LETKFSolver<MODEL> > makerLETKF_("LETKF");
 +//  static LocalEnsembleSolverMaker<MODEL, LETKFSolverGSI<MODEL> > makerGSI_("GSI LETKF");
++//  static LocalEnsembleSolverMaker<MODEL, LETKFSolverPert<MODEL>
++//         > makerLETKFPert_("Perturbed LETKF");
 +  static LocalEnsembleSolverMaker<MODEL, GETKFSolver<MODEL> > makerGETKF_("GETKF");
++//  static LocalEnsembleSolverMaker<MODEL, GETKFSolverPert<MODEL>
++//         > makerGETKFPert_("Perturbed GETKF");
  }
  
  }  // namespace oops

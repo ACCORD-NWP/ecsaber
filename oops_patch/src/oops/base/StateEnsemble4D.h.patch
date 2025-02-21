@@ -1,186 +1,91 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateEnsemble4D.h.tmp.bak	2025-02-21 08:55:44.863465278 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateEnsemble4D.h	2025-01-28 11:14:46.148483264 +0100
-@@ -14,9 +14,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateEnsemble4D.h.tmp	2025-02-21 14:42:08.724963436 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateEnsemble4D.h	2025-02-21 14:56:12.148807771 +0100
+@@ -14,8 +14,9 @@
  
  #include "eckit/config/LocalConfiguration.h"
  #include "oops/base/Accumulator.h"
 -#include "oops/base/Geometry.h"
 -#include "oops/base/State.h"
--#include "oops/base/StateSet.h"
 +#include "oops/interface/Geometry.h"
-+#include "oops/base/State4D.h"
 +#include "oops/interface/Model.h"
 +#include "oops/interface/State.h"
+ #include "oops/base/StateSet.h"
  #include "oops/util/abor1_cpp.h"
  #include "oops/util/ConfigFunctions.h"
- #include "oops/util/Logger.h"
-@@ -30,132 +31,42 @@
+@@ -30,14 +31,16 @@
  /// \brief Ensemble of 4D states
  template<typename MODEL> class StateEnsemble4D {
    typedef Geometry<MODEL>      Geometry_;
--  typedef StateSet<MODEL>      StateSet_;
 +  typedef Model<MODEL>         Model_;
+   typedef StateSet<MODEL>      StateSet_;
    typedef State<MODEL>         State_;
-+  typedef State4D<MODEL>       State4D_;
  
   public:
    /// Create ensemble of 4D states
 -  StateEnsemble4D(const Geometry_ &, const eckit::Configuration &);
--
--  StateEnsemble4D(const Geometry_ & resol,
--                                     const eckit::Configuration & config,
--                                     const JediVariables & vars,
--                                     const std::vector<util::DateTime> & times,
--                                     const eckit::mpi::Comm & commTime,
--                                     const std::vector<int> & ens,
--                                     const eckit::mpi::Comm & commEns,
--                                     const int mymember);
--
--  /// Create ensemble of 4D states
--  StateEnsemble4D(const Geometry_ &, const eckit::Configuration &,
--                  StateSet_ & stateSet);
--
--  explicit StateEnsemble4D(std::vector<StateSet_> & stateSetVec, const int ensNum);
 +  StateEnsemble4D(const Geometry_ &, const Model_ &, const eckit::Configuration &);
  
-   /// calculate ensemble mean
--  StateSet_ mean() const;
-+  State4D_ mean() const;
- 
-   /// Accessors
-   unsigned int size() const { return states_.size(); }
--  StateSet_ & operator[](const size_t ii) { return states_[ii]; }
--  const StateSet_ & operator[](const size_t ii) const { return states_[ii]; }
-+  State4D_ & operator[](const int ii) { return states_[ii]; }
-+  const State4D_ & operator[](const int ii) const { return states_[ii]; }
+   StateEnsemble4D(const Geometry_ & resol,
++                                     const Model_ & model,
+                                      const eckit::Configuration & config,
+                                      const JediVariables & vars,
+                                      const std::vector<util::DateTime> & times,
+@@ -61,7 +64,7 @@
+   const StateSet_ & operator[](const size_t ii) const { return states_[ii]; }
  
    /// Information
 -  const JediVariables & variables() const {return states_[0].variables();}
 +  const JediVariables & variables() const {return variables_;}
  
   private:
--  void getMembers(const eckit::Configuration &);
--  std::vector<eckit::LocalConfiguration> membersConfig;
--  // TODO(mpotts) remove std::vector<StateSet_> and replace it with a singular StateSet_
--  // variable states_
--  std::vector<StateSet_> states_;
-+  std::vector<State4D_> states_;
+   void getMembers(const eckit::Configuration &);
+@@ -69,6 +72,7 @@
+   // TODO(mpotts) remove std::vector<StateSet_> and replace it with a singular StateSet_
+   // variable states_
+   std::vector<StateSet_> states_;
 +  JediVariables variables_;
  };
  
  // ====================================================================================
+@@ -94,6 +98,7 @@
  
  template<typename MODEL>
--StateEnsemble4D<MODEL>::StateEnsemble4D(std::vector<StateSet_> & stateSetVec, const int ensNum) :
--  states_(stateSetVec) {
--  Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
--}
--
--// ====================================================================================
--
--template<typename MODEL>
--StateEnsemble4D<MODEL>::StateEnsemble4D(const Geometry_ & resol,
--      const eckit::Configuration & config, StateSet_ & stateSet) : states_() {
--  Log::trace() << "StateEnsemble4D:contructor starting" << std::endl;
--  states_.emplace_back(stateSet);
--
--  Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
--}
--
--// -----------------------------------------------------------------------------
--
--template<typename MODEL>
--StateEnsemble4D<MODEL>::StateEnsemble4D(const Geometry_ & resol,
--                                        const eckit::Configuration & config,
--                                        const JediVariables & vars,
--                                        const std::vector<util::DateTime> & times,
--                                        const eckit::mpi::Comm & commTime,
--                                        const std::vector<int> & ens,
--                                        const eckit::mpi::Comm & commEns,
--                                        const int mymember)
--  : states_() {
--  // Abort if both "members" and "members from template" are specified
--  getMembers(config);
--
--  // Reserve memory to hold ensemble
--  states_.reserve(times.size());
--
--  // read in ensemble members on appropriate communicator
+ StateEnsemble4D<MODEL>::StateEnsemble4D(const Geometry_ & resol,
++                                        const Model_ & model,
+                                         const eckit::Configuration & config,
+                                         const JediVariables & vars,
+                                         const std::vector<util::DateTime> & times,
+@@ -109,7 +114,7 @@
+   states_.reserve(times.size());
+ 
+   // read in ensemble members on appropriate communicator
 -  states_.emplace_back(StateSet_(resol, membersConfig[mymember-1]));
--
--  Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
--}
--
--// -----------------------------------------------------------------------------
--template<typename MODEL>
++  states_.emplace_back(StateSet_(resol, model, membersConfig[mymember-1]));
+ 
+   Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
+ }
+@@ -117,6 +122,7 @@
+ // -----------------------------------------------------------------------------
+ template<typename MODEL>
  StateEnsemble4D<MODEL>::StateEnsemble4D(const Geometry_ & resol,
 +                                        const Model_ & model,
                                          const eckit::Configuration & config)
    : states_() {
    // Abort if both "members" and "members from template" are specified
--  getMembers(config);
--
--  // Reserve memory to hold ensemble
--  states_.reserve(membersConfig.size());
--
--  // Loop over all ensemble members
--  for (size_t jj = 0; jj < membersConfig.size(); ++jj) {
+@@ -127,7 +133,7 @@
+ 
+   // Loop over all ensemble members
+   for (size_t jj = 0; jj < membersConfig.size(); ++jj) {
 -    states_.emplace_back(StateSet_(resol, membersConfig[jj]));
--  }
--  Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
--}
--
--// -----------------------------------------------------------------------------
--
--template<typename MODEL>
--StateSet<MODEL> StateEnsemble4D<MODEL>::mean() const {
--  // Compute ensemble mean
--  Accumulator<MODEL, StateSet_, StateSet_> ensmean(states_[0]);
--
--  const double rr = 1.0/static_cast<double>(states_.size());
--  Log::info() << "calculating mean with states_.size() of " << states_.size() << std::endl;
--  for (size_t iens = 0; iens < states_.size(); ++iens) {
--    ensmean.accumul(rr, states_[iens]);
--  }
--
--  Log::trace() << "StateEnsemble4D::mean done" << std::endl;
--  return std::move(ensmean);
--}
--
--// -----------------------------------------------------------------------------
--
--template<typename MODEL>
--void StateEnsemble4D<MODEL>::getMembers(const eckit::Configuration & config) {
-   if (config.has("members") && config.has("members from template"))
-     ABORT("StateEnsemble4D:constructor: both members and members from template are specified");
- 
-+  std::vector<eckit::LocalConfiguration> membersConfig;
-   if (config.has("members")) {
-     // Explicit members
-     config.get("members", membersConfig);
-@@ -194,8 +105,43 @@
-   } else {
-     ABORT("StateEnsemble4D: ensemble not specified");
++    states_.emplace_back(StateSet_(resol, model, membersConfig[jj]));
    }
-+
-+  // Reserve memory to hold ensemble
-+  states_.reserve(membersConfig.size());
-+
-+  // Loop over all ensemble members
-+  for (size_t jj = 0; jj < membersConfig.size(); ++jj) {
-+    states_.emplace_back(State4D_(membersConfig[jj], resol, model));
-+  }
-+
-+  // Define variables
-+  variables_ = JediVariables(states_[0][0].state().variables().variablesList());
-+
-+  Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
+   Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
  }
+@@ -145,6 +151,20 @@
+     ensmean.accumul(rr, states_[iens]);
+   }
  
-+// -----------------------------------------------------------------------------
-+
-+template<typename MODEL>
-+State4D<MODEL> StateEnsemble4D<MODEL>::mean() const {
++/*
 +  // Compute ensemble mean
 +  State4D_ ensmean4D;
 +  for (size_t jt = 0; jt < states_[0].statesNumber(); ++jt) {
@@ -192,13 +97,18 @@
 +    }
 +    ensmean4D.push_back(ensmean);
 +  }
++*/
 +
-+  Log::trace() << "StateEnsemble4D::mean done" << std::endl;
-+  return ensmean4D;
-+}
+   Log::trace() << "StateEnsemble4D::mean done" << std::endl;
+   return std::move(ensmean);
+ }
+@@ -194,6 +214,9 @@
+   } else {
+     ABORT("StateEnsemble4D: ensemble not specified");
+   }
 +
-+// -----------------------------------------------------------------------------
-+
- }  // namespace oops
++  // Define variables
++  variables_ = JediVariables(states_[0][0].state().variables().variablesList());
+ }
  
- #endif  // OOPS_BASE_STATEENSEMBLE4D_H_
+ }  // namespace oops

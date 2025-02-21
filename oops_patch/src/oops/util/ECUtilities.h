@@ -122,18 +122,17 @@ void mask(oops::ObsVector<MODEL> & obsVec,
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
-Eigen::VectorXd packEigen(const oops::ObsVector<MODEL> & obsVec,
-                          const oops::ObsVector<MODEL> & mask) {
-  Eigen::VectorXd vec = obsVec.obsvector().packEigen(mask.obsvector());
-  return vec;
+void maskAndSerialize(const oops::ObsVector<MODEL> & obsVec,
+                      const oops::ObsVector<MODEL> & mask,
+                      std::vector<double> & values) {
+  obsVec.obsvector().maskAndSerialize(mask.obsvector(), values);
 }
 
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
-size_t packEigenSize(const oops::ObsVector<MODEL> & obsVec,
-                     const oops::ObsVector<MODEL> & mask) {
-  size_t len = obsVec.obsvector().packEigenSize(mask.obsvector());
+size_t serialSize(const oops::ObsVector<MODEL> & obsVec) {
+  size_t len = obsVec.obsvector().serialSize();
   return len;
 }
 
@@ -161,27 +160,22 @@ void mask(oops::ControlObsVector<MODEL> & ctlObsVec,
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
-Eigen::VectorXd packEigen(const oops::ControlObsVector<MODEL> & ctlObsVec,
-                          const oops::ControlObsVector<MODEL> & mask) {
-  Eigen::VectorXd vec = util::packEigen(ctlObsVec.obsvector(), mask.obsvector());
+void maskAndSerialize(const oops::ControlObsVector<MODEL> & ctlObsVec,
+                      const oops::ControlObsVector<MODEL> & mask,
+                      std::vector<double> & values) {
+  util::maskAndSerialize(ctlObsVec.obsvector(), mask.obsvector(), values);
   if (ctlObsVec.hasBias()) {
-    Eigen::VectorXd vecBias = util::packEigen(ctlObsVec.biasvector(), mask.biasvector());
-    Eigen::VectorXd vecJoined(vec.size() + vecBias.size());
-    vecJoined << vec, vecBias;
-    return vecJoined;
-  } else {
-    return vec;
+    util::maskAndSerialize(ctlObsVec.biasvector(), mask.biasvector(), values);
   }
 }
 
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
-size_t packEigenSize(const oops::ControlObsVector<MODEL> & ctlObsVec,
-                     const oops::ControlObsVector<MODEL> & mask) {
-  size_t len = util::packEigenSize(ctlObsVec.obsvector(), mask.obsvector());
+size_t serialSize(const oops::ControlObsVector<MODEL> & ctlObsVec) {
+  size_t len = util::serialSize(ctlObsVec.obsvector());
   if (ctlObsVec.hasBias()) {
-    len += util::packEigenSize(ctlObsVec.biasvector(), mask.biasvector());
+    len += util::serialSize(ctlObsVec.biasvector());
   }
   return len;
 }
@@ -212,31 +206,19 @@ void mask(oops::Departures<MODEL> & dep,
 template <typename MODEL>
 Eigen::VectorXd packEigen(const oops::Departures<MODEL> & dep,
                           const oops::Departures<MODEL> & mask) {
-  std::vector<size_t> len(dep.size());
-  for (size_t idep = 0; idep < dep.size(); ++idep) {
-    len[idep] = util::packEigenSize(dep[idep], mask[idep]);
-  }
-  size_t all_len = std::accumulate(len.begin(), len.end(), 0);
-
-  Eigen::VectorXd vec(all_len);
-  size_t ii = 0;
-  for (size_t idep = 0; idep < dep.size(); ++idep) {
-    vec.segment(ii, len[idep]) = util::packEigen(dep[idep], mask[idep]);
-    ii += len[idep];
-  }
-  return vec;
-}
-
-// -----------------------------------------------------------------------------
-
-template <typename MODEL>
-size_t packEigenSize(const oops::Departures<MODEL> & dep,
-                     const oops::Departures<MODEL> & mask) {
   size_t len = 0;
   for (size_t idep = 0; idep < dep.size(); ++idep) {
-    len += util::packEigenSize(dep[idep], mask[idep]);
+    len += util::serialSize(dep[idep]);
   }
-  return len;
+
+  std::vector<double> valid_values;
+  valid_values.reserve(len);
+  for (size_t idep = 0; idep < dep.size(); ++idep) {
+    util::maskAndSerialize(dep[idep], mask[idep], valid_values);
+  }
+  const Eigen::VectorXd vec = Eigen::Map<Eigen::VectorXd>(valid_values.data(),
+                                                          valid_values.size());
+  return vec;
 }
 
 // -----------------------------------------------------------------------------

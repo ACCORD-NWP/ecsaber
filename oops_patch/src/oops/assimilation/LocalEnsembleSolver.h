@@ -37,8 +37,8 @@
 #include "oops/base/Observer.h"
 #include "oops/base/ObserverTL.h"
 #include "oops/interface/State.h"
-#include "oops/base/State4D.h"
 #include "oops/base/StateEnsemble4D.h"
+#include "oops/base/State4D.h"
 #include "oops/base/TrajectorySaver.h"
 #include "oops/base/Variables.h"
 #include "oops/generic/PseudoLinearModelIncrement4D.h"
@@ -226,6 +226,7 @@ Observations<MODEL> LocalEnsembleSolver<MODEL>::computeHofX(const StateEnsemble4
   // return mean H(x)
   return yb_mean;
 }
+
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
@@ -235,17 +236,16 @@ void LocalEnsembleSolver<MODEL>::computeHofX4DLinear(const eckit::Configuration 
                                                      const ObsAux_ & ybias,
                                                      Observations_ & yy_mean,
                                                      ObsEnsemble_ & yy) {
-
   ModelAux_ moderr(geometry_, model, eckit::LocalConfiguration());
   ModelAuxInc_  moderrinc(geometry_, eckit::LocalConfiguration());
   ObsAux_  obsaux(obspaces_, obsconf_);
   ObsAuxInc_  obsauxinc(obspaces_, obsconf_);
 
-  // compute forecast length from State4D times
+  // compute forecast length from StateSet times
   const std::vector<util::DateTime> times = xx[0].times();
   const util::Duration flength = times[times.size()-1] - times[0];
   // default_tstep = 2*observation window is passed to PseudoModel as the default
-  // pseudomodel time step. It is only used when State4D has a single state, to enable
+  // pseudomodel time step. It is only used when StateSet has a single state, to enable
   // processing of all observations in the specified window regardless of where in
   // the time window the state is. Observations in
   // ( max(winbgn, xx.time - tstep/2); min(winend, xx.time + tstep/2) ] are

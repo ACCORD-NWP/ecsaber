@@ -22,7 +22,7 @@ oops/base/GeometryData.cc
 oops/base/GeometryData.h
 oops/base/IncrementEnsemble4D.h
 oops/base/IncrementEnsemble.h
-oops/base/LinearVariableChangeParametersBase.h
+oops/base/IncrementSet.h
 oops/base/LocalIncrement.cc
 oops/base/LocalIncrement.h
 oops/base/ObsEnsemble.h
@@ -34,7 +34,6 @@ oops/base/ParameterTraitsVariables.h
 oops/base/StateEnsemble4D.h
 oops/base/StateEnsemble.h
 oops/base/Variable.cc
-oops/base/VariableChangeParametersBase.h
 oops/base/Variable.h
 oops/base/Variables.cc
 oops/base/Variables.h
@@ -148,14 +147,15 @@ list( APPEND oops_ecmwf_src_files
 util/abor1_cpp.h
 util/DateTime.cc
 util/DateTime.h
+util/dot_product.h
 util/Duration.cc
 util/Duration.h
 util/formats.h
 util/kinds.F90
+util/LibOOPS.h
 util/Logger.h
 util/ObjectCounter.h
 util/Printable.h
-util/Timer.cc
 util/Timer.h
 )
 

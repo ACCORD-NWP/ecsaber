@@ -9,8 +9,10 @@
 #define OOPS_ASSIMILATION_INSTANTIATELOCALENSEMBLESOLVERFACTORY_H_
 
 #include "oops/assimilation/GETKFSolver.h"
+//#include "oops/assimilation/GETKFSolverPert.h"
 #include "oops/assimilation/LETKFSolver.h"
 //#include "oops/assimilation/LETKFSolverGSI.h"
+//#include "oops/assimilation/LETKFSolverPert.h"
 #include "oops/assimilation/LocalEnsembleSolver.h"
 
 namespace oops {
@@ -18,7 +20,11 @@ namespace oops {
 template <typename MODEL> void instantiateLocalEnsembleSolverFactory() {
   static LocalEnsembleSolverMaker<MODEL, LETKFSolver<MODEL> > makerLETKF_("LETKF");
 //  static LocalEnsembleSolverMaker<MODEL, LETKFSolverGSI<MODEL> > makerGSI_("GSI LETKF");
+//  static LocalEnsembleSolverMaker<MODEL, LETKFSolverPert<MODEL>
+//         > makerLETKFPert_("Perturbed LETKF");
   static LocalEnsembleSolverMaker<MODEL, GETKFSolver<MODEL> > makerGETKF_("GETKF");
+//  static LocalEnsembleSolverMaker<MODEL, GETKFSolverPert<MODEL>
+//         > makerGETKFPert_("Perturbed GETKF");
 }
 
 }  // namespace oops

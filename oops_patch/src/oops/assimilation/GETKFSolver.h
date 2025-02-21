@@ -26,8 +26,8 @@
 #include "oops/base/ObsErrors.h"
 #include "oops/base/Observations.h"
 #include "oops/base/ObservationSpaces.h"
-#include "oops/base/State4D.h"
 #include "oops/base/StateEnsemble4D.h"
+#include "oops/base/State4D.h"
 #include "oops/generic/VerticalLocEV.h"
 #include "oops/interface/GeometryIterator.h"
 //#include "oops/interface/ObsDataVector.h"
@@ -104,7 +104,7 @@ class GETKFSolver : public LocalEnsembleSolver<MODEL> {
   void applyWeights(const IncrementEnsemble4D_ &, IncrementEnsemble4D_ &,
                     const GeometryIterator__ &);
 
- private:
+ protected:
   // parameters
   size_t nens_;
   const Geometry_ & geometry_;
@@ -193,6 +193,7 @@ Observations<MODEL> GETKFSolver<MODEL>::computeHofX(const StateEnsemble4D_ & ens
     if (this->useLinearObserver()) {
 /*
       this->R_.reset(new ObsErrors_(this->observersconf_, this->obspaces_));
+
       // Setup pseudo model to run on ensemble mean
       State_ init_xx = this->xbmean_[0];
       std::unique_ptr<PseudoModel_> pseudomodel(new PseudoModel_(this->xbmean_, default_tstep));
@@ -220,11 +221,11 @@ Observations<MODEL> GETKFSolver<MODEL>::computeHofX(const StateEnsemble4D_ & ens
       // run nonlinear model on the ensemble mean
       model.forecast(init_xx, moderr, flength, post);
       // compute nonlinear H(x_mean)
-//      std::vector<ObsDataInt_> qcflags;
-//      for (size_t jj = 0; jj < this->obspaces_.size(); ++jj) {
-//        ObsDataInt_ qc(this->obspaces_[jj], this->obspaces_[jj].obsvariables());
-//        qcflags.push_back(qc);
-//      }
+      std::vector<ObsDataInt_> qcflags;
+      for (size_t jj = 0; jj < this->obspaces_.size(); ++jj) {
+        ObsDataInt_ qc(this->obspaces_[jj], this->obspaces_[jj].obsvariables());
+        qcflags.push_back(qc);
+      }
       hofx.finalize(yb_mean, qcflags);
       linear_hofx.finalizeTraj(qcflags);
 
@@ -342,10 +343,10 @@ void GETKFSolver<MODEL>::computeWeights(const Eigen::VectorXd & dy,
   const int nobsl = dy.size();
 
   // cast eigen<double> to eigen<float>
-  Eigen::VectorXf dy_f = dy.cast<float>();
-  Eigen::MatrixXf Yb_f = Yb.cast<float>();
-  Eigen::MatrixXf YbOrig_f = YbOrig.cast<float>();
-  Eigen::VectorXf R_invvar_f = R_invvar.cast<float>();
+  const Eigen::VectorXf dy_f = dy.cast<float>();
+  const Eigen::MatrixXf Yb_f = Yb.cast<float>();
+  const Eigen::MatrixXf YbOrig_f = YbOrig.cast<float>();
+  const Eigen::VectorXf R_invvar_f = R_invvar.cast<float>();
 
   Eigen::MatrixXf Wa_f(nanal_, this->nens_);
   Eigen::VectorXf wa_f(nanal_);
@@ -354,7 +355,6 @@ void GETKFSolver<MODEL>::computeWeights(const Eigen::VectorXd & dy,
   const int getkf_inflation = 0;
   const int denkf = 0;
   const int getkf = 1;
-
   letkf_core_f90(nobsl, Yb_f.data(), YbOrig_f.data(), dy_f.data(),
                  wa_f.data(), Wa_f.data(),
                  R_invvar_f.data(), nanal_, neig_,
@@ -377,7 +377,7 @@ void GETKFSolver<MODEL>::applyWeights(const IncrementEnsemble4D_ & bkg_pert,
   Eigen::MatrixXd XbOriginal;   // original perturbations
 
   // loop through analysis times and ens. members
-  for (size_t itime=bkg_pert[0].first(); itime <= bkg_pert[0].last(); ++itime) {
+  for (unsigned itime=bkg_pert[0].first(); itime <= bkg_pert[0].last(); ++itime) {
     // cast bkg_pert ensemble at grid point i as an Eigen matrix Xb
     // modulates Xb
     XbModulated = vertloc_.modulateIncrement(bkg_pert, i, itime);
@@ -386,7 +386,7 @@ void GETKFSolver<MODEL>::applyWeights(const IncrementEnsemble4D_ & bkg_pert,
 
     // postmulptiply
     // ensemble mean update
-    Eigen::VectorXd xa = XbModulated*wa_;
+    const Eigen::VectorXd xa = XbModulated*wa_;
     // ensemble perturbation update
     // Eq (10) from Lei 2018. (-) sign is accounted for in the Wa_ computation
     Eigen::MatrixXd Xa = XbOriginal + XbModulated*Wa_;
@@ -425,12 +425,11 @@ void GETKFSolver<MODEL>::measurementUpdate(const IncrementEnsemble4D_ & bkg_pert
   } else {
     // if obs are present do normal KF update
     // get local Yb & HZ
-    Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
-    Eigen::MatrixXd local_HZ_mat = this->HZb_.packEigen(locvector);
-    // create local obs errors
+    const Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
+    const Eigen::MatrixXd local_HZ_mat = this->HZb_.packEigen(locvector);
+    // create local obs errors and apply localization
+    const Eigen::VectorXd localization = util::packEigen(locvector, locvector);
     Eigen::VectorXd local_invVarR_vec = util::packEigen(*this->invVarR_, locvector);
-    // and apply localization
-    Eigen::VectorXd localization = util::packEigen(locvector, locvector);
     local_invVarR_vec.array() *= localization.array();
     computeWeights(local_omb_vec, local_HZ_mat, local_Yb_mat, local_invVarR_vec);
     applyWeights(bkg_pert, ana_pert, i);

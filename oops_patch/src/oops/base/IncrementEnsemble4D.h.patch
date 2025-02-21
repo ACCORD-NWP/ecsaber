@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble4D.h.tmp.bak	2025-02-21 08:55:44.717465076 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble4D.h	2024-11-29 15:50:42.796774141 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble4D.h.tmp	2025-02-21 14:42:08.594962930 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble4D.h	2025-02-21 14:48:58.637725752 +0100
 @@ -16,14 +16,16 @@
  #include <string>
  #include <vector>
@@ -8,9 +8,8 @@
 +#include "oops/interface/Geometry.h"
  #include "oops/base/Increment4D.h"
  #include "oops/base/LocalIncrement.h"
-+#include "oops/base/State4D.h"
  #include "oops/base/StateEnsemble4D.h"
--#include "oops/base/StateSet.h"
+ #include "oops/base/StateSet.h"
  #include "oops/base/Variables.h"
  #include "oops/interface/GeometryIterator.h"
 +#include "oops/interface/Variables.h"
@@ -24,22 +23,15 @@
  template<typename MODEL> class IncrementEnsemble4D {
    typedef Geometry<MODEL>            Geometry_;
 -  typedef GeometryIterator<MODEL>    GeometryIterator_;
--  typedef StateSet<MODEL>            StateSet_;
 +  typedef typename MODEL::GeometryIterator  GeometryIterator__;
-+  typedef State4D<MODEL>             State4D_;
+   typedef StateSet<MODEL>            StateSet_;
    typedef StateEnsemble4D<MODEL>     StateEnsemble4D_;
    typedef Increment4D<MODEL>         Increment4D_;
 +  typedef Variables<MODEL>           Variables_;
  
   public:
    /// Constructor
-@@ -46,18 +49,17 @@
-                       const int rank);
-   /// \brief construct ensemble of perturbations as \p ens - \p mean; holding
-   //         \p vars variables
--  IncrementEnsemble4D(const StateEnsemble4D_ & ens, const StateSet_ & mean,
-+  IncrementEnsemble4D(const StateEnsemble4D_ & ens, const State4D_ & mean,
-                       const JediVariables & vars);
+@@ -51,13 +54,12 @@
  
    /// Accessors
    size_t size() const {return ensemblePerturbs_.size();}

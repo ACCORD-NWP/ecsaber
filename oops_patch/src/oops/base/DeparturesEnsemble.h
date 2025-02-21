@@ -58,11 +58,12 @@ DeparturesEnsemble<MODEL>::DeparturesEnsemble(const ObsSpaces_ & obsdb, const si
 
 template<typename MODEL>
 Eigen::MatrixXd DeparturesEnsemble<MODEL>::packEigen(const Departures_ & mask) const {
-  std::size_t myNobs = util::packEigenSize(ensemblePerturbs_[0], mask);
-  std::size_t myNens = ensemblePerturbs_.size();
-
+  const size_t myNens = ensemblePerturbs_.size();
+  const Eigen::VectorXd dep0 = util::packEigen(ensemblePerturbs_.front(), mask);
+  const size_t myNobs = dep0.size();
   Eigen::MatrixXd depEns(myNens, myNobs);
-  for (std::size_t iens = 0; iens < myNens; ++iens) {
+  depEns.row(0) = dep0;
+  for (std::size_t iens = 1; iens < myNens; ++iens) {
     depEns.row(iens) = util::packEigen(ensemblePerturbs_[iens], mask);
   }
   Log::trace() << "DeparturesEnsemble::packEigen() completed" << std::endl;

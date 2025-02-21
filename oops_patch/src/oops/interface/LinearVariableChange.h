@@ -15,17 +15,10 @@
 
 #include "oops/interface/Geometry.h"
 #include "oops/interface/Increment.h"
-#include "oops/base/LinearVariableChangeParametersBase.h"
 #include "oops/interface/State.h"
 #include "oops/interface/Variables.h"
 #include "oops/base/Variables.h"
 #include "oops/util/Logger.h"
-#include "oops/util/ObjectCounter.h"
-#include "oops/util/parameters/ConfigurationParameter.h"
-#include "oops/util/parameters/GenericParameters.h"
-#include "oops/util/parameters/HasParameters_.h"
-#include "oops/util/parameters/Parameters.h"
-#include "oops/util/parameters/ParametersOrConfiguration.h"
 #include "oops/util/Printable.h"
 #include "oops/util/Timer.h"
 
@@ -38,11 +31,6 @@ namespace oops {
 // -----------------------------------------------------------------------------
 /// \brief MODEL-agnostic part of the linear variable change
 ///
-/// Note: each implementation should typedef `LinVariableChangeParams_` to the name of a
-/// subclass of oops::LinearVariableChangeParametersBase holding its configuration settings and
-/// provide a constructor with the following signature:
-///
-///     LinearVariableChange(const Geometry_ &, const LinVariableChangeParams_ &);
 template <typename MODEL>
 class LinearVariableChange {
   typedef typename MODEL::LinearVariableChange LinearVariableChange_;
@@ -52,15 +40,8 @@ class LinearVariableChange {
   typedef Variables<MODEL>           Variables_;
 
  public:
-  /// A subclass of oops::LinearVariableChangeParametersBase holding the configuration settings of
-  /// the variable change.
-  /// Defined as LinearVariableChange_::Parameters_ if LinearVariableChange_ defines a Parameters_
-  /// type; otherwise as GenericLinearVariableChangeParameters.
-  typedef TParameters_IfAvailableElseFallbackType_t<LinearVariableChange_,
-                                    GenericLinearVariableChangeParameters> Parameters_;
   static const std::string classname() {return "oops::LinearVariableChange";}
 
-  LinearVariableChange(const Geometry_ &, const Parameters_ &);
   LinearVariableChange(const Geometry_ &, const eckit::Configuration &);
 
   virtual ~LinearVariableChange();
@@ -87,14 +68,6 @@ LinearVariableChange<MODEL>::LinearVariableChange(const Geometry_ & resol,
   chvar_.reset(new LinearVariableChange_(resol.geometry(), conf));
   Log::trace() << "LinearVariableChange<MODEL>::LinearVariableChange done" << std::endl;
 }
-
-// -----------------------------------------------------------------------------
-
-template<typename MODEL>
-LinearVariableChange<MODEL>::LinearVariableChange(const Geometry_ & resol,
-                                                  const Parameters_ & parameters)
-  :  LinearVariableChange<MODEL>::LinearVariableChange(resol, parameters.toConfiguration())
-{}
 
 // -----------------------------------------------------------------------------
 

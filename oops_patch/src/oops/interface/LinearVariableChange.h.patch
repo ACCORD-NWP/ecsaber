@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/LinearVariableChange.h.tmp.bak	2025-02-21 08:55:45.107465617 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/LinearVariableChange.h	2025-02-03 13:49:14.066078079 +0100
-@@ -13,11 +13,19 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/LinearVariableChange.h.tmp	2025-02-21 14:42:08.964964370 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/LinearVariableChange.h	2025-02-21 14:31:56.683432228 +0100
+@@ -13,9 +13,10 @@
  
  #include <boost/noncopyable.hpp>
  
@@ -9,48 +9,20 @@
 -#include "oops/base/State.h"
 +#include "oops/interface/Geometry.h"
 +#include "oops/interface/Increment.h"
-+#include "oops/base/LinearVariableChangeParametersBase.h"
 +#include "oops/interface/State.h"
 +#include "oops/interface/Variables.h"
  #include "oops/base/Variables.h"
  #include "oops/util/Logger.h"
-+#include "oops/util/ObjectCounter.h"
-+#include "oops/util/parameters/ConfigurationParameter.h"
-+#include "oops/util/parameters/GenericParameters.h"
-+#include "oops/util/parameters/HasParameters_.h"
-+#include "oops/util/parameters/Parameters.h"
-+#include "oops/util/parameters/ParametersOrConfiguration.h"
  #include "oops/util/Printable.h"
- #include "oops/util/Timer.h"
- 
-@@ -30,25 +38,38 @@
- // -----------------------------------------------------------------------------
- /// \brief MODEL-agnostic part of the linear variable change
- ///
-+/// Note: each implementation should typedef `LinVariableChangeParams_` to the name of a
-+/// subclass of oops::LinearVariableChangeParametersBase holding its configuration settings and
-+/// provide a constructor with the following signature:
-+///
-+///     LinearVariableChange(const Geometry_ &, const LinVariableChangeParams_ &);
- template <typename MODEL>
- class LinearVariableChange {
-   typedef typename MODEL::LinearVariableChange LinearVariableChange_;
+@@ -36,6 +37,7 @@
    typedef Geometry<MODEL>            Geometry_;
    typedef Increment<MODEL>           Increment_;
    typedef State<MODEL>               State_;
 +  typedef Variables<MODEL>           Variables_;
  
   public:
-+  /// A subclass of oops::LinearVariableChangeParametersBase holding the configuration settings of
-+  /// the variable change.
-+  /// Defined as LinearVariableChange_::Parameters_ if LinearVariableChange_ defines a Parameters_
-+  /// type; otherwise as GenericLinearVariableChangeParameters.
-+  typedef TParameters_IfAvailableElseFallbackType_t<LinearVariableChange_,
-+                                    GenericLinearVariableChangeParameters> Parameters_;
    static const std::string classname() {return "oops::LinearVariableChange";}
- 
-+  LinearVariableChange(const Geometry_ &, const Parameters_ &);
-   LinearVariableChange(const Geometry_ &, const eckit::Configuration &);
+@@ -44,11 +46,11 @@
  
    virtual ~LinearVariableChange();
  
@@ -67,22 +39,7 @@
  
   private:
    void print(std::ostream &) const;
-@@ -70,6 +91,14 @@
- // -----------------------------------------------------------------------------
- 
- template<typename MODEL>
-+LinearVariableChange<MODEL>::LinearVariableChange(const Geometry_ & resol,
-+                                                  const Parameters_ & parameters)
-+  :  LinearVariableChange<MODEL>::LinearVariableChange(resol, parameters.toConfiguration())
-+{}
-+
-+// -----------------------------------------------------------------------------
-+
-+template<typename MODEL>
- LinearVariableChange<MODEL>::~LinearVariableChange() {
-   Log::trace() << "LinearVariableChange<MODEL>::~LinearVariableChange starting" << std::endl;
-   util::Timer timer(classname(), "~LinearVariableChange");
-@@ -80,30 +109,30 @@
+@@ -80,30 +82,30 @@
  // -----------------------------------------------------------------------------
  
  template<typename MODEL>
@@ -119,7 +76,7 @@
    Log::trace() << "LinearVariableChange<MODEL>::changeVarAD done" << std::endl;
  }
  
-@@ -111,10 +140,10 @@
+@@ -111,10 +113,10 @@
  
  template<typename MODEL>
  void LinearVariableChange<MODEL>::changeVarInverseAD(Increment_ & dx,
@@ -132,7 +89,7 @@
    Log::trace() << "LinearVariableChange<MODEL>::changeVarInverseAD done" << std::endl;
  }
  
-@@ -122,10 +151,10 @@
+@@ -122,10 +124,10 @@
  
  template<typename MODEL>
  void LinearVariableChange<MODEL>::changeVarTraj(const State_ & xFirstGuess,

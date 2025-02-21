@@ -1,10 +1,12 @@
 abor1_cpp.h
+dot_product.h
 DateTime.cc
 DateTime.h
 Duration.cc
 Duration.h
 formats.h
 kinds.F90
+LibOOPS.h
 Logger.h
 ObjectCounter.h
 Printable.h
