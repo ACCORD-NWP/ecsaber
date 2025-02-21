@@ -22,12 +22,11 @@
 #include "oops/assimilation/SpectralSqrtLMP.h"
 #include "oops/assimilation/TriDiagSolve.h"
 #include "oops/assimilation/UtHtRinvHUMatrix.h"
-#include "oops/util/Logger.h"
-#include "oops/util/abor1_cpp.h"
-#include "oops/util/formats.h"
-
-#include "util/dot_product.h"
 #include "util/LogbookWriter.h"
+#include "util/Logger.h"
+#include "util/abor1_cpp.h"
+#include "util/dot_product.h"
+#include "util/formats.h"
 
 namespace oops {
 
@@ -41,18 +40,15 @@ class SQRTPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
   using UtHtRinvHU_ = UtHtRinvHUMatrix<MODEL>;
 
  public:
-  const std::string classname() const final
-    { return "SQRTPLanczosEVILMinimizer"; }
+  const std::string classname() const final { return "SQRTPLanczosEVILMinimizer"; }
 
   /// Constructor, destructor
-  SQRTPLanczosEVILMinimizer(const eckit::Configuration &,
-                        const CostFct_ &);
+  SQRTPLanczosEVILMinimizer(const eckit::Configuration &, const CostFct_ &);
   ~SQRTPLanczosEVILMinimizer() {}
 
  private:
-  double solve(CtrlVec_ &, CtrlVec_ &, const Jbmat_ &, const UtHtRinvHU_ &,
-               const bool &, const size_t &, const size_t &, const double &,
-               const double &, const double &) final;
+  double solve(CtrlVec_ &, CtrlVec_ &, const Jbmat_ &,
+               const UtHtRinvHU_ &) final;
 
   void releaseResources();
 
@@ -62,15 +58,15 @@ class SQRTPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
 
   /// Quadratic cost function calculations
   void setupQuadCost(const double &costJ0Jb, const double &costJ0JoJc);
-  void calcQuadCost(const CtrlVec_ &, const CtrlVec_ &,
-                    const std::vector<double> &);
+  void calcQuadCost(const CtrlVec_ &, const CtrlVec_ &, const CtrlVec_ &,
+                    const CtrlVec_ &, const CtrlVec_ &, const bool &);
   void printQuadCost(const size_t &) const;
 
   /// Other diagnostics
   bool calcRitzInformation();
   void printRitzInformation(const size_t &) const;
 
-  /// Data members
+  /// Data memebers
   const eckit::LocalConfiguration conf_;
   const CostFct_ &J_;
 
@@ -96,7 +92,9 @@ class SQRTPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
   double costJ_;
   double costJm1_;
   double costJb_;
-  double costJbLocal_;  // component of costJb from current minimization
+  double costJbCurrentMin_;  // component of costJb from current minimization
+  double costJbCurrentMinPrecSpace_;  // component of costJb from current
+                                      // minimization in preconditioned space
   double costJoJc_;
 };
 
@@ -108,7 +106,7 @@ SQRTPLanczosEVILMinimizer<MODEL>::SQRTPLanczosEVILMinimizer(
     : SQRTMinimizer<MODEL>(conf, J),
       conf_(conf),
       J_(J),
-      lmp_(conf_, J),
+      lmp_(conf, J),
       eig_(),
       erreig_(),
       erreiglm_(),
@@ -119,18 +117,27 @@ SQRTPLanczosEVILMinimizer<MODEL>::SQRTPLanczosEVILMinimizer(
       costJ_(0),
       costJm1_(0),
       costJb_(0),
-      costJbLocal_(0),
+      costJbCurrentMin_(0),
+      costJbCurrentMinPrecSpace_(0),
       costJoJc_(0) {}
 
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
-double SQRTPLanczosEVILMinimizer<MODEL>::solve(
-    CtrlVec_ &dv, CtrlVec_ &rr, const Jbmat_ &Jb, const UtHtRinvHU_ &UtHtRinvHU,
-    const bool &linfoconv, const size_t &maxiter, const size_t &miniter,
-    const double &tolerance, const double &costJ0Jb, const double &costJ0JoJc) {
-  // dv   control vector
+double SQRTPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
+                                               const Jbmat_ &Jb,
+                                               const UtHtRinvHU_ &UtHtRinvHU) {
+  // Setup controls
+  const bool &linfoConv = SQRTMinimizer<MODEL>::linfoConv_;
+  const bool &lclassicChaVar = SQRTMinimizer<MODEL>::lclassicChaVar_;
+  const size_t &maxIter = SQRTMinimizer<MODEL>::ninner_;
+  const size_t &minIter = SQRTMinimizer<MODEL>::ninnerMin_;
+  const double &tolerance = SQRTMinimizer<MODEL>::gnreduc_;
+  const double &costJ0Jb = SQRTMinimizer<MODEL>::costJ0Jb_;
+  const double &costJ0JoJc = SQRTMinimizer<MODEL>::costJ0JoJc_;
+  const CtrlVec_ &gradJb = *(SQRTMinimizer<MODEL>::gradJb_);
 
+  // Auxiliary vectors
   std::vector<double> ss;
   std::vector<double> dd;
 
@@ -167,7 +174,9 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
   std::unique_ptr<CtrlVec_> mvv(new CtrlVec_(dv, false));
   std::unique_ptr<CtrlVec_> jbzz(new CtrlVec_(dv, false));
   std::unique_ptr<CtrlVec_> zz(new CtrlVec_(rr, false));
-  while (jiter < maxiter) {
+  std::unique_ptr<CtrlVec_> mds(new CtrlVec_(dv, false));
+  std::unique_ptr<CtrlVec_> ds(new CtrlVec_(dv, false));
+  while (jiter < maxIter) {
     size_t jiterp1 = jiter + 1;
     Log::info() << "SQRTPLanczosEVIL Starting Iteration " << jiterp1 << std::endl;
 
@@ -226,8 +235,18 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
 
     ritzPairs_.betas().push_back(beta);
 
+    // Reconstruct the control variable in the preconditioned space
+    mds->zero();
+    for (size_t jj = 0; jj < ss.size(); ++jj) {
+      mds->axpy(ss[jj], ritzPairs_.vVEC(jj));
+    }
+
+    // Transform the control variable back to state space
+    lmp_.inverseMultiplySqrt(*mds, *ds);
+
     // Compute the quadratic cost function
-    this->calcQuadCost(dv, *mrr, ss);
+    // this->calcQuadCost(dv, *mrr, gradJb, ss);
+    this->calcQuadCost(dv, *mds, *ds, rr, gradJb, lclassicChaVar);
 
     // Compute the Ritz information
     bool ritzErrorDetected = this->calcRitzInformation();
@@ -244,14 +263,14 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
                 << std::endl;
 
     // Convergence criterion
-    if (linfoconv) {
+    if (linfoConv) {
       // Information content based convergence criterion
       //  - Information content defined as 0.5 dv^T dv
       //  - We should measure the change in the solution vector length
       //    in the un-preconditioned metric
       //  - This would require additional call to the preconditioner
       double zdfi_old = zdfi;
-      zdfi = costJbLocal_;
+      zdfi = costJbCurrentMinPrecSpace_;
       ASSERT(zdfi != 0.0);
       normReduction = (zdfi - zdfi_old) / zdfi;
       Log::info() << "  Relative information content gain (" << std::setw(2)
@@ -261,7 +280,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
       // Gradient reduction based convergence criterion
       normReduction = gradNormReduction;
     }
-    if (normReduction < tolerance && jiter >= miniter)
+    if (normReduction < tolerance && jiter >= minIter)
       convergenceReached = true;
 
     util::LogbookWriter<double> log_norm("NormReduction", normReduction);
@@ -274,7 +293,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
     ++jiter;
 
     // Compute online diagnostics
-    UtHtRinvHU.computeDiagnostics(ss, convergenceReached || (jiter == maxiter));
+    UtHtRinvHU.computeDiagnostics(ss, convergenceReached || (jiter == maxIter));
 
     // Check if convergence criteria are met
     if (convergenceReached || ritzErrorDetected) break;
@@ -287,15 +306,15 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
   zz.reset();
 
   // Print summary
-  Log::info() << "Summary of SQRTPLanczosEVIL solver: " << std::endl
-              << " Information based convergence criterion: " << linfoconv
+  Log::info() << "Summary of SQRTPLanczos solver: " << std::endl
+              << " Information based convergence criterion: " << linfoConv
               << std::endl
               << " Number of iterations performed: " << jiter << std::endl
-              << " Maximum allowed number of iterations: " << maxiter
+              << " Maximum allowed number of iterations: " << maxIter
               << std::endl
-              << " Minimum allowed number of iterations: " << miniter
+              << " Minimum allowed number of iterations: " << minIter
               << std::endl;
-  if (linfoconv) {
+  if (linfoConv) {
     Log::info() << " Required relative gain in information content: "
                 << tolerance << std::endl
                 << " Last relative gain in information content: "
@@ -320,28 +339,18 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(
   }
   Log::info() << std::endl;
 
-  // Calculate the solution
-  std::unique_ptr<CtrlVec_> dv0(new CtrlVec_(dv));
-  std::unique_ptr<CtrlVec_> mdv(new CtrlVec_(dv, false));
-  mdv->zero();
-  for (size_t jj = 0; jj < ss.size(); ++jj) {
-    mdv->axpy(ss[jj], ritzPairs_.vVEC(jj));
-  }
-
-  // Transform control variable back to space with scalar product
-  lmp_.inverseMultiplySqrt(*mdv, dv);
-
-  dv += *dv0;
+  // Update the solution
+  dv += *ds;
 
   // Free memory
-  dv0.reset();
-  mdv.reset();
+  mds.reset();
 
   // Process Ritz pairs
   ritzPairs_.process(conf_, "control");
 
   // Update LMP
-  if (SQRTMinimizer<MODEL>::iter_ < SQRTMinimizer<MODEL>::maxiter_)
+  if (SQRTMinimizer<MODEL>::outerIteration_ <
+      SQRTMinimizer<MODEL>::lastOuterIteration_)
     lmp_.update(ritzPairs_.vVEC(), ritzPairs_.alphas(), ritzPairs_.betas());
 
   // Clean up
@@ -366,7 +375,7 @@ void SQRTPLanczosEVILMinimizer<MODEL>::releaseResources() {
 
 template <typename MODEL>
 void SQRTPLanczosEVILMinimizer<MODEL>::setupQuadCost(const double &costJ0Jb,
-                                                 const double &costJ0JoJc) {
+                                                     const double &costJ0JoJc) {
   // J0
   costJ0Jb_ = costJ0Jb;
   costJ0JoJc_ = costJ0JoJc;
@@ -378,35 +387,65 @@ void SQRTPLanczosEVILMinimizer<MODEL>::setupQuadCost(const double &costJ0Jb,
   costJ_ = 0;
   costJm1_ = 0;
   costJb_ = 0;
-  costJbLocal_ = 0;
+  costJbCurrentMin_ = 0;
+  costJbCurrentMinPrecSpace_ = 0;
   costJoJc_ = 0;
 }
 
 // -----------------------------------------------------------------------------
 
 template <typename MODEL>
-void SQRTPLanczosEVILMinimizer<MODEL>::calcQuadCost(const CtrlVec_ &dv0,
-                                                const CtrlVec_ &rr,
-                                                const std::vector<double> &ss) {
-  // Compute the quadratic cost function
-  // J[du_{i}] = J[0] - 0.5 s_{i}^T Z_{i}^T r_{0}
-  // Jb[du_{i}] = 0.5 s_{i}^T V_{i}^T Z_{i} s_{i}
-  // Note: here we calculate the quadratic cost function in the preconditioned
-  //       space;
+void SQRTPLanczosEVILMinimizer<MODEL>::calcQuadCost(
+    const CtrlVec_ &dv0, const CtrlVec_ &mds, const CtrlVec_ &ds,
+    const CtrlVec_ &rr, const CtrlVec_ &gradJb, const bool &lclassicChaVar) {
+  // Compute the quadratic cost function in the state space
+  //
+  // At ith iteration of SQRTPLanczos, the solution is
+  // dv_{i} = dv_{0}  + P V_{i} s_{i} where P is a second-level preconditioner
+  //
+  // We can calculate the quadratic cost function as:
+  // J[dv_{i}] = J[dv_{0}] - 0.5 r_{0}^T P V_{i} s_{i} with
+  //     r_{0} = U^T b - U^T A U dv_{0}
+  //
+  // If lclassicChaVar = true,
+  //    dx = U dv
+  //    dv_{0} = 0
+  //    Jb[dv_{i}] = Jb[dv_{0}] + 0.5 dv_{i}^T U^T Binv U dv_{i} - gradJb^T
+  //    dv_{i}
+  // else
+  //    dx = U dv - xk + xb
+  //    dv_{0}^{k} = dv_{j}^{k} with j being the last iteration of the previous
+  //    (k)-th system. Warm start initial point. Jb[dv_{i}] = dv_{i}^T U^T Binv
+  //    B dv_{i}
+  //
+  // Note that for two cases J[dv_{0}] are the same which is equivalent to J[dx
+  // = 0]. Note that U^T Binv B is assumed to be an identity matrix.
+
+  // Initialize cost function values J[dv_{0}] and Jb[dv_{0}]
   costJ_ = costJ0_;
   costJb_ = costJ0Jb_;
-  costJbLocal_ = 0.0;
-  for (size_t jj = 0; jj < ss.size(); ++jj) {
-    costJ_ -= 0.5 * ss[jj] * dot_product(ritzPairs_.vVEC(jj), rr);
-    costJbLocal_ += 0.5 * ss[jj] *
-                    dot_product(ritzPairs_.vVEC(jj), ritzPairs_.vVEC(jj)) *
-                    ss[jj];
-    /* EA TODO:
-     * if (not lclassicincrform) {
-     *  costJbLocal_ += ss[jj] * dot_product(ritzPairs_.vVEC(jj), dv0);
-    }*/
+
+  // Calculate the quadratic cost function J[dv_{i}]
+  costJ_ -= 0.5 * dot_product(rr, ds);
+
+  // Calculate Jb part of the quadratic cost function: Jb[dv_{i}]
+  if (lclassicChaVar) {
+    // dv = 0 + ds = ds (zero initial guess)
+    costJbCurrentMinPrecSpace_ =
+        dot_product(mds, gradJb) + 0.5 * dot_product(mds, mds);
+    costJbCurrentMin_ = dot_product(ds, gradJb) + 0.5 * dot_product(ds, ds);
+    costJb_ += costJbCurrentMin_;
+  } else {
+    // dv = dv_0 + ds
+    // MC : switch to relying on costJbCurrentMin beyond CY49R1
+    costJbCurrentMinPrecSpace_ = 0.5 * dot_product(mds, mds);
+    costJbCurrentMin_ = 0.5 * dot_product(ds, ds);
+    costJb_ = costJbCurrentMin_ +
+              0.5 * (dot_product(dv0, dv0) + 2 * dot_product(ds, dv0));
   }
-  costJb_ += costJbLocal_;
+
+  // Calculate Jo part of the quadratic cost function:
+  // // Jo[dv_{i}] + Jc[dv_{i}] = J[dv_{i}] - Jb[dv_{i}]
   costJoJc_ = costJ_ - costJb_;
 
   // Check for divergence
@@ -440,7 +479,7 @@ void SQRTPLanczosEVILMinimizer<MODEL>::printQuadCost(const size_t &jiter) const 
 template <typename MODEL>
 bool SQRTPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
   ASSERT(ritzPairs_.alphas().size() == ritzPairs_.betas().size());
-  const unsigned nvec = ritzPairs_.alphas().size();
+  const int nvec = ritzPairs_.alphas().size();
   bool ritzErrorDetected = false;
 
   if (nvec > 0) {
@@ -464,7 +503,7 @@ bool SQRTPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
         break;
       }
       double erritz =
-          std::abs(ritzvecs[jiter][nvec - 1] * ritzPairs_.betas()[nvec - 1]);
+        std::abs(ritzvecs[jiter][nvec - 1] * ritzPairs_.betas()[nvec - 1]);
       double erritzlm = 0.0001 * lambda;
       //  Store Ritz values and their error bounds
       erritzvals.push_back(erritz);
@@ -515,15 +554,19 @@ void SQRTPLanczosEVILMinimizer<MODEL>::printRitzInformation(
   const unsigned nvec = ritzPairs_.alphas().size();
 
   if (nvec > 0) {
-    Log::info() << "  Converged Ritz values (" << jiter + 1 << "):" << std::endl;
+    Log::info() << "  Converged Ritz values (" << jiter + 1
+                << "):" << std::endl;
     for (auto const &eigval : eig_) {
-      Log::info() << "    Ritz value: " << util::full_precision(eigval) << std::endl;
+      Log::info() << "    Ritz value: " << util::full_precision(eigval)
+                  << std::endl;
     }
     for (auto const &err : erreig_) {
-      Log::info() << "    Error bounds: " << util::full_precision(err) << std::endl;
+      Log::info() << "    Error bounds: " << util::full_precision(err)
+                  << std::endl;
     }
     for (auto const &errlm : erreiglm_) {
-      Log::info() << "    Error bound limits: " << util::full_precision(errlm) << std::endl;
+      Log::info() << "    Error bound limits: " << util::full_precision(errlm)
+                  << std::endl;
     }
     Log::info() << std::endl;
   }

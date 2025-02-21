@@ -65,7 +65,7 @@ class SQRTBPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
   bool calcRitzInformation();
   void printRitzInformation(const size_t &) const;
 
-  /// Data members
+  /// Data memebers
   const eckit::LocalConfiguration conf_;
   const CostFct_ &J_;
 
@@ -74,10 +74,6 @@ class SQRTBPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
 
   /// Local
   RitzPairs<CtrlVec_> ritzPairs_;
-  std::vector<std::shared_ptr<CtrlVec_> > vvecs_;
-  std::vector<std::shared_ptr<CtrlVec_> > zvecs_;
-  std::vector<double> alphas_;
-  std::vector<double> betas_;
 
   std::vector<double> evals_;
   std::vector<double> eigvals_;
@@ -107,9 +103,6 @@ SQRTBPLanczosEVILMinimizer<MODEL>::SQRTBPLanczosEVILMinimizer(
       conf_(conf),
       J_(J),
       lmp_(conf, J),
-      vvecs_(),
-      alphas_(),
-      betas_(),
       costJ0_(0),
       costJ0Jb_(0),
       costJ0JoJc_(0),
@@ -167,8 +160,6 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
   zz *= 1.0 / beta;
 
   // vvecs[0] = v_{1} ---> for re-orthogonalization
-  vvecs_.push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(vv)));
-  zvecs_.push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(zz)));
   ritzPairs_.vVEC().push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(vv)));
   ritzPairs_.zVEC().push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(zz)));
 
@@ -189,7 +180,7 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
     vv += jbzz;
 
     // vv_{i+1} = vv_{i+1} - beta * v_{i-1}
-    if (jiter > 0) vv.axpy(-beta, *vvecs_[jiter - 1]);
+    if (jiter > 0) vv.axpy(-beta, ritzPairs_.vVEC(jiter - 1));
 
     // alpha_{i} = zz_{i+1}^T vv_{i}
     double alpha = dot_product(zz, vv);
@@ -201,12 +192,12 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
     }
 
     // vv_{i+1} = vv_{i+1} - alpha_{i} v_{i}
-    vv.axpy(-alpha, *vvecs_[jiter]);
+    vv.axpy(-alpha, ritzPairs_.vVEC(jiter));
 
     // Re-orthogonalization
     for (size_t jj = 0; jj < jiter; ++jj) {
-      double proj = dot_product(vv, *zvecs_[jj]);
-      vv.axpy(-proj, *vvecs_[jj]);
+      double proj = dot_product(vv, ritzPairs_.zVEC(jj));
+      vv.axpy(-proj, ritzPairs_.vVEC(jj));
     }
 
     lmp_.inverseMultiply(vv, zz);  // zz = precond vv
@@ -220,13 +211,10 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
     zz *= 1.0 / beta;
 
     // vvecs[i+1] = v_{i+1}
-    vvecs_.push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(vv)));
     ritzPairs_.vVEC().push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(vv)));
     // zvecs[i+1] = z_{i+1}
-    zvecs_.push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(zz)));
     ritzPairs_.zVEC().push_back(std::shared_ptr<CtrlVec_>(new CtrlVec_(zz)));
 
-    alphas_.push_back(alpha);
     ritzPairs_.alphas().push_back(alpha);
 
     if (jiter == 0) {
@@ -234,11 +222,10 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
       dd.push_back(beta0);
     } else {
       // Solve the tridiagonal system T_{i} s_{i} = beta0 * e_1
-      dd.push_back(beta0 * dot_product(*zvecs_[0], vv));
-      TriDiagSolve(alphas_, betas_, dd, ss);
+      dd.push_back(beta0 * dot_product(ritzPairs_.zVEC(0), vv));
+      TriDiagSolve(ritzPairs_.alphas(), ritzPairs_.betas(), dd, ss);
     }
 
-    betas_.push_back(beta);
     ritzPairs_.betas().push_back(beta);
 
     // Compute the quadratic cost function
@@ -323,7 +310,7 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
   // Calculate the solution
   dv.zero();
   for (size_t jj = 0; jj < ss.size(); ++jj) {
-    dv.axpy(ss[jj], *zvecs_[jj]);
+    dv.axpy(ss[jj], ritzPairs_.zVEC(jj));
   }
 
   dv += dv0;
@@ -334,7 +321,7 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
   // Update LMP
   if (SQRTMinimizer<MODEL>::outerIteration_ <
       SQRTMinimizer<MODEL>::lastOuterIteration_)
-    lmp_.update(zvecs_, alphas_, betas_);
+    lmp_.update(ritzPairs_.zVEC(), ritzPairs_.alphas(), ritzPairs_.betas());
 
   // Clean up
   releaseResources();
@@ -346,10 +333,10 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
 
 template <typename MODEL>
 void SQRTBPLanczosEVILMinimizer<MODEL>::releaseResources() {
-  vvecs_.clear();
-  zvecs_.clear();
-  alphas_.clear();
-  betas_.clear();
+  ritzPairs_.vVEC().clear();
+  ritzPairs_.zVEC().clear();
+  ritzPairs_.alphas().clear();
+  ritzPairs_.betas().clear();
   evals_.clear();
   eigvals_.clear();
   evecs_.clear();
@@ -394,7 +381,7 @@ void SQRTBPLanczosEVILMinimizer<MODEL>::calcQuadCost(const CtrlVec_ &rr,
   CtrlVec_ dx(rr);
   dx.zero();
   for (unsigned int jj = 0; jj < ss.size(); ++jj) {
-    dx.axpy(ss[jj], *zvecs_[jj]);
+    dx.axpy(ss[jj], ritzPairs_.zVEC(jj));
   }
   costJ_ -= 0.5 * dot_product(rr, dx);
   costJbLocal_ = dot_product(dx, gradJb) + 0.5 * dot_product(dx, dx);
@@ -420,8 +407,8 @@ void SQRTBPLanczosEVILMinimizer<MODEL>::printQuadCost(const size_t &jiter) const
 
 template <typename MODEL>
 bool SQRTBPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
-  ASSERT(alphas_.size() == betas_.size());
-  const unsigned nvec = alphas_.size();
+  ASSERT(ritzPairs_.alphas().size() == ritzPairs_.alphas().size());
+  const unsigned nvec = ritzPairs_.alphas().size();
   bool ritzFailureCheckFlag = false;
   // Save the leading converged eigenvalue
   std::vector<double> eigvals_old;
@@ -434,11 +421,11 @@ bool SQRTBPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
     erritz_.clear();
     erritzlm_.clear();
     //  Compute spectrum of tri-diagonal matrix
-    TriDiagSpectrum(alphas_, betas_, evals_, evecs_);
+    TriDiagSpectrum(ritzPairs_.alphas(), ritzPairs_.betas(), evals_, evecs_);
 
     //  Determine the converged eigenvalues
     for (unsigned jiter = 0; jiter < nvec; ++jiter) {
-      double erritz = std::abs(evecs_[jiter][nvec - 1] * betas_[nvec - 1]);
+      double erritz = std::abs(evecs_[jiter][nvec - 1] * ritzPairs_.betas()[nvec - 1]);
       double lambda = evals_[jiter];
       if (lambda < 0) {
         // NEGATIVE RITZ VALUE DETECTED"
@@ -476,8 +463,8 @@ bool SQRTBPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
 template <typename MODEL>
 void SQRTBPLanczosEVILMinimizer<MODEL>::printRitzInformation(
     const size_t &jiter) const {
-  ASSERT(alphas_.size() == betas_.size());
-  const unsigned nvec = alphas_.size();
+  ASSERT(ritzPairs_.alphas().size() == ritzPairs_.betas().size());
+  const unsigned nvec = ritzPairs_.alphas().size();
 
   if (nvec > 0) {
     Log::info() << "  Converged Ritz values (" << jiter + 1
