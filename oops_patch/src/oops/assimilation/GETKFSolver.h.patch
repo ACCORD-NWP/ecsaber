@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/GETKFSolver.h.tmp	2025-01-31 15:41:04.503507253 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/GETKFSolver.h	2025-01-30 16:01:03.025202629 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/GETKFSolver.h.tmp.bak	2025-02-21 08:55:44.517464799 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/GETKFSolver.h	2025-02-03 13:49:14.064078069 +0100
 @@ -20,18 +20,19 @@
  #include "oops/assimilation/LocalEnsembleSolver.h"
  #include "oops/base/Departures.h"
@@ -12,8 +12,9 @@
  #include "oops/base/Observations.h"
 -#include "oops/base/ObsSpaces.h"
 +#include "oops/base/ObservationSpaces.h"
- #include "oops/base/State4D.h"
++#include "oops/base/State4D.h"
  #include "oops/base/StateEnsemble4D.h"
+-#include "oops/base/StateSet.h"
  #include "oops/generic/VerticalLocEV.h"
  #include "oops/interface/GeometryIterator.h"
 -#include "oops/interface/ObsDataVector.h"
@@ -41,7 +42,7 @@
    typedef Increment<MODEL>            Increment_;
    typedef Increment4D<MODEL>          Increment4D_;
    typedef IncrementEnsemble4D<MODEL>  IncrementEnsemble4D_;
-@@ -60,15 +61,13 @@
+@@ -60,19 +61,17 @@
    typedef Model<MODEL>                Model_;
    typedef ModelAuxControl<MODEL>      ModelAux_;
    typedef ModelAuxIncrement<MODEL>    ModelAuxInc_;
@@ -64,9 +65,17 @@
    typedef PseudoModelState4D<MODEL>   PseudoModel_;
    typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
    typedef State<MODEL>                State_;
-@@ -84,10 +83,11 @@
+-  typedef StateSet<MODEL>             StateSet_;
++  typedef State4D<MODEL>              State4D_;
+   typedef StateEnsemble4D<MODEL>      StateEnsemble4D_;
+   typedef VerticalLocEV<MODEL>        VerticalLocEV_;
+ 
+@@ -82,12 +81,13 @@
+   /// Constructor (allocates Wa, wa, HZb_,
+   /// saves options from the config, computes VerticalLocEV_)
    GETKFSolver(ObsSpaces_ &, const Geometry_ &, const eckit::Configuration &, size_t,
-               const State4D_ &, const JediVariables &);
+-              const StateSet_ &, const JediVariables &);
++              const State4D_ &, const JediVariables &);
  
 -  Observations_ computeHofX(const StateEnsemble4D_ &, size_t, bool) override;
 +  Observations_ computeHofX(const StateEnsemble4D_ &, size_t, bool, const Model_ &,
@@ -97,8 +106,9 @@
 +template <typename MODEL>
 +GETKFSolver<MODEL>::GETKFSolver(ObsSpaces_ & obspaces, const Geometry_ & geometry,
                                  const eckit::Configuration & config, size_t nens,
-                                 const State4D_ & xbmean, const JediVariables & incvars)
+-                                const StateSet_ & xbmean, const JediVariables & incvars)
 -  : LocalEnsembleSolver<MODEL, OBS>(obspaces, geometry, config, nens, xbmean, incvars),
++                                const State4D_ & xbmean, const JediVariables & incvars)
 +  : LocalEnsembleSolver<MODEL>(obspaces, geometry, config, nens, xbmean, incvars),
      nens_(nens), geometry_(geometry),
      vertloc_(config.getSubConfiguration("local ensemble DA.vertical localization"), xbmean[0],
@@ -228,11 +238,13 @@
  
        for (size_t iens = 0; iens < nens_; ++iens) {
          Log::info() << " GETKFSolver::computeHofX starting ensemble member " << iens+1 << std::endl;
-@@ -297,12 +306,17 @@
+@@ -296,13 +305,18 @@
+         dx.diff(ens_xx[iens], this->xbmean_);
          vertloc_.modulateIncrement(dx, Ztmp);
          for (size_t ieig = 0; ieig < neig_; ++ieig) {
-           State4D_ tmpState = this->xbmean_;
+-          StateSet_ tmpState = this->xbmean_;
 -          tmpState += Ztmp[ieig];
++          State4D_ tmpState = this->xbmean_;
 +          for (size_t jj = 0; jj < tmpState.statesNumber(); ++jj) {
 +            tmpState[jj] += Ztmp[ieig][jj];
 +          }

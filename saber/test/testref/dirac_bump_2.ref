@@ -1,40 +1,14 @@
 Input Dirac increment:
-Valid time: 2010-01-01T12:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  eastward_wind: 1.0000000000000000e+00
-  northward_wind: 0.0000000000000000e+00
-Valid time: 2010-01-01T18:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  eastward_wind: 0.0000000000000000e+00
-  northward_wind: 0.0000000000000000e+00
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    eastward_wind: 1.0000000000000000e+00
+    northward_wind: 0.0000000000000000e+00
+- Valid time: 2010-01-01T18:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    eastward_wind: 0.0000000000000000e+00
+    northward_wind: 0.0000000000000000e+00
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -70,7 +44,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7539391781678255e+01
+Norm of input parameter StdDev: 5.7539391781678347e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -87,7 +61,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.7539391781678255e+01
+Norm of input parameter stddev - 1: 5.7539391781678347e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -98,7 +72,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~>  0.200E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Norm of input parameter inflation: 6.9558608381710329e+01
+Norm of input parameter inflation: 6.9558608381710044e+01
 Norm of input parameter StdDev: 1.7389652095427326e+02
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -111,42 +85,16 @@ Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
 Covariance(SABER) * Increment:
-Valid time: 2010-01-01T12:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  eastward_wind: 1.5885846717183991e+00
-  northward_wind: 5.0803567566774221e-01
-Valid time: 2010-01-01T18:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  eastward_wind: 3.6332544284472690e-01
-  northward_wind: 2.8798332323318898e-01
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    eastward_wind: 1.5885846717183993e+00
+    northward_wind: 5.0803567566774221e-01
+- Valid time: 2010-01-01T18:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    eastward_wind: 3.6332544284472684e-01
+    northward_wind: 2.8798332323318893e-01
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -182,7 +130,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7539391781678255e+01
+Norm of input parameter StdDev: 5.7539391781678347e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -199,7 +147,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.7539391781678255e+01
+Norm of input parameter stddev - 1: 5.7539391781678347e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -211,43 +159,17 @@ Adjoint test for block BUMP_StdDev passed
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Covariance(SABER1_SABER) * Increment:
-Valid time: 2010-01-01T12:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  eastward_wind: 3.7259415926535306e-12
-  northward_wind: 1.3202009593235781e-12
-Valid time: 2010-01-01T18:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  eastward_wind: 3.7259415926535306e-12
-  northward_wind: 1.3202009593235781e-12
-Norm of input parameter inflation: 6.9558608381710329e+01
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    eastward_wind: 3.7259415926535379e-12
+    northward_wind: 1.3202009593235821e-12
+- Valid time: 2010-01-01T18:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    eastward_wind: 3.7259415926535379e-12
+    northward_wind: 1.3202009593235821e-12
+Norm of input parameter inflation: 6.9558608381710044e+01
 Norm of input parameter StdDev: 1.7389652095427326e+02
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -260,39 +182,13 @@ Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
 Covariance(SABER2_SABER) * Increment:
-Valid time: 2010-01-01T12:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  eastward_wind: 3.1771693434345933e+00
-  northward_wind: 1.0160713513355570e+00
-Valid time: 2010-01-01T18:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  eastward_wind: 7.2665088568883629e-01
-  northward_wind: 5.7596664646668805e-01
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    eastward_wind: 3.1771693434345938e+00
+    northward_wind: 1.0160713513355570e+00
+- Valid time: 2010-01-01T18:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    eastward_wind: 7.2665088568883629e-01
+    northward_wind: 5.7596664646668794e-01

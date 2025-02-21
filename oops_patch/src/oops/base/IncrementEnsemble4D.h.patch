@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble4D.h.tmp	2024-11-21 11:22:57.039425894 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble4D.h	2024-11-20 14:41:00.795851266 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble4D.h.tmp.bak	2025-02-21 08:55:44.717465076 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble4D.h	2024-11-29 15:50:42.796774141 +0100
 @@ -16,14 +16,16 @@
  #include <string>
  #include <vector>
@@ -8,8 +8,9 @@
 +#include "oops/interface/Geometry.h"
  #include "oops/base/Increment4D.h"
  #include "oops/base/LocalIncrement.h"
- #include "oops/base/State4D.h"
++#include "oops/base/State4D.h"
  #include "oops/base/StateEnsemble4D.h"
+-#include "oops/base/StateSet.h"
  #include "oops/base/Variables.h"
  #include "oops/interface/GeometryIterator.h"
 +#include "oops/interface/Variables.h"
@@ -23,15 +24,27 @@
  template<typename MODEL> class IncrementEnsemble4D {
    typedef Geometry<MODEL>            Geometry_;
 -  typedef GeometryIterator<MODEL>    GeometryIterator_;
+-  typedef StateSet<MODEL>            StateSet_;
 +  typedef typename MODEL::GeometryIterator  GeometryIterator__;
-   typedef State4D<MODEL>             State4D_;
++  typedef State4D<MODEL>             State4D_;
    typedef StateEnsemble4D<MODEL>     StateEnsemble4D_;
    typedef Increment4D<MODEL>         Increment4D_;
 +  typedef Variables<MODEL>           Variables_;
  
   public:
    /// Constructor
-@@ -55,8 +58,8 @@
+@@ -46,18 +49,17 @@
+                       const int rank);
+   /// \brief construct ensemble of perturbations as \p ens - \p mean; holding
+   //         \p vars variables
+-  IncrementEnsemble4D(const StateEnsemble4D_ & ens, const StateSet_ & mean,
++  IncrementEnsemble4D(const StateEnsemble4D_ & ens, const State4D_ & mean,
+                       const JediVariables & vars);
+ 
+   /// Accessors
+   size_t size() const {return ensemblePerturbs_.size();}
+-
+   Increment4D_ & operator[](const size_t ii) {return ensemblePerturbs_[ii];}
    const Increment4D_ & operator[](const size_t ii) const {return ensemblePerturbs_[ii];}
  
    /// Eigen interface
@@ -42,7 +55,7 @@
  
   private:
    std::vector<Increment4D_> ensemblePerturbs_;
-@@ -71,8 +74,9 @@
+@@ -72,22 +74,25 @@
    : ensemblePerturbs_()
  {
    ensemblePerturbs_.reserve(rank);
@@ -53,7 +66,14 @@
    }
    Log::trace() << "IncrementEnsemble4D:contructor done" << std::endl;
  }
-@@ -85,9 +89,10 @@
+ 
+-// -----------------------------------------------------------------------------
++// ====================================================================================
++
+ template<typename MODEL>
+ IncrementEnsemble4D<MODEL>::IncrementEnsemble4D(const StateEnsemble4D_ & ensemble,
+-                                                const StateSet_ & mean, const JediVariables & vars)
++                                                const State4D_ & mean, const JediVariables & vars)
    : ensemblePerturbs_()
  {
    ensemblePerturbs_.reserve(ensemble.size());
