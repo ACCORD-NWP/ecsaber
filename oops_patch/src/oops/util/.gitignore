@@ -2,6 +2,7 @@ abor1_cpp.h
 dot_product.h
 DateTime.cc
 DateTime.h
+dot_product.h
 Duration.cc
 Duration.h
 formats.h
@@ -10,4 +11,5 @@ LibOOPS.h
 Logger.h
 ObjectCounter.h
 Printable.h
+Timer.cc
 Timer.h
