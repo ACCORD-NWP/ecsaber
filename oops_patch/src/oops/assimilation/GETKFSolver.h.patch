@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/GETKFSolver.h.tmp	2025-02-21 14:42:08.383962109 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/GETKFSolver.h	2025-02-21 14:19:33.087257243 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/GETKFSolver.h.tmp.bak	2025-02-27 14:15:29.615112857 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/GETKFSolver.h	2025-02-27 11:07:10.199179385 +0100
 @@ -20,18 +20,19 @@
  #include "oops/assimilation/LocalEnsembleSolver.h"
  #include "oops/base/Departures.h"
@@ -13,7 +13,8 @@
 -#include "oops/base/ObsSpaces.h"
 +#include "oops/base/ObservationSpaces.h"
  #include "oops/base/StateEnsemble4D.h"
- #include "oops/base/StateSet.h"
+-#include "oops/base/StateSet.h"
++#include "oops/base/State4D.h"
  #include "oops/generic/VerticalLocEV.h"
  #include "oops/interface/GeometryIterator.h"
 -#include "oops/interface/ObsDataVector.h"
@@ -41,7 +42,7 @@
    typedef Increment<MODEL>            Increment_;
    typedef Increment4D<MODEL>          Increment4D_;
    typedef IncrementEnsemble4D<MODEL>  IncrementEnsemble4D_;
-@@ -60,15 +61,13 @@
+@@ -60,19 +61,17 @@
    typedef Model<MODEL>                Model_;
    typedef ModelAuxControl<MODEL>      ModelAux_;
    typedef ModelAuxIncrement<MODEL>    ModelAuxInc_;
@@ -64,9 +65,17 @@
    typedef PseudoModelState4D<MODEL>   PseudoModel_;
    typedef PseudoLinearModelIncrement4D<MODEL> PseudoLinearModel_;
    typedef State<MODEL>                State_;
-@@ -84,10 +83,11 @@
+-  typedef StateSet<MODEL>             StateSet_;
++  typedef State4D<MODEL>              State4D_;
+   typedef StateEnsemble4D<MODEL>      StateEnsemble4D_;
+   typedef VerticalLocEV<MODEL>        VerticalLocEV_;
+ 
+@@ -82,12 +81,13 @@
+   /// Constructor (allocates Wa, wa, HZb_,
+   /// saves options from the config, computes VerticalLocEV_)
    GETKFSolver(ObsSpaces_ &, const Geometry_ &, const eckit::Configuration &, size_t,
-               const StateSet_ &, const JediVariables &);
+-              const StateSet_ &, const JediVariables &);
++              const State4D_ &, const JediVariables &);
  
 -  Observations_ computeHofX(const StateEnsemble4D_ &, size_t, bool) override;
 +  Observations_ computeHofX(const StateEnsemble4D_ &, size_t, bool, const Model_ &,
@@ -97,8 +106,9 @@
 +template <typename MODEL>
 +GETKFSolver<MODEL>::GETKFSolver(ObsSpaces_ & obspaces, const Geometry_ & geometry,
                                  const eckit::Configuration & config, size_t nens,
-                                 const StateSet_ & xbmean, const JediVariables & incvars)
+-                                const StateSet_ & xbmean, const JediVariables & incvars)
 -  : LocalEnsembleSolver<MODEL, OBS>(obspaces, geometry, config, nens, xbmean, incvars),
++                                const State4D_ & xbmean, const JediVariables & incvars)
 +  : LocalEnsembleSolver<MODEL>(obspaces, geometry, config, nens, xbmean, incvars),
      nens_(nens), geometry_(geometry),
      vertloc_(config.getSubConfiguration("local ensemble DA.vertical localization"), xbmean[0],
@@ -209,9 +219,16 @@
  
        for (size_t iens = 0; iens < nens_; ++iens) {
          Log::info() << " GETKFSolver::computeHofX starting ensemble member " << iens+1 << std::endl;
-@@ -299,10 +309,13 @@
-           StateSet_ tmpState = this->xbmean_;
-           tmpState += Ztmp[ieig];
+@@ -296,13 +306,18 @@
+         dx.diff(ens_xx[iens], this->xbmean_);
+         vertloc_.modulateIncrement(dx, Ztmp);
+         for (size_t ieig = 0; ieig < neig_; ++ieig) {
+-          StateSet_ tmpState = this->xbmean_;
+-          tmpState += Ztmp[ieig];
++          State4D_ tmpState = this->xbmean_;
++          for (size_t jj = 0; jj < tmpState.statesNumber(); ++jj) {
++            tmpState[jj] += Ztmp[ieig][jj];
++          }
            Observations_ tmpObs(this->obspaces_);
 -          this->computeHofX4DNonLinear(config, tmpState, tmpObs);
 -          HZb_[ii] = tmpObs - yb_mean;
@@ -227,7 +244,7 @@
            ii = ii + 1;
          }
        }
-@@ -313,11 +326,11 @@
+@@ -313,11 +328,11 @@
  
  // -----------------------------------------------------------------------------
  
@@ -244,7 +261,7 @@
    // compute transformation matrix, save in Wa_, wa_
    // Yb(nobs,neig*nens), YbOrig(nobs,nens)
    // uses GSI GETKF code
-@@ -350,10 +363,10 @@
+@@ -350,10 +365,10 @@
  
  // -----------------------------------------------------------------------------
  
@@ -259,7 +276,7 @@
    // apply Wa_, wa_
    util::Timer timer(classname(), "applyWeights");
  
-@@ -362,7 +375,7 @@
+@@ -362,7 +377,7 @@
    Eigen::MatrixXd XbOriginal;   // original perturbations
  
    // loop through analysis times and ens. members
@@ -268,7 +285,7 @@
      // cast bkg_pert ensemble at grid point i as an Eigen matrix Xb
      // modulates Xb
      XbModulated = vertloc_.modulateIncrement(bkg_pert, i, itime);
-@@ -387,21 +400,21 @@
+@@ -387,21 +402,21 @@
  
  // -----------------------------------------------------------------------------
  
@@ -298,14 +315,16 @@
  
    if (local_omb_vec.size() == 0) {
      // no obs. so no need to update Wa_ and wa_
-@@ -414,8 +427,8 @@
+@@ -413,9 +428,9 @@
+     const Eigen::MatrixXd local_Yb_mat = this->Yb_.packEigen(locvector);
      const Eigen::MatrixXd local_HZ_mat = this->HZb_.packEigen(locvector);
      // create local obs errors and apply localization
-     const Eigen::VectorXd localization = locvector.packEigen(locvector);
+-    const Eigen::VectorXd localization = locvector.packEigen(locvector);
 -    const Eigen::VectorXd local_invVarR_vec = this->invVarR_->packEigen(locvector).array()
 -                                              * localization.array();
-+    const Eigen::VectorXd local_invVarR_vec = util::packEigen(this->invVarR_, locvector).array()
-+                                              * localization.array());
++    const Eigen::VectorXd localization = util::packEigen(locvector, locvector);
++    Eigen::VectorXd local_invVarR_vec = util::packEigen(*this->invVarR_, locvector);
++    local_invVarR_vec.array() *= localization.array();
      computeWeights(local_omb_vec, local_HZ_mat, local_Yb_mat, local_invVarR_vec);
      applyWeights(bkg_pert, ana_pert, i);
    }

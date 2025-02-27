@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h.tmp	2025-02-21 14:42:08.422962261 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h	2025-02-21 14:24:03.551785179 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h.tmp.bak	2025-02-27 14:15:29.701113289 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/assimilation/LETKFSolver.h	2025-02-27 11:07:10.200179391 +0100
 @@ -18,13 +18,14 @@
  #include "oops/assimilation/LocalEnsembleSolver.h"
  #include "oops/base/Departures.h"
@@ -10,14 +10,15 @@
  #include "oops/base/ObsErrors.h"
  #include "oops/base/ObsLocalizations.h"
 -#include "oops/base/ObsSpaces.h"
+-#include "oops/base/StateSet.h"
 +#include "oops/base/ObservationSpaces.h"
- #include "oops/base/StateSet.h"
++#include "oops/base/State4D.h"
  #include "oops/interface/GeometryIterator.h"
 +#include "oops/util/ECUtilities.h"
  #include "oops/util/Logger.h"
  
  namespace oops {
-@@ -41,16 +42,18 @@
+@@ -41,27 +42,29 @@
   * assimilation for spatiotemporal chaos: A local ensemble transform Kalman
   * filter. Physica D: Nonlinear Phenomena, 230(1-2), 112-126.
   */
@@ -36,17 +37,20 @@
 -  typedef ObsErrors<OBS>              ObsErrors_;
 -  typedef ObsLocalizations<MODEL, OBS> ObsLocalizations_;
 -  typedef ObsSpaces<OBS>              ObsSpaces_;
+-  typedef StateSet<MODEL>             StateSet_;
 +  typedef Model<MODEL>                Model_;
 +  typedef Observations<MODEL>         Observations_;
 +  typedef ObsErrors<MODEL>            ObsErrors_;
 +  typedef ObsLocalizations<MODEL>     ObsLocalizations_;
 +  typedef ObservationSpaces<MODEL>    ObsSpaces_;
-   typedef StateSet<MODEL>             StateSet_;
++  typedef State4D<MODEL>              State4D_;
  
   public:
-@@ -59,9 +62,9 @@
+   static const std::string classname() {return "oops::LETKFSolver";}
+ 
    LETKFSolver(ObsSpaces_ &, const Geometry_ &, const eckit::Configuration &, size_t,
-               const StateSet_ &, const JediVariables &);
+-              const StateSet_ &, const JediVariables &);
++              const State4D_ &, const JediVariables &);
  
 -  /// KF update + posterior inflation at a grid point location (GeometryIterator_)
 +  /// KF update + posterior inflation at a grid point location (GeometryIterator__)
@@ -77,7 +81,7 @@
 +template <typename MODEL>
 +LETKFSolver<MODEL>::LETKFSolver(ObsSpaces_ & obspaces, const Geometry_ & geometry,
 +                                const eckit::Configuration & config, size_t nens,
-+                                const StateSet_ & xbmean, const JediVariables & incvars)
++                                const State4D_ & xbmean, const JediVariables & incvars)
 +  : LocalEnsembleSolver<MODEL>(obspaces, geometry, config, nens, xbmean, incvars),
      nens_(nens)
  {

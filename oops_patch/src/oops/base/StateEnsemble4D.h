@@ -116,6 +116,9 @@ StateEnsemble4D<MODEL>::StateEnsemble4D(const Geometry_ & resol,
   // read in ensemble members on appropriate communicator
   states_.emplace_back(State4D_(membersConfig[mymember-1], resol, model));
 
+  // Define variables
+  variables_ = JediVariables(states_[0][0].state().variables().variablesList());
+
   Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
 }
 
@@ -135,6 +138,10 @@ StateEnsemble4D<MODEL>::StateEnsemble4D(const Geometry_ & resol,
   for (size_t jj = 0; jj < membersConfig.size(); ++jj) {
     states_.emplace_back(State4D_(membersConfig[jj], resol, model));
   }
+
+  // Define variables
+  variables_ = JediVariables(states_[0][0].state().variables().variablesList());
+
   Log::trace() << "StateEnsemble4D:contructor done" << std::endl;
 }
 
@@ -203,9 +210,6 @@ void StateEnsemble4D<MODEL>::getMembers(const eckit::Configuration & config) {
   } else {
     ABORT("StateEnsemble4D: ensemble not specified");
   }
-
-  // Define variables
-  variables_ = JediVariables(states_[0][0].state().variables().variablesList());
 }
 
 }  // namespace oops

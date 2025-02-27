@@ -212,20 +212,19 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
 
 
     // Instantiate ens_xx depending on whether we are running inline or not
-    auto ens_xx = [&] {
-      if (params.runInline.value() == false) {
+//    auto ens_xx = [&] {
+//      if (params.runInline.value() == false) {
         geometry = std::make_unique<Geometry_>(params.geometry);
         const Model_ model(*geometry, params.model);
-        auto object = StateEnsemble4D_(*geometry, model, params.background);
-        return object;
-      }  /* else {
-
-        std::vector<StateSet_> localVec = localizeEnsembleFC(fullConfig, params,
-            geometry);
-        auto object = StateEnsemble4D_(localVec, 0);
-        return object;
-      } */
-    }();
+        StateEnsemble4D_ ens_xx(*geometry, model, params.background);
+//        return object;
+//      }  else {
+//        std::vector<StateSet_> localVec = localizeEnsembleFC(fullConfig, params,
+//            geometry);
+//        auto object = StateEnsemble4D_(localVec, 0);
+//        return object;
+//      }
+//    }();
 
     //  Setup observation window
     const util::TimeWindow timeWindow(fullConfig.getSubConfiguration("time window"));
@@ -246,9 +245,6 @@ template <typename MODEL> class LocalEnsembleDA : public Application {
 
     //  Setup observations bias
     ObsAuxCtrls_ ybias(obsdb, obsConfig);
-
-    // Setup model
-    const Model_ model(*geometry, params.model);
 
     // Read all ensemble members and compute the ensemble mean
     const size_t nens = ens_xx.size();
