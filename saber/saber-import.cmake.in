@@ -3,8 +3,10 @@
 
 include(CMakeFindDependencyMacro)
 
-if(NOT jedicmake_FOUND)
-    find_dependency(jedicmake REQUIRED)
+if(ENABLE_QUENCH)
+    if(NOT jedicmake_FOUND)
+        find_dependency(jedicmake REQUIRED)
+    endif()
 endif()
 
 if(@OPENMP@)
