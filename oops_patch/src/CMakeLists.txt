@@ -195,6 +195,7 @@ oops/assimilation/SQRTBPLanczosEVILMinimizer.h
 oops/assimilation/SQRTPLanczosEVILMinimizer.h
 oops/runs/AssimEnsemblePatched.h
 oops/runs/BGOS.h
+oops/runs/BGOS_impl.h
 oops/runs/EnsembleVariance.h
 oops/runs/EvilUpdate_cy46.h
 oops/runs/EvilUpdate.h
