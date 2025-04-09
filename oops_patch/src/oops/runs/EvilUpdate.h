@@ -127,6 +127,9 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     ASSERT(solverSpace == "control" || solverSpace == "primal" ||
            solverSpace == "dual");
 
+    // Use internal randomization
+    const bool useInternalRandomization = evilConfig.getBool("use internal randomization", true);
+
     // Setup resolution
     const eckit::LocalConfiguration resolConfig(fullConfig, "resolution");
     const Geometry_ resol(resolConfig);
@@ -203,20 +206,50 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     size_t nens = ensConfig.getInt("members");
     util::expandEnsembleTemplate(ensConfig, nens);
     Ensemble_ Xb(xb.validTime(), ensConfig);
+    std::vector<CtrlVec_> dvVec;
     if (filter == "R") {
       // Randomize ensemble of backgrounds perturbations
       Log::info() << "Randomize ensemble of backgrounds perturbations" << std::endl;
       Xb.build(xb, resol);
       CtrlInc_ dx(J->jb());
       for (size_t ie = 0; ie < nens; ++ie) {
-        J->jb().randomize(dx);
-        Xb[ie] = dx.state()[dx.state().first()];
+        if (useInternalRandomization) {
+          // Use internal randomization
+          J->jb().randomize(dx);
+          Xb[ie] = dx.state()[dx.state().first()];
+        } else {
+          // Use control increment randomization
+          CtrlVec_ dv(J->jb());
+          dv.zero();
+          dv.state().random();
+          BMatrix->multiplySqrt(dv, dx);
+          Xb[ie] = dx.state()[dx.state().first()];
+          if (solverSpace == "control") {
+            dvVec.push_back(dv);
+          }
+        }
       }
       Xb.to_perturbations();
     } else {
       // Read ensemble of backgrounds perturbations
       Log::info() << "Read ensemble of backgrounds" << std::endl;
       Xb.linearize(xb, resol);
+    }
+
+    // Normalize control vector ensemble if needed
+    if (dvVec.size() > 0) {
+      CtrlVec_ dvMean(J->jb());
+      const double rMean = 1.0/static_cast<double>(nens);
+      dvMean.zero();
+      for (size_t ie = 0; ie < nens; ++ie) {
+        dvMean += dvVec[ie];
+      }
+      dvMean *= rMean;
+      const double rPert = 1.0/std::sqrt(static_cast<double>(nens-1));
+      for (size_t ie = 0; ie < nens; ++ie) {
+        dvVec[ie] -= dvMean;
+        dvVec[ie] *= rPert;
+      }
     }
 
     // Compute background variance
@@ -349,6 +382,12 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
         ritzHatPrimal.reset(new CtrlInc_(J->jb()));
         BMatrix->multiplySqrt(*ritzCtl, *ritzHatPrimal);
 
+        if (filter == "D" || (filter == "R" && dvVec.size() == 0)) {
+          // Compute first Ritz vector in primal space (WARNING: requires B inverse)
+          ritzBarPrimal.reset(new CtrlInc_(J->jb()));
+          J->jb().multiplyBinv(*ritzHatPrimal, *ritzBarPrimal);
+        }
+
         if (filter == "S") {
           // Compute second Ritz vector in dual space
           ritzHatDual.reset(new Dual_());
@@ -356,10 +395,6 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
             ritzHatDual->append(J->jterm(jj).newDualVector());
           }
           HMatrix->multiply(*ritzHatPrimal, *ritzHatDual);
-        } else {
-          // Compute first Ritz vector in primal space (WARNING: requires B inverse)
-          ritzBarPrimal.reset(new CtrlInc_(J->jb()));
-          J->jb().multiplyBinv(*ritzHatPrimal, *ritzBarPrimal);
         }
       } else if (solverSpace == "primal") {
         // Read second Ritz vector in primal space
@@ -419,9 +454,12 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
         double weight;
         if (filter == "S") {
           weight = (1.0 / evals[iiter]) * ritzHatDual->dot_product_with(HXb[ie]);
-        } else if ((filter == "D") || (filter == "R")) {
+        } else if (filter == "D" || (filter == "R" && dvVec.size() == 0)) {
           weight = -(1.0 - 1.0 / std::sqrt(evals[iiter]))
             *ritzBarPrimal->state()[ritzBarPrimal->state().first()].dot_product_with(Xb[ie]);
+        } else {
+          ASSERT(dvVec.size() == nens);
+          weight = -(1.0 - 1.0 / std::sqrt(evals[iiter]))*ritzCtl->dot_product_with(dvVec[ie]);
         }
 
         // Update analysis perturbation
