@@ -127,8 +127,8 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     ASSERT(solverSpace == "control" || solverSpace == "primal" ||
            solverSpace == "dual");
 
-    // Use internal randomization
-    const bool useInternalRandomization = evilConfig.getBool("use internal randomization", true);
+    // Use explicit randomization
+    const bool explicitRandomization = evilConfig.getBool("explicit randomization", false);
 
     // Setup resolution
     const eckit::LocalConfiguration resolConfig(fullConfig, "resolution");
@@ -213,12 +213,8 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
       Xb.build(xb, resol);
       CtrlInc_ dx(J->jb());
       for (size_t ie = 0; ie < nens; ++ie) {
-        if (useInternalRandomization) {
-          // Use internal randomization
-          J->jb().randomize(dx);
-          Xb[ie] = dx.state()[dx.state().first()];
-        } else {
-          // Use control increment randomization
+        if (explicitRandomization) {
+          // Use explicit randomization + B square-root
           CtrlVec_ dv(J->jb());
           dv.zero();
           dv.state().random();
@@ -227,6 +223,10 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
           if (solverSpace == "control") {
             dvVec.push_back(dv);
           }
+        } else {
+          // Use internal Jb randomization
+          J->jb().randomize(dx);
+          Xb[ie] = dx.state()[dx.state().first()];
         }
       }
       Xb.to_perturbations();
