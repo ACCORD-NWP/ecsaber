@@ -118,9 +118,12 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     // Get EVIL parameters
     const eckit::LocalConfiguration evilConfig(fullConfig, "evil");
 
-    // Setup EVIL update type
+    // Setup EVIL filter
     const std::string filter = evilConfig.getString("filter");
     ASSERT(filter == "S" || filter == "D" || filter == "R");
+
+    // Use direct formulation for "D" and "R" filters
+    const bool directFormulation = evilConfig.getBool("direct formulation", false);
 
     // Setup EVIL space ("control, "primal" or "dual")
     const std::string solverSpace = evilConfig.getString("solver space");
@@ -352,6 +355,13 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
     // Copy ensemble of backgrounds to initialize ensemble of analyses
     Ensemble_ Xa(Xb);
 
+    // Set ensemble to zero for the direct formulation
+    if ((filter == "D" || filter == "R") && directFormulation) {
+      for (size_t ie = 0; ie < nens; ++ie) {
+        Xa[ie].zero();
+      }
+    }
+
     // Loop over Ritz pairs
     eckit::LocalConfiguration ritzConfTemplate(evilConfig, "ritz vectors");
     for (size_t iiter = 0; iiter < niter; ++iiter) {
@@ -453,13 +463,22 @@ https://journals.ametsoc.org/view/journals/mwre/144/10/mwr-d-15-0252.1.xml
         // Compute weight
         double weight;
         if (filter == "S") {
-          weight = (1.0 / evals[iiter]) * ritzHatDual->dot_product_with(HXb[ie]);
+          weight = (1.0/evals[iiter])*ritzHatDual->dot_product_with(HXb[ie]);
         } else if (filter == "D" || (filter == "R" && dvVec.size() == 0)) {
-          weight = -(1.0 - 1.0 / std::sqrt(evals[iiter]))
-            *ritzBarPrimal->state()[ritzBarPrimal->state().first()].dot_product_with(Xb[ie]);
+          if (directFormulation) {
+            weight = 1.0/std::sqrt(evals[iiter])
+              *ritzBarPrimal->state()[ritzBarPrimal->state().first()].dot_product_with(Xb[ie]);
+          } else {
+            weight = -(1.0-1.0/std::sqrt(evals[iiter]))
+              *ritzBarPrimal->state()[ritzBarPrimal->state().first()].dot_product_with(Xb[ie]);
+          }
         } else {
           ASSERT(dvVec.size() == nens);
-          weight = -(1.0 - 1.0 / std::sqrt(evals[iiter]))*ritzCtl->dot_product_with(dvVec[ie]);
+          if (directFormulation) {
+            weight = 1.0/std::sqrt(evals[iiter])*ritzCtl->dot_product_with(dvVec[ie]);
+          } else {
+            weight = -(1.0-1.0/std::sqrt(evals[iiter]))*ritzCtl->dot_product_with(dvVec[ie]);
+          }
         }
 
         // Update analysis perturbation
