@@ -100,5 +100,4 @@ output dirac:
   filepath: testdata/dirac_spectralb_localization_1/%MPI%_dirac_%id%
 
 test:
-  float relative tolerance: 1.0e-6
   reference filename: testref/dirac_spectralb_localization_1.ref

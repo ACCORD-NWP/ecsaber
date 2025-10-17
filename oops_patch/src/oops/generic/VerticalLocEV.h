@@ -18,25 +18,20 @@
 
 #include "eckit/config/Configuration.h"
 
-#include "oops/interface/Geometry.h"
+#include "oops/base/Geometry.h"
 #include "oops/base/Increment4D.h"
 #include "oops/base/IncrementEnsemble.h"
 #include "oops/base/IncrementEnsemble4D.h"
+#include "oops/base/IncrementSet.h"
 #include "oops/base/LocalIncrement.h"
 #include "oops/generic/gc99.h"
 #include "oops/interface/GeometryIterator.h"
-#include "oops/util/ECUtilities.h"
 #include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
-#include "oops/util/parameters/Parameter.h"
-#include "oops/util/parameters/Parameters.h"
-#include "oops/util/parameters/RequiredParameter.h"
-#include "oops/util/Printable.h"
 
 namespace oops {
   class JediVariables;
 
-/// Parameters for vertical localization
 /*!
  * See Lei 2018 JAMES for more details
  *
@@ -45,33 +40,16 @@ namespace oops {
  * ensemble Kalman filter. Journal of Advances in Modeling Earth Systems, 10,
  * 3221– 3232. https://doi.org/10.1029/2018MS001468
  */
-class VerticalLocalizationParameters : public Parameters {
-  OOPS_CONCRETE_PARAMETERS(VerticalLocalizationParameters, Parameters)
- public:
-  // fraction of the variance retained after the eigen spectrum
-  // of the vertical localization function is truncated
-  // 1 -- retain all eigen vectors
-  // 0 -- retain the first eigen vector
-  Parameter<double> VertLocToll{"fraction of retained variance", 1.0, this};
-  // localization distance at which Gaspari-Cohn = 0
-  RequiredParameter<double> VertLocDist{"lengthscale", this};
-  // localization distance at which Gaspari-Cohn = 0
-  RequiredParameter<std::string> VertLocUnits{"lengthscale units", this};
-  // write eigen vectors to disk
-  Parameter<bool> writeEVs{"write eigen vectors", false, this};
-  // read eigen vectors from disk
-  Parameter<bool> readEVs{"read eigen vectors", false, this};
-};
 
 // ----------------------------------------------------------------------------
 template<typename MODEL>
-class VerticalLocEV: public util::Printable,
-                     private util::ObjectCounter<VerticalLocEV<MODEL>> {
+class VerticalLocEV: private util::ObjectCounter<VerticalLocEV<MODEL>> {
   typedef Geometry<MODEL>            Geometry_;
-  typedef typename MODEL::GeometryIterator  GeometryIterator__;
+  typedef GeometryIterator<MODEL>    GeometryIterator_;
   typedef Increment4D<MODEL>         Increment4D_;
   typedef IncrementEnsemble<MODEL>   IncrementEnsemble_;
   typedef IncrementEnsemble4D<MODEL> IncrementEnsemble4D_;
+  typedef IncrementSet<MODEL>        IncrementSet_;
   typedef State<MODEL>               State_;
 
  public:
@@ -84,7 +62,9 @@ class VerticalLocEV: public util::Printable,
 
 // modulate an incrementEnsemble at a {gridPoint, timeSlice}
   Eigen::MatrixXd modulateIncrement(const IncrementEnsemble4D_ &,
-                                    const GeometryIterator__ &, size_t) const;
+                                    const GeometryIterator_ &, size_t) const;
+  Eigen::MatrixXd modulateIncrement(const IncrementSet_ &,
+                                    const GeometryIterator_ &, size_t) const;
 
 // returns number of retained eigen modes
   size_t neig() const {return neig_;}
@@ -111,8 +91,6 @@ class VerticalLocEV: public util::Printable,
                        const eckit::Configuration &);
 
  private:
-  void print(std::ostream &) const {}
-  VerticalLocalizationParameters options_;
   Eigen::MatrixXd Evecs_;
   Eigen::VectorXd Evals_;
   size_t neig_;
@@ -123,16 +101,23 @@ class VerticalLocEV: public util::Printable,
   bool EVsStoredAs3D_ = true;  // if true store EVs as explicit 3D fields
   // increment variables for which vertical localization will be computed
   const JediVariables incvars_;
+  double vertLocToll_;
+  double vertLocDist_;
+  std::string locUnits_;
+  bool readEVs_;
 };
 // -----------------------------------------------------------------------------
 template<typename MODEL>
   VerticalLocEV<MODEL>::VerticalLocEV(const eckit::Configuration & conf,
-                               const State_ & x, const JediVariables & incvars):
-  sqrtVertLoc_(), incvars_(incvars) {
+                                      const State_ & x, const JediVariables & incvars)
+  : sqrtVertLoc_(), incvars_(incvars),
+    vertLocToll_(conf.getDouble("fraction of retained variance", 1.0)),
+    vertLocDist_(conf.getDouble("lengthscale")), locUnits_(conf.getString("lengthscale units")),
+    readEVs_(conf.getBool("read eigen vectors", false))
+{
     // read vertical localization configuration
-    options_.deserialize(conf);
 
-    if (options_.readEVs) {
+    if (readEVs_) {
       oops::Log::info() << "Reading precomputed vertical localization EVs from disk" << std::endl;
       readEVsFromDisk(x.geometry(), x.validTime(), conf);
       neig_ = sqrtVertLoc_->size();
@@ -151,7 +136,7 @@ template<typename MODEL>
       }
     }
 
-    if (options_.writeEVs) { writeEVsToDisk(conf); }
+    if (conf.getBool("write eigen vectors", false)) { writeEVsToDisk(conf); }
   }
 
 // -----------------------------------------------------------------------------
@@ -160,11 +145,11 @@ template<typename MODEL>
     const Geometry_ & geom = (*sqrtVertLoc_)[0].geometry();
     for (size_t ieig=0; ieig < neig_; ++ieig) {
       std::vector<double> EvecRepl = replicateEigenVector(ieig);
-      util::ones((*sqrtVertLoc_)[ieig]);
-      for (GeometryIterator__ gpi = geom.geometry().begin(); gpi != geom.geometry().end(); ++gpi) {
-        oops::LocalIncrement gp = (*sqrtVertLoc_)[ieig].increment().getLocal(gpi);
+      (*sqrtVertLoc_)[ieig].ones();
+      for (GeometryIterator_ gpi = geom.begin(); gpi != geom.end(); ++gpi) {
+        oops::LocalIncrement gp = (*sqrtVertLoc_)[ieig].getLocal(gpi);
         gp *= EvecRepl;
-        (*sqrtVertLoc_)[ieig].increment().setLocal(gp, gpi);
+        (*sqrtVertLoc_)[ieig].setLocal(gp, gpi);
       }
     }
   }
@@ -197,15 +182,14 @@ template<typename MODEL>
 // -------------------------------------------------------------------------------------------------
 template<typename MODEL>
   Eigen::MatrixXd VerticalLocEV<MODEL>::computeCorrMatrix(const Geometry_ & geom) {
-    std::string locUnits = options_.VertLocUnits;
-    std::vector<double> vCoord = geom.geometry().verticalCoord(locUnits);
+    std::vector<double> vCoord = geom.verticalCoord(locUnits_);
     size_t nlevs = vCoord.size();
 
     // compute vertical correlations and eigen vectors
     Eigen::MatrixXd cov = Eigen::MatrixXd::Zero(nlevs, nlevs);
     for (size_t jj=0; jj < nlevs; ++jj) {
       for (size_t ii=jj; ii < nlevs; ++ii) {
-        cov(ii, jj) = oops::gc99(std::abs(vCoord[jj]-vCoord[ii])/options_.VertLocDist);
+        cov(ii, jj) = oops::gc99(std::abs(vCoord[jj]-vCoord[ii])/vertLocDist_);
       }
     }
 
@@ -245,7 +229,7 @@ template<typename MODEL>
     for (int ii=0; ii < Evals_.size(); ++ii) {
       frac += Evals_[ii];
       neig += 1;
-      if (frac/evalsum >= options_.VertLocToll) { break; }
+      if (frac/evalsum >= vertLocToll_) { break; }
     }
     frac = frac/evalsum;
 
@@ -281,7 +265,7 @@ template<typename MODEL>
 bool VerticalLocEV<MODEL>::testTruncateEvecs(const Geometry_ & geom) {
   // only do this test if we are computing EVs from scratch
   // if reading from disk return true
-  if (options_.readEVs) {return true;}
+  if (readEVs_) {return true;}
 
   // make reference solution
   Eigen::MatrixXd cov = computeCorrMatrix(geom);
@@ -315,17 +299,17 @@ void VerticalLocEV<MODEL>::modulateIncrement(const Increment4D_ & incr,
 
   for (size_t ieig=0; ieig < neig_; ++ieig) {
     // modulate an increment
-    for (size_t itime=incr.first(); itime <= incr.last(); ++itime) {
+    for (size_t itime=0; itime < incr.size(); ++itime) {
       if (EVsStoredAs3D_) {  // if EVs stored as 3D use oops operation for schur_product
         incrsOut[ieig][itime] = (*sqrtVertLoc_)[ieig];
         incrsOut[ieig][itime].schur_product_with(incr[itime]);
       } else {  // if EV is only available as a 1D column use grid eterator
         std::vector<double> EvecRepl = replicateEigenVector(ieig);
         const Geometry_ & geom = incr[itime].geometry();
-        for (GeometryIterator__ gpi = geom.geometry().begin(); gpi != geom.geometry().end(); ++gpi) {
-          oops::LocalIncrement gp = incr[itime].increment().getLocal(gpi);
+        for (GeometryIterator_ gpi = geom.begin(); gpi != geom.end(); ++gpi) {
+          oops::LocalIncrement gp = incr[itime].getLocal(gpi);
           gp *= EvecRepl;
-          incrsOut[ieig][itime].increment().setLocal(gp, gpi);
+          incrsOut[ieig][itime].setLocal(gp, gpi);
         }
       }
     }
@@ -336,14 +320,14 @@ void VerticalLocEV<MODEL>::modulateIncrement(const Increment4D_ & incr,
 template<typename MODEL>
 Eigen::MatrixXd VerticalLocEV<MODEL>::modulateIncrement(
                                   const IncrementEnsemble4D_ & incrs,
-                                  const GeometryIterator__ & gi,
+                                  const GeometryIterator_ & gi,
                                   size_t itime) const {
   // modulate an increment at grid point
 
   size_t nv = 0;
   std::vector<double> EvecRepl;
   if (EVsStoredAs3D_) {
-    nv = (*sqrtVertLoc_)[0].increment().getLocal(gi).getVals().size();
+    nv = (*sqrtVertLoc_)[0].getLocal(gi).getVals().size();
   } else {
     EvecRepl = replicateEigenVector(0);
     nv = EvecRepl.size();
@@ -354,10 +338,10 @@ Eigen::MatrixXd VerticalLocEV<MODEL>::modulateIncrement(
 
   size_t ii = 0;
   for (size_t iens=0; iens < nens; ++iens) {
-    etmp2 =  incrs[iens][itime].increment().getLocal(gi).getVals();
+    etmp2 =  incrs[iens][itime].getLocal(gi).getVals();
     for (size_t ieig=0; ieig < neig_; ++ieig) {
       if (EVsStoredAs3D_) {
-        EvecRepl = (*sqrtVertLoc_)[ieig].increment().getLocal(gi).getVals();
+        EvecRepl = (*sqrtVertLoc_)[ieig].getLocal(gi).getVals();
       } else {
         EvecRepl = replicateEigenVector(ieig);
       }
@@ -365,10 +349,50 @@ Eigen::MatrixXd VerticalLocEV<MODEL>::modulateIncrement(
       for (size_t iv=0; iv < nv; ++iv) {
          Z(iv, ii) = EvecRepl[iv]*etmp2[iv];
       }
-      ii += 1;
+      ++ii;
     }
   }
   return Z;
+}
+
+// -----------------------------------------------------------------------------
+template<typename MODEL>
+Eigen::MatrixXd VerticalLocEV<MODEL>::modulateIncrement(
+                                  const IncrementSet_ & incrs,
+                                  const GeometryIterator_ & gi,
+                                  size_t itime) const {
+    // modulate an increment at grid point
+
+    size_t nv = 0;
+    std::vector<double> EvecRepl;
+    if (EVsStoredAs3D_) {
+        nv = (*sqrtVertLoc_)[0].getLocal(gi).getVals().size();
+    } else {
+        EvecRepl = replicateEigenVector(0);
+        nv = EvecRepl.size();
+    }
+    size_t nens = incrs.ens_size();
+
+    Eigen::MatrixXd Z(nv, neig_*nens);
+    std::vector<double> etmp2(nv);
+
+    size_t ii = 0;
+    for (size_t iens=0; iens < nens; ++iens) {
+        etmp2 =  incrs(itime, iens).getLocal(gi).getVals();
+        for (size_t ieig=0; ieig < neig_; ++ieig) {
+            if (EVsStoredAs3D_) {
+                EvecRepl = (*sqrtVertLoc_)[ieig].getLocal(gi).getVals();
+            } else {
+                EvecRepl = replicateEigenVector(ieig);
+            }
+            // modulate and assign
+            for (size_t iv=0; iv < nv; ++iv) {
+                Z(iv, ii) = EvecRepl[iv]*etmp2[iv];
+            }
+            ++ii;
+        }
+    }
+    return Z;
 }
 
 // -----------------------------------------------------------------------------

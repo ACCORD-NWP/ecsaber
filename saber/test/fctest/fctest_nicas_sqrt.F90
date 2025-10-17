@@ -26,7 +26,7 @@ END_TESTSUITE_FINALIZE
 
 ! -----------------------------------------------------------------------------
 
-TEST( test_interpolatorbump )
+TEST( test_nicas_sqrt )
   use atlas_module, only: atlas_real,atlas_fieldset,atlas_field, &
  & atlas_structuredgrid,atlas_functionspace,atlas_functionspace_structuredcolumns
   use fckit_configuration_module, only: fckit_configuration
@@ -140,6 +140,16 @@ TEST( test_interpolatorbump )
   call bump%mpl%f_comm%allreduce(dp_in,fckit_mpi_sum())
   call bump%mpl%f_comm%allreduce(dp_out,fckit_mpi_sum())
   FCTEST_CHECK_CLOSE(dp_in,dp_out,repro_th)
+
+  ! Release memory
+  call cv_1%final()
+  call cv_2%final()
+  call grid_out%final()
+  call fspace_out%final()
+  call fspace_out_sc%final()
+  call fset%final()
+  call fset_out_1%final()
+  call fset_out_2%final()
 
   ! Release memory
   call bump%dealloc()

@@ -2,14 +2,6 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 list( APPEND oops_jedi_src_files
-oops/assimilation/GETKFSolver.h
-oops/assimilation/gletkf_interface.f90
-oops/assimilation/gletkfInterface.h
-oops/assimilation/gletkf_mod.f90
-oops/assimilation/instantiateLocalEnsembleSolverFactory.h
-oops/assimilation/LETKFSolver.h
-oops/assimilation/LocalEnsembleSolver.h
-oops/assimilation/LocalEnsembleSolverParameters.h
 oops/base/DataSetBase.h
 oops/base/DeparturesEnsemble.h
 oops/base/FieldSet3D.cc
@@ -25,10 +17,6 @@ oops/base/IncrementEnsemble.h
 oops/base/IncrementSet.h
 oops/base/LocalIncrement.cc
 oops/base/LocalIncrement.h
-oops/base/ObsEnsemble.h
-oops/base/ObsLocalizationBase.h
-oops/base/ObsLocalizationParametersBase.h
-oops/base/ObsLocalizations.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
 oops/base/StateEnsemble4D.h
@@ -52,14 +40,12 @@ oops/generic/PseudoModelState4D.h
 oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
 oops/generic/VerticalLocEV.h
-oops/interface/GeometryIterator.h
 oops/interface/LinearVariableChange.h
 oops/interface/ModelData.h
 oops/interface/VariableChange.h
 oops/mpi/mpi.cc
 oops/mpi/mpi.h
 oops/runs/ConvertState.h
-oops/runs/LocalEnsembleDA.h
 oops/util/AnyOf.h
 oops/util/AssociativeContainers.h
 oops/util/AtlasArrayUtil.cc
