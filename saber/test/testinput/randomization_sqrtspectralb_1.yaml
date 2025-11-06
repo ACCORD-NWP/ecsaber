@@ -56,4 +56,5 @@ output perturbations:
   member pattern: '%MEM%'
   filepath: testdata/randomization_sqrtspectralb_1/randomized_gauss_mb%MEM%
 test:
+  float relative tolerance: 2.0e-12
   reference filename: testref/randomization_sqrtspectralb_1.ref

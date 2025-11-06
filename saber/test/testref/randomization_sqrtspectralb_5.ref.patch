@@ -1,0 +1,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_sqrtspectralb_5.ref.tmp	2025-11-06 12:17:17.966900620 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/randomization_sqrtspectralb_5.ref	2025-11-06 09:14:36.611081909 +0100
+@@ -40,4 +40,3 @@
+     + max    = 9.3246192707750225e+01
+     + mean   = 1.2083637430174687e+00
+     + stddev = 2.7673083765907078e+00
+-

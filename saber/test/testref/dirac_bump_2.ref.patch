@@ -1,0 +1,116 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref.tmp	2025-11-06 12:17:18.257902096 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref	2025-11-06 11:58:35.216686519 +0100
+@@ -94,33 +94,33 @@
+ Square-root test for block BUMP_NICAS passed
+ Adjoint test for block Ensemble passed
+ Square-root test for block Ensemble passed
+-Covariance(hybrid) * Increment:
++Covariance(SABER) * Increment:
+ - Valid time: 2010-01-01T12:00:00Z
+   Geometry: L40x21 [840]
+   Fields:
+   - eastward_wind (2 levels):
+-    + min    = -4.9205422200514680e-02
+-    + max    = 9.3332292735982325e-01
++    + min    = -4.9205422200514708e-02
++    + max    = 9.3332292735982358e-01
+     + mean   = 2.9695236734859410e-03
+-    + stddev = 3.4553445696327588e-02
++    + stddev = 3.4553445696327602e-02
+   - northward_wind (2 levels):
+-    + min    = -1.6996745503541399e-01
+-    + max    = 1.2139154453781741e-01
+-    + mean   = -3.9872033861290126e-04
++    + min    = -1.6996745503541394e-01
++    + max    = 1.2139154453781745e-01
++    + mean   = -3.9872033861290120e-04
+     + stddev = 8.4299716138385768e-03
+ - Valid time: 2010-01-01T18:00:00Z
+   Geometry: L40x21 [840]
+   Fields:
+   - eastward_wind (2 levels):
+-    + min    = -1.2452365083519630e-01
++    + min    = -1.2452365083519631e-01
+     + max    = 1.8426374415027613e-01
+-    + mean   = 3.8555780770976758e-04
+-    + stddev = 9.5933657787908716e-03
++    + mean   = 3.8555780770976753e-04
++    + stddev = 9.5933657787908733e-03
+   - northward_wind (2 levels):
+-    + min    = -2.0437919265005011e-01
+-    + max    = 1.9346949982103234e-01
+-    + mean   = 1.2565265867358081e-05
+-    + stddev = 1.1276948716089460e-02
++    + min    = -2.0437919265005014e-01
++    + max    = 1.9346949982103243e-01
++    + mean   = 1.2565265867358044e-05
++    + stddev = 1.1276948716089464e-02
+        Independent levels:  1[2]
+           Subset Sc0 size:              762
+           Domain area (% of Earth area): 0.100E+03%
+@@ -184,7 +184,7 @@
+              Level   2 ~>  0.200E+01 vert. coord.
+ Adjoint test for block BUMP_NICAS passed
+ Square-root test for block BUMP_NICAS passed
+-Covariance(hybrid1_SABER) * Increment:
++Covariance(SABER1_SABER) * Increment:
+ - Valid time: 2010-01-01T12:00:00Z
+   Geometry: L40x21 [840]
+   Fields:
+@@ -196,7 +196,7 @@
+   - northward_wind (2 levels):
+     + min    = -3.2889066103205936e-13
+     + max    = 3.2622646484939685e-13
+-    + mean   = -1.8065427102790403e-17
++    + mean   = -1.8065427102790339e-17
+     + stddev = 3.2868334756832761e-14
+ - Valid time: 2010-01-01T18:00:00Z
+   Geometry: L40x21 [840]
+@@ -209,7 +209,7 @@
+   - northward_wind (2 levels):
+     + min    = -3.2889066103205936e-13
+     + max    = 3.2622646484939685e-13
+-    + mean   = -1.8065427102790403e-17
++    + mean   = -1.8065427102790339e-17
+     + stddev = 3.2868334756832761e-14
+ Norm of input parameter inflation: 6.6250433960843253e+01
+ Norm of input parameter StdDev: 1.6562608490210712e+02
+@@ -223,18 +223,18 @@
+ Square-root test for block BUMP_NICAS passed
+ Adjoint test for block Ensemble passed
+ Square-root test for block Ensemble passed
+-Covariance(hybrid2_SABER) * Increment:
++Covariance(SABER2_SABER) * Increment:
+ - Valid time: 2010-01-01T12:00:00Z
+   Geometry: L40x21 [840]
+   Fields:
+   - eastward_wind (2 levels):
+-    + min    = -9.8410844401244119e-02
+-    + max    = 1.8666458547182987e+00
++    + min    = -9.8410844401244146e-02
++    + max    = 1.8666458547182994e+00
+     + mean   = 5.9390473469719271e-03
+-    + stddev = 6.9106891392590200e-02
++    + stddev = 6.9106891392590214e-02
+   - northward_wind (2 levels):
+     + min    = -3.3993491007083354e-01
+-    + max    = 2.4278308907565277e-01
++    + max    = 2.4278308907565280e-01
+     + mean   = -7.9744067722578474e-04
+     + stddev = 1.6859943227676515e-02
+ - Valid time: 2010-01-01T18:00:00Z
+@@ -242,11 +242,11 @@
+   Fields:
+   - eastward_wind (2 levels):
+     + min    = -2.4904730167092012e-01
+-    + max    = 3.6852748830001930e-01
++    + max    = 3.6852748830001925e-01
+     + mean   = 7.7111561541958579e-04
+     + stddev = 1.9186731557566984e-02
+   - northward_wind (2 levels):
+     + min    = -4.0875838530009023e-01
+-    + max    = 3.8693899964206191e-01
+-    + mean   = 2.5130531734734167e-05
++    + max    = 3.8693899964206196e-01
++    + mean   = 2.5130531734734126e-05
+     + stddev = 2.2553897432177131e-02

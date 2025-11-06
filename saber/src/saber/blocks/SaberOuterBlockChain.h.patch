@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp	2025-11-05 12:59:27.339196619 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2025-11-05 13:02:07.466388169 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2025-11-06 12:17:15.169886480 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2025-11-06 08:43:24.000802613 +0100
 @@ -20,7 +20,7 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -17,7 +17,27 @@
  };
  
  // -----------------------------------------------------------------------------
-@@ -342,7 +343,7 @@
+@@ -194,7 +195,9 @@
+                        oops::FieldSets & fsetEns,
+                        const eckit::LocalConfiguration & covarConf,
+                        const std::vector<saber::SaberOuterBlockParametersWrapper> & params,
+-                       const bool & centralDirectCalibration) {
++                       const bool & centralDirectCalibration) :
++  geomData_(new oops::GeometryData(geom.geometry().functionSpace(), geom.geometry().fields(),
++  geom.geometry().levelsAreTopDown(), geom.geometry().getComm())) {
+   oops::Log::trace() << "SaberOuterBlockChain ctor starting" << std::endl;
+   oops::Log::info() << "Info     : Creating outer blocks" << std::endl;
+ 
+@@ -216,7 +219,7 @@
+   for (int jb = params.size()-1; jb >= 0; --jb) {
+     // Initialize current outer geometry data
+     const oops::GeometryData & currentOuterGeometryData = outerBlocks_.size() == 0 ?
+-                                       geom.generic() : outerBlocks_.back()->innerGeometryData();
++                                       *geomData_ : outerBlocks_.back()->innerGeometryData();
+ 
+     // Initialize outer block
+     const auto[saberOuterBlockParams,
+@@ -342,7 +345,7 @@
  
      for (size_t ie = 0; ie < nens; ++ie) {
        // Read ensemble member

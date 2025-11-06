@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp	2025-11-05 12:59:27.355196739 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2025-11-05 13:08:38.162916527 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2025-11-06 12:17:15.182886545 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2025-11-06 08:51:05.399898425 +0100
 @@ -20,6 +20,7 @@
  #include "oops/base/FieldSets.h"
  #include "oops/interface/ModelData.h"
@@ -17,9 +17,12 @@
  };
  
  // -----------------------------------------------------------------------------
-@@ -119,7 +122,12 @@
+@@ -117,9 +120,14 @@
+                        oops::FieldSets & fsetDualResEns,
+                        const eckit::LocalConfiguration & covarConf,
                         const eckit::Configuration & conf)
-   : outerFunctionSpace_(geom.functionSpace()), outerVariables_(outerVars),
+-  : outerFunctionSpace_(geom.functionSpace()), outerVariables_(outerVars),
++  : outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars),
    crossTimeCov_(covarConf.getString("time covariance") == "multivariate duplicated"),
 -  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
 +  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()),

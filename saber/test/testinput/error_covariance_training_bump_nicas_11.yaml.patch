@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_11.yaml.tmp	2025-11-06 12:17:17.019895824 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bump_nicas_11.yaml	2025-11-06 09:53:26.973432732 +0100
+@@ -61,4 +61,5 @@
+         file:
+           filepath: testdata/error_covariance_training_bump_nicas_11/_MPI_-_OMP__dirac_nicas
+ test:
++  float relative tolerance: 2.0e-10
+   reference filename: testref/error_covariance_training_bump_nicas_11.ref

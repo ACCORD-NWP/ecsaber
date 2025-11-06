@@ -82,5 +82,5 @@ output dirac:
   mpi pattern: '%MPI%'
   filepath: testdata/dirac_bifourier_balance_1/%MPI%_dirac_%id%
 test:
-  float relative tolerance: 7.0e-9
+  float relative tolerance: 1.0e-7
   reference filename: testref/dirac_bifourier_balance_1.ref

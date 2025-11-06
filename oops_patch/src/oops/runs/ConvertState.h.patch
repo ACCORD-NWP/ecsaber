@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp	2025-11-05 12:49:56.442720369 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2025-11-05 12:56:36.846905145 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp.bak	2025-11-06 12:17:10.005860559 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2025-11-06 08:48:17.748374929 +0100
 @@ -1,5 +1,6 @@
  /*
   * (C) Copyright 2018-2021 UCAR
@@ -19,7 +19,7 @@
  #include "oops/interface/VariableChange.h"
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
-@@ -26,21 +28,20 @@
+@@ -26,23 +28,25 @@
  
  template <typename MODEL> class ConvertState : public Application {
    typedef Geometry<MODEL>               Geometry_;
@@ -43,9 +43,24 @@
 +    const Geometry_ resol1(eckit::LocalConfiguration(fullConfig, "input geometry"));
 +    const Geometry_ resol2(eckit::LocalConfiguration(fullConfig, "output geometry"));
  
-     // Setup change of variable
+-    // Setup change of variable
++//  Setup model
++    const Model_ model(resol1, eckit::LocalConfiguration(fullConfig, "model"));
++
++//  Setup change of variable
      std::unique_ptr<VariableChange_> vc;
-@@ -73,7 +74,7 @@
+     oops::JediVariables varout;
+     bool inverse = false;
+@@ -64,7 +68,7 @@
+       Log::info() << "Converting state " << jm+1 << " of " << nstates << std::endl;
+ 
+ //    Read state
+-      State_ xxi(resol1, eckit::LocalConfiguration(stateConfs[jm], "input"));
++      State_ xxi(resol1, model, eckit::LocalConfiguration(stateConfs[jm], "input"));
+       Log::test() << "Input state: " << xxi << std::endl;
+ 
+ //    Copy and change resolution
+@@ -73,7 +77,7 @@
  //    Variable transform(s)
        if (vc) {
            // Create variable change
@@ -54,8 +69,3 @@
          if (inverse) {
            vc->changeVarInverse(xx, varout);
          } else {
-@@ -102,4 +103,3 @@
- };
- 
- }  // namespace oops
--#endif  // OOPS_RUNS_CONVERTSTATE_H_

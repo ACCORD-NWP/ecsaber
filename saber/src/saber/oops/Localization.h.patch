@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp	2025-11-05 14:44:45.738112888 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2025-11-05 14:51:52.070311893 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2025-11-06 12:17:15.669889003 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2025-11-06 08:36:37.884367764 +0100
 @@ -19,12 +19,19 @@
  #include "oops/base/FieldSets.h"
  #include "oops/base/State4D.h"
@@ -20,7 +20,7 @@
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -33,20 +40,26 @@
+@@ -33,20 +40,27 @@
  
  template<typename MODEL>
  class Localization : public oops::LocalizationBase<MODEL> {
@@ -37,7 +37,7 @@
 +               const Variables_ &,
                 const eckit::Configuration &);
    ~Localization();
--  static const std::string classname() {return "saber::Localization";}
+   static const std::string classname() {return "saber::Localization";}
  
 -  void randomize(Increment_ &) const override;
    void multiply(Increment_ &) const override;
@@ -50,7 +50,7 @@
   private:
    void print(std::ostream &) const override;
    std::unique_ptr<SaberParametricBlockChain> loc_;
-@@ -56,7 +69,7 @@
+@@ -56,7 +70,7 @@
  
  template<typename MODEL>
  Localization<MODEL>::Localization(const Geometry_ & geom,
@@ -59,7 +59,7 @@
                                    const eckit::Configuration & conf)
    : loc_()
  {
-@@ -67,21 +80,17 @@
+@@ -67,21 +81,17 @@
    util::DateTime dummyTime(1977, 5, 25, 0, 0, 0);
  
    // Initialize
@@ -87,7 +87,7 @@
  
    oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
    // TODO(AS): revisit what configuration needs to be passed to SaberParametricBlockChain.
-@@ -102,7 +111,7 @@
+@@ -102,7 +112,7 @@
    covarConf.set("time covariance", "univariate");
    // Initialize localization blockchain
    loc_ = std::make_unique<SaberParametricBlockChain>(geom, geom,
@@ -96,7 +96,7 @@
                emptyFsetEns, emptyFsetEns, covarConf, conf);
  
    oops::Log::trace() << "Localization:Localization done" << std::endl;
-@@ -119,19 +128,37 @@
+@@ -119,19 +129,37 @@
  // -----------------------------------------------------------------------------
  
  template<typename MODEL>
@@ -142,7 +142,7 @@
  }
  
  // -----------------------------------------------------------------------------
-@@ -142,12 +169,12 @@
+@@ -142,12 +170,12 @@
    oops::Log::trace() << "Localization:multiply starting" << std::endl;
  
    // SABER block chain multiplication

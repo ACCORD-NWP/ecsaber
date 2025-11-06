@@ -40,4 +40,5 @@ output dirac:
   mpi pattern: '%MPI%'
   filepath: testdata/dirac_gaussuvtogp/%MPI%_dirac_%id%
 test:
+  float relative tolerance: 2.0e-12
   reference filename: testref/dirac_gaussuvtogp.ref

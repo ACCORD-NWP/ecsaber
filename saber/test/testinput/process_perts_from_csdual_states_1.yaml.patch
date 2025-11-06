@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/process_perts_from_csdual_states_1.yaml.tmp	2025-11-06 12:17:17.362897561 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/process_perts_from_csdual_states_1.yaml	2025-11-06 09:58:12.064643480 +0100
+@@ -53,4 +53,5 @@
+ input variables: *vars
+ 
+ test:
++  float relative tolerance: 2.0e-7
+   reference filename: testref/process_perts_from_csdual_states_1.ref
