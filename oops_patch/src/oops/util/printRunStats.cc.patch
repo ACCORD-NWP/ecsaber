@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/util/printRunStats.cc.tmp	2025-11-06 08:18:48.059332533 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/util/printRunStats.cc	2025-11-06 08:11:59.485932755 +0100
+@@ -14,6 +14,7 @@
+ #include "eckit/system/ResourceUsage.h"
+ 
+ #include "oops/mpi/mpi.h"
++#include "oops/util/ECUtilities.h"
+ #include "oops/util/Logger.h"
+ #include "oops/util/Timer.h"
+ 

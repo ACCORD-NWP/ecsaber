@@ -61,4 +61,5 @@ background error:
         file:
           filepath: testdata/error_covariance_training_bump_nicas_11/_MPI_-_OMP__dirac_nicas
 test:
+  float relative tolerance: 2.0e-10
   reference filename: testref/error_covariance_training_bump_nicas_11.ref

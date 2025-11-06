@@ -1,9 +1,9 @@
 #OOPS
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
+# List source files from OOPS-JEDI
 list( APPEND oops_jedi_src_files
 oops/base/DataSetBase.h
-oops/base/DeparturesEnsemble.h
 oops/base/FieldSet3D.cc
 oops/base/FieldSet3D.h
 oops/base/FieldSet4D.cc
@@ -12,14 +12,12 @@ oops/base/FieldSets.cc
 oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
-oops/base/IncrementEnsemble4D.h
 oops/base/IncrementEnsemble.h
 oops/base/IncrementSet.h
 oops/base/LocalIncrement.cc
 oops/base/LocalIncrement.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
-oops/base/StateEnsemble4D.h
 oops/base/StateEnsemble.h
 oops/base/Variable.cc
 oops/base/Variable.h
@@ -35,11 +33,8 @@ oops/generic/GlobalInterpolator.cc
 oops/generic/GlobalInterpolator.h
 oops/generic/LocalInterpolatorBase.cc
 oops/generic/LocalInterpolatorBase.h
-oops/generic/PseudoLinearModelIncrement4D.h
-oops/generic/PseudoModelState4D.h
 oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
-oops/generic/VerticalLocEV.h
 oops/interface/LinearVariableChange.h
 oops/interface/ModelData.h
 oops/interface/VariableChange.h
@@ -63,14 +58,19 @@ oops/util/FieldSetHelpers.h
 oops/util/FieldSetOperations.cc
 oops/util/FieldSetOperations.h
 oops/util/FloatCompare.h
+oops/util/for_each.cc
+oops/util/for_each.h
 oops/util/FunctionSpaceHelpers.cc
 oops/util/FunctionSpaceHelpers.h
+oops/util/gatherPrint.cc
 oops/util/gatherPrint.h
 oops/util/IntSetParser.cc
 oops/util/IntSetParser.h
 oops/util/missingValues.cc
 oops/util/missingValues.h
 oops/util/NamedEnumerator.h
+oops/util/ParallelFieldSetIO.cc
+oops/util/ParallelFieldSetIO.h
 oops/util/parameters/ConfigurationParameter.cc
 oops/util/parameters/ConfigurationParameter.h
 oops/util/parameters/EmptyParameters.h
@@ -107,6 +107,8 @@ oops/util/printRunStats.cc
 oops/util/printRunStats.h
 oops/util/RandomField.h
 oops/util/Random.h
+oops/util/reduction.cc
+oops/util/reduction.h
 oops/util/ScalarOrMap.h
 oops/util/Serializable.h
 oops/util/stringFunctions.cc
@@ -116,7 +118,7 @@ oops/util/TimeWindow.h
 oops/util/TypeTraits.h
 )
 
-# Copy and update source from OOPS
+# Copy and update source files from OOPS-JEDI
 patch_init()
 foreach( src_file ${oops_jedi_src_files} )
     check_diff( ${CMAKE_CURRENT_SOURCE_DIR}/../../oops-jedi/src/${src_file}
@@ -129,6 +131,7 @@ patch_apply()
 add_custom_command( OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/update_result.sh"
                     COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/update_patch.sh" )
 
+# Link oops source files from OOPS-ECMWF
 list( APPEND oops_ecmwf_src_files
 util/abor1_cpp.h
 util/DateTime.cc
@@ -145,10 +148,12 @@ util/Printable.h
 util/Timer.h
 )
 
+# Set OOPS source directory
 if( NOT DEFINED OOPS_SOURCE_DIR )
   set( OOPS_SOURCE_DIR ${oops_SOURCE_DIR} )
 endif()
 
+# Link oops source files from OOPS-ECMWF
 foreach( src_file ${oops_ecmwf_src_files} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
                      ${OOPS_SOURCE_DIR}/src/${src_file}
@@ -157,10 +162,12 @@ foreach( src_file ${oops_ecmwf_src_files} )
     list( APPEND oops_patch_src_files oops/${src_file} )
 endforeach()
 
+# List util source files from OOPS-ECMWF
 list( APPEND util-patch_src_files
 util/LibOOPS.h
 )
 
+# Link util source files from OOPS-ECMWF
 foreach( src_file ${util-patch_src_files} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
                      ${OOPS_SOURCE_DIR}/src/${src_file}
@@ -168,6 +175,7 @@ foreach( src_file ${util-patch_src_files} )
     list( APPEND oops_patch_src_files ${src_file} )
 endforeach()
 
+# List ECSABER-specific source files
 list( APPEND oops_patch_src_files
 oops/assimilation/DRPLanczosEVILMinimizer_cy46.h
 oops/assimilation/DRPLanczosEVILMinimizer.h

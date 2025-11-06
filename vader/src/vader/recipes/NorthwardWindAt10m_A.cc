@@ -47,6 +47,11 @@ oops::JediVariables vwind_at_10m_A::ingredients() const
     return vwind_at_10m_A::Ingredients;
 }
 
+oops::JediVariables vwind_at_10m_A::trajectoryVars() const
+{
+    return oops::JediVariables{};
+}
+
 size_t vwind_at_10m_A::productLevels(const atlas::FieldSet & afieldset) const
 {
     return 1;

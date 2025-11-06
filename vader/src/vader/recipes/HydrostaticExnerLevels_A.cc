@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2023 Met Office.
+ * (C) Crown Copyright 2023-2025 Met Office.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -52,13 +52,21 @@ oops::JediVariables HydrostaticExnerLevels_A::ingredients() const
     return HydrostaticExnerLevels_A::Ingredients;
 }
 
+oops::JediVariables HydrostaticExnerLevels_A::trajectoryVars() const
+{
+    return oops::JediVariables{std::vector<std::string>{"air_pressure_levels",
+                            "height_above_mean_sea_level_levels",
+                            "hydrostatic_exner_levels",
+                            "virtual_potential_temperature"}};
+}
+
 size_t HydrostaticExnerLevels_A::productLevels(const atlas::FieldSet & afieldset) const
 {
     return (afieldset["height_above_mean_sea_level_levels"].shape(1));
 }
 
-atlas::FunctionSpace HydrostaticExnerLevels_A::productFunctionSpace(const atlas::FieldSet
-                                                                 & afieldset) const
+atlas::FunctionSpace HydrostaticExnerLevels_A::productFunctionSpace(
+    const atlas::FieldSet & afieldset) const
 {
     return afieldset["air_pressure_levels"].functionspace();
 }
@@ -72,7 +80,7 @@ void HydrostaticExnerLevels_A::executeNL(atlas::FieldSet & afieldset)
 }
 
 void HydrostaticExnerLevels_A::executeTL(atlas::FieldSet & afieldsetTL,
-                                      const atlas::FieldSet & afieldsetTraj)
+                                         const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering HydrostaticExnerLevels_A::executeTL function"
         << std::endl;
@@ -81,7 +89,7 @@ void HydrostaticExnerLevels_A::executeTL(atlas::FieldSet & afieldsetTL,
 }
 
 void HydrostaticExnerLevels_A::executeAD(atlas::FieldSet & afieldsetAD,
-                                      const atlas::FieldSet & afieldsetTraj)
+                                         const atlas::FieldSet & afieldsetTraj)
 {
     oops::Log::trace() << "entering HydrostaticExnerLevels::executeAD function"
         << std::endl;

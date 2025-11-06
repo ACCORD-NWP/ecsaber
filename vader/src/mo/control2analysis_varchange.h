@@ -11,10 +11,8 @@
 
 namespace mo {
 
-/// \details Calculate the hydrostatic exner pressure (on levels)
-///          using air_pressure_minus_one and virtual potential temperature.
-void evalHydrostaticExnerLevels(atlas::FieldSet & stateFlds);
-
+/// USED IN RECONFIGURESTATEGAUSS
+/// USED IN RECIPE HydrostaticPressureLevels_A
 /// \details Calculate the hydrostatic pressure (on levels)
 ///          from hydrostatic exner.
 void evalHydrostaticPressureLevels(atlas::FieldSet & stateFlds);

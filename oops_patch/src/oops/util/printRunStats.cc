@@ -14,8 +14,9 @@
 #include "eckit/system/ResourceUsage.h"
 
 #include "oops/mpi/mpi.h"
-#include "oops/util/Logger.h"
 #include "oops/util/ECUtilities.h"
+#include "oops/util/Logger.h"
+#include "oops/util/Timer.h"
 
 namespace util {
 

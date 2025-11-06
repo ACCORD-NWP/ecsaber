@@ -56,13 +56,13 @@ diagnostic points:
     - air_horizontal_streamfunction
     - air_horizontal_streamfunction
 output dirac:
-  states:
+  increment:
   - mpi pattern: '%MPI%'
     filepath: testdata/dirac_id_seq4d_timecov/%MPI%_dirac_%id%_12
   - mpi pattern: '%MPI%'
     filepath: testdata/dirac_id_seq4d_timecov/%MPI%_dirac_%id%_18
 output variance:
-  states:
+  increment:
   - mpi pattern: '%MPI%'
     filepath: testdata/dirac_id_seq4d_timecov/%MPI%_variance_12
   - mpi pattern: '%MPI%'

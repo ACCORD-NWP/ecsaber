@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.cc.tmp	2025-11-04 14:55:44.048663233 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.cc	2024-10-16 14:40:03.725345153 +0200
+@@ -38,7 +38,7 @@
+ FieldSet4D::FieldSet4D(const std::vector<util::DateTime> & times,
+                        const eckit::mpi::Comm & commTime,
+                        const eckit::mpi::Comm & commGeom)
+-  : FieldSets(times, commTime, {0}, oops::mpi::myself())
++  : FieldSets(times, commTime, {0}, eckit::mpi::self())
+ {
+   size_t mytime = this->local_time_size() * commTime.rank();
+   for (size_t jj = 0; jj < this->local_time_size(); ++jj) {
+@@ -49,7 +49,7 @@
+ // -----------------------------------------------------------------------------
+ 
+ FieldSet4D::FieldSet4D(const FieldSet3D & fset3d)
+-  : FieldSets({fset3d.validTime()}, oops::mpi::myself(), {0}, oops::mpi::myself())
++  : FieldSets({fset3d.validTime()}, eckit::mpi::self(), {0}, eckit::mpi::self())
+ {
+   this->dataset().push_back(std::make_unique<FieldSet3D>(fset3d));
+ }

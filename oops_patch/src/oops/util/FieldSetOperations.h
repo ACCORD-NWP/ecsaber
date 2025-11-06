@@ -12,6 +12,7 @@
 
 #include "atlas/field.h"
 
+#include "eckit/config/Configuration.h"
 #include "eckit/mpi/Comm.h"
 
 namespace util {
@@ -24,7 +25,7 @@ void addFieldSets(atlas::FieldSet &,
 void subtractFieldSets(atlas::FieldSet &,
                        const atlas::FieldSet &);
 void multiplyFieldSet(atlas::FieldSet &,
-                      const double &);
+                      const double);
 void multiplyFieldSets(atlas::FieldSet &,
                        const atlas::FieldSet &);
 double dotProductFields(const atlas::Field &,
@@ -40,14 +41,16 @@ double normFieldSet(const atlas::FieldSet &,
                     const std::vector<std::string> &,
                     const eckit::mpi::Comm &);
 void divideFieldSets(atlas::FieldSet &,
-                     const  atlas::FieldSet &);
+                     const atlas::FieldSet &);
 void divideFieldSets(atlas::FieldSet &,
-                     const  atlas::FieldSet &,
-                     const  atlas::FieldSet &);
+                     const atlas::FieldSet &,
+                     const atlas::FieldSet &);
 void sqrtFieldSet(atlas::FieldSet &);
 void addZeroFieldToFieldSet(const std::string &,
                             const std::string &,
                             atlas::FieldSet & fset);
+void clampFieldSet(atlas::FieldSet &,
+                   const eckit::Configuration &);
 
 
 // -----------------------------------------------------------------------------

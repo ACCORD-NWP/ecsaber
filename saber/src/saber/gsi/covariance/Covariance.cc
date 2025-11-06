@@ -28,7 +28,7 @@
 #include "oops/util/Timer.h"
 
 #include "saber/gsi/covariance/Covariance.interface.h"
-#include "saber/gsi/grid/Grid.h"
+#include "saber/gsi/utils/GridCheckHelper.h"
 
 namespace saber {
 namespace gsi {
@@ -117,12 +117,18 @@ void StaticCovariance::read() {
   std::vector<const atlas::field::FieldSetImpl*> fsetXbptrs(1);
   std::vector<const atlas::field::FieldSetImpl*> fsetFgptrs(1);
   std::vector<const util::DateTime *> timesptrs(1);
+  xb_.fieldSet().haloExchange();  // update halos before reading from Fortran
+  fg_.fieldSet().haloExchange();  // update halos before reading from Fortran
   fsetXbptrs[0] = xb_.get();
   fsetFgptrs[0] = fg_.get();
   timesptrs[0]  = &validTime_;
+
+  const std::vector<double> gridChecks = functionspaceToGridChecks(gsiGridFuncSpace_);
+
   gsi_covariance_create_f90(keySelf_, *comm_, params_.readParams.value()->toConfiguration(),
                             fsetXbptrs.size(), fsetXbptrs.data(), fsetFgptrs.data(),
-                            timesptrs.data());
+                            timesptrs.data(), gridChecks.size(), gridChecks.data());
+
   oops::Log::trace() << classname() << "::read done" << std::endl;
 }
 

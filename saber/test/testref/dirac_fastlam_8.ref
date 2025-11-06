@@ -29,13 +29,13 @@ Norm of input parameter rv: 1.0775159836059729e+03
     FastLAM interpolation adjoint test passed
     FastLAM interpolation accuracy test passed
     FastLAM interpolation adjoint test passed
-Norm of output parameter normalized horizontal length-scale: 6.4689323861507622e+40
-Norm of output parameter weight - 0: 6.4689323861507622e+40
-Norm of output parameter weight - 1: 6.4689323861507622e+40
-Norm of output parameter weight - 2: 6.4689323861507622e+40
-Norm of output parameter normalization - 0: 6.4689323861507622e+40
-Norm of output parameter normalization - 1: 6.4689323861507622e+40
-Norm of output parameter normalization - 2: 6.4689323861507622e+40
+Norm of output parameter normalized horizontal length-scale: 2.3313233051717557e+03
+Norm of output parameter weight - 0: 7.1411305064704095e+01
+Norm of output parameter weight - 1: 1.8142158345688827e+02
+Norm of output parameter weight - 2: 8.7308306621531173e+01
+Norm of output parameter normalization - 0: 3.0036225957111645e+02
+Norm of output parameter normalization - 1: 3.1844372699504385e+02
+Norm of output parameter normalization - 2: 3.2132167485384309e+02
 Adjoint test for block FastLAM passed
 Square-root test for block FastLAM passed
 Covariance(SABER) * Increment:

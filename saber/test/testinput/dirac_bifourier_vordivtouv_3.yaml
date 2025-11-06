@@ -69,4 +69,5 @@ output dirac:
   mpi pattern: '%MPI%'
   filepath: testdata/dirac_bifourier_vordivtouv_3/%MPI%_dirac_%id%
 test:
+  float relative tolerance: 3.0e-12
   reference filename: testref/dirac_bifourier_vordivtouv_3.ref

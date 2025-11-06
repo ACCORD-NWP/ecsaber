@@ -69,6 +69,9 @@ class RecipeBase : public util::Printable,
 /// Ingredients (list of variables required to setup and execute recipe)
   virtual oops::JediVariables ingredients() const = 0;
 
+/// Required variables in Trajectory (only for recipes with TL/AD methods)
+  virtual oops::JediVariables trajectoryVars() const { return oops::JediVariables(); }
+
 /// Method returning the number of levels in the variable produced
   virtual size_t productLevels(const atlas::FieldSet &) const = 0;
 
@@ -78,8 +81,11 @@ class RecipeBase : public util::Printable,
 /// Flag indicating whether the recipe implements the executeTL/AD methods.
   virtual bool hasTLAD() const { return false; }
 
+/// Flag indicating whether the recipe implements the executeNL method.
+  virtual bool hasNL() const { return true; }
+
 /// Execute methods perform the variable change
-  virtual void executeNL(atlas::FieldSet &) = 0;
+  virtual void executeNL(atlas::FieldSet &) {}
   virtual void executeTL(atlas::FieldSet &, const atlas::FieldSet &) {}
   virtual void executeAD(atlas::FieldSet &, const atlas::FieldSet &) {}
 

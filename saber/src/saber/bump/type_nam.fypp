@@ -10,10 +10,9 @@
 module type_nam
 
 use fckit_configuration_module, only: fckit_configuration
-use tools_const, only: zero,hundredth,half,one,ten,hundred,pi,req,deg2rad,rad2deg
-use tools_kinds, only: kind_real,kind_int,huge_real
-use tools_func, only: cholesky,convert_i2l,zss_minval
-use tools_repro, only: eq
+use tools_const, only: zero,half,one,pi,req,deg2rad
+use tools_kinds, only: kind_real,kind_int
+use tools_func, only: cholesky,zss_minval
 use type_mpl, only: mpl_type
 @:use_probe()
 
@@ -291,6 +290,9 @@ nam%nmask = 0
 nam%nldwv = 0
 nam%ndir = 0
 call nam%from_conf(mpl,conf,.false.)
+
+! Release memory
+call conf%final()
 
 ! Probe out
 @:probe_out()
@@ -973,6 +975,15 @@ if (conf%get('external',section)) then
    call nam%get(section,'geographical mask name',nam%gmask_name)
 end if
 
+! Release memory
+call section%final()
+if (allocated(confs)) then
+  do iconf=1,size(confs)
+    call confs(iconf)%final()
+  enddo
+  deallocate(confs)
+endif
+
 ! Probe out
 @:probe_out()
 
@@ -1624,6 +1635,14 @@ if (conf%has(key).and.(nam%ng>0)) then
    end do
 end if
 
+! Release memory
+if (allocated(confs)) then
+  do iconf=1,size(confs)
+    call confs(iconf)%final()
+  enddo
+  deallocate(confs)
+endif
+
 ! Probe out
 @:probe_out()
 
@@ -1703,6 +1722,14 @@ if (conf%has(key).and.(nam%nl0>0).and.(nam%ng>0)) then
       end if
    end do
 end if
+
+! Release memory
+if (allocated(confs)) then
+  do iconf=1,size(confs)
+    call confs(iconf)%final()
+  enddo
+  deallocate(confs)
+endif
 
 ! Probe out
 @:probe_out()

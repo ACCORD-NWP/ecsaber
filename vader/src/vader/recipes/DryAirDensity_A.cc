@@ -51,6 +51,11 @@ oops::JediVariables DryAirDensity_A::ingredients() const
     return DryAirDensity_A::Ingredients;
 }
 
+oops::JediVariables DryAirDensity_A::trajectoryVars() const
+{
+    return DryAirDensity_A::Ingredients;
+}
+
 size_t DryAirDensity_A::productLevels(const atlas::FieldSet & afieldset) const
 {
     return afieldset["air_pressure"].shape(1);

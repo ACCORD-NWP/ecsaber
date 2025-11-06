@@ -3,8 +3,6 @@ ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/vader )
 list( APPEND vader_src_files
 vader/DefaultCookbook.h
 vader/vader.h
-vader/recipe.h
-vader/recipe.cc
 vader/RecipeBase.h
 vader/RecipeBase.cc
 vader/vader.cc
@@ -17,7 +15,6 @@ vader/recipes/AirPressureAtInterface_A.cc
 vader/recipes/AirPressureAtInterface_B.cc
 vader/recipes/AirPressureAtInterface_C.cc
 vader/recipes/AirPressureAtInterface.h
-vader/recipes/AirPressure_B.cc
 vader/recipes/WindReductionFactorAt10m.h
 vader/recipes/WindReductionFactorAt10m_A.cc
 vader/recipes/AirPressure.h
@@ -29,24 +26,25 @@ vader/recipes/AirPressureToKappa_A.cc
 vader/recipes/AirPressureToKappa.h
 vader/recipes/AirTemperature_A.cc
 vader/recipes/AirTemperature_B.cc
-vader/recipes/AirTemperature_C.cc
 vader/recipes/AirTemperature.h
 vader/recipes/AirVirtualTemperature_A.cc
 vader/recipes/AirVirtualTemperature.h
-vader/recipes/CloudIceMixingRatio.h
-vader/recipes/CloudIceMixingRatio_A.cc
-vader/recipes/CloudLiquidMixingRatio.h
-vader/recipes/CloudLiquidMixingRatio_A.cc
+vader/recipes/CloudIceMixingRatioWrtDryAir.h
+vader/recipes/CloudIceMixingRatioWrtDryAir_A.cc
+vader/recipes/CloudIceMixingRatioWrtDryAir_B.cc
+vader/recipes/CloudIceMixingRatioWrtWetAir.h
+vader/recipes/CloudIceMixingRatioWrtWetAir_A.cc
+vader/recipes/CloudLiquidWaterMixingRatioWrtDryAir.h
+vader/recipes/CloudLiquidWaterMixingRatioWrtDryAir_A.cc
+vader/recipes/CloudLiquidWaterMixingRatioWrtDryAir_B.cc
+vader/recipes/CloudLiquidWaterMixingRatioWrtWetAir.h
+vader/recipes/CloudLiquidWaterMixingRatioWrtWetAir_A.cc
 vader/recipes/AirDensityLevelsMinusOne.h
 vader/recipes/AirDensityLevelsMinusOne_A.cc
-vader/recipes/AirDensityLevelsMinusOne_B.cc
 vader/recipes/DryAirDensity.h
 vader/recipes/DryAirDensity_A.cc
 vader/recipes/DryAirDensityLevelsMinusOne.h
 vader/recipes/DryAirDensityLevelsMinusOne_A.cc
-vader/recipes/HumidityMixingRatio.h
-vader/recipes/HumidityMixingRatio_A.cc
-vader/recipes/HumidityMixingRatio_B.cc
 vader/recipes/HydrostaticExnerLevels.h
 vader/recipes/HydrostaticExnerLevels_A.cc
 vader/recipes/HydrostaticPressureLevels.h
@@ -66,18 +64,18 @@ vader/recipes/SaturationSpecificHumidity.h
 vader/recipes/SaturationSpecificHumidity_A.cc
 vader/recipes/SaturationVaporPressure.h
 vader/recipes/SaturationVaporPressure_A.cc
-vader/recipes/SulfateMassFraction.h
-vader/recipes/SulfateMassFraction_A.cc
 vader/recipes/SurfaceAirPressure.h
 vader/recipes/SurfaceAirPressure_A.cc
 vader/recipes/TestRecipes.cc
 vader/recipes/TestRecipes.h
-vader/recipes/TotalMixingRatio.h
-vader/recipes/TotalMixingRatio_A.cc
 vader/recipes/TotalRelativeHumidity.h
 vader/recipes/TotalRelativeHumidity_A.cc
 vader/recipes/TotalWater.h
 vader/recipes/TotalWater_A.cc
+vader/recipes/TotalWaterMixingRatioWrtDryAir.h
+vader/recipes/TotalWaterMixingRatioWrtDryAir_A.cc
+vader/recipes/TotalWaterMixingRatioWrtWetAir.h
+vader/recipes/TotalWaterMixingRatioWrtWetAir_A.cc
 vader/recipes/EastwardWindAt10m_A.cc
 vader/recipes/EastwardWindAt10m.h
 vader/recipes/VirtualPotentialTemperature_A.cc
@@ -85,12 +83,13 @@ vader/recipes/VirtualPotentialTemperature_B.cc
 vader/recipes/VirtualPotentialTemperature.h
 vader/recipes/NorthwardWindAt10m_A.cc
 vader/recipes/NorthwardWindAt10m.h
-vader/recipes/WaterVaporMixingRatioWrtMoistAir.h
-vader/recipes/WaterVaporMixingRatioWrtMoistAir_A.cc
-vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater.h
-vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A.cc
-vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m.h
-vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A.cc
+vader/recipes/WaterVaporMixingRatioWrtDryAir.h
+vader/recipes/WaterVaporMixingRatioWrtDryAir_A.cc
+vader/recipes/WaterVaporMixingRatioWrtDryAir_B.cc
+vader/recipes/WaterVaporMixingRatioWrtWetAir.h
+vader/recipes/WaterVaporMixingRatioWrtWetAir_A.cc
+vader/recipes/WaterVaporMixingRatioWrtWetAir2m.h
+vader/recipes/WaterVaporMixingRatioWrtWetAir2m_A.cc
 mo/common_varchange.h
 mo/common_varchange.cc
 mo/constants.h
@@ -108,8 +107,8 @@ mo/eval_air_temperature.h
 mo/eval_air_temperature.cc
 mo/eval_cloud_ice_mixing_ratio.h
 mo/eval_cloud_ice_mixing_ratio.cc
-mo/eval_cloud_liquid_mixing_ratio.h
-mo/eval_cloud_liquid_mixing_ratio.cc
+mo/eval_cloud_liquid_water_mixing_ratio.h
+mo/eval_cloud_liquid_water_mixing_ratio.cc
 mo/eval_air_density.h
 mo/eval_air_density.cc
 mo/eval_dry_air_density.h
@@ -118,20 +117,14 @@ mo/eval_exner.h
 mo/eval_exner.cc
 mo/eval_geostrophic_to_hydrostatic_pressure.h
 mo/eval_geostrophic_to_hydrostatic_pressure.cc
-mo/eval_geostrophic_to_hydrostatic_pressure_levels_minus_one.h
-mo/eval_geostrophic_to_hydrostatic_pressure_levels_minus_one.cc
 mo/eval_hydrostatic_balance.h
 mo/eval_hydrostatic_balance.cc
 mo/eval_mio_fields.h
 mo/eval_mio_fields.cc
 mo/eval_moisture_incrementing_operator.h
 mo/eval_moisture_incrementing_operator.cc
-mo/eval_moisture_control.h
-mo/eval_moisture_control.cc
 mo/eval_rain_mixing_ratio.h
 mo/eval_rain_mixing_ratio.cc
-mo/eval_ratio.h
-mo/eval_ratio.cc
 mo/eval_relative_humidity.h
 mo/eval_relative_humidity.cc
 mo/eval_sat_vapour_pressure.h
@@ -142,8 +135,8 @@ mo/eval_surface_temperature.h
 mo/eval_surface_temperature.cc
 mo/eval_surface_wind.h
 mo/eval_surface_wind.cc
-mo/eval_total_mixing_ratio.h
-mo/eval_total_mixing_ratio.cc
+mo/eval_total_water_mixing_ratio.h
+mo/eval_total_water_mixing_ratio.cc
 mo/eval_total_relative_humidity.h
 mo/eval_total_relative_humidity.cc
 mo/eval_virtual_potential_temperature.h
@@ -179,7 +172,8 @@ ecbuild_add_library( TARGET ${PROJECT_NAME}
 # Mark Boost as a system library to silence compiler warnings from Boost headers
 target_include_directories( ${PROJECT_NAME} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS} )
 
-target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} oops_patch ) #TODO: Change to "oops::oops" once oops adds namespace support
+target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} ) #TODO: Change to "oops::oops" once oops adds namespace support
+target_link_libraries( ${PROJECT_NAME} PUBLIC oops_patch )
 
 if( gsw_FOUND )
   target_link_libraries( ${PROJECT_NAME} PUBLIC gsw )

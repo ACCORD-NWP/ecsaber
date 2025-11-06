@@ -1,5 +1,6 @@
 /*
  * (C) Copyright 2023- UCAR
+ * (C) Crown Copyright 2025 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -16,6 +17,7 @@
 #include "oops/base/FieldSet3D.h"
 #include "oops/base/Ensemble.h"
 #include "oops/base/EnsemblesCollection.h"
+#include "oops/util/ParallelFieldSetIO.h"
 
 namespace oops {
 
@@ -33,6 +35,15 @@ class FieldSets : public DataSetBase<FieldSet3D, atlas::FunctionSpace> {
 
   FieldSets(const atlas::FunctionSpace &,
             const JediVariables &,
+            const std::vector<util::DateTime> &,
+            const eckit::Configuration &,
+            const eckit::mpi::Comm &,
+            const eckit::mpi::Comm & = oops::mpi::myself(),
+            const eckit::mpi::Comm & = oops::mpi::myself());
+
+  FieldSets(const atlas::FunctionSpace &,
+            const JediVariables &,
+            const util::ParallelFieldSetIO &,
             const std::vector<util::DateTime> &,
             const eckit::Configuration &,
             const eckit::mpi::Comm &,

@@ -1,0 +1,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt.tmp	2025-11-05 15:22:05.496458183 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt	2025-11-05 15:21:46.134222245 +0100
+@@ -173,6 +173,7 @@
+ target_include_directories( ${PROJECT_NAME} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS} )
+ 
+ target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} ) #TODO: Change to "oops::oops" once oops adds namespace support
++target_link_libraries( ${PROJECT_NAME} PUBLIC oops_patch )
+ 
+ if( gsw_FOUND )
+   target_link_libraries( ${PROJECT_NAME} PUBLIC gsw )

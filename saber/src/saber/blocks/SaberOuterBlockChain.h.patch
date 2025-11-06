@@ -1,0 +1,28 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp	2025-11-05 12:59:27.339196619 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2025-11-05 13:02:07.466388169 +0100
+@@ -20,7 +20,7 @@
+ 
+ #include "oops/base/FieldSet4D.h"
+ #include "oops/base/FieldSets.h"
+-#include "oops/base/Geometry.h"
++#include "oops/interface/Geometry.h"
+ #include "oops/base/GeometryData.h"
+ #include "oops/interface/ModelData.h"
+ 
+@@ -182,6 +182,7 @@
+   /// TODO(AS): Need to expand this to create different outer blocks for different
+   /// times for the 4D with multiple times on one MPI task.
+   std::vector<std::unique_ptr<SaberOuterBlockBase>> outerBlocks_;
++  std::unique_ptr<oops::GeometryData> geomData_;
+ };
+ 
+ // -----------------------------------------------------------------------------
+@@ -342,7 +343,7 @@
+ 
+     for (size_t ie = 0; ie < nens; ++ie) {
+       // Read ensemble member
+-      oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.getComm());
++      oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
+       readEnsembleMember(geom,
+                          outerVars,
+                          ensembleConf,

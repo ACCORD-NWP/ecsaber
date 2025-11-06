@@ -22,7 +22,6 @@
 #include "oops/util/Printable.h"
 
 #include "src/Interpolation.h"
-#include "src/Utilities.h"
 #include "src/Variables.h"
 
 namespace quench {

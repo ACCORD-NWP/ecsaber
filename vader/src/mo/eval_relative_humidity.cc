@@ -16,12 +16,16 @@
 #include "mo/eval_relative_humidity.h"
 #include "mo/eval_sat_vapour_pressure.h"
 
+#include "oops/util/for_each.h"
 #include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
 
 using atlas::array::make_view;
 using atlas::idx_t;
 using atlas::util::Config;
+
+using View = atlas::array::LocalView<double, 1>;
+using ConstView = atlas::array::LocalView<const double, 1>;
 
 namespace {
   const char specific_humidity_mo[] = "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water";
@@ -107,6 +111,10 @@ void eval_relative_humidity_ad(atlas::FieldSet & hatFlds,
             rhHat = 0.0;
           });
 
+  hatFlds[specific_humidity_mo].set_dirty();
+  hatFlds["air_temperature"].set_dirty();
+  hatFlds["relative_humidity"].set_dirty();
+
   oops::Log::trace() << "[eval_relative_humidity_ad()] ... exit" << std::endl;
 }
 
@@ -145,6 +153,104 @@ void eval_relative_humidity_at_2m_ad(atlas::FieldSet & hatFlds) {
 
   oops::Log::trace()<< "[eval_relative_humidity_at_2m_ad()] ... exit" << std::endl;
 }
+
+
+// --------------------------------------------------------------------------------------
+
+void eval_relative_humidity_at_2m_nl(atlas::FieldSet & stateFlds) {
+  oops::Log::trace() << "[eval_relative_humidity_at_2m_nl()] starting ..." << std::endl;
+
+  bool cap_super_sat(false);
+
+  if (stateFlds["relative_humidity_at_2m"].metadata().has("cap_super_sat")) {
+    stateFlds["relative_humidity_at_2m"].metadata().get("cap_super_sat", cap_super_sat);
+  }
+
+  // Warning! Relative humidity in saber, vader and ufo has units percents (from 0 to 100),
+  // while it should have units 1 (from 0 to 1) according to the CCPP convention.
+  const idx_t sizeOwned =
+    util::getSizeOwned(stateFlds["relative_humidity_at_2m"].functionspace());
+
+  const auto qView = make_view<double, 2>(stateFlds[specific_humidity_mo]);
+  const auto qsatView = make_view<double, 2>(stateFlds["qsat"]);
+  auto rh2mView = make_view<double, 2>(stateFlds["relative_humidity_at_2m"]);
+
+  for (atlas::idx_t jn = 0; jn < sizeOwned; ++jn) {
+    rh2mView(jn, 0) = fmax(qView(jn, 0) / qsatView(jn, 0) * 100.0, 0.0);
+    rh2mView(jn, 0) = (cap_super_sat && (rh2mView(jn, 0) > 100)) ? 100.0 : rh2mView(jn, 0);
+  }
+
+  stateFlds["relative_humidity_at_2m"].set_dirty();
+
+  oops::Log::trace()<< "[eval_relative_humidity_at_2m_nl()] ... exit" << std::endl;
+}
+
+// --------------------------------------------------------------------------------------
+
+void eval_relative_humidity_at_2m_from_temp_tl(atlas::FieldSet & incFlds,
+                                               const atlas::FieldSet & stateFlds) {
+  oops::Log::trace() << "[eval_relative_humidity_at_2m_from_temp_tl()] starting ..." << std::endl;
+
+  // * This assumes air pressure increments can be neglected (usual approximation)
+  // * Only part of this is the tangent linear of eval_relative_humidity_nl.
+  // * This neglects supersaturation in eval_relative_humidity_nl
+
+  // State variables qsat and dlsvpdT can be calculated by eval_sat_vapour_pressure_nl
+  // and evalSatSpecificHumidity from air_temperature and air_pressure inputs
+  util::for_each_column(
+    [=] (ConstView q,
+         ConstView qsat,
+         ConstView dlsvpdt,
+         ConstView qInc,
+         ConstView tInc,
+         View rh2mInc) {
+      rh2mInc(0) = 100.0 * (qInc(0) - q(0) * dlsvpdt(0) * tInc(0)) / qsat(0);
+    },
+    stateFlds[specific_humidity_mo],
+    stateFlds["qsat"],
+    stateFlds["dlsvpdT"],
+    incFlds[specific_humidity_mo],
+    incFlds["air_temperature_at_2m"],
+    incFlds["relative_humidity_at_2m"]);
+
+  incFlds["relative_humidity_at_2m"].set_dirty();
+
+  oops::Log::trace()<< "[eval_relative_humidity_at_2m_from_temp_tl()] ... exit" << std::endl;
+}
+
+// --------------------------------------------------------------------------------------
+
+void eval_relative_humidity_at_2m_from_temp_ad(atlas::FieldSet & hatFlds,
+                                               const atlas::FieldSet & stateFlds) {
+  oops::Log::trace() << "[eval_relative_humidity_at_2m_from_temp_ad()] starting ..." << std::endl;
+
+  // State variables qsat and dlsvpdT can be calculated by eval_sat_vapour_pressure_nl
+  // and evalSatSpecificHumidity from air_temperature and air_pressure inputs
+  util::for_each_column(
+    [=] (ConstView q,
+         ConstView qsat,
+         ConstView dlsvpdt,
+         View qHat,
+         View tHat,
+         View rh2mHat) {
+      qHat(0) += 100 * rh2mHat(0) / qsat(0);
+      tHat(0) -= 100 * q(0) * dlsvpdt(0) * rh2mHat(0) / qsat(0);
+      rh2mHat(0) = 0.0;
+    },
+    stateFlds[specific_humidity_mo],
+    stateFlds["qsat"],
+    stateFlds["dlsvpdT"],
+    hatFlds[specific_humidity_mo],
+    hatFlds["air_temperature_at_2m"],
+    hatFlds["relative_humidity_at_2m"]);
+
+  hatFlds[specific_humidity_mo].set_dirty();
+  hatFlds["air_temperature_at_2m"].set_dirty();
+  hatFlds["relative_humidity_at_2m"].set_dirty();
+
+  oops::Log::trace()<< "[eval_relative_humidity_at_2m__from_temp_ad()] ... exit" << std::endl;
+}
+
 
 // --------------------------------------------------------------------------------------
 

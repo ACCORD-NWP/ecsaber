@@ -13,6 +13,7 @@
 #include <cmath>
 #include <memory>
 #include <tuple>
+#include <vector>
 
 #include "atlas/array.h"
 #include "atlas/util/function/VortexRollup.h"
@@ -36,15 +37,33 @@ namespace util {
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
                                const std::vector<size_t> & variableSizes,
                                const std::vector<std::string> & vars) {
+  const std::vector<size_t> vectorSizes(vars.size(), 0);
+  return createFieldSet(fspace, variableSizes, vectorSizes, vars);
+}
+
+// -----------------------------------------------------------------------------
+atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
+                               const std::vector<size_t> & variableSizes,
+                               const std::vector<size_t> & vectorSizes,
+                               const std::vector<std::string> & vars) {
   oops::Log::trace() << "createFieldSet starting" << std::endl;
+
+  ASSERT(variableSizes.size() == vars.size());
+  ASSERT(vectorSizes.size() == vars.size());
 
   // Create FieldSet
   atlas::FieldSet fset;
 
   for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
     // Create field
-    atlas::Field field = fspace.createField<double>(
-      atlas::option::name(vars[jvar]) | atlas::option::levels(variableSizes[jvar]));
+    atlas::util::Config fieldConfig = atlas::option::name(vars[jvar]);
+    if (variableSizes[jvar] > 0) {
+        fieldConfig.set(atlas::option::levels(variableSizes[jvar]));
+    }
+    if (vectorSizes[jvar] > 0) {
+        fieldConfig.set(atlas::option::vector(vectorSizes[jvar]));
+    }
+    atlas::Field field = fspace.createField<double>(fieldConfig);
 
     // Add field
     fset.add(field);
@@ -321,22 +340,48 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
     return fset;
   }
 
-  // Create FieldSet
-  atlas::FieldSet fset = createFieldSet(fspace, variableSizes, vars);
+  const std::vector<size_t> vectorSizes(vars.size(), 0);
+  return createSmoothFieldSet(comm, fspace, variableSizes, vectorSizes, vars);
+}
 
+// -----------------------------------------------------------------------------
+atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
+                                     const atlas::FunctionSpace & fspace,
+                                     const std::vector<size_t> & variableSizes,
+                                     const std::vector<size_t> & vectorSizes,
+                                     const std::vector<std::string> & vars) {
+  atlas::FieldSet fset = createFieldSet(fspace, variableSizes, vectorSizes, vars);
   for (auto & field : fset) {
-    // Create field
     const auto lonlat = atlas::array::make_view<double, 2>(field.functionspace().lonlat());
-    if (field.rank() == 2) {
+    if (field.rank() == 3) {
       size_t nlev = field.shape(1);
-      auto view = atlas::array::make_view<double, 2>(field);
+      size_t nvec = field.shape(2);
+      auto view = atlas::array::make_view<double, 3>(field);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
         for (size_t jlev = 0; jlev < nlev; ++jlev) {
-          const double zz = static_cast<double>(jlev) / static_cast<double>(nlev);
-          view(jnode, jlev) = atlas::util::function::vortex_rollup(lonlat(jnode, 0),
-                                lonlat(jnode, 1), zz) * 2.0;
+          for (size_t jvec = 0; jvec < nvec; ++jvec) {
+            const double zz = static_cast<double>(jvec+jlev*nvec) / static_cast<double>(nlev*nvec);
+            view(jnode, jlev, jvec) = atlas::util::function::vortex_rollup(lonlat(jnode, 0),
+                                        lonlat(jnode, 1), zz) * 2.0;
+          }
         }
       }
+    } else if (field.rank() == 2) {
+        size_t nlev = field.shape(1);
+        auto view = atlas::array::make_view<double, 2>(field);
+        for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
+            for (size_t jlev = 0; jlev < nlev; ++jlev) {
+                const double zz = static_cast<double>(jlev) / static_cast<double>(nlev);
+                view(jnode, jlev) = atlas::util::function::vortex_rollup(lonlat(jnode, 0),
+                                                                         lonlat(jnode, 1), zz)*2.0;
+            }
+        }
+    } else if (field.rank() == 1) {
+        auto view = atlas::array::make_view<double, 1>(field);
+        for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
+            view(jnode) = atlas::util::function::vortex_rollup(lonlat(jnode, 0),
+                                                               lonlat(jnode, 1), 0.0) * 2.0;
+        }
     }
 
     // As of atlas 0.37, the vortex_rollup function is not single-valued at the "across the pole"
@@ -350,7 +395,6 @@ atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm & comm,
     // Set metadata for interpolation type
     field.metadata().set("interp_type", "default");
   }
-
   return fset;
 }
 
@@ -613,7 +657,24 @@ bool compareFieldSets(const atlas::FieldSet & fset1,
     if (!sameFieldSets) return sameFieldSets;
 
     // Compare data
-    if (field1.rank() == 2) {
+    if (field1.rank() == 3) {
+      auto view1 = atlas::array::make_view<double, 3>(field1);
+      auto view2 = atlas::array::make_view<double, 3>(field2);
+      for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
+        for (atlas::idx_t jlevel = 0; jlevel < field1.shape(1); ++jlevel) {
+          for (atlas::idx_t jvec = 0; jvec < field1.shape(2); ++jvec) {
+            if (absolute) {
+              sameFieldSets = oops::is_close_absolute(
+                view1(jnode, jlevel, jvec), view2(jnode, jlevel, jvec), tol);
+            } else {
+              sameFieldSets = oops::is_close_relative(
+                view1(jnode, jlevel, jvec), view2(jnode, jlevel, jvec), tol);
+            }
+            if (!sameFieldSets) return sameFieldSets;
+          }
+        }
+      }
+    } else if (field1.rank() == 2) {
       auto view1 = atlas::array::make_view<double, 2>(field1);
       auto view2 = atlas::array::make_view<double, 2>(field2);
       for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
@@ -627,6 +688,17 @@ bool compareFieldSets(const atlas::FieldSet & fset1,
           }
           if (!sameFieldSets) return sameFieldSets;
         }
+      }
+    } else if (field1.rank() == 1) {
+      auto view1 = atlas::array::make_view<double, 1>(field1);
+      auto view2 = atlas::array::make_view<double, 1>(field2);
+      for (atlas::idx_t jnode = 0; jnode < field1.shape(0); ++jnode) {
+        if (absolute) {
+          sameFieldSets = oops::is_close_absolute(view1(jnode), view2(jnode), tol);
+        } else {
+          sameFieldSets = oops::is_close_relative(view1(jnode), view2(jnode), tol);
+        }
+        if (!sameFieldSets) return sameFieldSets;
       }
     } else {
       throw eckit::Exception("compareFieldSets: wrong rank", Here());
@@ -969,7 +1041,8 @@ void readFieldSet(const eckit::mpi::Comm & comm,
   }
 
   // NetCDF IDs
-  int ncid, retval, var_id[vars.size()];
+  int ncid, retval;
+  std::vector<int> var_id(vars.size());
 
   if (oneFilePerTask) {
     // Case 1: one file per MPI task
@@ -1161,7 +1234,8 @@ void readRank3FieldSet(const atlas::FunctionSpace & fspace,
                        const std::string & ncfilepath,
                        const bool & checkDims) {
   // Initialize NetCDF return value and IDs
-  int retval, ncid, dimid, varid[vars.size()];
+  int retval, ncid, dimid;
+  std::vector<int> varid(vars.size());
   size_t rank3Size;
 
   oops::Log::info() << "Info     : Reading file: " << ncfilepath << std::endl;
@@ -1270,8 +1344,9 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
   }
 
   // NetCDF IDs
-  int retval, ncid, nx_id, ny_id, nb_nodes_id, nz_id[vars.size()],
-    d1D_id[1], d2D_id[2], d3D_id[3], lon_id, lat_id, var_id[vars.size()];
+  int retval, ncid, nx_id, ny_id, nb_nodes_id,
+    d1D_id[1], d2D_id[2], d3D_id[3], lon_id, lat_id;
+  std::vector<int> var_id(vars.size()), nz_id(vars.size());
 
   if (oneFilePerTask) {
     // Case 1: one file per MPI task
@@ -1504,7 +1579,7 @@ void writeFieldSet(const eckit::mpi::Comm & comm,
           std::vector<double> zvar(fset.field(vars[jvar]).shape(1) * ny * nx);
           for (atlas::idx_t k = 0; k < fset.field(vars[jvar]).shape(1); ++k) {
             for (atlas::idx_t j = 0; j < ny; ++j) {
-            const atlas::idx_t jj = latSouthToNorth ? ny-1-j : j;
+              const atlas::idx_t jj = latSouthToNorth ? ny-1-j : j;
               for (atlas::idx_t i = 0; i < grid.nx(jj); ++i) {
                 atlas::gidx_t gidx = grid.index(i, jj);
                 zvar[k*ny*nx + j*nx + i] = varView(gidx, k);
@@ -1629,8 +1704,8 @@ void writeRank3FieldSet(const atlas::FieldSet & fset,
                         const std::string & ncfilepath,
                         const double & msvalr) {
   // Initialize NetCDF return value and IDs
-  int retval, ncid, nb_nodes_id, d1D_id[1], d3D_id[3], lon_id, lat_id,
-    nz_id[vars.size()], nv_id[vars.size()], var_id[vars.size()];
+  int retval, ncid, nb_nodes_id, d1D_id[1], d3D_id[3], lon_id, lat_id;
+  std::vector<int> nz_id(vars.size()), nv_id(vars.size()), var_id(vars.size());
 
   // Get number of nodes
   size_t nb_nodes = 0;
@@ -1786,6 +1861,39 @@ void readFieldSet(const eckit::mpi::Comm & comm,
     variableSizes.push_back(var.getLevels());
   }
   readFieldSet(comm, fspace, variableSizes, vars.variables(), config, fset);
+}
+
+// -----------------------------------------------------------------------------
+
+std::vector<double> fieldSetToBuffer(const atlas::FieldSet & fields) {
+  size_t sz = 0;
+  for (const auto & field : fields) {
+    sz += field.size();
+  }
+  std::vector<double> buf(sz);
+  size_t index = 0;
+  for (const auto & field : fields) {
+    const auto & view = atlas::array::make_view<double, 2>(field);
+    for (size_t i = 0; i < field.shape(0); i++) {
+      for (size_t j = 0; j < field.shape(1); j++) {
+        buf[index++] = view(i, j);
+      }
+    }
+  }
+  return buf;
+}
+
+// -----------------------------------------------------------------------------
+void fieldSetFromBuffer(atlas::FieldSet & fields, const std::vector<double> & buf) {
+  size_t index = 0;
+  for (auto & field : fields) {
+    auto view = atlas::array::make_view<double, 2>(field);
+    for (size_t i = 0; i < view.shape(0); i++) {
+      for (size_t j = 0; j < view.shape(1); j++) {
+        view(i, j) = buf[index++];
+      }
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------

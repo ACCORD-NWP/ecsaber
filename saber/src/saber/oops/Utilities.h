@@ -14,8 +14,6 @@
 #include <utility>
 #include <vector>
 
-#include <boost/range/adaptor/reversed.hpp>
-
 #include "atlas/field.h"
 #include "atlas/grid.h"
 
@@ -37,6 +35,7 @@
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
+#include "oops/util/ParallelFieldSetIO.h"
 
 #include "saber/blocks/SaberBlockParametersBase.h"
 #include "saber/blocks/SaberCentralBlockBase.h"
@@ -301,11 +300,23 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
         }
       }
 
-      // Read perturbations into oops::FieldSets
-      oops::FieldSets fsetEns(fspace, vars, xb.times(),
-                              ensemblePertOtherGeom,
-                              commGeom, eckit::mpi::self());
-      return fsetEns;
+      if (varConf.has("parallel IO")) {
+        util::ParallelFieldSetIO io(fspace,
+                                    ensemblePertOtherGeom.getString("grid name"),
+                                    util::ParallelFieldSetIO::Mode::Read);
+
+        // Read perturbations into oops::FieldSets
+        oops::FieldSets fsetEns(fspace, vars, io, xb.times(),
+                                ensemblePertOtherGeom,
+                                commGeom, eckit::mpi::self());
+
+        return fsetEns;
+      } else {
+        oops::FieldSets fsetEns(fspace, vars, xb.times(),
+                                ensemblePertOtherGeom,
+                                commGeom, eckit::mpi::self());
+        return fsetEns;
+      }
     }
   }
   // Return empty ensemble if none was returned before

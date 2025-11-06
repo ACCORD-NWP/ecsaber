@@ -23,6 +23,13 @@ namespace oops {
 class GeometryData;
 class JediVariables;
 
+template <typename MODEL>
+class Geometry;
+template <typename MODEL>
+class Increment;
+template <typename MODEL>
+class State;
+
 // -----------------------------------------------------------------------------
 
 class UnstructuredInterpolator : public LocalInterpolatorBase,
@@ -31,6 +38,11 @@ class UnstructuredInterpolator : public LocalInterpolatorBase,
   static const std::string classname() {return "oops::UnstructuredInterpolator";}
 
   UnstructuredInterpolator(const eckit::Configuration &, const GeometryData &,
+                           const std::vector<double> &, const std::vector<double> &);
+
+  // Constructor taking a MODEL-specific Geometry
+  template <typename MODEL>
+  UnstructuredInterpolator(const eckit::Configuration &, const Geometry<MODEL> &,
                            const std::vector<double> &, const std::vector<double> &);
 
   // Interpolator interface with no target-point mask, i.e., interpolates to every target point.
@@ -45,6 +57,23 @@ class UnstructuredInterpolator : public LocalInterpolatorBase,
   void applyAD(const JediVariables &, atlas::FieldSet &, const std::vector<bool> &,
                const std::vector<double> &) const override;
 
+  // MODEL-specific interface to generic interpolator
+  template <typename MODEL>
+  void apply(const JediVariables &, const State<MODEL> &, std::vector<double> &) const;
+  template <typename MODEL>
+  void apply(const JediVariables &, const Increment<MODEL> &, std::vector<double> &) const;
+  template <typename MODEL>
+  void applyAD(const JediVariables &, Increment<MODEL> &, const std::vector<double> &) const;
+  template <typename MODEL>
+  void apply(const JediVariables &, const State<MODEL> &, const std::vector<bool> &,
+             std::vector<double> &) const;
+  template <typename MODEL>
+  void apply(const JediVariables &, const Increment<MODEL> &, const std::vector<bool> &,
+             std::vector<double> &) const;
+  template <typename MODEL>
+  void applyAD(const JediVariables &, Increment<MODEL> &, const std::vector<bool> &,
+               const std::vector<double> &) const;
+
  private:
   // Small struct to help organize the interpolation matrices (= stencils and weights)
   struct InterpMatrix {
@@ -53,16 +82,16 @@ class UnstructuredInterpolator : public LocalInterpolatorBase,
     std::vector<std::vector<double>> weights;
   };
 
-  void applyPerLevel(const InterpMatrix &,
-                     const std::string &,
-                     const std::vector<bool> &,
-                     const atlas::array::ArrayView<double, 2> &,
-                     std::vector<double>::iterator &, const size_t &) const;
-  void applyPerLevelAD(const InterpMatrix &,
-                       const std::string &,
-                       const std::vector<bool> &,
-                       atlas::array::ArrayView<double, 2> &,
-                       std::vector<double>::const_iterator &, const size_t &) const;
+  void doApply(const InterpMatrix &,
+               const std::string &,
+               const std::vector<bool> &,
+               const atlas::array::ArrayView<double, 2> &,
+               atlas::array::ArrayView<double, 2> &) const;
+  void doApplyAD(const InterpMatrix &,
+                 const std::string &,
+                 const std::vector<bool> &,
+                 atlas::array::ArrayView<double, 2> &,
+                 const atlas::array::ArrayView<double, 2> &) const;
   void print(std::ostream &) const override;
 
   void computeUnmaskedInterpMatrix(std::vector<double>, std::vector<double>) const;
@@ -84,6 +113,73 @@ class UnstructuredInterpolator : public LocalInterpolatorBase,
   mutable std::unordered_map<std::string, InterpMatrix> interp_matrices_;
   const std::string unmaskedName_{"unmasked"};
 };
+
+// -----------------------------------------------------------------------------
+
+template <typename MODEL>
+UnstructuredInterpolator::UnstructuredInterpolator(const eckit::Configuration & config,
+                                                   const Geometry<MODEL> & geom,
+                                                   const std::vector<double> & lats_out,
+                                                   const std::vector<double> & lons_out)
+  : UnstructuredInterpolator(config, geom.generic(), lats_out, lons_out) {}
+
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+void UnstructuredInterpolator::apply(const JediVariables & vars, const State<MODEL> & xx,
+                                     std::vector<double> & locvals) const
+{
+  std::vector<bool> target_mask(nout_, true);
+  this->apply(vars, xx.fieldSet().fieldSet(), target_mask, locvals);
+}
+
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+void UnstructuredInterpolator::apply(const JediVariables & vars, const Increment<MODEL> & dx,
+                                     std::vector<double> & locvals) const
+{
+  std::vector<bool> target_mask(nout_, true);
+  this->apply(vars, dx.fieldSet().fieldSet(), target_mask, locvals);
+}
+
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+void UnstructuredInterpolator::applyAD(const JediVariables & vars, Increment<MODEL> & dx,
+                                       const std::vector<double> & vals) const {
+  std::vector<bool> target_mask(nout_, true);
+  this->applyAD(vars, dx.fieldSet().fieldSet(), target_mask, vals);
+}
+
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+void UnstructuredInterpolator::apply(const JediVariables & vars, const State<MODEL> & xx,
+                                     const std::vector<bool> & target_mask,
+                                     std::vector<double> & locvals) const
+{
+  this->apply(vars, xx.fieldSet().fieldSet(), target_mask, locvals);
+}
+
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+void UnstructuredInterpolator::apply(const JediVariables & vars, const Increment<MODEL> & dx,
+                                     const std::vector<bool> & target_mask,
+                                     std::vector<double> & locvals) const
+{
+  this->apply(vars, dx.fieldSet().fieldSet(), target_mask, locvals);
+}
+
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+void UnstructuredInterpolator::applyAD(const JediVariables & vars, Increment<MODEL> & dx,
+                                       const std::vector<bool> & target_mask,
+                                       const std::vector<double> & vals) const {
+  this->applyAD(vars, dx.fieldSet().fieldSet(), target_mask, vals);
+}
 
 // -----------------------------------------------------------------------------
 

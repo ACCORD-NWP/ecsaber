@@ -9,12 +9,12 @@
 !----------------------------------------------------------------------
 module tools_atlas
 
-use atlas_module, only: atlas_structuredgrid,atlas_regionalgrid,atlas_field,atlas_integer,atlas_real,atlas_functionspace, &
+use atlas_module, only: atlas_structuredgrid,atlas_field,atlas_integer,atlas_real,atlas_functionspace, &
  & atlas_functionspace_nodecolumns,atlas_functionspace_pointcloud,atlas_functionspace_structuredcolumns, &
- & atlas_projection,atlas_config,atlas_json
-use tools_const, only: zero,quarter,half,rad2deg
+ & atlas_config,atlas_json
+use tools_const, only: zero,quarter
 use tools_kinds, only: kind_int,kind_real
-use tools_func, only: sphere_dist,convert_i2l,convert_l2i
+use tools_func, only: convert_i2l
 use type_mpl, only: mpl_type
 @:use_probe()
 
@@ -143,6 +143,9 @@ agrid = atlas_structuredgrid(aconfig_grid_out)
 
 ! Define number of points
 if (present(n)) n = nx*ny
+
+! Release memory
+call aconfig_grid_out%final()
 
 ! Probe out
 @:probe_out()
@@ -390,6 +393,11 @@ case default
    call mpl%abort('${subr}$','wrong function space '//afunctionspace%name())
 end select
 
+! Release memory
+call afunctionspace_nc%final()
+call afunctionspace_pc%final()
+call afunctionspace_sc%final()
+
 ! Probe out
 @:probe_out()
 
@@ -424,6 +432,9 @@ afunctionspace = afield%functionspace()
 
 ! Get function space size
 nmga = get_atlas_functionspace_size(mpl,afunctionspace)
+
+! Release memory
+call afunctionspace%final()
 
 ! Probe out
 @:probe_out()

@@ -6,9 +6,8 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#pragma once
-
-#include <omp.h>
+#ifndef OOPS_RUNS_CONVERTSTATE_H_
+#define OOPS_RUNS_CONVERTSTATE_H_
 
 #include <memory>
 #include <string>
@@ -16,57 +15,15 @@
 
 #include "eckit/config/LocalConfiguration.h"
 #include "oops/interface/Geometry.h"
-#include "oops/base/ParameterTraitsVariables.h"
 #include "oops/interface/Model.h"
 #include "oops/interface/State.h"
 #include "oops/interface/VariableChange.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/Logger.h"
-#include "oops/util/parameters/OptionalParameter.h"
-#include "oops/util/parameters/Parameter.h"
-#include "oops/util/parameters/Parameters.h"
-#include "oops/util/parameters/RequiredParameter.h"
 
 namespace oops {
 
-// -------------------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------------------
-
-template <typename MODEL> class ConvertStateStatesParameters : public Parameters {
-  OOPS_CONCRETE_PARAMETERS(ConvertStateStatesParameters, Parameters)
-  typedef State<MODEL> State_;
-
- public:
-  RequiredParameter<eckit::LocalConfiguration> input{"input", this};
-  RequiredParameter<eckit::LocalConfiguration> output{"output", this};
-};
-
-// -------------------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------------------
-
-/// Options taken by the ConvertState application.
-template <typename MODEL> class ConvertStateParameters : public Parameters {
-  OOPS_CONCRETE_PARAMETERS(ConvertStateParameters, Parameters)
-
- public:
-  /// Input Geometry parameters.
-  RequiredParameter<eckit::LocalConfiguration> inputGeometry{"input geometry", this};
-
-  /// Output Geometry parameters.
-  RequiredParameter<eckit::LocalConfiguration> outputGeometry{"output geometry", this};
-
-  /// Model
-  RequiredParameter<eckit::LocalConfiguration> model{"model", this};
-
-  /// Variable change parameters (and option to do inverse).
-  OptionalParameter<eckit::LocalConfiguration> varChange{"variable change", this};
-
-  /// States to be converted
-  RequiredParameter<std::vector<ConvertStateStatesParameters<MODEL>>> states{"states", this};
-};
-
-// -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
 
 template <typename MODEL> class ConvertState : public Application {
@@ -74,8 +31,6 @@ template <typename MODEL> class ConvertState : public Application {
   typedef Model<MODEL>                  Model_;
   typedef State<MODEL>                  State_;
   typedef VariableChange<MODEL>         VariableChange_;
-  typedef ConvertStateParameters<MODEL> ConvertStateParameters_;
-  typedef ConvertStateStatesParameters<MODEL> ConvertStateStatesParameters_;
 
  public:
 // -------------------------------------------------------------------------------------------------
@@ -84,44 +39,36 @@ template <typename MODEL> class ConvertState : public Application {
   virtual ~ConvertState() {}
 // -------------------------------------------------------------------------------------------------
   int execute(const eckit::Configuration & fullConfig) const override {
-//  Deserialize parameters
-    ConvertStateParameters_ params;
-    params.validate(fullConfig);
-    params.deserialize(fullConfig);
-
 //  Setup resolution for input and output
-    const Geometry_ resol1(params.inputGeometry);
-    const Geometry_ resol2(params.outputGeometry);
+    const Geometry_ resol1(eckit::LocalConfiguration(fullConfig, "input geometry"));
+    const Geometry_ resol2(eckit::LocalConfiguration(fullConfig, "output geometry"));
 
-    // Setup model
-    const Model_ model(resol1, params.model);
+//  Setup model
+    const Model_ model(resol1, eckit::LocalConfiguration(fullConfig, "model"));
 
-    // Setup change of variable
+//  Setup change of variable
     std::unique_ptr<VariableChange_> vc;
     oops::JediVariables varout;
     bool inverse = false;
-    if (params.varChange.value() != boost::none) {
-      eckit::LocalConfiguration chconf(params.varChange.value().value());
-      if (chconf.has("output variables")) {
-        vc.reset(new VariableChange_(chconf, resol2));
-        varout = JediVariables(chconf, "output variables");
-        inverse = chconf.getBool("do inverse", false);
-      }
+    const eckit::LocalConfiguration chconf = fullConfig.getSubConfiguration("variable change");
+    if (chconf.has("output variables")) {
+      vc.reset(new VariableChange_(chconf, resol2));
+      varout = JediVariables(chconf, "output variables");
+      inverse = chconf.getBool("do inverse", false);
     }
 
 //  List of input and output states
-    const int nstates = params.states.value().size();
+    const std::vector<eckit::LocalConfiguration> stateConfs =
+        fullConfig.getSubConfigurations("states");
+    const int nstates = stateConfs.size();
 
 //  Loop over states
     for (int jm = 0; jm < nstates; ++jm) {
-//    Read current state parameters
-      const ConvertStateStatesParameters_ stateParams = params.states.value()[jm];
-
 //    Print output
       Log::info() << "Converting state " << jm+1 << " of " << nstates << std::endl;
 
 //    Read state
-      State_ xxi(resol1, model, stateParams.input.value());
+      State_ xxi(resol1, model, eckit::LocalConfiguration(stateConfs[jm], "input"));
       Log::test() << "Input state: " << xxi << std::endl;
 
 //    Copy and change resolution
@@ -143,7 +90,7 @@ template <typename MODEL> class ConvertState : public Application {
       }
 
 //    Write state
-      eckit::LocalConfiguration outconf(stateParams.toConfiguration(), "output");
+      eckit::LocalConfiguration outconf(stateConfs[jm], "output");
       xx.write(outconf);
 
       Log::test() << "Output state: " << xx << std::endl;
@@ -159,3 +106,4 @@ template <typename MODEL> class ConvertState : public Application {
 };
 
 }  // namespace oops
+#endif  // OOPS_RUNS_CONVERTSTATE_H_

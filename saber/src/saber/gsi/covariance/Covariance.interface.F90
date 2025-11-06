@@ -10,6 +10,7 @@ module gsi_covariance_interface_mod
 use iso_c_binding
 
 ! oops
+use kinds,                      only: kind_real
 use datetime_mod
 
 ! atlas
@@ -49,7 +50,7 @@ contains
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine gsi_covariance_create_cpp(c_self, c_comm, c_conf, c_ntimes, c_bg, c_fg, c_valid_times) &
+subroutine gsi_covariance_create_cpp(c_self, c_comm, c_conf, c_ntimes, c_bg, c_fg, c_valid_times, c_nchecks, c_checks) &
            bind(c, name='gsi_covariance_create_f90')
 
 ! Arguments
@@ -60,6 +61,8 @@ integer(c_int),     intent(in)    :: c_ntimes
 type(c_ptr),        intent(in)    :: c_bg(c_ntimes)
 type(c_ptr),        intent(in)    :: c_fg(c_ntimes)
 type(c_ptr),        intent(in)    :: c_valid_times(c_ntimes)
+integer(c_int),     intent(in)    :: c_nchecks
+real(c_double),     intent(in)    :: c_checks(c_nchecks)
 
 ! Locals
 type(gsi_covariance), pointer :: f_self
@@ -68,7 +71,8 @@ type(fckit_configuration)     :: f_conf
 type(atlas_fieldset), dimension(:), allocatable :: f_bg
 type(atlas_fieldset), dimension(:), allocatable :: f_fg
 type(datetime), dimension(:), allocatable       :: f_valid_times
-integer                       :: itime, ntimes
+real(kind=kind_real), dimension(:), allocatable :: f_checks
+integer                       :: itime, ntimes, nchecks
 
 ! LinkedList
 ! ----------
@@ -89,11 +93,24 @@ do itime = 1, ntimes
   call c_f_datetime(c_valid_times(itime), f_valid_times(itime))
 enddo
 
+nchecks = c_nchecks
+allocate(f_checks(nchecks))
+f_checks(:) = c_checks(:)
+
 ! Call implementation
 ! -------------------
-call f_self%create(f_comm, f_conf, ntimes, f_bg, f_fg, f_valid_times)
+call f_self%create(f_comm, f_conf, ntimes, f_bg, f_fg, f_valid_times, nchecks, f_checks)
 
+! Release memory
+! --------------
+do itime = 1, ntimes
+  call f_bg(itime)%final()
+  call f_fg(itime)%final()
+enddo
 deallocate(f_bg, f_fg, f_valid_times)
+call f_conf%final()
+call f_comm%final()
+deallocate(f_checks)
 
 end subroutine gsi_covariance_create_cpp
 
@@ -148,6 +165,10 @@ f_inc = atlas_fieldset(c_inc)
 ! -------------------
 call f_self%randomize(f_inc)
 
+! Release memory
+! --------------
+call f_inc%final()
+
 end subroutine gsi_covariance_randomize_cpp
 
 ! --------------------------------------------------------------------------------------------------
@@ -182,6 +203,11 @@ enddo
 ! -------------------
 call f_self%multiply(ntimes, f_inc)
 
+! Release memory
+! --------------
+do itime = 1, ntimes
+  call f_inc(itime)%final
+enddo
 deallocate(f_inc)
 
 end subroutine gsi_covariance_multiply_cpp

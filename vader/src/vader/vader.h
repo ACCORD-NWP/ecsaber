@@ -68,18 +68,27 @@ class Vader  : public util::Printable {
 
     std::vector<std::string> getPlanNames() const;
     std::vector<std::string> getPlanNames(vaderPlanType plan) const;
+    bool needsTLADInit() const {return !recipeExecutionPlanBuilt_;}
+    oops::JediVariables initTLAD(oops::JediVariables &) const;
+    oops::JediVariables initTLAD(oops::JediVariables &, vaderPlanType &) const;
 
     /// Calculates as many variables in the list as possible
     oops::JediVariables changeVar(atlas::FieldSet &, oops::JediVariables &,
-                              vaderPlanType plan = vaderPlanType()) const;
-    oops::JediVariables changeVarTraj(atlas::FieldSet &, oops::JediVariables &);
-    oops::JediVariables changeVarTL(atlas::FieldSet &, oops::JediVariables &) const;
-    oops::JediVariables changeVarAD(atlas::FieldSet &, oops::JediVariables &) const;
+                              vaderPlanType &) const;
+    oops::JediVariables changeVar(atlas::FieldSet &, oops::JediVariables &) const;
+    void changeVarTraj(atlas::FieldSet const &, oops::JediVariables const &);
+    oops::JediVariables changeVarTL(atlas::FieldSet &) const;
+    oops::JediVariables changeVarAD(atlas::FieldSet &) const;
+    oops::JediVariables changeVarTL(atlas::FieldSet &, vaderPlanType &) const;
+    oops::JediVariables changeVarAD(atlas::FieldSet &, vaderPlanType &) const;
 
  private:
     std::map<oops::Variable, std::vector<std::unique_ptr<RecipeBase>>> cookbook_;
-    vaderPlanType recipeExecutionPlan_;
-    atlas::FieldSet trajectory_;
+    mutable vaderPlanType recipeExecutionPlan_;  // mutable due to being set in const changeVarTL/AD
+    mutable oops::JediVariables toVariables_;  // mutable due to being set in const changeVarTL/AD
+    mutable atlas::FieldSet trajectory_;  // mutable due to being set in const changeVarTL/AD
+    bool changeVarTrajCalled_ = false;
+    mutable bool recipeExecutionPlanBuilt_ = false;  // mutable due to being set in changeVarTL/AD
     const eckit::LocalConfiguration configVariables_;
     std::map<oops::Variable, std::vector<std::string>>
         getDefaultCookbookDef();
@@ -91,9 +100,26 @@ class Vader  : public util::Printable {
     bool planVariable(oops::JediVariables &,
                       oops::JediVariables &,
                       const oops::Variable &,
-                      bool,
+                      oops::JediVariables &,
+                      vaderPlanType &,
+                      const bool,
                       oops::JediVariables &,
                       vaderPlanType &) const;
+
+    void planVariables(oops::JediVariables &,
+                       oops::JediVariables &,
+                       vaderPlanType &) const;
+
+    void planVariables(oops::JediVariables &,
+                       oops::JediVariables &,
+                       vaderPlanType &,
+                       const bool,
+                       oops::JediVariables &,
+                       vaderPlanType &) const;
+
+    void createLinearPlanAndSetTraj(oops::JediVariables &,
+                                    oops::JediVariables &,
+                                    vaderPlanType &) const;
 
     void executePlanNL(atlas::FieldSet &, const vaderPlanType &) const;
     void executePlanTL(atlas::FieldSet &, const vaderPlanType &) const;

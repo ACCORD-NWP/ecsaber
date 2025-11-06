@@ -1,0 +1,17 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt.tmp.bak	2025-11-06 08:32:04.714495817 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt	2025-11-06 08:31:44.806566499 +0100
+@@ -23,12 +23,13 @@
+ endif()
+ 
+ target_link_libraries( ${PROJECT_NAME} PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )
+-target_link_libraries( ${PROJECT_NAME} PUBLIC MPI::MPI_Fortran )
++target_link_libraries( ${PROJECT_NAME} PUBLIC MPI::MPI_Fortran MPI::MPI_CXX )
+ target_link_libraries( ${PROJECT_NAME} PUBLIC ${LAPACK_LIBRARIES} )
+ target_link_libraries( ${PROJECT_NAME} PUBLIC eckit )
+ target_link_libraries( ${PROJECT_NAME} PUBLIC fckit )
+ target_link_libraries( ${PROJECT_NAME} PUBLIC atlas_f )
+ target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} )
++target_link_libraries( ${PROJECT_NAME} PUBLIC oops_patch )
+ target_link_libraries( ${PROJECT_NAME} PUBLIC vader )
+ 
+ if( gsibec_FOUND )

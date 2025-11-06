@@ -20,11 +20,11 @@
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/base/Variable.h"
+#include "oops/util/ECUtilities.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/Logger.h"
-
-namespace df = util::datefunctions;
+#include "oops/util/ParallelFieldSetIO.h"
 
 namespace oops {
 
@@ -354,7 +354,7 @@ void FieldSet3D::print(std::ostream & os) const {
 
 size_t FieldSet3D::serialSize() const {
   // size of valid time + number of variables
-  size_t fset_size = 2 + 1;
+  size_t fset_size = util::dateTimeSerialSize(validTime_) + 1;
   for (const auto & field : fset_) {
     assert(field.rank() == 2);
     // size of field + dimension sizes (2) + variable name hash (1)
@@ -371,10 +371,7 @@ void FieldSet3D::serialize(std::vector<double> & vect)  const {
   vect.reserve(vect.size() + fset_size);
 
   // serialize valid time and number of variables
-  int year, month, day, hour, minute, second;
-  validTime_.toYYYYMMDDhhmmss(year, month, day, hour, minute, second);
-  vect.push_back(static_cast<double>(df::dateToJulian(year, month, day)));
-  vect.push_back(static_cast<double>(df::hmsToSeconds(hour, minute, second)));
+  util::dateTimeSerialize(validTime_, vect);
   vect.push_back(fset_.size());
 
   static_assert(sizeof(double) == sizeof(size_t));
@@ -399,11 +396,8 @@ void FieldSet3D::serialize(std::vector<double> & vect)  const {
 // -----------------------------------------------------------------------------
 
 void FieldSet3D::deserialize(const std::vector<double> & vect, size_t & index) {
-  int year, month, day, hour, minute, second;
-  df::julianToDate(std::lround(vect.at(index)), year, month, day);
-  df::secondToHms(std::lround(vect.at(index+1)), hour, minute, second);
-  index += 2;
-  util::DateTime other_time(year, month, day, hour, minute, second);
+  util::DateTime other_time;
+  util::dateTimeDeserialize(other_time, vect, index);
   if (other_time != validTime_) {
     // All current use cases for this method are needed for fieldsets at different
     // times to handle 4D aspects in covariances: issue a warning that the dates are

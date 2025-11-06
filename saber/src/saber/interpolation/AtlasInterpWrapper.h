@@ -19,7 +19,11 @@
 #include "atlas/interpolation.h"
 #include "atlas/redistribution/Redistribution.h"
 
+#ifdef ATLAS_MAKE_SPARSE
+#include "atlas/linalg/sparse.h"
+#else
 #include "eckit/linalg/SparseMatrix.h"
+#endif
 
 #include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
@@ -47,7 +51,8 @@ class AtlasInterpWrapper {
                      const atlas::FunctionSpace &,
                      const atlas::Grid &,
                      const atlas::FunctionSpace &,
-                     const std::string & interpType = "");
+                     const std::string & interpType = "",
+                     const bool includingVectorInterpolation = false);
   ~AtlasInterpWrapper() {}
 
   void execute(const atlas::FieldSet &,
@@ -56,7 +61,12 @@ class AtlasInterpWrapper {
                       const atlas::FieldSet &) const;
 
   eckit::linalg::SparseMatrix getInterpolationMatrix() const {
+#ifdef ATLAS_MAKE_SPARSE
+    return atlas::linalg::make_eckit_sparse_matrix(
+                          atlas::interpolation::MatrixCache(interp_).matrix());
+#else
     return atlas::interpolation::MatrixCache(interp_).matrix();
+#endif
   }
 
   const atlas::FunctionSpace & getIntermediateFunctionSpace() const {
@@ -68,15 +78,11 @@ class AtlasInterpWrapper {
   }
 
  private:
-  void execute(const atlas::Field &,
-               atlas::Field &) const;
-  void executeAdjoint(atlas::Field &,
-                      const atlas::Field &) const;
-
   atlas::FunctionSpace targetFspace_;
   atlas::Interpolation interp_;
   atlas::Redistribution redistr_;
   atlas::Redistribution inverseRedistr_;
+  const bool includingVectorInterpolation_;
 };
 
 }  // namespace interpolation

@@ -1,5 +1,5 @@
 /*
- * (C) Crown Copyright 2022-2024 Met Office
+ * (C) Crown Copyright 2022-2025 Met Office
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -19,34 +19,38 @@
 
 namespace mo {
 namespace functions {
-//--
-// ++ Atlas Function Spaces ++
 
-/// \brief procedure to call a functor for a given concrete implementation
-///        of a function space type
-template<typename Functor>
-void executeFunc(const atlas::FunctionSpace & fspace, const Functor & functor) {
-  if (atlas::functionspace::NodeColumns(fspace)) {
-    functor(atlas::functionspace::CubedSphereNodeColumns(fspace));
-  } else if (atlas::functionspace::CellColumns(fspace)) {
-    functor(atlas::functionspace::CubedSphereCellColumns(fspace));
-  } else if (atlas::functionspace::StructuredColumns(fspace)) {
-    functor(atlas::functionspace::StructuredColumns(fspace));
-  } else {
-    oops::Log::error() << "ERROR - a functor call failed "
-                          "(function space type not allowed)" << std::endl;
-    throw std::runtime_error("a functor call failed");
-  }
-}
+/// helper functions for water-based calculations.
+void eval_q_x_nl(
+  atlas::FieldSet & fields, const std::vector<std::string> & vars);
 
-/// \brief wrapper for 'parallel_for'
-template<typename Functor>
-void parallelFor(const atlas::FunctionSpace & fspace,
-                 const Functor& functor,
-                 const atlas::util::Config& conf = atlas::util::Config()) {
-  executeFunc(fspace, [&](const auto& fspace){fspace.parallel_for(conf, functor);});
-}
+/// Helper functions for calculating specific quantities
+void eval_q_x_tl(atlas::FieldSet & incFields,
+  const atlas::FieldSet & fields, const std::vector<std::string> & vars);
 
+/// Helper functions for calculating specific quantities
+void eval_q_x_ad(atlas::FieldSet & hatFields,
+  const atlas::FieldSet & fields, const std::vector<std::string> & vars);
+
+/// Helper functions for calculating mixing ratio wrt dry air quantities
+void eval_m_x_nl(
+  atlas::FieldSet & fields, const std::vector<std::string> & vars);
+
+/// Helper functions for calculating mixing ratio wrt dry air quantities
+void eval_m_x_tl(atlas::FieldSet & incFields,
+  const atlas::FieldSet & fields, const std::vector<std::string> & vars);
+
+/// Helper functions for calculating mixing ratio wrt dry air quantities
+void eval_m_x_ad(atlas::FieldSet & hatFields,
+  const atlas::FieldSet & fields, const std::vector<std::string> & vars);
+
+/// Helper functions for calculating mixing ratio wrt dry air quantities
+void eval_q_x_inv_tl(atlas::FieldSet & incFields,
+  const atlas::FieldSet & fields, const std::vector<std::string> & vars);
+
+/// Helper functions for calculating mixing ratio wrt dry air quantities
+void eval_q_x_inv_ad(atlas::FieldSet & hatFields,
+  const atlas::FieldSet & fields, const std::vector<std::string> & vars);
 
 //--
 // ++ I/O processing ++

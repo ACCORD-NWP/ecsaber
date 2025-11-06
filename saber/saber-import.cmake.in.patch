@@ -1,0 +1,47 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in.tmp	2025-11-05 14:44:49.707132116 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/saber-import.cmake.in	2025-11-05 15:14:13.720397342 +0100
+@@ -3,8 +3,10 @@
+ 
+ include(CMakeFindDependencyMacro)
+ 
+-if(@jedicmake_FOUND@ AND NOT jedicmake_FOUND)
+-    find_dependency(jedicmake REQUIRED)
++if(ENABLE_QUENCH)
++    if(NOT jedicmake_FOUND)
++        find_dependency(jedicmake REQUIRED)
++    endif()
+ endif()
+ 
+ if(@OPENMP@)
+@@ -15,7 +17,7 @@
+     find_dependency(MPI REQUIRED COMPONENTS Fortran)
+ endif()
+ 
+-if(NOT NetCDF_Fortran_FOUND)
++if(NOT (NetCDF_C_FOUND AND NetCDF_Fortran_FOUND))
+     find_dependency(NetCDF REQUIRED COMPONENTS Fortran)
+ endif()
+ 
+@@ -50,14 +52,18 @@
+     find_dependency(oops)
+ endif()
+ 
++if(NOT oops_patch_FOUND)
++    find_dependency(oops_patch)
++endif()
++
+ if(NOT vader_FOUND)
+     find_dependency(vader)
+ endif()
+ 
+-if(@FFTW_FOUND@) # FFTW_FOUND
+-   find_dependency(FFTW)
+-   set(saber_FFTW_FOUND True) #COMPONENT 'FFTW'
+-endif()
++#if(@FFTW_FOUND@) # FFTW_FOUND
++#   find_dependency(FFTW)
++#   set(saber_FFTW_FOUND True) #COMPONENT 'FFTW'
++#endif()
+ 
+ if(@gsibec_FOUND@) # gsibec_FOUND
+     find_dependency(gsibec)

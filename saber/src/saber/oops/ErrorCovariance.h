@@ -208,24 +208,24 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
 
 // Start wrong indentation to stick with SABER version
 
-    // Local copy of background and first guess that can undergo interpolation
-    std::unique_ptr<oops::FieldSet4D> fset4dXb;
-    std::unique_ptr<oops::FieldSet4D> fset4dFg;
+  // Local copy of background and first guess that can undergo interpolation
+  std::unique_ptr<oops::FieldSet4D> fset4dXb;
+  std::unique_ptr<oops::FieldSet4D> fset4dFg;
 
-    // Change resolution if needed
-    if (params.changeBackgroundResolution) {
-      const State4D_ xb_lowres(geom, xb);
-      const State4D_ fg_lowres(geom, fg);
-      const oops::FieldSet4D fset4dXbTmp(xb_lowres);
-      const oops::FieldSet4D fset4dFgTmp(fg_lowres);
-      fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
-      fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
-    } else {
-      const oops::FieldSet4D fset4dXbTmp(xb);
-      const oops::FieldSet4D fset4dFgTmp(fg);
-      fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
-      fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
-    }
+  // Change resolution if needed
+  if (params.changeBackgroundResolution) {
+    const State4D_ xb_lowres(geom, xb);
+    const State4D_ fg_lowres(geom, fg);
+    const oops::FieldSet4D fset4dXbTmp(xb_lowres);
+    const oops::FieldSet4D fset4dFgTmp(fg_lowres);
+    fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
+    fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
+  } else {
+    const oops::FieldSet4D fset4dXbTmp(xb);
+    const oops::FieldSet4D fset4dFgTmp(fg);
+    fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
+    fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
+  }
 
   // Initialize outer variables
   const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(BVars_->variables());

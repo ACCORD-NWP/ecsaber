@@ -13,9 +13,8 @@
 #include <utility>
 #include <vector>
 
-#include <boost/noncopyable.hpp>
-
 #include "eckit/exception/Exceptions.h"
+#include "eckit/memory/NonCopyable.h"
 
 #include "oops/base/FieldSets.h"
 #include "oops/interface/Geometry.h"
@@ -44,7 +43,8 @@ namespace saber {
 
 // -----------------------------------------------------------------------------
 
-class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
+class SaberOuterBlockBase : public util::Printable,
+                            private eckit::NonCopyable {
  public:
   explicit SaberOuterBlockBase(const SaberBlockParametersBase & params,
                                const util::DateTime & validTime)
@@ -54,7 +54,7 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
 
   // Accessor
 
-  // To inner Geometry data
+  // To inner geometry data
   virtual const oops::GeometryData & innerGeometryData() const = 0;
 
   // To inner variables
@@ -152,11 +152,13 @@ class SaberOuterBlockBase : public util::Printable, private boost::noncopyable {
   // Read model fields
   template <typename MODEL>
   void read(const oops::Geometry<MODEL> &,
+            const bool &,
             const oops::JediVariables &);
 
   // Write model fields
   template <typename MODEL>
   void write(const oops::Geometry<MODEL> &,
+             const bool &,
              const oops::JediVariables &) const;
 
   // Adjoint test
@@ -266,8 +268,12 @@ class SaberOuterBlockMaker : public SaberOuterBlockFactory {
 
 template <typename MODEL>
 void SaberOuterBlockBase::read(const oops::Geometry<MODEL> & geom,
+                               const bool & validModelGeom,
                                const oops::JediVariables & vars) {
   oops::Log::trace() << "SaberOuterBlockBase::read starting" << std::endl;
+
+  // Cannot read files without a valid MODEL geometry
+  ASSERT(validModelGeom || (this->getReadConfs().size() == 0));
 
   // Read fieldsets as increments
   std::vector<oops::FieldSet3D> fsetVec;
@@ -302,8 +308,12 @@ void SaberOuterBlockBase::read(const oops::Geometry<MODEL> & geom,
 
 template <typename MODEL>
 void SaberOuterBlockBase::write(const oops::Geometry<MODEL> & geom,
+                                const bool & validModelGeom,
                                 const oops::JediVariables & vars) const {
   oops::Log::trace() << "SaberOuterBlockBase::write starting" << std::endl;
+
+  // Cannot write files without a valid MODEL geometry
+  ASSERT(validModelGeom || (this->fieldsToWrite().size() == 0));
 
   // Get vector of configuration/FieldSet pairs
   std::vector<std::pair<eckit::LocalConfiguration, oops::FieldSet3D>> outputs

@@ -42,8 +42,6 @@ ModelAuxIncrement.h
 ModelData.h
 State.cc
 State.h
-Utilities.cc
-Utilities.h
 VariableChange.cc
 VariableChange.h
 Variables.cc

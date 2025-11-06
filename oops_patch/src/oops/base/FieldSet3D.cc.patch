@@ -1,0 +1,37 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet3D.cc.tmp	2025-11-04 14:55:44.014663031 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet3D.cc	2025-11-04 14:58:54.157799564 +0100
+@@ -20,6 +20,7 @@
+ #include "eckit/exception/Exceptions.h"
+ 
+ #include "oops/base/Variable.h"
++#include "oops/util/ECUtilities.h"
+ #include "oops/util/FieldSetHelpers.h"
+ #include "oops/util/FieldSetOperations.h"
+ #include "oops/util/Logger.h"
+@@ -353,7 +354,7 @@
+ 
+ size_t FieldSet3D::serialSize() const {
+   // size of valid time + number of variables
+-  size_t fset_size = validTime_.serialSize() + 1;
++  size_t fset_size = util::dateTimeSerialSize(validTime_) + 1;
+   for (const auto & field : fset_) {
+     assert(field.rank() == 2);
+     // size of field + dimension sizes (2) + variable name hash (1)
+@@ -370,7 +371,7 @@
+   vect.reserve(vect.size() + fset_size);
+ 
+   // serialize valid time and number of variables
+-  validTime_.serialize(vect);
++  util::dateTimeSerialize(validTime_, vect);
+   vect.push_back(fset_.size());
+ 
+   static_assert(sizeof(double) == sizeof(size_t));
+@@ -396,7 +397,7 @@
+ 
+ void FieldSet3D::deserialize(const std::vector<double> & vect, size_t & index) {
+   util::DateTime other_time;
+-  other_time.deserialize(vect, index);
++  util::dateTimeDeserialize(other_time, vect, index);
+   if (other_time != validTime_) {
+     // All current use cases for this method are needed for fieldsets at different
+     // times to handle 4D aspects in covariances: issue a warning that the dates are

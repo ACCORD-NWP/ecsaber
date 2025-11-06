@@ -22,9 +22,7 @@ namespace vader
 
 // Static attribute initialization
 const char RelativeHumidity_A::Name[] = "RelativeHumidity_A";
-const oops::JediVariables
-  RelativeHumidity_A::Ingredients{std::vector<std::string>{"air_temperature",
-                                    "dlsvpdT",
+const oops::JediVariables RelativeHumidity_A::Ingredients{std::vector<std::string>{"air_temperature",
                                     "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water",
                                     "qsat"}};
 
@@ -51,6 +49,13 @@ oops::Variable RelativeHumidity_A::product() const
 oops::JediVariables RelativeHumidity_A::ingredients() const
 {
     return RelativeHumidity_A::Ingredients;
+}
+
+oops::JediVariables RelativeHumidity_A::trajectoryVars() const
+{
+    return oops::JediVariables({"dlsvpdT",
+                            "water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water",
+                            "qsat"});
 }
 
 size_t RelativeHumidity_A::productLevels(const atlas::FieldSet & afieldset) const

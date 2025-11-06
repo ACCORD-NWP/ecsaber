@@ -1,0 +1,165 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp	2025-11-05 14:44:45.754112965 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2025-02-03 13:49:14.073078115 +0100
+@@ -19,12 +19,14 @@
+ #include "eckit/exception/Exceptions.h"
+ 
+ #include "oops/base/FieldSets.h"
+-#include "oops/base/Geometry.h"
+-#include "oops/base/Increment.h"
+-#include "oops/base/instantiateCovarFactory.h"
+-#include "oops/base/ModelSpaceCovarianceBase.h"
+-#include "oops/base/State.h"
+-#include "oops/base/Variables.h"
++#include "oops/base/Increment4D.h"
++#include "oops/base/State4D.h"
++#include "oops/interface/Geometry.h"
++#include "oops/interface/Increment.h"
++#include "oops/interface/Model.h"
++#include "oops/interface/State.h"
++#include "oops/interface/Variables.h"
++#include "oops/runs/Application.h"
+ #include "oops/mpi/mpi.h"
+ #include "oops/runs/Application.h"
+ #include "oops/util/ConfigFunctions.h"
+@@ -38,6 +40,9 @@
+ 
+ #include "saber/blocks/SaberParametricBlockChain.h"
+ #include "saber/oops/ErrorCovarianceParameters.h"
++#include "saber/oops/instantiateCovarFactory.h"
++
++#include "oops/util/ECUtilities.h"
+ #include "saber/oops/Utilities.h"
+ 
+ namespace saber {
+@@ -149,12 +154,12 @@
+   typedef BandParameters<MODEL>                          BandParameters_;
+ 
+   /// Geometry parameters.
+-  oops::RequiredParameter<eckit::LocalConfiguration> geometry{"geometry", this};
++  oops::RequiredParameter<eckit::LocalConfiguration> geometry{"resolution", this};
+ 
+   /// Background parameters.
+-  oops::RequiredParameter<eckit::LocalConfiguration> background{"background", this};
++  oops::RequiredParameter<eckit::LocalConfiguration> background{"Background", this};
+ 
+-  oops::RequiredParameter<oops::JediVariables> inputVariables{"input variables", this};
++  oops::RequiredParameter<eckit::LocalConfiguration> inputVariables{"input variables", this};
+ 
+   oops::RequiredParameter<std::vector<BandParameters_>> bands{"bands", this};
+ 
+@@ -170,44 +175,73 @@
+   typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
+   typedef oops::Geometry<MODEL>                             Geometry_;
+   typedef oops::Increment<MODEL>                            Increment_;
++  typedef oops::Increment4D<MODEL>                          Increment4D_;
++  typedef oops::Model<MODEL>                                Model_;
+   typedef oops::State<MODEL>                                State_;
+   typedef oops::State4D<MODEL>                              State4D_;
++  typedef oops::Variables<MODEL>                            Variables_;
+   typedef ProcessPertsParameters<MODEL>                     ProcessPertsParameters_;
+ 
+  public:
+ // -----------------------------------------------------------------------------
+-  explicit ProcessPerts(const eckit::mpi::Comm & comm = eckit::mpi::comm()) :
+-    Application(comm) {
++  ProcessPerts() {
+     instantiateCovarFactory<MODEL>();
+   }
+ // -----------------------------------------------------------------------------
+   virtual ~ProcessPerts() {}
+ // -----------------------------------------------------------------------------
+ 
+-  int execute(const eckit::Configuration & fullConfig) const override {
++  int execute(const eckit::Configuration & fullConfig) const {
+     // Deserialize parameters
+     ProcessPertsParameters_ params;
+     params.deserialize(fullConfig);
+ 
+     // Define space and time communicators
+-    const eckit::mpi::Comm * commSpace = &this->getComm();
+-    const eckit::mpi::Comm * commTime = &oops::mpi::myself();
++    const eckit::mpi::Comm * commSpace = &eckit::mpi::comm();
++
++    // Get number of MPI tasks and OpenMP threads
++    size_t ntasks = commSpace->size();
++    size_t nthreads = 1;
++#ifdef _OPENMP
++    # pragma omp parallel
++    {
++      nthreads = omp_get_num_threads();
++    }
++#endif
++
++    // Replace patterns in full configuration and deserialize parameters
++    eckit::LocalConfiguration fullConfigUpdated(fullConfig);
++    util::seekAndReplace(fullConfigUpdated, "_MPI_", std::to_string(ntasks));
++    util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
++    params.deserialize(fullConfigUpdated);
++
++    // Set precision for test channel
++    oops::Log::test() << std::scientific
++                      << std::setprecision(std::numeric_limits<double>::digits10+1);
+ 
+     // Setup geometry
+-    const Geometry_ geom(params.geometry, *commSpace, *commTime);
++    const Geometry_ geom(params.geometry);
++
++    // Setup model
++    eckit::LocalConfiguration modelConf;
++    if (fullConfigUpdated.has("model")) {
++      modelConf = fullConfigUpdated.getSubConfiguration("model");
++    }
++    const Model_ model(geom, modelConf);
+ 
+     // Setup background
+-    const State4D_ xx(geom, params.background, *commTime);
++    const State4D_ xx(params.background, geom, model);
+     oops::FieldSet4D fsetXb(xx);
+     oops::FieldSet4D fsetFg(xx);
+ 
+     // Setup time
+     const util::DateTime time = xx[0].validTime();
+ 
+-    oops::JediVariables incVars = params.inputVariables;
++    const Variables_ incVarsT(params.inputVariables);
++    oops::JediVariables incVars(incVarsT.variables().variablesList());
+ 
+     // Initialize outer variables
+-    const std::vector<std::size_t> vlevs = geom.variableSizes(incVars);
++    const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsT.variables());
+     for (std::size_t i = 0; i < vlevs.size() ; ++i) {
+       incVars[i].setLevels(vlevs[i]);
+     }
+@@ -365,24 +399,26 @@
+           eckit::LocalConfiguration gconf = it->second;
+           util::setMember(gconf, jm+1);
+           setConcatenatedString(fullConfig,
+-                                std::vector<std::string>{"geometry", "grid"},
++                                std::vector<std::string>{"resolution", "grid"},
+                                 "grid pattern",
+                                 gconf);
+-          util::writeFieldSet(geom.getComm(), gconf, fset4dDx[0].fieldSet());
++          util::writeFieldSet(geom.geometry().getComm(), gconf, fset4dDx[0].fieldSet());
+         }
+ 
+         if (auto it{modelWriteConfs.find(b)}; it != std::end(modelWriteConfs)) {
+           eckit::LocalConfiguration mconf = it->second;
+ 
+           // Should be on the model geometry!
++          const Variables_ pertVarsT(util::templatedVarsConf(fset4dDxI[0].variables()));
+           auto pert = Increment_(geom,
+-                                 fset4dDx[0].variables(),
++                                 pertVarsT,
+                                  time);
+           pert.zero();
+-          pert.fromFieldSet(fset4dDx[0].fieldSet());
++          pert.increment().fromFieldSet(fset4dDx[0].fieldSet());
+ 
+-          util::setMember(mconf, jm+1);
+-          pert.write(mconf);
++          eckit::LocalConfiguration writeParams = mconf;
++          util::setMember(writeParams, jm+1);
++          pert.write(writeParams);
+         }
+       }
+     }

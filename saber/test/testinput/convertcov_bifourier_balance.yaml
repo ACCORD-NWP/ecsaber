@@ -87,4 +87,5 @@ output dirac:
   mpi pattern: '%MPI%'
   filepath: testdata/convertcov_bifourier_balance/%MPI%_dirac_%id%
 test:
+  float relative tolerance: 1.0e-8
   reference filename: testref/convertcov_bifourier_balance.ref

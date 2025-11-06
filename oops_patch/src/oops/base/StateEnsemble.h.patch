@@ -1,0 +1,59 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateEnsemble.h.tmp	2025-11-05 12:45:52.497601799 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/StateEnsemble.h	2025-10-16 13:42:02.046536081 +0200
+@@ -14,8 +14,8 @@
+ #include <vector>
+ 
+ #include "oops/base/Accumulator.h"
+-#include "oops/base/Increment.h"
+-#include "oops/base/State.h"
++#include "oops/interface/Increment.h"
++#include "oops/interface/State.h"
+ #include "oops/util/abor1_cpp.h"
+ #include "oops/util/ConfigFunctions.h"
+ #include "oops/util/FieldSetOperations.h"
+@@ -168,7 +168,6 @@
+ 
+  public:
+   /// Create ensemble of states
+-  StateEnsemble(const Geometry_ &, eckit::Configuration &);
+   StateEnsemble(const Geometry_ &, const StateEnsembleParameters_ &);
+   /// Create n copies of a state in an ensemble
+   StateEnsemble(const State_ &, const size_t &);
+@@ -196,27 +195,6 @@
+ // ====================================================================================
+ 
+ template<typename MODEL>
+-StateEnsemble<MODEL>::StateEnsemble(const Geometry_ & resol, eckit::Configuration & conf)
+-  : states_(), geom_(resol) {
+-  // Reserve memory to hold ensemble
+-  StateEnsembleParameters_ params;
+-  params.deserialize(conf);
+-
+-  const size_t nens = params.size();
+-  states_.reserve(nens);
+-
+-  const size_t myrank = resol.timeComm().rank();
+-
+-  // Loop over all ensemble members
+-  for (size_t jj = 0; jj < nens; ++jj) {
+-    states_.emplace_back(resol, params.getStateConfig(jj, myrank));
+-  }
+-  Log::trace() << "StateEnsemble:contructor done" << std::endl;
+-}
+-
+-// -----------------------------------------------------------------------------
+-
+-template<typename MODEL>
+ StateEnsemble<MODEL>::StateEnsemble(const Geometry_ & resol,
+                                     const StateEnsembleParameters_ & params)
+   : states_(), geom_(resol) {
+@@ -294,7 +272,8 @@
+   Increment<MODEL> ensStdDev = this->variance();
+ 
+   // Compute ensemble standard deviation
+-  ensStdDev.sqrt();
++  ensStdDev.fieldSet().sqrt();
++  ensStdDev.synchronizeFields();
+ 
+   Log::trace() << "StateEnsemble:: standard deviation done" << std::endl;
+   return ensStdDev;

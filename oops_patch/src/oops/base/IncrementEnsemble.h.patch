@@ -1,0 +1,41 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble.h.tmp	2025-11-05 12:39:10.663529097 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/IncrementEnsemble.h	2025-11-05 12:41:30.352056871 +0100
+@@ -19,14 +19,16 @@
+ #include <vector>
+ 
+ #include "eckit/config/LocalConfiguration.h"
+-#include "oops/base/Geometry.h"
+-#include "oops/base/Increment.h"
++#include "oops/interface/Geometry.h"
++#include "oops/interface/Increment.h"
+ #include "oops/base/LocalIncrement.h"
+-#include "oops/base/State.h"
++#include "oops/interface/State.h"
+ #include "oops/base/StateEnsemble.h"
+ #include "oops/base/Variables.h"
++#include "oops/interface/Variables.h"
+ #include "oops/util/ConfigFunctions.h"
+ #include "oops/util/DateTime.h"
++#include "oops/util/ECUtilities.h"
+ #include "oops/util/Logger.h"
+ #include "oops/util/parameters/OptionalParameter.h"
+ #include "oops/util/parameters/Parameter.h"
+@@ -186,7 +188,6 @@
+                     const Geometry_ &, const JediVariables &, const util::DateTime &);
+   /// \brief construct ensemble of perturbations by reading them from disk
+   IncrementEnsemble(const Geometry_ &, const JediVariables &, const IncrementEnsembleParameters_ &);
+-  IncrementEnsemble(const Geometry_ &, const JediVariables &, eckit::Configuration &);
+   /// \brief construct ensemble of perturbations by reading two state ensembles (one member at a
+   //         time) and taking the  difference of each set of pairs
+   IncrementEnsemble(const Geometry_ &, const JediVariables &, const StateEnsembleParameters_ &,
+@@ -216,8 +217,9 @@
+   : ensemblePerturbs_()
+ {
+   ensemblePerturbs_.reserve(rank);
++  const oops::Variables<MODEL> varsT(templatedVarsConf(vars));
+   for (int m = 0; m < rank; ++m) {
+-    ensemblePerturbs_.emplace_back(resol, vars, time);
++    ensemblePerturbs_.emplace_back(resol, varsT, time);
+   }
+   Log::trace() << "IncrementEnsemble:contructor done" << std::endl;
+ }

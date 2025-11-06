@@ -17,7 +17,6 @@
 
 #include "atlas/array.h"
 #include "atlas/field.h"
-#include "atlas/field/for_each.h"
 #include "atlas/functionspace.h"
 #include "atlas/util/CoordinateEnums.h"
 
@@ -29,6 +28,7 @@
 #include "oops/base/Variables.h"
 #include "oops/util/AtlasArrayUtil.h"
 #include "oops/util/FieldSetHelpers.h"
+#include "oops/util/for_each.h"
 
 #include "saber/interpolation/AtlasInterpWrapper.h"
 #include "saber/interpolation/Rescaling.h"
@@ -82,11 +82,9 @@ auto readCovarianceProfiles(const std::string & filePath,
     ASSERT(netcdfDimVarIDs[pos].size() == 1);
     const int nLevs = dimSizes[netcdfDimVarIDs[pos][0]];
     ASSERT(nLevs == var.getLevels());
-    std::vector<atlas::idx_t> dimFldSizes({nLevs});
     auto levArray = atlas::array::Array::create<int>(nLevs);
     auto levView = atlas::array::make_view<int, 1>(*levArray);
     util::atlasArrayReadData(netcdfGeneralIDs,
-                             dimFldSizes,
                              netcdfVarIDs[pos],
                              levView);
     int lev(0);
@@ -99,12 +97,9 @@ auto readCovarianceProfiles(const std::string & filePath,
     pos = vars.find(distVarName);
     ASSERT(netcdfDimVarIDs[pos].size() == 1);
     const int nDist = dimSizes[netcdfDimVarIDs[pos][0]];
-    dimFldSizes.clear();
-    dimFldSizes.push_back(nDist);
-    auto distArray = atlas::array::Array::create<int>(nDist);
-    auto distView = atlas::array::make_view<int, 1>(*distArray);
+    auto distArray = atlas::array::Array::create<double>(nDist);
+    auto distView = atlas::array::make_view<double, 1>(*distArray);
     util::atlasArrayReadData(netcdfGeneralIDs,
-                             dimFldSizes,
                              netcdfVarIDs[pos],
                              distView);
     // Initialize and fill distance vector
@@ -121,14 +116,11 @@ auto readCovarianceProfiles(const std::string & filePath,
     ASSERT(netcdfDimVarIDs[pos].size() == 2);
     ASSERT(dimSizes[netcdfDimVarIDs[pos][0]] == nDist);
     ASSERT(dimSizes[netcdfDimVarIDs[pos][1]] == nLevs);
-    dimFldSizes.clear();
-    dimFldSizes = {nDist, nLevs};
     auto covField = atlas::Field(var.name(),
                                  atlas::array::make_datatype<double>(),
                                  atlas::array::make_shape(nDist, nLevs));
     auto covView = atlas::array::make_view<double, 2>(covField);
     util::atlasArrayReadData(netcdfGeneralIDs,
-                             dimFldSizes,
                              netcdfVarIDs[pos],
                              covView);
     covariances.add(covField);
@@ -315,15 +307,16 @@ computeRescalingCoeffs(
                     atlas::option::levels(levels) |
                     atlas::option::name(var.name()) |
                     atlas::option::halo(0));
-      atlas::field::for_each_value(targetVarField,
-                                   actualVarField,
-                                   field,
-                                   [&](const double target,
-                                       const double actual,
-                                       double & v){
-               const double multTarget = alpha * target + (1 - alpha) * actual;
-               v = std::sqrt(multTarget / actual);
-                                   });
+      util::for_each_value(
+        [=](const double target,
+            const double actual,
+            double & v) {
+          const double multTarget = alpha * target + (1 - alpha) * actual;
+          v = std::sqrt(multTarget / actual);
+        },
+        targetVarField,
+        actualVarField,
+        field);
       multFset.add(field);
     }
 
@@ -333,15 +326,16 @@ computeRescalingCoeffs(
                     atlas::option::levels(levels) |
                     atlas::option::name(var.name()) |
                     atlas::option::halo(0));
-      atlas::field::for_each_value(targetVarField,
-                                   actualVarField,
-                                   field,
-                                   [&](const double target,
-                                       const double actual,
-                                       double & v){
-               const double multTarget = alpha * target + (1 - alpha) * actual;
-               v = std::sqrt(target - multTarget);
-                                   });
+      util::for_each_value(
+        [=](const double target,
+            const double actual,
+            double & v) {
+          const double multTarget = alpha * target + (1 - alpha) * actual;
+          v = std::sqrt(target - multTarget);
+        },
+        targetVarField,
+        actualVarField,
+        field);
       addFset.add(field);
     }
 
@@ -492,13 +486,11 @@ Rescaling::Rescaling(const eckit::mpi::Comm & comm,
 
 void Rescaling::execute(oops::FieldSet3D & fieldSet) const {
   oops::Log::trace() << classname() << "::execute starting" << std::endl;
-  for (const auto & wField : multiplicativeRescalingCoeffs_) {
-    const auto & field = fieldSet.fieldSet()[wField.name()];
-    const auto & ghost = field.functionspace().ghost();
-    atlas::field::for_each_value_masked(ghost,
-                                        wField,
-                                        field,
-                                        [&](const double w, double & v){v *= w;});
+  for (const auto & weightField : multiplicativeRescalingCoeffs_) {
+    auto & field = fieldSet.fieldSet()[weightField.name()];
+    util::for_each_value([](const double weight, double & value) { value *= weight; },
+                         weightField,
+                         field);
     field.set_dirty();
   }
   oops::Log::trace() << classname() << "::execute done" << std::endl;

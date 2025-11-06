@@ -1,0 +1,55 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp	2025-11-05 14:44:45.351111013 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2025-11-05 14:46:22.068334328 +0100
+@@ -17,9 +17,9 @@
+ #include "eckit/memory/NonCopyable.h"
+ 
+ #include "oops/base/FieldSets.h"
+-#include "oops/base/Geometry.h"
++#include "oops/interface/Geometry.h"
+ #include "oops/base/GeometryData.h"
+-#include "oops/base/Increment.h"
++#include "oops/interface/Increment.h"
+ #include "oops/base/Variables.h"
+ #include "oops/util/AssociativeContainers.h"
+ #include "oops/util/DateTime.h"
+@@ -33,6 +33,7 @@
+ #include "oops/util/Printable.h"
+ 
+ #include "saber/blocks/SaberBlockParametersBase.h"
++#include "oops/util/ECUtilities.h"
+ 
+ namespace oops {
+   class FieldSet3D;
+@@ -286,13 +287,16 @@
+     } else {
+       incVars.reset(new oops::JediVariables(vars));
+     }
+-    oops::Increment<MODEL> dx(geom, *incVars, validTime_);
++    oops::Variables<MODEL> varsT(util::templatedVarsConf(*incVars));
++    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+ 
+     // Read, print norm and push_back
+     dx.read(input.second);
+     oops::Log::test() << "Norm of input parameter " << input.first
+                       << ": " << dx.norm() << std::endl;
+-    fsetVec.push_back(dx.fieldSet());
++    oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
++    fset.deepCopy(dx.increment().fieldSet());
++    fsetVec.push_back(fset);
+     fsetVec.back().name() = input.first;
+   }
+   this->setReadFields(fsetVec);
+@@ -326,10 +330,11 @@
+     } else {
+       incVars.reset(new oops::JediVariables(vars));
+     }
+-    oops::Increment<MODEL> dx(geom, *incVars, validTime_);
++    oops::Variables<MODEL> varsT(util::templatedVarsConf(*incVars));
++    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+ 
+     // Write and print norm
+-    dx.fromFieldSet(output.second.fieldSet());
++    dx.increment().fromFieldSet(output.second.fieldSet());
+     oops::Log::test() << "Norm of output parameter " << output.second.name()
+                       << ": " << dx.norm() << std::endl;
+     dx.write(output.first);

@@ -10,12 +10,12 @@
 #include <string>
 #include <vector>
 
-#include "oops/interface/Geometry.h"
-#include "oops/interface/Increment.h"
+#include "oops/base/Geometry.h"
+#include "oops/base/Increment.h"
 #include "oops/base/Increment4D.h"
-#include "oops/interface/State.h"
+#include "oops/base/LinearModelBase.h"
+#include "oops/base/State.h"
 #include "oops/base/State4D.h"
-#include "oops/interface/LinearModelBase.h"
 #include "oops/interface/ModelAuxIncrement.h"
 #include "oops/util/Duration.h"
 #include "oops/util/Logger.h"
@@ -25,9 +25,7 @@ namespace oops {
 /// Generic implementation of the pseudo linear model initialized with 4D Increment
 /// (steps through time by stepping through states in 4D Increment)
 template <typename MODEL>
-class PseudoLinearModelIncrement4D : public util::Printable,
-                                     private eckit::NonCopyable,
-                                     private util::ObjectCounter<PseudoLinearModelIncrement4D<MODEL> > {
+class PseudoLinearModelIncrement4D : public LinearModelBase<MODEL> {
   typedef Geometry<MODEL>          Geometry_;
   typedef Increment<MODEL>         Increment_;
   typedef Increment4D<MODEL>       Increment4D_;
@@ -44,45 +42,32 @@ class PseudoLinearModelIncrement4D : public util::Printable,
   PseudoLinearModelIncrement4D(const Increment4D_ & inc,
                     const util::Duration & tstep = util::Duration(0));
 
-  /// Run the tangent linear forecast
-  void forecastTL(
-      Increment_ &, const ModelAuxInc_ &, const util::Duration &,
-      PostProcessor<Increment_> post = PostProcessor<Increment_>(),
-      PostProcessorTL<Increment_> cost = PostProcessorTL<Increment_>(),
-      const bool idmodel = false) const;
-
-  /// Run the adjoint forecast
-  void forecastAD(
-      Increment_ &, ModelAuxInc_ &, const util::Duration &,
-      PostProcessor<Increment_> post = PostProcessor<Increment_>(),
-      PostProcessorAD<Increment_> cost = PostProcessorAD<Increment_>(),
-      const bool idmodel = false) const;
-
-  /// Set the linearization trajectory
-  void setTrajectory(State_ &, const ModelAux_ &);
-
-  /// linear model time step
-  const util::Duration & timeResolution() const {return tstep_;}
-  const util::Duration & stepTrajectory() const {return tstep_;}
-  /// linear model variables
-//  const oops::Variables & variables() const {return vars_;}
-
- private:
 /// initialize tangent linear forecast
-  void initializeTL(Increment_ &) const;
+  void initializeTL(Increment_ &) const override;
 /// one tangent linear forecast step
-  void stepTL(Increment_ &, const ModelAuxInc_ &) const;
+  void stepTL(Increment_ &, const ModelAuxInc_ &) const override;
 /// finalize tangent linear forecast
-  void finalizeTL(Increment_ &) const;
+  void finalizeTL(Increment_ &) const override;
 
 /// initialize adjoint forecast
-  void initializeAD(Increment_ &) const;
+  void initializeAD(Increment_ &) const override;
 /// one adjoint forecast step
-  void stepAD(Increment_ &, ModelAuxInc_ &) const;
+  void stepAD(Increment_ &, ModelAuxInc_ &) const override;
 /// finalize adjoint forecast
-  void finalizeAD(Increment_ &) const;
+  void finalizeAD(Increment_ &) const override;
 
-  void print(std::ostream &) const;
+/// set trajectory
+  void setTrajectory(const State_ &, State_ &, const ModelAux_ &) override {}
+  // void setTrajectory(const State_ &, State_ &, const ModelAux_ &);
+
+  /// linear model time step
+  const util::Duration & timeResolution() const override {return tstep_;}
+  const util::Duration & stepTrajectory() const override {return tstep_;}
+  /// linear model variables
+  const oops::JediVariables & variables() const {return vars_;}
+
+ private:
+  void print(std::ostream &) const override;
 
   /// Reference to 4D state that is used in the model
   const Increment4D_ & inc4d_;
@@ -90,7 +75,7 @@ class PseudoLinearModelIncrement4D : public util::Printable,
   util::Duration   tstep_;
   /// Index of the current increment
   mutable size_t currentinc_;
-//  oops::Variables vars_;
+  oops::JediVariables vars_;
 };
 
 // -----------------------------------------------------------------------------
@@ -99,103 +84,11 @@ template<typename MODEL>
 PseudoLinearModelIncrement4D<MODEL>::PseudoLinearModelIncrement4D(const Increment4D_ & inc4d,
                                               const util::Duration & tstep)
   : inc4d_(inc4d), tstep_(tstep) {
-  const std::vector<util::DateTime> validTimes = inc4d_.times();
-//  vars_ = inc4d_.variables();
+  const std::vector<util::DateTime> validTimes = inc4d_.validTimes();
+  vars_ = inc4d_.variables();
   if (validTimes.size() > 1) tstep_ = validTimes[1] - validTimes[0];
   Log::trace() << "PseudoLinearModelIncrement4D<MODEL>::PseudoLinearModelIncrement4D done"
                << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
-template <typename MODEL>
-void PseudoLinearModelIncrement4D<MODEL>::forecastTL(Increment_ &dx, const ModelAuxInc_ &mctl,
-                                                     const util::Duration &len,
-                                                     PostProcessor<Increment_> post,
-                                                     PostProcessorTL<Increment_> cost,
-                                                     const bool idmodel) const {
-  /*!  The linear model forecast receives PostProcessor and PostProcessorTL;
-   *  PostProcessor can be used for post-processing (storing/writing of an
-   *  Increment at requested lead times) and PostProcessorTL can be used to
-   *  linear operators (e.g. \f$ H \f$ matrix).
-
-   *   The model error term is handled internally by the model.
-   */
-  Log::trace() << "PseudoLinearModelIncrement4D<MODEL>::forecastTL starting" << std::endl;
-  util::Timer timer(classname(), "forecastTL");
-
-  const util::DateTime end(dx.validTime() + len);
-  const util::Duration tstep(this->timeResolution());
-  Log::info() << "PseudoLinearModelIncrement4D<MODEL>::forecastTL: Starting " << dx << std::endl;
-  this->initializeTL(dx);
-  cost.initializeTL(dx, end, tstep);
-  post.initialize(dx, end, tstep);
-  if (idmodel) {
-    while (dx.validTime() < end) {
-      dx.updateTime(tstep);
-      cost.processTL(dx);
-      post.process(dx);
-    }
-  } else {
-    while (dx.validTime() < end) {
-      this->stepTL(dx, mctl);
-      cost.processTL(dx);
-      post.process(dx);
-    }
-  }
-  cost.finalizeTL(dx);
-  post.finalize(dx);
-  this->finalizeTL(dx);
-  Log::info() << "PseudoLinearModelIncrement4D<MODEL>::forecastTL: Finished " << dx << std::endl;
-  ASSERT(dx.validTime() == end);
-
-  Log::trace() << "PseudoLinearModelIncrement4D<MODEL>::forecastTL done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
-template <typename MODEL>
-void PseudoLinearModelIncrement4D<MODEL>::forecastAD(Increment_ &dx, ModelAuxInc_ &mctl,
-                                    const util::Duration &len,
-                                    PostProcessor<Increment_> post,
-                                    PostProcessorAD<Increment_> cost,
-                                    const bool idmodel) const {
-  /*!  The adjoint model forecast receives PostProcessor and PostProcessorAD;
-   *  PostProcessor can be used for post-processing (storing/writing of an
-   *  Increment at requested lead times) and PostProcessorAD can be used to
-   *  evaluate the adjoint of linear operators (e.g. \f$ H^T \f$ matrix).
-
-   *   The model error term is handled internally by the model.
-   */
-  Log::trace() << "PseudoLinearModelIncrement4D<MODEL>::forecastAD starting" << std::endl;
-  util::Timer timer(classname(), "forecastAD");
-
-  const util::DateTime bgn(dx.validTime() - len);
-  const util::Duration tstep(this->timeResolution());
-  Log::info() << "PseudoLinearModelIncrement4D<MODEL>::forecastAD: Starting " << dx << std::endl;
-  this->initializeAD(dx, mctl);
-  post.initialize(dx, bgn, tstep);
-  cost.initializeAD(dx, bgn, tstep);
-  if (idmodel) {
-    while (dx.validTime() > bgn) {
-      cost.processAD(dx);
-      dx.updateTime(-tstep);
-      post.process(dx);
-    }
-  } else {
-    while (dx.validTime() > bgn) {
-      cost.processAD(dx);
-      this->stepAD(dx, mctl);
-      post.process(dx);
-    }
-  }
-  cost.finalizeAD(dx);
-  post.finalize(dx);
-  this->finalizeAD(dx);
-  Log::info() << "PseudoLinearModelIncrement4D<MODEL>::forecastAD: Finished " << dx << std::endl;
-  ASSERT(dx.validTime() == bgn);
-
-  Log::trace() << "PseudoLinearModelIncrement4D<MODEL>::forecastAD done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

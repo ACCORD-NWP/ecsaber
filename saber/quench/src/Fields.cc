@@ -28,6 +28,7 @@
 #include "eckit/mpi/Comm.h"
 
 #include "oops/util/ConfigFunctions.h"
+#include "oops/util/ECUtilities.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/FloatCompare.h"
@@ -1065,7 +1066,7 @@ void Fields::write(const eckit::Configuration & config) const {
     } else {
       if (updatedConfig.has("date pattern")) {
         const std::string datePattern = updatedConfig.getString("date pattern");
-        util::seekAndReplace(updatedConfig, datePattern, dateTimeToStringIO(time_));
+        util::seekAndReplace(updatedConfig, datePattern, util::dateTimeToStringIO(time_));
       }
     }
   }
@@ -1134,7 +1135,7 @@ size_t Fields::serialSize() const {
       nn += field.shape(0)*field.shape(1);
     }
   }
-  nn += dateTimeSerialSize(time_);
+  nn += util::dateTimeSerialSize(time_);
 
   oops::Log::trace() << classname() << "::serialSize done" << std::endl;
   return nn;
@@ -1156,7 +1157,7 @@ void Fields::serialize(std::vector<double> & vect)  const {
       }
     }
   }
-  dateTimeSerialize(time_, vect);
+  util::dateTimeSerialize(time_, vect);
 
   oops::Log::trace() << classname() << "::serialize done" << std::endl;
 }
@@ -1179,7 +1180,7 @@ void Fields::deserialize(const std::vector<double> & vect,
       }
     }
   }
-  dateTimeDeserialize(time_, vect, index);
+  util::dateTimeDeserialize(time_, vect, index);
 
   oops::Log::trace() << classname() << "::deserialize done" << std::endl;
 }

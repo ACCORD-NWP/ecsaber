@@ -22,6 +22,7 @@
 #include "oops/base/Variables.h"
 #include "oops/generic/ObsErrorDiag.h"
 #include "oops/interface/ObsVector.h"
+#include "oops/util/DateTime.h"
 
 namespace util {
 
@@ -56,6 +57,27 @@ eckit::LocalConfiguration setObsValue(const eckit::Configuration &,
 // -----------------------------------------------------------------------------
 
 double timeStamp();
+
+// -----------------------------------------------------------------------------
+// DateTime
+// -----------------------------------------------------------------------------
+
+std::string dateTimeToStringIO(const util::DateTime &);
+
+// -----------------------------------------------------------------------------
+
+size_t dateTimeSerialSize(const util::DateTime &);
+
+// -----------------------------------------------------------------------------
+
+void dateTimeSerialize(const util::DateTime &,
+                       std::vector<double> &);
+
+// -----------------------------------------------------------------------------
+
+void dateTimeDeserialize(util::DateTime &,
+                         const std::vector<double> &,
+                         size_t &);
 
 // -----------------------------------------------------------------------------
 // Variables

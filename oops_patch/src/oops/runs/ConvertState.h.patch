@@ -1,0 +1,61 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp	2025-11-05 12:49:56.442720369 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2025-11-05 12:56:36.846905145 +0100
+@@ -1,5 +1,6 @@
+ /*
+  * (C) Copyright 2018-2021 UCAR
++ * (C) Copyright 2023 Meteorologisk Institutt
+  *
+  * This software is licensed under the terms of the Apache Licence Version 2.0
+  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+@@ -13,8 +14,9 @@
+ #include <vector>
+ 
+ #include "eckit/config/LocalConfiguration.h"
+-#include "oops/base/Geometry.h"
+-#include "oops/base/State.h"
++#include "oops/interface/Geometry.h"
++#include "oops/interface/Model.h"
++#include "oops/interface/State.h"
+ #include "oops/interface/VariableChange.h"
+ #include "oops/mpi/mpi.h"
+ #include "oops/runs/Application.h"
+@@ -26,21 +28,20 @@
+ 
+ template <typename MODEL> class ConvertState : public Application {
+   typedef Geometry<MODEL>               Geometry_;
++  typedef Model<MODEL>                  Model_;
+   typedef State<MODEL>                  State_;
+   typedef VariableChange<MODEL>         VariableChange_;
+ 
+  public:
+ // -------------------------------------------------------------------------------------------------
+-  explicit ConvertState(const eckit::mpi::Comm & comm = oops::mpi::world()) : Application(comm) {}
++  explicit ConvertState() : Application() {}
+ // -------------------------------------------------------------------------------------------------
+   virtual ~ConvertState() {}
+ // -------------------------------------------------------------------------------------------------
+   int execute(const eckit::Configuration & fullConfig) const override {
+ //  Setup resolution for input and output
+-    const Geometry_ resol1(eckit::LocalConfiguration(fullConfig, "input geometry"),
+-                           this->getComm());
+-    const Geometry_ resol2(eckit::LocalConfiguration(fullConfig, "output geometry"),
+-                           this->getComm());
++    const Geometry_ resol1(eckit::LocalConfiguration(fullConfig, "input geometry"));
++    const Geometry_ resol2(eckit::LocalConfiguration(fullConfig, "output geometry"));
+ 
+     // Setup change of variable
+     std::unique_ptr<VariableChange_> vc;
+@@ -73,7 +74,7 @@
+ //    Variable transform(s)
+       if (vc) {
+           // Create variable change
+-        oops::JediVariables varin = xx.variables();
++        oops::JediVariables varin = xx.state().variables();
+         if (inverse) {
+           vc->changeVarInverse(xx, varout);
+         } else {
+@@ -102,4 +103,3 @@
+ };
+ 
+ }  // namespace oops
+-#endif  // OOPS_RUNS_CONVERTSTATE_H_
