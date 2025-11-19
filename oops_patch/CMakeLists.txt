@@ -5,7 +5,7 @@
 # OOPS_PATCH
 ################################################################################
 
-cmake_minimum_required( VERSION 3.12 )
+cmake_minimum_required( VERSION 3.23 )
 project( oops_patch VERSION 0.0.1 LANGUAGES CXX Fortran )
 
 option(OPENMP "Build oops with OpenMP support" ON)
@@ -13,9 +13,6 @@ option(OPENMP "Build oops with OpenMP support" ON)
 ## Ecbuild integration
 find_package( ecbuild 3.3.2 REQUIRED )
 include( ecbuild_system NO_POLICY_SCOPE )
-if(POLICY CMP0079 )
-  cmake_policy(SET CMP0079 NEW)
-endif()
 ecbuild_declare_project()
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 set( CMAKE_DIRECTORY_LABELS ${PROJECT_NAME} )
@@ -45,7 +42,10 @@ if(OPENMP)
 endif()
 find_package( MPI REQUIRED COMPONENTS C CXX Fortran )
 find_package( NetCDF REQUIRED COMPONENTS C Fortran )
-find_package( Boost 1.64.0 REQUIRED COMPONENTS regex)
+if( NOT NETCDF4_PARALLEL )
+  message( FATAL_ERROR "Missing PARALLEL feature for NetCDF" )
+endif()
+find_package( Boost 1.64.0 REQUIRED )
 include_directories(${Boost_INCLUDE_DIRS})
 find_package( eckit 1.17.1 REQUIRED COMPONENTS MPI )
 find_package( fckit 0.9.5 REQUIRED )
@@ -55,6 +55,10 @@ else()
     find_package( atlas 0.33.0 REQUIRED )
 endif()
 
+if( atlas_VERSION VERSION_GREATER_EQUAL "0.39.0" )
+  find_package( hic REQUIRED )
+endif()
+
 # OOPS
 find_package( oops REQUIRED )
 
@@ -62,6 +66,7 @@ find_package( oops REQUIRED )
 add_subdirectory( src )
 
 ## Package Config
+
 ecbuild_install_project( NAME ${PROJECT_NAME} )
 
 #Export Targets
