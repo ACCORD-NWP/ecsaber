@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2024 UCAR
+ * (C) Copyright 2025 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -22,8 +22,8 @@ namespace vader
 
 // Static attribute initialization
 const char WaterVaporMixingRatioWrtMoistAir_A::Name[] = "WaterVaporMixingRatioWrtMoistAir_A";
-const oops::JediVariables
-  WaterVaporMixingRatioWrtMoistAir_A::Ingredients{{"humidity_mixing_ratio"}};
+const oops::JediVariables WaterVaporMixingRatioWrtMoistAir_A::Ingredients{
+                      {"water_vapor_mixing_ratio_wrt_dry_air"}};
 
 // Register the maker
 static RecipeMaker<WaterVaporMixingRatioWrtMoistAir_A> makerWaterVaporMixingRatioWrtMoistAir_(
@@ -45,7 +45,7 @@ std::string WaterVaporMixingRatioWrtMoistAir_A::name() const
 
 oops::Variable WaterVaporMixingRatioWrtMoistAir_A::product() const
 {
-    return oops::Variable{"specific_humidity"};
+    return oops::Variable{"water_vapor_mixing_ratio_wrt_moist_air"};
 }
 
 oops::JediVariables WaterVaporMixingRatioWrtMoistAir_A::ingredients() const
@@ -55,13 +55,13 @@ oops::JediVariables WaterVaporMixingRatioWrtMoistAir_A::ingredients() const
 
 size_t WaterVaporMixingRatioWrtMoistAir_A::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return afieldset.field("humidity_mixing_ratio").shape(1);
+    return afieldset.field("water_vapor_mixing_ratio_wrt_dry_air").shape(1);
 }
 
 atlas::FunctionSpace WaterVaporMixingRatioWrtMoistAir_A::productFunctionSpace
                                               (const atlas::FieldSet & afieldset) const
 {
-    return afieldset.field("humidity_mixing_ratio").functionspace();
+    return afieldset.field("water_vapor_mixing_ratio_wrt_dry_air").functionspace();
 }
 
 void WaterVaporMixingRatioWrtMoistAir_A::executeNL(atlas::FieldSet & afieldset)
@@ -70,11 +70,12 @@ void WaterVaporMixingRatioWrtMoistAir_A::executeNL(atlas::FieldSet & afieldset)
           << "entering WaterVaporMixingRatioWrtMoistAir_A::executeNL function"
           << std::endl;
 
-    // humidity_mixing_ratio in g/kg; specific_humidity in kg/kg
-    atlas::field::for_each_value(afieldset["humidity_mixing_ratio"],
-                                 afieldset["specific_humidity"],
+    // water_vapor_mixing_ratio_wrt_dry_air in kg/kg;
+    // water_vapor_mixing_ratio_wrt_moist_air in kg/kg;
+    atlas::field::for_each_value(afieldset["water_vapor_mixing_ratio_wrt_dry_air"],
+                                 afieldset["water_vapor_mixing_ratio_wrt_moist_air"],
                                  [&](const double mixr, double& q) {
-        q = mixr / (1. + mixr) / 1000.;
+        q = mixr / (1. + mixr);
     });
 
     oops::Log::trace()

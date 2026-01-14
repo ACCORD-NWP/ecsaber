@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_3.yaml.tmp	2025-11-06 12:17:17.676899151 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_3.yaml	2025-11-06 10:09:11.279995695 +0100
-@@ -69,4 +69,5 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_3.yaml.tmp.bak	2026-01-14 08:44:39.337763882 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_3.yaml	2026-01-14 08:57:13.116293322 +0100
+@@ -61,4 +61,5 @@
    mpi pattern: '%MPI%'
    filepath: testdata/dirac_bifourier_vordivtouv_3/%MPI%_dirac_%id%
  test:

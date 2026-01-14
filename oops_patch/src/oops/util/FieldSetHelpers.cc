@@ -27,11 +27,15 @@
 #include "oops/util/Logger.h"
 #include "oops/util/missingValues.h"
 #include "oops/util/RandomField.h"
+#include "oops/util/Timer.h"
 
 #define ERR(e, msg) {std::string s(nc_strerror(e)); \
   throw eckit::Exception(s + " : " + msg, Here());}
 
 namespace util {
+namespace {
+std::string modulename() {return "oops::util::FieldSetHelpers";}
+}
 
 // -----------------------------------------------------------------------------
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace & fspace,
@@ -976,6 +980,8 @@ void readFieldSet(const eckit::mpi::Comm & comm,
                   const std::vector<std::string> & vars,
                   const eckit::Configuration & config,
                   atlas::FieldSet & fset) {
+  util::Timer timer(modulename(), "readFieldSet");
+
   // Options with one file per MPI task
   const bool oneFilePerTask = config.getBool("one file per task", false);
   ASSERT(oneFilePerTask || (fspace.type() != "PointCloud"));
@@ -1297,6 +1303,8 @@ void readRank3FieldSet(const atlas::FunctionSpace & fspace,
 void writeFieldSet(const eckit::mpi::Comm & comm,
                    const eckit::Configuration & config,
                    const atlas::FieldSet & fset) {
+  util::Timer timer(modulename(), "writeFieldSet");
+
   // Define variables vector from fset
   std::vector<std::string> vars = fset.field_names();
 
@@ -1874,8 +1882,8 @@ std::vector<double> fieldSetToBuffer(const atlas::FieldSet & fields) {
   size_t index = 0;
   for (const auto & field : fields) {
     const auto & view = atlas::array::make_view<double, 2>(field);
-    for (size_t i = 0; i < field.shape(0); i++) {
-      for (size_t j = 0; j < field.shape(1); j++) {
+    for (atlas::idx_t i = 0; i < field.shape(0); i++) {
+      for (atlas::idx_t j = 0; j < field.shape(1); j++) {
         buf[index++] = view(i, j);
       }
     }
@@ -1888,8 +1896,8 @@ void fieldSetFromBuffer(atlas::FieldSet & fields, const std::vector<double> & bu
   size_t index = 0;
   for (auto & field : fields) {
     auto view = atlas::array::make_view<double, 2>(field);
-    for (size_t i = 0; i < view.shape(0); i++) {
-      for (size_t j = 0; j < view.shape(1); j++) {
+    for (atlas::idx_t i = 0; i < view.shape(0); i++) {
+      for (atlas::idx_t j = 0; j < view.shape(1); j++) {
         view(i, j) = buf[index++];
       }
     }

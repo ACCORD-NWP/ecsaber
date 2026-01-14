@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2024 UCAR
+ * (C) Copyright 2025 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -29,10 +29,9 @@ class SulfateMassFraction_AParameters : public RecipeParametersBase {
 };
 
 // ------------------------------------------------------------------------------------------------
-/*! \brief SulfateMassFraction_A class defines a recipe for humidity mixing ratio
+/*! \brief SulfateMassFraction_A class defines a recipe for sulfate mixing ratio
  *
- *  \details This instantiation of RecipeBase produces humidity mixing ratio (r)
- *           using specific humidity (q).
+ *  \details This recipe produces sulfate mass fraction in ug/kg from sulfate in ppmv
  *
  */
 class SulfateMassFraction_A : public RecipeBase {

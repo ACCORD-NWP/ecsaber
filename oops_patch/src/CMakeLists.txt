@@ -3,6 +3,8 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 # List source files from OOPS-JEDI
 list( APPEND oops_jedi_src_files
+oops/atlas/Interpolator.cc
+oops/atlas/Interpolator.h
 oops/base/DataSetBase.h
 oops/base/FieldSet3D.cc
 oops/base/FieldSet3D.h
@@ -31,8 +33,6 @@ oops/generic/gc99.cc
 oops/generic/gc99.h
 oops/generic/GlobalInterpolator.cc
 oops/generic/GlobalInterpolator.h
-oops/generic/LocalInterpolatorBase.cc
-oops/generic/LocalInterpolatorBase.h
 oops/generic/UnstructuredInterpolator.cc
 oops/generic/UnstructuredInterpolator.h
 oops/interface/LinearVariableChange.h
@@ -189,7 +189,6 @@ oops/assimilation/SQRTBPLanczosEVILMinimizer.h
 oops/assimilation/SQRTPLanczosEVILMinimizer.h
 oops/runs/AssimEnsemblePatched.h
 oops/runs/BGOS.h
-oops/runs/BGOS_impl.h
 oops/runs/EnsembleVariance.h
 oops/runs/EvilUpdate_cy46.h
 oops/runs/EvilUpdate.h

@@ -56,11 +56,12 @@ namespace oops {
 
 // -----------------------------------------------------------------------------
 
-UnstructuredInterpolator::UnstructuredInterpolator(const eckit::Configuration & /*config*/,
+UnstructuredInterpolator::UnstructuredInterpolator(const eckit::Configuration & config,
                                                    const GeometryData & geomData,
                                                    const std::vector<double> & lats_out,
                                                    const std::vector<double> & lons_out)
-  : geom_(geomData), nout_(0), interp_matrices_{}
+  : atlasbase::Interpolator(config, geomData, lats_out, lons_out),
+    geom_(geomData), nout_(0), interp_matrices_{}
 {
   Log::trace() << "UnstructuredInterpolator::UnstructuredInterpolator start" << std::endl;
   util::Timer timer("oops::UnstructuredInterpolator", "UnstructuredInterpolator");
@@ -71,23 +72,6 @@ UnstructuredInterpolator::UnstructuredInterpolator(const eckit::Configuration & 
   computeUnmaskedInterpMatrix(lats_out, lons_out);
 
   Log::trace() << "UnstructuredInterpolator::UnstructuredInterpolator done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
-void UnstructuredInterpolator::apply(const JediVariables & vars, const atlas::FieldSet & fset,
-                                     std::vector<double> & locvals) const
-{
-  std::vector<bool> target_mask(nout_, true);
-  this->apply(vars, fset, target_mask, locvals);
-}
-
-// -----------------------------------------------------------------------------
-
-void UnstructuredInterpolator::applyAD(const JediVariables & vars, atlas::FieldSet & fset,
-                                       const std::vector<double> & vals) const {
-  std::vector<bool> target_mask(nout_, true);
-  this->applyAD(vars, fset, target_mask, vals);
 }
 
 // -----------------------------------------------------------------------------
@@ -265,7 +249,7 @@ void UnstructuredInterpolator::doApply(
         for (int jlev = 0; jlev < nb_levels; ++jlev) {
           int minval = std::numeric_limits<int>().max();
           int maxval = std::numeric_limits<int>().min();
-          for (int jj = 0; jj < nstencil_; ++jj) {
+          for (size_t jj = 0; jj < nstencil_; ++jj) {
             minval = std::min(minval, static_cast<int>(std::round(source(interp_is[jj], jlev))));
             maxval = std::max(maxval, static_cast<int>(std::round(source(interp_is[jj], jlev))));
           }
@@ -326,13 +310,6 @@ void UnstructuredInterpolator::doApplyAD(
       }
     }
   }
-}
-
-// -----------------------------------------------------------------------------
-
-void UnstructuredInterpolator::print(std::ostream & os) const
-{
-  os << "UnstructuredInterpolator";
 }
 
 // -----------------------------------------------------------------------------
@@ -426,6 +403,10 @@ void UnstructuredInterpolator::computeMaskedInterpMatrix(
     }
   }
 }
+
+// -----------------------------------------------------------------------------
+
+void UnstructuredInterpolator::print(std::ostream & os) const { os << classname(); }
 
 // -----------------------------------------------------------------------------
 

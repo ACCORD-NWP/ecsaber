@@ -17,6 +17,9 @@
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/util/FunctionSpaceHelpers.h"
+#include "oops/util/Timer.h"
+
+#define ERR(e) {throw eckit::Exception(nc_strerror(e), Here());}
 
 namespace util {
 
@@ -56,10 +59,7 @@ ParallelFieldSetIO::ParallelFieldSetIO(const atlas::FunctionSpace& nativeFunctio
       redistributeWrite_((mode == Mode::Write || mode == Mode::ReadWrite) ?
           atlas::Redistribution(nativeFunctionSpace, functionSpace_) : atlas::Redistribution()),
       redistributeRead_((mode == Mode::Read || mode == Mode::ReadWrite) ?
-          atlas::Redistribution(functionSpace_, nativeFunctionSpace) : atlas::Redistribution()),
-      startGidx_(atlas::array::make_view<atlas::gidx_t, 1>(functionSpace_.global_index())[0] - 1),
-      countGidx_((gridSize_ / atlas::mpi::comm().size()) +
-          (atlas::mpi::comm().rank() < (gridSize_ % atlas::mpi::comm().size())))
+          atlas::Redistribution(functionSpace_, nativeFunctionSpace) : atlas::Redistribution())
     {}
 
 // -------------------------------------------------------------------------------------------------
@@ -74,6 +74,7 @@ atlas::FieldSet ParallelFieldSetIO::ioFieldSet(const atlas::FieldSet& nativeFiel
         // ASSERT_MSG(field.functionspace().grid() == functionSpace_.grid(),
         //            "util::ParallelFieldSetIO::ioFieldSet: Field's Grid doesn't match I/O Grid");
         auto fieldSetConfig = atlas::option::name(field.name());
+        fieldSetConfig.set(atlas::option::halo(0));
         if (shape.size() > 1) fieldSetConfig.set(atlas::option::levels(shape[1]));
         if (shape.size() > 2) fieldSetConfig.set(atlas::option::vector(shape[2]));
         switch (field.datatype().kind()) {
@@ -81,6 +82,9 @@ atlas::FieldSet ParallelFieldSetIO::ioFieldSet(const atlas::FieldSet& nativeFiel
                 ioFieldSet.add(functionSpace_.createField<int>(fieldSetConfig));
                 break;
             case atlas::array::DataType::KIND_REAL32:
+                // Note - although this class can deal with 32-bit floating point data,
+                // AtlasArrayUtil cannot yet, and will throw an exception.
+                // TODO(tom-j-h): Add further datatypes to AtlasArrayUtil.
                 ioFieldSet.add(functionSpace_.createField<float>(fieldSetConfig));
                 break;
             case atlas::array::DataType::KIND_REAL64:
@@ -140,6 +144,7 @@ void ParallelFieldSetIO::readFieldByTypeAndRank(atlas::Field& field,
 void ParallelFieldSetIO::write(const atlas::FieldSet& source, const std::string& ncfilepath) const {
     ASSERT_MSG(redistributeWrite_,
                "util::ParallelFieldSetIO::write: redistributeWrite_ not initialised");
+    util::Timer timer(classname(), "write");
 
     // Redistribute data to Fields where it is ordered by global_index
     atlas::FieldSet output = ioFieldSet(source);
@@ -199,7 +204,29 @@ void ParallelFieldSetIO::write(const atlas::FieldSet& source, const std::string&
     dimNames.insert(dimNames.end(), r3DimNames.begin(), r3DimNames.end());
 
     // Write header
-    const auto variables = oops::JediVariables(source.field_names());
+    std::vector<oops::Variable> variablesVec;
+    variablesVec.reserve(output.size());
+    for (auto f = 0; f < output.size(); f++) {
+        oops::ModelDataType dt;
+        switch (output[f].datatype().kind()) {
+            case atlas::array::DataType::KIND_INT32:
+                dt = oops::ModelDataType::Int32;
+                break;
+            case atlas::array::DataType::KIND_REAL32:
+                dt = oops::ModelDataType::Real32;
+                break;
+            case atlas::array::DataType::KIND_REAL64:
+                dt = oops::ModelDataType::Real64;
+                break;
+            default:
+                ABORT("util::ParallelFieldSetIO::write: invalid datatype for Atlas Field");
+        }
+        variablesVec.push_back(oops::Variable(
+            output[f].name(),
+            oops::VariableMetaData(oops::defaultVerticalStagger, dt, oops::defaultVariableDomain),
+            output[f].levels()));
+    }
+    const auto variables = oops::JediVariables(variablesVec);
     std::vector<int> netcdfGeneralIDs, netcdfDimIDs, netcdfVarIDs;
     std::vector<std::vector<int>> netcdfDimVarIDs;
     const eckit::LocalConfiguration config;
@@ -233,6 +260,8 @@ void ParallelFieldSetIO::write(const atlas::Field& source, const std::string& nc
 // -------------------------------------------------------------------------------------------------
 
 void ParallelFieldSetIO::read(atlas::FieldSet& target, const std::string& ncfilepath) const {
+    util::Timer timer(classname(), "read");
+
     ASSERT_MSG(redistributeRead_,
                "util::ParallelFieldSetIO::read: redistributeRead_ not initialised");
 

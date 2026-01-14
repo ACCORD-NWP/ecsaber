@@ -9,7 +9,9 @@
 
 #include <cmath>
 #include <fstream>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "eckit/config/Configuration.h"
 #include "eckit/config/LocalConfiguration.h"
@@ -22,9 +24,9 @@
 #include "oops/assimilation/DualVector.h"
 #include "oops/assimilation/HMatrix.h"
 #include "oops/assimilation/HtMatrix.h"
-#include "oops/assimilation/RinvMatrix.h"
 #include "oops/assimilation/instantiateCostFactory.h"
 #include "oops/assimilation/instantiateEvilMinFactory_cy46.h"
+#include "oops/assimilation/RinvMatrix.h"
 #include "oops/base/Departures.h"
 #include "oops/base/Ensemble.h"
 #include "oops/base/Increment4D.h"

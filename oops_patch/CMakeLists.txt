@@ -67,9 +67,16 @@ find_package( oops REQUIRED )
 
 ## Sources
 add_subdirectory( src )
+add_subdirectory( tools )
+
+## Global tests
+ecbuild_add_test( TARGET ${PROJECT_NAME}_coding_norms
+                  TYPE SCRIPT
+                  COMMAND ${PROJECT_NAME}_cpplint.py
+                  ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR}/src
+                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 
 ## Package Config
-
 ecbuild_install_project( NAME ${PROJECT_NAME} )
 
 #Export Targets

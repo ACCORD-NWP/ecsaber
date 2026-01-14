@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 203 UCAR
+ * (C) Copyright 2024 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -28,7 +28,6 @@ class AirPressure_AParameters : public RecipeParametersBase {
  public:
     oops::RequiredParameter<std::string> name{"recipe name", this};
 };
-
 /*! \brief AirPressure_A class defines a recipe for pressure levels from pressure
            thickness.
  *

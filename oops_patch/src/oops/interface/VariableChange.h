@@ -12,8 +12,8 @@
 #include <string>
 
 #include "eckit/config/Configuration.h"
-#include "oops/interface/Variables.h"
 #include "oops/interface/State.h"
+#include "oops/interface/Variables.h"
 #include "oops/util/ECUtilities.h"
 #include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
@@ -81,8 +81,7 @@ template<typename MODEL>
 void VariableChange<MODEL>::changeVar(State_ & xx, const JediVariables & vars) const {
   Log::trace() << "VariableChange<MODEL>::changeVar starting" << std::endl;
   util::Timer timer(classname(), "changeVar");
-  Variables<MODEL> varsT(util::templatedVarsConf(vars));
-  chvar_->changeVar(xx.state(), varsT.variables());
+  chvar_->changeVar(xx.state(), util::templatedVars<MODEL>(vars).variables());
   Log::trace() << "VariableChange<MODEL>::changeVar done" << std::endl;
 }
 
@@ -92,8 +91,7 @@ template<typename MODEL>
 void VariableChange<MODEL>::changeVarInverse(State_ & xx, const JediVariables & vars) const {
   Log::trace() << "VariableChange<MODEL>::changeVarInverse starting" << std::endl;
   util::Timer timer(classname(), "changeVarInverse");
-  Variables<MODEL> varsT(util::templatedVarsConf(vars));
-  chvar_->changeVarInverse(xx.state(), varsT.variables());
+  chvar_->changeVarInverse(xx.state(), util::templatedVars<MODEL>(vars).variables());
   Log::trace() << "VariableChange<MODEL>::changeVarInverse done" << std::endl;
 }
 

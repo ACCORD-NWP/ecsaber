@@ -73,6 +73,11 @@ class SaberOuterBlockBase : public util::Printable,
     {throw eckit::NotImplemented("leftInverseMultiply not implemented yet for the block "
       + blockName_, Here());}
 
+  // Block right inverse multiplication
+  virtual void rightInverseMultiply(oops::FieldSet3D &) const
+    {throw eckit::NotImplemented("rightInverseMultiply not implemented yet for the block "
+      + blockName_, Here());}
+
   // Setup / calibration methods
 
   // Read block data
@@ -99,11 +104,6 @@ class SaberOuterBlockBase : public util::Printable,
       + this->blockName(), Here());}
   virtual void iterativeCalibrationFinal()
     {throw eckit::NotImplemented("iterativeCalibrationUpdate not implemented yet for the block "
-      + this->blockName(), Here());}
-
-  // Dual resolution setup
-  virtual void dualResolutionSetup(const oops::GeometryData &)
-    {throw eckit::NotImplemented("dualResolutionSetup not implemented yet for the block "
       + this->blockName(), Here());}
 
   // Write block data
@@ -287,16 +287,13 @@ void SaberOuterBlockBase::read(const oops::Geometry<MODEL> & geom,
     } else {
       incVars.reset(new oops::JediVariables(vars));
     }
-    oops::Variables<MODEL> varsT(util::templatedVarsConf(*incVars));
-    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(*incVars), validTime_);
 
     // Read, print norm and push_back
     dx.read(input.second);
     oops::Log::test() << "Norm of input parameter " << input.first
                       << ": " << dx.norm() << std::endl;
-    oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
-    fset.deepCopy(dx.increment().fieldSet());
-    fsetVec.push_back(fset);
+    fsetVec.push_back(util::fieldSet(dx));
     fsetVec.back().name() = input.first;
   }
   this->setReadFields(fsetVec);
@@ -330,8 +327,7 @@ void SaberOuterBlockBase::write(const oops::Geometry<MODEL> & geom,
     } else {
       incVars.reset(new oops::JediVariables(vars));
     }
-    oops::Variables<MODEL> varsT(util::templatedVarsConf(*incVars));
-    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(*incVars), validTime_);
 
     // Write and print norm
     dx.increment().fromFieldSet(output.second.fieldSet());

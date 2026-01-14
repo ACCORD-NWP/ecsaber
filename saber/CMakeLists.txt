@@ -156,10 +156,11 @@ if( BUILD_TESTING )
   endif()
 
   ## Global tests
-  ecbuild_add_test( TARGET saber_coding_norms_src
+  ecbuild_add_test( TARGET ${PROJECT_NAME}_coding_norms_src
                     TYPE SCRIPT
-                    COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py
-                    ARGS --quiet --recursive ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/src )
+                    COMMAND ${PROJECT_NAME}_cpplint.py
+                    ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR}/src
+                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 endif()
 if( ENABLE_QUENCH )
   add_subdirectory( quench )

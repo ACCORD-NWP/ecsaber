@@ -1,6 +1,14 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp	2025-11-05 14:44:45.754112965 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2025-02-03 13:49:14.073078115 +0100
-@@ -19,12 +19,14 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-01-14 17:39:55.420560800 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-01-14 17:33:36.595244604 +0100
+@@ -8,6 +8,7 @@
+ #pragma once
+ 
+ #include <algorithm>
++#include <limits>
+ #include <map>
+ #include <memory>
+ #include <sstream>
+@@ -19,12 +20,13 @@
  #include "eckit/exception/Exceptions.h"
  
  #include "oops/base/FieldSets.h"
@@ -17,7 +25,6 @@
 +#include "oops/interface/Model.h"
 +#include "oops/interface/State.h"
 +#include "oops/interface/Variables.h"
-+#include "oops/runs/Application.h"
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
  #include "oops/util/ConfigFunctions.h"
@@ -130,7 +137,7 @@
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars[i].setLevels(vlevs[i]);
      }
-@@ -365,24 +399,26 @@
+@@ -363,10 +397,10 @@
            eckit::LocalConfiguration gconf = it->second;
            util::setMember(gconf, jm+1);
            setConcatenatedString(fullConfig,
@@ -143,13 +150,12 @@
          }
  
          if (auto it{modelWriteConfs.find(b)}; it != std::end(modelWriteConfs)) {
-           eckit::LocalConfiguration mconf = it->second;
+@@ -374,13 +408,14 @@
  
            // Should be on the model geometry!
-+          const Variables_ pertVarsT(util::templatedVarsConf(fset4dDxI[0].variables()));
            auto pert = Increment_(geom,
 -                                 fset4dDx[0].variables(),
-+                                 pertVarsT,
++                                 util::templatedVars<MODEL>(fset4dDxI[0].variables()),
                                   time);
            pert.zero();
 -          pert.fromFieldSet(fset4dDx[0].fieldSet());

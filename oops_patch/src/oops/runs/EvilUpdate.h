@@ -8,8 +8,10 @@
 #pragma once
 
 #include <cmath>
+#include <memory>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "eckit/config/Configuration.h"
 #include "eckit/config/LocalConfiguration.h"

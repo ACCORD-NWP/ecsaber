@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2024 UCAR
+ * (C) Copyright 2025 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -26,9 +26,9 @@ namespace vader
 // Static attribute initialization
 const char AirTemperature_C::Name[] = "AirTemperature_C";
 const char AT[] = "air_temperature";
-const char PAPT[] = "perturbation_air_potential_temperature";
+const char APT[] = "air_potential_temperature";
 const char AP[] = "air_pressure";
-const oops::JediVariables AirTemperature_C::Ingredients{std::vector<std::string>{PAPT, AP}};
+const oops::JediVariables AirTemperature_C::Ingredients{std::vector<std::string>{APT, AP}};
 
 // Register the maker
 static RecipeMaker<AirTemperature_C> makerAirTemperature_C_(AirTemperature_C::Name);
@@ -57,27 +57,25 @@ oops::JediVariables AirTemperature_C::ingredients() const
 
 size_t AirTemperature_C::productLevels(const atlas::FieldSet & fields) const
 {
-    return fields[PAPT].levels();
+    return fields[APT].levels();
 }
 
 atlas::FunctionSpace AirTemperature_C::productFunctionSpace(const atlas::FieldSet & fields) const
 {
-    return fields[PAPT].functionspace();
+    return fields[APT].functionspace();
 }
 
 void AirTemperature_C::executeNL(atlas::FieldSet & fields)
 {
     oops::Log::trace() << "entering AirTemperature_C::executeNL function" << std::endl;
 
-    const double pt_base = configVariables_.getDouble("base_air_potential_temperature");
-
     auto air_pressure_view = make_view<const double, 2>(fields[AP]);
-    auto perturbation_potential_temperature_view = make_view<const double, 2>(fields[PAPT]);
+    auto air_potential_temperature_view = make_view<const double, 2>(fields[APT]);
     auto temp_view = make_view<double, 2>(fields[AT]);
 
     for (idx_t jn = 0; jn < fields[AT].shape(0) ; ++jn) {
       for (idx_t jl = 0; jl < fields[AT].shape(1); ++jl) {
-        temp_view(jn, jl) = (perturbation_potential_temperature_view(jn, jl) + pt_base) *
+        temp_view(jn, jl) = air_potential_temperature_view(jn, jl) *
                             pow(air_pressure_view(jn, jl) / mo::constants::p_zero,
                             mo::constants::rd_over_cp);
       }

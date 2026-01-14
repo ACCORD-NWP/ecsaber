@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp	2025-11-05 12:59:27.371196859 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2025-11-05 13:09:11.445054642 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h.tmp.bak	2026-01-14 17:20:46.265402520 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlockBase.h	2026-01-14 15:41:06.761113912 +0100
 @@ -28,6 +28,7 @@
  #include "oops/util/Printable.h"
  
@@ -8,34 +8,27 @@
  
  // Forward declaration
  namespace oops {
-@@ -234,12 +235,17 @@
-   // Read fieldsets as increments
+@@ -230,11 +231,11 @@
    std::vector<oops::FieldSet3D> fsetVec;
    for (const auto & input : this->getReadConfs()) {
-+    // Create variables
-+    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
-+
      // Create increment
 -    oops::Increment<MODEL> dx(geom, vars, validTime_);
-+    oops::Increment<MODEL> dx(geom, varsT, validTime_);
++    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(vars), validTime_);
      dx.read(input.second);
      oops::Log::test() << "Norm of input parameter " << input.first
                        << ": " << dx.norm() << std::endl;
 -    fsetVec.push_back(dx.fieldSet());
-+    oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
-+    fset.deepCopy(dx.increment().fieldSet());
-+    fsetVec.push_back(fset);
++    fsetVec.push_back(util::fieldSet(dx));
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -259,8 +265,9 @@
+@@ -254,8 +255,8 @@
  
    // Write fieldsets as increments
    for (const auto & output : outputs) {
 -    oops::Increment<MODEL> dx(geom, output.second.variables(), validTime_);
 -    dx.fromFieldSet(output.second.fieldSet());
-+    oops::Variables<MODEL> varsT(util::templatedVarsConf(output.second.variables()));
-+    oops::Increment<MODEL> dx(geom, varsT, validTime_);
++    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(output.second.variables()), validTime_);
 +    dx.increment().fromFieldSet(output.second.fieldSet());
      oops::Log::test() << "Norm of output parameter " << output.second.name()
                        << ": " << dx.norm() << std::endl;

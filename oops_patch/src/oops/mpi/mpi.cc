@@ -114,8 +114,8 @@ void reduceInPlace(const eckit::mpi::Comm & comm, atlas::FieldSet & fields, cons
     size_t index = 0;
     for (const auto & field : fields) {
       const auto & view = atlas::array::make_view<double, 2>(field);
-      for (size_t i = 0; i < field.shape(0); i++) {
-        for (size_t j = 0; j < field.shape(1); j++) {
+      for (atlas::idx_t i = 0; i < field.shape(0); i++) {
+        for (atlas::idx_t j = 0; j < field.shape(1); j++) {
           buf[index++] = view(i, j);
         }
       }
@@ -126,8 +126,8 @@ void reduceInPlace(const eckit::mpi::Comm & comm, atlas::FieldSet & fields, cons
     index = 0;
     for (auto & field : fields) {
       auto view = atlas::array::make_view<double, 2>(field);
-      for (size_t i = 0; i < view.shape(0); i++) {
-        for (size_t j = 0; j < view.shape(1); j++) {
+      for (atlas::idx_t i = 0; i < view.shape(0); i++) {
+        for (atlas::idx_t j = 0; j < view.shape(1); j++) {
           view(i, j) = buf[index++];
         }
       }
@@ -204,15 +204,9 @@ void allGather(const eckit::mpi::Comm & comm,
 void allGatherv(const eckit::mpi::Comm & comm, std::vector<util::DateTime> &x) {
     size_t globalSize = x.size();
     comm.allReduceInPlace(globalSize, eckit::mpi::sum());
-    std::vector<std::string> xStr;
-    for (const auto & item : x) {
-      xStr.push_back(item.toString());
-    }
-    oops::mpi::allGatherv(comm, xStr);
-    x.clear();
-    for (const auto & item : xStr) {
-      x.push_back(util::DateTime(item));
-    }
+    std::vector<util::DateTime> globalX(globalSize);
+    oops::mpi::allGathervUsingSerialize(comm, x.begin(), x.end(), globalX.begin());
+    x = std::move(globalX);
 }
 
 // ------------------------------------------------------------------------------------------------

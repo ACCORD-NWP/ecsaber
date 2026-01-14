@@ -1,33 +1,31 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/VariableChange.h.tmp	2025-11-05 12:49:56.397719994 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/VariableChange.h	2025-02-03 13:49:14.066078079 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/VariableChange.h.tmp.bak	2026-01-14 18:00:51.621763245 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/VariableChange.h	2026-01-14 17:51:38.509346775 +0100
 @@ -12,7 +12,9 @@
  #include <string>
  
  #include "eckit/config/Configuration.h"
 -#include "oops/base/State.h"
-+#include "oops/interface/Variables.h"
 +#include "oops/interface/State.h"
++#include "oops/interface/Variables.h"
 +#include "oops/util/ECUtilities.h"
  #include "oops/util/Logger.h"
  #include "oops/util/ObjectCounter.h"
  #include "oops/util/Printable.h"
-@@ -79,7 +81,8 @@
+@@ -79,7 +81,7 @@
  void VariableChange<MODEL>::changeVar(State_ & xx, const JediVariables & vars) const {
    Log::trace() << "VariableChange<MODEL>::changeVar starting" << std::endl;
    util::Timer timer(classname(), "changeVar");
 -  chvar_->changeVar(xx.state(), vars);
-+  Variables<MODEL> varsT(util::templatedVarsConf(vars));
-+  chvar_->changeVar(xx.state(), varsT.variables());
++  chvar_->changeVar(xx.state(), util::templatedVars<MODEL>(vars).variables());
    Log::trace() << "VariableChange<MODEL>::changeVar done" << std::endl;
  }
  
-@@ -89,7 +92,8 @@
+@@ -89,7 +91,7 @@
  void VariableChange<MODEL>::changeVarInverse(State_ & xx, const JediVariables & vars) const {
    Log::trace() << "VariableChange<MODEL>::changeVarInverse starting" << std::endl;
    util::Timer timer(classname(), "changeVarInverse");
 -  chvar_->changeVarInverse(xx.state(), vars);
-+  Variables<MODEL> varsT(util::templatedVarsConf(vars));
-+  chvar_->changeVarInverse(xx.state(), varsT.variables());
++  chvar_->changeVarInverse(xx.state(), util::templatedVars<MODEL>(vars).variables());
    Log::trace() << "VariableChange<MODEL>::changeVarInverse done" << std::endl;
  }
  

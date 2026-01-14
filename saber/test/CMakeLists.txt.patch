@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp	2025-11-05 14:44:48.904128227 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2025-11-05 15:13:10.534153240 +0100
-@@ -192,9 +192,10 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-01-14 08:44:40.436609604 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2026-01-14 08:58:31.104487941 +0100
+@@ -200,9 +200,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
        # Link to yaml file
@@ -14,7 +14,7 @@
  
        # Link to reference file
        if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -266,7 +267,7 @@
+@@ -274,7 +275,7 @@
  
                    # Special check for 4D tests
                    string( FIND ${test} "_4d" found_result )
@@ -23,7 +23,7 @@
                        set( 4dCheck true CACHE BOOL "" FORCE )
                    else()
                        set( 4dCheck false CACHE BOOL "" FORCE )
-@@ -305,10 +306,11 @@
+@@ -313,10 +314,11 @@
  
                        # Add test
                        ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
@@ -39,7 +39,7 @@
                                          DEPENDS saber_quench_${exename}.x
                                          TEST_DEPENDS ${deps_list} )
                    endif()
-@@ -333,10 +335,11 @@
+@@ -341,10 +343,11 @@
  
                    # Add test
                    ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
@@ -55,3 +55,16 @@
                                      DEPENDS saber_quench_error_covariance_toolbox.x
                                      TEST_DEPENDS ${deps_list} )
                endif()
+@@ -381,12 +384,3 @@
+                 SOURCES         fctest/fctest_nicas_sqrt.F90
+                 LIBS            saber )
+ endif()
+-
+-# A bespoke test for parallel B
+-set( mpi 5 )
+-set( omp 1 )
+-ecbuild_add_test( TARGET saber_test_dirac_parallel_hybrid_ratio_stddev_5-1
+-                  MPI ${mpi}
+-                  OMP ${omp}
+-                  COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
+-                  ARGS testinput/dirac_parallel_hybrid_ratio_stddev.yaml)

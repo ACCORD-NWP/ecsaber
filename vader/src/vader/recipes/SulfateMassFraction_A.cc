@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2024 UCAR
+ * (C) Copyright 2025 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -64,13 +64,13 @@ void SulfateMassFraction_A::executeNL(atlas::FieldSet & afieldset)
 {
     oops::Log::trace() << "entering SulfateMassFraction_A::executeNL function" << std::endl;
 
-    const double sulfmw = configVariables_.getDouble("sulfmw");
-    const double airmw = configVariables_.getDouble("airmw");
+    const double sulfmw = configVariables_.getDouble("molecular_weight_of_so4");
+    const double airmw = configVariables_.getDouble("molecular_weight_of_air");
 
     atlas::field::for_each_value(afieldset["sulfate_ppmv"],
                                  afieldset["mass_fraction_of_sulfate_in_air"],
                                  [&](const double sulf_ppmv, double& sulf_ugkg) {
-        sulf_ugkg = sulf_ppmv * sulfmw / airmw * 1e-6 * 1e9;
+        sulf_ugkg = sulf_ppmv * sulfmw / airmw * 1e3;
     });
 
     oops::Log::trace() << "leaving SulfateMassFraction_A::executeNL function" << std::endl;

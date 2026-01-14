@@ -90,8 +90,8 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
   // Create dummy xb and fg
   oops::FieldSet3D fset3d(dummyTime, eckit::mpi::comm());
   fset3d.deepCopy(util::createFieldSet(geom.geometry().functionSpace(), incVars, 0.0));
-  oops::FieldSet4D fset4dXb(fset3d);
-  oops::FieldSet4D fset4dFg(fset3d);
+  oops::FieldSet4D xb4d(fset3d);
+  oops::FieldSet4D fg4d(fset3d);
 
   oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
   // TODO(AS): revisit what configuration needs to be passed to SaberParametricBlockChain.
@@ -111,9 +111,9 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
   // so this parameter can be anything.
   covarConf.set("time covariance", "univariate");
   // Initialize localization blockchain
-  loc_ = std::make_unique<SaberParametricBlockChain>(geom, geom,
-              incVars, fset4dXb, fset4dFg,
-              emptyFsetEns, emptyFsetEns, covarConf, conf);
+  loc_ = std::make_unique<SaberParametricBlockChain>(geom,
+              incVars, xb4d, fg4d,
+              emptyFsetEns, covarConf, conf);
 
   oops::Log::trace() << "Localization:Localization done" << std::endl;
 }

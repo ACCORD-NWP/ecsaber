@@ -171,7 +171,6 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     if (params.incrementVars.value() != boost::none) {
       tmpVars = params.incrementVars.value().value();
     }
-    const Variables_ varsT(util::templatedVarsConf(tmpVars));
 
     const eckit::LocalConfiguration covarConf(fullConfigUpdated, "Covariance");
 
@@ -179,7 +178,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     const auto & diracParams = params.dirac.value();
     if (diracParams != boost::none) {
       // Setup Dirac field
-      Increment4D_ dxi(geom, varsT, xx.times());
+      Increment4D_ dxi(geom, util::templatedVars<MODEL>(tmpVars), xx.times());
       dirac4D(*diracParams, dxi);
       oops::Log::test() << "Input Dirac increment:" << dxi << std::endl;
 
@@ -208,14 +207,14 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
       // Apply B matrix components recursively
       std::string id;
-      dirac(covarConf, testConf, id, geom, varsT, xx, dxi);
+      dirac(covarConf, testConf, id, geom, util::templatedVars<MODEL>(tmpVars), xx, dxi);
     }
 
     const auto & randomizationSize = covarConf.getInt("randomization size", 0);
     if ((diracParams == boost::none) || (randomizationSize > 0)) {
       // Background error covariance training
       std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
-                                              covarConf, geom, varsT, xx));
+                                         covarConf, geom, util::templatedVars<MODEL>(tmpVars), xx));
 
       // Linearize
       eckit::LocalConfiguration linConf;
@@ -232,7 +231,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       Bmat->linearize(xx, geom, linConf);
 
       // Randomization
-      randomization(params, geom, varsT, xx, Bmat, ntasks);
+      randomization(params, geom, util::templatedVars<MODEL>(tmpVars), xx, Bmat, ntasks);
     }
 
     return 0;
@@ -424,22 +423,37 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     oops::Log::test() << "Covariance(" << id << ") * Increment:" << dxo << std::endl;
 
     // Look for hybrid or ensemble covariance models
-    if (covarianceModel == "hybrid") {
-      eckit::LocalConfiguration staticConfig(covarConf, "static_covariance");
-      std::string staticID = "hybrid1";
-      dirac(staticConfig, testConf, staticID, geom, vars, xx, dxi);
-      eckit::LocalConfiguration ensembleConfig(covarConf, "ensemble_covariance");
-      std::string ensembleID = "hybrid2";
-      dirac(ensembleConfig, testConf, ensembleID, geom, vars, xx, dxi);
+    bool runComponentsRecursively =
+      covarConf.has("run components recursively") ?
+      covarConf.getBool("run components recursively") : false;
+
+    oops::Log::info() << "Covariance Configuration : Running components recursively : "
+      << covarConf << " " <<  covarConf.has("run components recursively") << " "
+      << runComponentsRecursively << std::endl;
+
+    if (runComponentsRecursively) {
+      if (covarianceModel == "hybrid") {
+        eckit::LocalConfiguration staticConfig(covarConf, "static_covariance");
+        std::string staticID = "hybrid1";
+        dirac(staticConfig, testConf, staticID, geom, vars, xx, dxi);
+        eckit::LocalConfiguration ensembleConfig(covarConf, "ensemble_covariance");
+        std::string ensembleID = "hybrid2";
+        dirac(ensembleConfig, testConf, ensembleID, geom, vars, xx, dxi);
+      }
     }
     if (covarianceModel == "SABER") {
       const std::string saberCentralBlockName =
         covarConf.getString("saber central block.saber block name");
+      bool runComponentsRecursively =
+        covarConf.has("saber central block.run components recursively") ?
+        covarConf.getBool("saber central block.run components recursively") :
+        false;
       if (saberCentralBlockName == "Hybrid") {
         // Check for outer blocks (can't pass the correct geometry/variables in that case)
-        if (!covarConf.has("saber outer blocks")) {
+        if (!covarConf.has("saber outer blocks") && (runComponentsRecursively)) {
           std::vector<eckit::LocalConfiguration> confs;
           covarConf.get("saber central block.components", confs);
+
           size_t componentIndex(1);
           for (const auto & conf : confs) {
             std::string idC(id + std::to_string(componentIndex));

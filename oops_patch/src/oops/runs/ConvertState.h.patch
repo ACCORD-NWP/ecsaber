@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp.bak	2025-11-06 12:17:10.005860559 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2025-11-06 08:48:17.748374929 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h.tmp.bak	2026-01-14 20:15:11.076913246 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/runs/ConvertState.h	2026-01-14 18:11:13.333892162 +0100
 @@ -1,5 +1,6 @@
  /*
   * (C) Copyright 2018-2021 UCAR
@@ -30,7 +30,7 @@
   public:
  // -------------------------------------------------------------------------------------------------
 -  explicit ConvertState(const eckit::mpi::Comm & comm = oops::mpi::world()) : Application(comm) {}
-+  explicit ConvertState() : Application() {}
++  ConvertState() : Application() {}
  // -------------------------------------------------------------------------------------------------
    virtual ~ConvertState() {}
  // -------------------------------------------------------------------------------------------------

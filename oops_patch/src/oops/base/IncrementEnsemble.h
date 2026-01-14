@@ -217,9 +217,8 @@ IncrementEnsemble<MODEL>::IncrementEnsemble(const Geometry_ & resol,
   : ensemblePerturbs_()
 {
   ensemblePerturbs_.reserve(rank);
-  const oops::Variables<MODEL> varsT(templatedVarsConf(vars));
   for (int m = 0; m < rank; ++m) {
-    ensemblePerturbs_.emplace_back(resol, varsT, time);
+    ensemblePerturbs_.emplace_back(resol, util::templatedVars<MODEL>(vars), time);
   }
   Log::trace() << "IncrementEnsemble:contructor done" << std::endl;
 }

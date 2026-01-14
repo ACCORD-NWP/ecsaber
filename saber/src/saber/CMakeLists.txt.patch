@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt.tmp.bak	2025-11-06 08:32:04.714495817 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt	2025-11-06 08:31:44.806566499 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt.tmp.bak	2026-01-14 08:28:41.959765946 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/CMakeLists.txt	2026-01-14 08:37:48.226287950 +0100
 @@ -23,12 +23,13 @@
  endif()
  
@@ -14,4 +14,4 @@
 +target_link_libraries( ${PROJECT_NAME} PUBLIC oops_patch )
  target_link_libraries( ${PROJECT_NAME} PUBLIC vader )
  
- if( gsibec_FOUND )
+ if( ECTRANS_FOUND AND ectrans_HAVE_ETRANS AND ectrans_HAVE_TRANSI )

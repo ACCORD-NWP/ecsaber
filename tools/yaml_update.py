@@ -349,6 +349,20 @@ config = add_ensemble_variables(config, False)
 config["model"] = {}
 config["model"]["tstep"] = "PT6H"
 
+# Output as Increment4D
+for key in ["output dirac", "output perturbations", "output variance"]:
+  if key in config:
+    if "states" in config[key]:
+      config[key]["increment"] = config[key]["states"]
+      config[key].pop("states")
+
+# Output as State4D
+for key in ["output states"]:
+  if key in config:
+    if "states" in config[key]:
+      config[key]["state"] = config[key]["state"]
+      config[key].pop("states")
+
 # Write yaml file
 with open(args.outputYaml, "w") as file:
     output = yaml.dump(config, file, sort_keys=False)

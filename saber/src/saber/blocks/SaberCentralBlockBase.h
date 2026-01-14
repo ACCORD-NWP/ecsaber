@@ -91,11 +91,6 @@ class SaberCentralBlockBase : public util::Printable,
     {throw eckit::NotImplemented("iterativeCalibrationUpdate not implemented yet for the block "
       + this->blockName(), Here());}
 
-  // Dual resolution setup
-  virtual void dualResolutionSetup(const oops::GeometryData &)
-    {throw eckit::NotImplemented("dualResolutionSetup not implemented yet for the block "
-      + this->blockName(), Here());}
-
   // Write block data
   virtual void write() const {}
 
@@ -235,17 +230,12 @@ void SaberCentralBlockBase::read(const oops::Geometry<MODEL> & geom,
   // Read fieldsets as increments
   std::vector<oops::FieldSet3D> fsetVec;
   for (const auto & input : this->getReadConfs()) {
-    // Create variables
-    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
-
     // Create increment
-    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(vars), validTime_);
     dx.read(input.second);
     oops::Log::test() << "Norm of input parameter " << input.first
                       << ": " << dx.norm() << std::endl;
-    oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
-    fset.deepCopy(dx.increment().fieldSet());
-    fsetVec.push_back(fset);
+    fsetVec.push_back(util::fieldSet(dx));
     fsetVec.back().name() = input.first;
   }
   this->setReadFields(fsetVec);
@@ -265,8 +255,7 @@ void SaberCentralBlockBase::write(const oops::Geometry<MODEL> & geom) const {
 
   // Write fieldsets as increments
   for (const auto & output : outputs) {
-    oops::Variables<MODEL> varsT(util::templatedVarsConf(output.second.variables()));
-    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(output.second.variables()), validTime_);
     dx.increment().fromFieldSet(output.second.fieldSet());
     oops::Log::test() << "Norm of output parameter " << output.second.name()
                       << ": " << dx.norm() << std::endl;

@@ -9,7 +9,7 @@ add_subdirectory( mains )
 
 if( BUILD_TESTING AND jedi-model-data_FOUND)
   # Coding norms
-  ecbuild_add_test( TARGET saber_coding_norms_quench
+  ecbuild_add_test( TARGET ${PROJECT_NAME}_coding_norms_quench
                     TYPE SCRIPT
                     COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py
                     ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR} )

@@ -8,17 +8,13 @@
 #include <chrono>
 #include <cmath>
 #include <iomanip>
+#include <string>
 
 #include "atlas/array.h"
 
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/util/ConfigFunctions.h"
-#include "oops/util/missingValues.h"
-
-#include "util/dateFunctions.h"
-
-namespace df = util::datefunctions;
 
 namespace util {
 
@@ -95,28 +91,6 @@ void expandEnsembleTemplate(eckit::LocalConfiguration & conf,
 }
 
 // -----------------------------------------------------------------------------
-
-eckit::LocalConfiguration setObsValue(const std::string & obsvalue) {
-  eckit::LocalConfiguration obsConfig;
-  obsConfig.set("obsvalue", obsvalue);
-  return obsConfig;
-}
-
-// -----------------------------------------------------------------------------
-
-eckit::LocalConfiguration setObsValue(const eckit::Configuration & inputObsConfig,
-                                      const std::string & obsvalue) {
-  eckit::LocalConfiguration obsConfig(inputObsConfig);
-  std::vector<eckit::LocalConfiguration> obsTypesConfig;
-  obsConfig.get("ObsTypes", obsTypesConfig);
-  for (auto & item : obsTypesConfig) {
-    item.set("ObsData.obsvalue", obsvalue);
-  }
-  obsConfig.set("ObsTypes", obsTypesConfig);
-  return obsConfig;
-}
-
-// -----------------------------------------------------------------------------
 // Timestamp
 // -----------------------------------------------------------------------------
 
@@ -146,46 +120,6 @@ std::string dateTimeToStringIO(const util::DateTime & dateTime) {
   os << std::setw(2) << second;
   os.put('Z');
   return os.str();
-}
-
-// -----------------------------------------------------------------------------
-
-size_t dateTimeSerialSize(const util::DateTime & dateTime) {
-  return 2;
-}
-
-// -----------------------------------------------------------------------------
-
-void dateTimeSerialize(const util::DateTime & dateTime,
-                       std::vector<double> & vect) {
-  int year, month, day, hour, minute, second;
-  dateTime.toYYYYMMDDhhmmss(year, month, day, hour, minute, second);
-  vect.push_back(static_cast<double>(df::dateToJulian(year, month, day)));
-  vect.push_back(static_cast<double>(df::hmsToSeconds(hour, minute, second)));
-}
-
-// -----------------------------------------------------------------------------
-
-void dateTimeDeserialize(util::DateTime & dateTime,
-                         const std::vector<double> & vect,
-                         size_t & current) {
-  uint64_t date = std::lround(vect.at(current));
-  int time = std::lround(vect.at(current+1));
-  int year, month, day, hour, minute, second;
-  df::julianToDate(date, year, month, day);
-  df::secondToHms(time, hour, minute, second);
-  dateTime = util::DateTime(year, month, day, hour, minute, second);
-  current += 2;
-}
-
-// -----------------------------------------------------------------------------
-// Variables
-// -----------------------------------------------------------------------------
-
-eckit::LocalConfiguration templatedVarsConf(const oops::JediVariables & vars) {
-  eckit::LocalConfiguration varConf;
-  varConf.set("variables list", vars.variables());
-  return varConf;
 }
 
 // -----------------------------------------------------------------------------

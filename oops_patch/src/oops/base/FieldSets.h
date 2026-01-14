@@ -12,11 +12,11 @@
 #include <string>
 #include <vector>
 
-#include "oops/base/State4D.h"
 #include "oops/base/DataSetBase.h"
 #include "oops/base/FieldSet3D.h"
 #include "oops/base/Ensemble.h"
 #include "oops/base/EnsemblesCollection.h"
+#include "oops/base/State4D.h"
 #include "oops/util/ParallelFieldSetIO.h"
 
 namespace oops {
