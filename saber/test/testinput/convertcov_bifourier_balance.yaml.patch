@@ -1,8 +1,0 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/convertcov_bifourier_balance.yaml.tmp	2025-11-06 12:17:17.336897430 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/convertcov_bifourier_balance.yaml	2025-11-06 12:02:55.504407462 +0100
-@@ -87,4 +87,5 @@
-   mpi pattern: '%MPI%'
-   filepath: testdata/convertcov_bifourier_balance/%MPI%_dirac_%id%
- test:
-+  float relative tolerance: 4.0e-7
-   reference filename: testref/convertcov_bifourier_balance.ref

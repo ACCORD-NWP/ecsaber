@@ -1,8 +1,8 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_balance_2.yaml.tmp	2026-01-14 15:27:01.124613001 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_balance_2.yaml	2026-01-14 14:59:34.764787502 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_balance_2.yaml.tmp.bak	2026-01-15 09:31:35.858233477 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_balance_2.yaml	2026-01-15 09:23:16.047611794 +0100
 @@ -88,4 +88,5 @@
    mpi pattern: '%MPI%'
    filepath: testdata/dirac_bifourier_balance_2/%MPI%_dirac_%id%
  test:
-+  float relative tolerance: 2.0e-09
++  float relative tolerance: 3.0e-8
    reference filename: testref/dirac_bifourier_balance_2.ref

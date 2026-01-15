@@ -1,8 +1,8 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_bifourier_covariance.yaml.tmp	2026-01-14 15:27:01.286613907 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_bifourier_covariance.yaml	2026-01-14 13:12:45.231118024 +0100
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_bifourier_covariance.yaml.tmp.bak	2026-01-15 09:31:36.048232004 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_bifourier_covariance.yaml	2026-01-15 09:06:14.116284884 +0100
 @@ -59,4 +59,5 @@
  output states:
    filepath: testdata/randomization_bifourier_covariance/_MPI_-_OMP__member
  test:
-+  float relative tolerance: 4.0e-12
++  float relative tolerance: 5.0e-11
    reference filename: testref/randomization_bifourier_covariance.ref

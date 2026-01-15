@@ -273,7 +273,7 @@ if "background error" in config:
 
     # OOPS hybrid case
     if config["Covariance"]["covariance"] == "hybrid":
-        # Check whether all components are hybrid
+        # Check whether all components are SABER
         components = config["Covariance"]["components"]
         allSaber = True
         if len(components) == 2:
@@ -303,7 +303,8 @@ if "background error" in config:
                     component["covariance"].pop("square-root tolerance")
             config["Covariance"]["adjoint test"] = adjTest
             config["Covariance"]["square-root test"] = sqrtTest
-
+            if "run components recursively" in config["Covariance"]:
+              centralBlock["run components recursively"] = config["Covariance"]["run components recursively"]
         else:
             # Update static_covariance
             covariance = components[0]["covariance"]
