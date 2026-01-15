@@ -56,5 +56,4 @@ output dirac:
   filepath: testdata/dirac_spectralb_correlation_rescaling/%MPI%_dirac_%id%
 
 test:
-  float relative tolerance: 1.0e-6
   reference filename: testref/dirac_spectralb_correlation_rescaling.ref

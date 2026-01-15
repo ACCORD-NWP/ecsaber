@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bifourier_5.yaml.tmp	2026-01-14 15:27:01.065612671 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bifourier_5.yaml	2026-01-14 13:18:05.642226002 +0100
+@@ -113,4 +113,5 @@
+   mpi pattern: '%MPI%'
+   filepath: testdata/error_covariance_training_bifourier_5/%MPI%_dirac_%id%
+ test:
++  float relative tolerance: 2.0e-11
+   reference filename: testref/error_covariance_training_bifourier_5.ref

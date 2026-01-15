@@ -14,8 +14,11 @@
 #include <string>
 #include <utility>
 
+#include "atlas/field.h"
+
 #include "eckit/exception/Exceptions.h"
 #include "oops/util/DateTime.h"
+#include "oops/util/FieldSetHelpers.h"
 
 namespace {
 
@@ -99,6 +102,53 @@ const eckit::mpi::Comm & myself() {
 
 // ------------------------------------------------------------------------------------------------
 
+void reduceInPlace(const eckit::mpi::Comm & comm, atlas::FieldSet & fields, const size_t root) {
+  if (comm.size() > 1) {
+    util::Timer timer("oops::mpi", "reduceInPlace");
+    size_t sz = 0;
+    for (const auto & field : fields) {
+      sz += field.size();
+    }
+    std::vector<double> buf(sz);
+
+    size_t index = 0;
+    for (const auto & field : fields) {
+      const auto & view = atlas::array::make_view<double, 2>(field);
+      for (atlas::idx_t i = 0; i < field.shape(0); i++) {
+        for (atlas::idx_t j = 0; j < field.shape(1); j++) {
+          buf[index++] = view(i, j);
+        }
+      }
+    }
+
+    comm.reduceInPlace(buf.data(), sz, eckit::mpi::sum(), root);
+
+    index = 0;
+    for (auto & field : fields) {
+      auto view = atlas::array::make_view<double, 2>(field);
+      for (atlas::idx_t i = 0; i < view.shape(0); i++) {
+        for (atlas::idx_t j = 0; j < view.shape(1); j++) {
+          view(i, j) = buf[index++];
+        }
+      }
+    }
+    ASSERT(index == sz);
+  }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+void allReduceInPlace(const eckit::mpi::Comm & comm, atlas::FieldSet & fields) {
+  if (comm.size() > 1) {
+    util::Timer timer("oops::mpi", "allReduceInPlace");
+    std::vector<double> buf = util::fieldSetToBuffer(fields);
+    comm.allReduceInPlace(buf.data(), buf.size(), eckit::mpi::sum());
+    util::fieldSetFromBuffer(fields, buf);
+  }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 void gather(const eckit::mpi::Comm & comm, const std::vector<double> & send,
             std::vector<double> & recv, const size_t root) {
   size_t ntasks = comm.size();
@@ -154,15 +204,9 @@ void allGather(const eckit::mpi::Comm & comm,
 void allGatherv(const eckit::mpi::Comm & comm, std::vector<util::DateTime> &x) {
     size_t globalSize = x.size();
     comm.allReduceInPlace(globalSize, eckit::mpi::sum());
-    std::vector<std::string> xStr;
-    for (const auto & item : x) {
-      xStr.push_back(item.toString());
-    }
-    oops::mpi::allGatherv(comm, xStr);
-    x.clear();
-    for (const auto & item : xStr) {
-      x.push_back(util::DateTime(item));
-    }
+    std::vector<util::DateTime> globalX(globalSize);
+    oops::mpi::allGathervUsingSerialize(comm, x.begin(), x.end(), globalX.begin());
+    x = std::move(globalX);
 }
 
 // ------------------------------------------------------------------------------------------------

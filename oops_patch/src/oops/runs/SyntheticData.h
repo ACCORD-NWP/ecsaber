@@ -100,7 +100,7 @@ class SyntheticData : public Application {
     std::unique_ptr<Departures_> ydep(Jo.newDepartures());
     yobs -= *ydep;
     Log::test() << "H(xt): " << yobs << std::endl;
-    
+
     // Perturb observations
     std::unique_ptr<Departures_> ypert(Jo.randomizeCovar());
     yobs += *ypert;
@@ -113,10 +113,9 @@ class SyntheticData : public Application {
     // Setup variables
     const std::vector<std::string> varNames = fullConfig.getStringVector("variables");
     JediVariables tmpVars(varNames);
-    const Variables_ varsT(util::templatedVarsConf(tmpVars));
 
     // Create background perturbation
-    Increment_ dx(resol, varsT, xx.state()[0].validTime());
+    Increment_ dx(resol, util::templatedVars<MODEL>(tmpVars), xx.state()[0].validTime());
     J->jb().jbState().covar().randomize(dx);
 
     // Write background perturbation

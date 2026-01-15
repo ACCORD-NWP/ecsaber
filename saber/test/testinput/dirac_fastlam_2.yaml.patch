@@ -1,8 +1,0 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_fastlam_2.yaml.tmp	2025-02-03 11:27:22.506344838 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_fastlam_2.yaml	2025-02-03 09:33:23.895200097 +0100
-@@ -153,4 +153,5 @@
-   mpi pattern: '%MPI%'
-   filepath: testdata/dirac_fastlam_2/%MPI%_variance
- test:
-+  float relative tolerance: 8e-11
-   reference filename: testref/dirac_fastlam_2.ref

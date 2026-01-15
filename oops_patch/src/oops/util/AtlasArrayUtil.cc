@@ -76,7 +76,9 @@ void atlasArrayWriteHeader(
     std::vector<int> & netcdfGeneralIDs,
     std::vector<int> & netcdfDimIDs,
     std::vector<int> & netcdfVarIDs,
-    std::vector<std::vector<int>> & netcdfDimVarIDs) {
+    std::vector<std::vector<int>> & netcdfDimVarIDs,
+    const bool parallel,
+    const eckit::mpi::Comm& comm) {
   netcdfGeneralIDs.clear();
   netcdfDimIDs.clear();
   netcdfVarIDs.clear();
@@ -89,7 +91,14 @@ void atlasArrayWriteHeader(
   const double msvd(::util::missingValue<double>());
   const int32_t msvi(::util::missingValue<int32_t>());
 
-  if ((retval = nc_create(ncfilepath.c_str(), NC_NETCDF4, &ncid))) ERR1(retval);
+  if (parallel && comm.size() > 1) {
+    const eckit::mpi::Parallel& pComm = dynamic_cast<const eckit::mpi::Parallel&>(comm);
+    const MPI_Comm& rawComm = pComm.MPIComm();
+    if ((retval = nc_create_par(
+      ncfilepath.c_str(), NC_NETCDF4, rawComm, MPI_INFO_NULL, &ncid))) ERR1(retval);
+  } else {
+    if ((retval = nc_create(ncfilepath.c_str(), NC_NETCDF4, &ncid))) ERR1(retval);
+  }
 
   const std::vector<std::string> attnames =
     util::getAttributeNames(conf, "global metadata");
@@ -162,7 +171,6 @@ void atlasArrayWriteHeader(
     netcdfDimVarIDs.push_back(dimVarIDs);
 
     int varID;
-
     if (variables[i].dataType() == oops::ModelDataType::Real64) {
       if ((retval = nc_def_var(netcdfGeneralIDs[0],
                                variables[i].name().c_str(),
@@ -191,7 +199,6 @@ void atlasArrayWriteHeader(
     } else {
       throw eckit::UserError("datatype currently not supported", Here());
     }
-
     const std::vector<std::string> varAttnames = util::getAttributeNames(conf, variables[i].name());
     for (const std::string & attname : varAttnames) {
       const std::string type =
@@ -242,7 +249,9 @@ void atlasArrayInquire(
     std::vector<int> & netcdfGeneralIDs,
     std::vector<int> & netcdfDimIDs,
     std::vector<int> & netcdfVarIDs,
-    std::vector<std::vector<int>> & netcdfDimVarIDs) {
+    std::vector<std::vector<int>> & netcdfDimVarIDs,
+    const bool parallel,
+    const eckit::mpi::Comm& comm) {
   dimNames.clear();
   dimSizes.clear();
   oops::JediVariables variablesWork;
@@ -255,14 +264,20 @@ void atlasArrayInquire(
   int ncid, retval, ndims, nvars, ngatts, unlimdimid;
 
   // Open NetCDF file
-  if ((retval = nc_open(ncfilepath.c_str(), NC_NOWRITE, &ncid))) ERR1(retval);
+  if (parallel && comm.size() > 1) {
+    const eckit::mpi::Parallel& pComm = dynamic_cast<const eckit::mpi::Parallel&>(comm);
+    const MPI_Comm& rawComm = pComm.MPIComm();
+    if ((retval = nc_open_par(
+      ncfilepath.c_str(), NC_NOWRITE, rawComm, MPI_INFO_NULL, &ncid))) ERR1(retval);
+  } else {
+    if ((retval = nc_open(ncfilepath.c_str(), NC_NOWRITE, &ncid))) ERR1(retval);
+  }
   netcdfGeneralIDs.push_back(ncid);
 
   // Look at dataset
   if ((retval = nc_inq(netcdfGeneralIDs[0], &ndims, &nvars, &ngatts, &unlimdimid))) ERR1(retval);
 
   std::vector<nc_type> nctypes(ngatts, 0);
-
 
   // Populate the global Configuration header
   // Assume all metadata is in string format.
@@ -415,140 +430,5 @@ void atlasArrayInquire(
 
   variables = variablesWork;
 }
-
-
-void atlasArrayReadData(
-    const std::vector<int> & netcdfGeneralIDs,
-    const std::vector<atlas::idx_t> & dimSizes,
-    const int & varID,
-    atlas::array::ArrayView<double, 1> & arrayInOut) {
-  int retval;
-  std::vector<double> zvar(dimSizes[0]);
-
-  if ((retval = nc_get_var_double(netcdfGeneralIDs[0],
-                                  varID, zvar.data()))) ERR1(retval);
-
-  for (idx_t t = 0; t < static_cast<idx_t>(dimSizes[0]); ++t) {
-    arrayInOut(t) = zvar[t];
-  }
-}
-
-
-void atlasArrayReadData(
-    const std::vector<int> & netcdfGeneralIDs,
-    const std::vector<atlas::idx_t> & dimSizes,
-    const int & varID,
-    atlas::array::ArrayView<double, 2> & arrayInOut) {
-  int retval;
-  std::vector<double> zvar(dimSizes[0] * dimSizes[1]);
-
-  if ((retval = nc_get_var_double(netcdfGeneralIDs[0],
-                                  varID, zvar.data()))) ERR1(retval);
-
-  for (idx_t t = 0; t < static_cast<idx_t>(dimSizes[0]); ++t) {
-    for (idx_t t1 = 0; t1 < static_cast<idx_t>(dimSizes[1]); ++t1) {
-      arrayInOut(t, t1) = zvar[t*dimSizes[1] + t1];
-    }
-  }
-}
-
-void atlasArrayReadData(
-    const std::vector<int> & netcdfGeneralIDs,
-    const std::vector<atlas::idx_t> & dimSizes,
-    const int & varID,
-    atlas::array::ArrayView<double, 3> & arrayInOut) {
-  int retval;
-  std::vector<double> zvar(dimSizes[0] * dimSizes[1] * dimSizes[2]);
-
-  if ((retval = nc_get_var_double(netcdfGeneralIDs[0],
-                                  varID, zvar.data()))) ERR1(retval);
-
-  for (idx_t t = 0; t < static_cast<idx_t>(dimSizes[0]); ++t) {
-    for (idx_t t1 = 0; t1 < static_cast<idx_t>(dimSizes[1]); ++t1) {
-      for (idx_t t2 = 0; t2 < static_cast<idx_t>(dimSizes[2]); ++t2) {
-        arrayInOut(t, t1, t2) = zvar[t*dimSizes[1]*dimSizes[2] + t1*dimSizes[2] + t2];
-      }
-    }
-  }
-}
-
-
-void atlasArrayReadData(
-    const std::vector<int> & netcdfGeneralIDs,
-    const std::vector<atlas::idx_t> & dimSizes,
-    const int & varID,
-    atlas::array::ArrayView<int, 1> & arrayInOut) {
-  int retval;
-  std::vector<int> zvar(dimSizes[0]);
-
-  if ((retval = nc_get_var_int(netcdfGeneralIDs[0],
-                               varID, zvar.data()))) ERR1(retval);
-
-  for (idx_t t = 0; t < static_cast<idx_t>(dimSizes[0]); ++t) {
-    arrayInOut(t) = zvar[t];
-  }
-}
-
-
-void atlasArrayWriteData(
-    const std::vector<int> & netcdfGeneralIDs,
-    const int & varID,
-    atlas::array::ArrayView<const double, 1> & arrayIn) {
-  int retval;
-  std::vector<double> zvar(arrayIn.shape()[0]);
-  for (idx_t t = 0; t < arrayIn.shape()[0]; ++t) {
-    zvar[t] = arrayIn(t);
-  }
-
-  if ((retval = nc_put_var_double(netcdfGeneralIDs[0], varID, zvar.data()))) ERR1(retval);
-}
-
-
-void atlasArrayWriteData(
-    const std::vector<int> & netcdfGeneralIDs,
-    const int & varID,
-    atlas::array::ArrayView<const double, 2> & arrayIn) {
-  int retval;
-  std::vector<double> zvar(arrayIn.shape()[0] * arrayIn.shape()[1]);
-  for (idx_t t = 0; t < arrayIn.shape()[0]; ++t) {
-    for (idx_t t1 = 0; t1 < arrayIn.shape()[1]; ++t1) {
-      zvar[t*arrayIn.shape()[1] + t1] = arrayIn(t, t1);
-    }
-  }
-
-  if ((retval = nc_put_var_double(netcdfGeneralIDs[0], varID, zvar.data()))) ERR1(retval);
-}
-
-void atlasArrayWriteData(
-    const std::vector<int> & netcdfGeneralIDs,
-    const int & varID,
-    atlas::array::ArrayView<const double, 3> & arrayIn) {
-  int retval;
-  std::vector<double> zvar(arrayIn.shape()[0] * arrayIn.shape()[1] * arrayIn.shape()[2]);
-  for (idx_t t = 0; t < arrayIn.shape()[0]; ++t) {
-    for (idx_t t1 = 0; t1 < arrayIn.shape()[1]; ++t1) {
-      for (idx_t t2 = 0; t2 < arrayIn.shape()[2]; ++t2) {
-        zvar[t*arrayIn.shape()[1]*arrayIn.shape()[2] + t1*arrayIn.shape()[2] + t2] =
-          arrayIn(t, t1, t2);
-      }
-    }
-  }
-
-  if ((retval = nc_put_var_double(netcdfGeneralIDs[0], varID, zvar.data()))) ERR1(retval);
-}
-
-void atlasArrayWriteData(
-    const std::vector<int> & netcdfGeneralIDs,
-    const int & varID,
-    atlas::array::ArrayView<const int, 1> & arrayIn) {
-  int retval;
-  std::vector<int> zvar(arrayIn.shape()[0]);
-  for (idx_t t = 0; t < arrayIn.shape()[0]; ++t) {
-      zvar[t] = arrayIn(t);
-  }
-
-  if ((retval = nc_put_var_int(netcdfGeneralIDs[0], varID, zvar.data()))) ERR1(retval);
-}
-
 
 }  // namespace util

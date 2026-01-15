@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.h.tmp	2024-07-19 08:26:29.479121756 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.h	2024-07-15 14:03:30.070175172 +0200
-@@ -67,11 +67,11 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.h.tmp.bak	2026-01-14 09:38:08.549996985 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.h	2026-01-14 09:38:28.222739462 +0100
+@@ -77,11 +77,11 @@
  
  template<typename MODEL>
  FieldSet4D::FieldSet4D(const State4D<MODEL> & state4d)
@@ -16,7 +16,7 @@
    }
  }
  
-@@ -79,11 +79,11 @@
+@@ -89,11 +89,11 @@
  
  template<typename MODEL>
  FieldSet4D::FieldSet4D(const Increment4D<MODEL> & inc4d)

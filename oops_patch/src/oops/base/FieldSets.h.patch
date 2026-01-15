@@ -1,19 +1,17 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSets.h.tmp	2024-07-19 08:26:29.511121777 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSets.h	2024-07-15 14:03:30.070175172 +0200
-@@ -11,9 +11,11 @@
- #include <string>
- #include <vector>
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSets.h.tmp.bak	2026-01-14 09:40:14.414666827 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSets.h	2026-01-14 09:39:24.446108087 +0100
+@@ -14,7 +14,9 @@
  
-+#include "oops/base/State4D.h"
  #include "oops/base/DataSetBase.h"
  #include "oops/base/FieldSet3D.h"
 -#include "oops/base/IncrementSet.h"
 +#include "oops/base/Ensemble.h"
 +#include "oops/base/EnsemblesCollection.h"
++#include "oops/base/State4D.h"
+ #include "oops/util/ParallelFieldSetIO.h"
  
  namespace oops {
- 
-@@ -22,9 +24,9 @@
+@@ -24,9 +26,9 @@
    typedef DataSetBase<FieldSet3D, atlas::FunctionSpace> Base_;
  
   public:
@@ -26,7 +24,7 @@
  
    FieldSets(const std::vector<util::DateTime> &, const eckit::mpi::Comm &,
              const std::vector<int> &, const eckit::mpi::Comm &);
-@@ -48,12 +50,22 @@
+@@ -59,12 +61,22 @@
  // -----------------------------------------------------------------------------
  
  template<typename MODEL>

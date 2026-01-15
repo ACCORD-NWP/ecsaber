@@ -6,13 +6,15 @@
 #include "oops/util/ECUtilities.h"
 
 #include <chrono>
+#include <cmath>
+#include <iomanip>
+#include <string>
 
 #include "atlas/array.h"
 
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/util/ConfigFunctions.h"
-#include "oops/util/missingValues.h"
 
 namespace util {
 
@@ -89,28 +91,6 @@ void expandEnsembleTemplate(eckit::LocalConfiguration & conf,
 }
 
 // -----------------------------------------------------------------------------
-
-eckit::LocalConfiguration setObsValue(const std::string & obsvalue) {
-  eckit::LocalConfiguration obsConfig;
-  obsConfig.set("obsvalue", obsvalue);
-  return obsConfig;
-}
-
-// -----------------------------------------------------------------------------
-
-eckit::LocalConfiguration setObsValue(const eckit::Configuration & inputObsConfig,
-                                      const std::string & obsvalue) {
-  eckit::LocalConfiguration obsConfig(inputObsConfig);
-  std::vector<eckit::LocalConfiguration> obsTypesConfig;
-  obsConfig.get("ObsTypes", obsTypesConfig);
-  for (auto & item : obsTypesConfig) {
-    item.set("ObsData.obsvalue", obsvalue);
-  }
-  obsConfig.set("ObsTypes", obsTypesConfig);
-  return obsConfig;
-}
-
-// -----------------------------------------------------------------------------
 // Timestamp
 // -----------------------------------------------------------------------------
 
@@ -122,13 +102,24 @@ double timeStamp() {
 }
 
 // -----------------------------------------------------------------------------
-// Variables
+// DateTime
 // -----------------------------------------------------------------------------
 
-eckit::LocalConfiguration templatedVarsConf(const oops::JediVariables & vars) {
-  eckit::LocalConfiguration varConf;
-  varConf.set("variables list", vars.variables());
-  return varConf;
+std::string dateTimeToStringIO(const util::DateTime & dateTime) {
+  int year, month, day, hour, minute, second;
+  dateTime.toYYYYMMDDhhmmss(year, month, day, hour, minute, second);
+
+  std::ostringstream os;
+  os << std::setfill('0');
+  os << std::setw(4) << year;
+  os << std::setw(2) << month;
+  os << std::setw(2) << day;
+  os.put('T');
+  os << std::setw(2) << hour;
+  os << std::setw(2) << minute;
+  os << std::setw(2) << second;
+  os.put('Z');
+  return os.str();
 }
 
 // -----------------------------------------------------------------------------

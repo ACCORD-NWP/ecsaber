@@ -1,0 +1,7 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/vader/CPPLINT.cfg.tmp	2026-01-14 17:39:47.895527389 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/vader/CPPLINT.cfg	2026-01-14 17:34:29.325372907 +0100
+@@ -1,3 +1,3 @@
+ set noparent
+-linelength=100
++linelength=110
+ filter=+build,-build/c++11,+legal,+readability,+runtime,+whitespace,-runtime/references,-runtime/printf

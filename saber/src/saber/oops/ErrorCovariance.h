@@ -8,7 +8,9 @@
 
 #pragma once
 
+#include <cmath>
 #include <memory>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -75,7 +77,7 @@ class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
   ~ErrorCovariance4D();
 
   // Methods
-  void advectedLinearize(const State4D_ &,const Geometry_ &,
+  void advectedLinearize(const State4D_ &, const Geometry_ &,
                          const eckit::Configuration &) override;
   void advectedMultiply(const Increment4D_ &, Increment4D_ &) const override;
   void advectedInverseMultiply(const Increment4D_ &, Increment4D_ &) const override;
@@ -91,7 +93,7 @@ class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
   IncrEnsCtlVec_ *newIncrEnsCtlVec() const override {
     return new IncrEnsCtlVec_();
   }
-  
+
   size_t ctlVecSize() const;
 
  private:
@@ -208,24 +210,24 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
 
 // Start wrong indentation to stick with SABER version
 
-    // Local copy of background and first guess that can undergo interpolation
-    std::unique_ptr<oops::FieldSet4D> fset4dXb;
-    std::unique_ptr<oops::FieldSet4D> fset4dFg;
+  // Local copy of background and first guess that can undergo interpolation
+  std::unique_ptr<oops::FieldSet4D> fset4dXb;
+  std::unique_ptr<oops::FieldSet4D> fset4dFg;
 
-    // Change resolution if needed
-    if (params.changeBackgroundResolution) {
-      const State4D_ xb_lowres(geom, xb);
-      const State4D_ fg_lowres(geom, fg);
-      const oops::FieldSet4D fset4dXbTmp(xb_lowres);
-      const oops::FieldSet4D fset4dFgTmp(fg_lowres);
-      fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
-      fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
-    } else {
-      const oops::FieldSet4D fset4dXbTmp(xb);
-      const oops::FieldSet4D fset4dFgTmp(fg);
-      fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
-      fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
-    }
+  // Change resolution if needed
+  if (params.changeBackgroundResolution) {
+    const State4D_ xb_lowres(geom, xb);
+    const State4D_ fg_lowres(geom, fg);
+    const oops::FieldSet4D fset4dXbTmp(xb_lowres);
+    const oops::FieldSet4D fset4dFgTmp(fg_lowres);
+    fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
+    fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
+  } else {
+    const oops::FieldSet4D fset4dXbTmp(xb);
+    const oops::FieldSet4D fset4dFgTmp(fg);
+    fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
+    fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
+  }
 
   // Initialize outer variables
   const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(BVars_->variables());
@@ -257,39 +259,7 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
                                          params.toConfiguration(),
                                          iterativeEnsembleLoading,
                                          ensembleConf);
-
   covarConf.set("ensemble configuration", ensembleConf);
-  // Read dual resolution ensemble if needed
-  const auto & dualResParams = params.dualResParams.value();
-  const Geometry_ * dualResGeom = &geom;
-  std::unique_ptr<oops::FieldSets> fsetDualResEns;
-  if (dualResParams != boost::none) {
-    const auto & dualResGeomConf = dualResParams->geometry.value();
-    if (dualResGeomConf != boost::none) {
-      // Create dualRes geometry
-      dualResGeom = new Geometry_(*dualResGeomConf);
-    }
-    // Background and first guess at dual resolution geometry
-    const State4D_ xbDualRes(*dualResGeom, xb);
-    const State4D_ fgDualRes(*dualResGeom, fg);
-    // Read dual resolution ensemble
-    eckit::LocalConfiguration dualResEnsembleConf;
-    fsetDualResEns = std::make_unique<oops::FieldSets>(readEnsemble(*dualResGeom,
-                     outerVars,
-                     xbDualRes,
-                     fgDualRes,
-                     dualResParams->toConfiguration(),
-                     iterativeEnsembleLoading,
-                     dualResEnsembleConf));
-    // Add dual resolution ensemble configuration
-    covarConf.set("dual resolution ensemble configuration", dualResEnsembleConf);
-  }
-  if (!fsetDualResEns) {
-    std::vector<util::DateTime> dates;
-    std::vector<int> ensmems;
-    fsetDualResEns = std::make_unique<oops::FieldSets>(dates,
-                                      eckit::mpi::self(), ensmems, eckit::mpi::comm());
-  }
 
   // Add ensemble output
   const auto & outputEnsemble = params.outputEnsemble.value();
@@ -317,6 +287,20 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
     // Hybrid central block
     eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
 
+    parallelHybrid_ = hybridConf.getBool("run in parallel");
+    const eckit::mpi::Comm & defaultSpaceComm = geom.geometry().getComm();
+    const size_t ntasks = defaultSpaceComm.size();
+    const size_t nComponents = hybridConf.getSubConfigurations("components").size();
+
+    std::vector<double> parallelCovRelativeCpuWeight =
+      hybridConf.has("parallel covariance relative cpu weight") ?
+      hybridConf.getDoubleVector("parallel covariance relative cpu weight") :
+      std::vector<double>(nComponents,
+                          1.0 / static_cast<double>(nComponents));
+
+    std::vector<size_t> ntasksPerComponent(nComponents, 0);
+    std::vector<size_t> globalTaskOffsetPerComponent(nComponents+1, 0);
+
     if (parallelHybrid_) {
       throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
     } else {
@@ -335,7 +319,7 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
         // Scalar weight
         hybridScalarWeightSqrt_.push_back(std::sqrt(weightConf.getDouble("value", 1.0)));
         // File-base weight
-        oops::FieldSet3D fsetWeight(xb[0].validTime(), eckit::mpi::comm());
+        oops::FieldSet3D fsetWeight(xb[0].validTime(), geom.geometry().getComm());
         if (weightConf.has("file")) {
           // File-base weight
           readHybridWeight(*hybridGeom,
@@ -383,12 +367,10 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
           (SaberBlockChainFactory<MODEL>::create
            (parametricIfNotEnsemble(centralBlockParams.saberBlockName.value()),
             *hybridGeom,
-            *dualResGeom,
             cmpOuterVars,
             *fset4dXb,
             *fset4dFg,
             fset4dCmpEns,
-            *fsetDualResEns,
             cmpCovarConf,
             cmpConf));
       }
@@ -400,12 +382,10 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
       (SaberBlockChainFactory<MODEL>::create
        (parametricIfNotEnsemble(saberCentralBlockParams.saberBlockName.value()),
         geom,
-        *dualResGeom,
         outerVars,
         *fset4dXb,
         *fset4dFg,
         fsetEns,
-        *fsetDualResEns,
         covarConf,
         params.toConfiguration()));
 
@@ -794,7 +774,6 @@ template <typename MODEL>
 void ErrorCovariance<MODEL>::linearize(const State_ & xb3D,
                                        const Geometry_ & geom,
                                        const eckit::Configuration & config) {
-
   // 4D compatibility
   State4D_ xb;
   xb.push_back(xb3D);

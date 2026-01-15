@@ -29,6 +29,10 @@ atlas::FieldSet createFieldSet(const atlas::FunctionSpace &,
                                const std::vector<std::string> &);
 atlas::FieldSet createFieldSet(const atlas::FunctionSpace &,
                                const std::vector<size_t> &,
+                               const std::vector<size_t> &,
+                               const std::vector<std::string> &);
+atlas::FieldSet createFieldSet(const atlas::FunctionSpace &,
+                               const std::vector<size_t> &,
                                const std::vector<std::string> &,
                                const double &);
 atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm &,
@@ -39,6 +43,11 @@ atlas::FieldSet createRandomFieldSet(const eckit::mpi::Comm &,
 /// Useful for testing interpolation.
 atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm &,
                                      const atlas::FunctionSpace &,
+                                     const std::vector<size_t> &,
+                                     const std::vector<std::string> &);
+atlas::FieldSet createSmoothFieldSet(const eckit::mpi::Comm &,
+                                     const atlas::FunctionSpace &,
+                                     const std::vector<size_t> &,
                                      const std::vector<size_t> &,
                                      const std::vector<std::string> &);
 
@@ -139,6 +148,15 @@ void readFieldSet(const eckit::mpi::Comm &,
                   const oops::JediVariables &,
                   const eckit::Configuration &,
                   atlas::FieldSet &);
+
+/// @brief  Convert a FieldSet to a 1D buffer.
+/// @param  fieldSet The FieldSet to convert.
+/// @return A 1D vector containing the data from the FieldSet.
+std::vector<double> fieldSetToBuffer(const atlas::FieldSet &);
+/// @brief  Convert a 1D buffer to a FieldSet.
+/// @param  buf The 1D buffer to convert.
+/// @param  fieldSet The FieldSet to populate.
+void fieldSetFromBuffer(atlas::FieldSet &, const std::vector<double> &);
 
 // -----------------------------------------------------------------------------
 

@@ -22,6 +22,7 @@
 #include "saber/blocks/SaberOuterBlockChain.h"
 
 #include "saber/gsi/covariance/Covariance.interface.h"
+#include "saber/gsi/utils/GridCheckHelper.h"
 
 namespace saber {
 
@@ -33,12 +34,10 @@ class SaberGSIBlockChain : public SaberBlockChainBase {
  public:
   template<typename MODEL>
   SaberGSIBlockChain(const oops::Geometry<MODEL> & geom,
-                     const oops::Geometry<MODEL> & dualResGeom,
                      const oops::JediVariables & outerVars,
                      oops::FieldSet4D & fset4dXb,
                      oops::FieldSet4D & fset4dFg,
                      oops::FieldSets & fsetEns,
-                     oops::FieldSets & fsetDualResEns,
                      const eckit::LocalConfiguration & covarConf,
                      const eckit::Configuration & conf);
   ~SaberGSIBlockChain();
@@ -85,12 +84,10 @@ class SaberGSIBlockChain : public SaberBlockChainBase {
 
 template<typename MODEL>
 SaberGSIBlockChain::SaberGSIBlockChain(const oops::Geometry<MODEL> & geom,
-                       const oops::Geometry<MODEL> & dualResGeom,
                        const oops::JediVariables & outerVars,
                        oops::FieldSet4D & fset4dXb,
                        oops::FieldSet4D & fset4dFg,
                        oops::FieldSets & fsetEns,
-                       oops::FieldSets & fsetDualResEns,
                        const eckit::LocalConfiguration & covarConf,
                        const eckit::Configuration & conf)
   : outerFunctionSpace_(geom.functionSpace()), outerVariables_(outerVars) {
@@ -100,7 +97,7 @@ SaberGSIBlockChain::SaberGSIBlockChain(const oops::Geometry<MODEL> & geom,
   // (currently not supported)
   if (fset4dXb.commTime().size() > 1) {
     throw eckit::NotImplemented("SABER GSI covariance block chain currently does not support "
-                                "4DEnVar with parallel decomposition in time");
+                                "4DEnVar with parallel decomposition in time", Here());
   }
 
   // If needed create outer block chain
@@ -140,14 +137,20 @@ SaberGSIBlockChain::SaberGSIBlockChain(const oops::Geometry<MODEL> & geom,
   std::vector<const util::DateTime *> timesptrs(fset4dXb.size());
   const std::vector<util::DateTime> & times = fset4dXb.times();
   for (size_t itime = 0; itime < fset4dXb.size(); ++itime) {
+    fset4dXb[itime].fieldSet().haloExchange();  // update halos before reading from Fortran
+    fset4dFg[itime].fieldSet().haloExchange();  // update halos before reading from Fortran
     fset4dXbptrs[itime] = fset4dXb[itime].get();
     fset4dFgptrs[itime] = fset4dFg[itime].get();
     timesptrs[itime]    = &times[itime];
   }
+
+  const std::vector<double> gridChecks = functionspaceToGridChecks(centralFunctionSpace_);
+
   gsi_covariance_create_f90(keySelf_, currentOuterGeom.comm(),
                             saberCentralBlockParams.readParams.value().value(),
                             fset4dXbptrs.size(), fset4dXbptrs.data(), fset4dFgptrs.data(),
-                            timesptrs.data());
+                            timesptrs.data(), gridChecks.size(), gridChecks.data());
+
   // Adjoint test
   // TODO(Anna): this code is similar to the code in CentralBlock::adjoint;
   // the test code need to be generalized so it can be called from different places.

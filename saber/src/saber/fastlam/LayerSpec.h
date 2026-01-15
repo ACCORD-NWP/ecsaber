@@ -41,7 +41,7 @@ class LayerSpec : public LayerBase {
             const size_t & ny0,
             const size_t & nz0) :
     LayerBase(params, fieldsMetaData, gdata, myGroup, myVars, nx0, ny0, nz0) {}
-    ~LayerSpec() = default;
+    ~LayerSpec();
 
   // Setups
   void setupParallelization() override;
@@ -95,10 +95,10 @@ class LayerSpec : public LayerBase {
   // Rows <=> reduced grid
   size_t xSendSize_;
   size_t rRecvSize_;
-  std::vector<int> xTask_;
-  std::vector<int> xOffset_;
-  std::vector<int> xIndex_i_;
-  std::vector<int> xIndex_j_;
+  std::vector<int> xSendTask_;
+  std::vector<int> xSendOffset_;
+  std::vector<int> xSendIndex_x_;
+  std::vector<int> xSendIndex_y_;
   std::vector<int> xSendCounts_;
   std::vector<int> xSendDispls_;
   std::vector<int> rRecvCounts_;
@@ -107,28 +107,30 @@ class LayerSpec : public LayerBase {
   // Columns <=> rows
   size_t ySendSize_;
   size_t xRecvSize_;
-  std::vector<std::vector<int>> yTask_;
-  std::vector<std::vector<int>> yOffset_;
+  std::vector<int> ySendTask_;
+  std::vector<int> ySendOffset_;
   std::vector<int> ySendCounts_;
   std::vector<int> ySendDispls_;
   std::vector<int> xRecvCounts_;
   std::vector<int> xRecvDispls_;
-  std::vector<int> yIndex_i_;
-  std::vector<int> yIndex_j_;
+  std::vector<int> ySendIndex_x_;
+  std::vector<int> ySendIndex_y_;
 
   // Rows FFT
+  size_t nk_;
   fftw_plan xPlan_r2c_;
   fftw_plan xPlan_c2r_;
-  double *xBufR_;
-  fftw_complex *xBufC_;
+  double *xBufR_ = nullptr;
+  fftw_complex *xBufC_ = nullptr;
   double xNormFFT_;
   std::vector<double> xSpecStdDev_;
 
   // Columns FFT
+  size_t nl_;
   fftw_plan yPlan_r2c_;
   fftw_plan yPlan_c2r_;
-  double *yBufR_;
-  fftw_complex *yBufC_;
+  double *yBufR_ = nullptr;
+  fftw_complex *yBufC_ = nullptr;
   double yNormFFT_;
   std::vector<double> ySpecStdDev_;
 };

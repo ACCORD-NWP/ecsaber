@@ -15,10 +15,8 @@
 
 #include "atlas/field.h"
 
-#include <boost/noncopyable.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include "eckit/exception/Exceptions.h"
+#include "eckit/memory/NonCopyable.h"
 
 #include "oops/base/FieldSet3D.h"
 #include "oops/base/GeometryData.h"
@@ -43,7 +41,8 @@ namespace saber {
 
 // -----------------------------------------------------------------------------
 
-class SaberCentralBlockBase : public util::Printable, private boost::noncopyable {
+class SaberCentralBlockBase : public util::Printable,
+                              private eckit::NonCopyable {
  public:
   explicit SaberCentralBlockBase(const SaberBlockParametersBase & params,
                                  const util::DateTime & validTime)
@@ -52,11 +51,16 @@ class SaberCentralBlockBase : public util::Printable, private boost::noncopyable
 
   // Application methods
 
-  // Block multiplication
+  // Block randomization
   virtual void randomize(oops::FieldSet3D &) const = 0;
 
-  // Block randomization
+  // Block multiplication
   virtual void multiply(oops::FieldSet3D &) const = 0;
+
+  // Block filtering; by default calls multiply
+  virtual void filter(oops::FieldSet3D & fset) const {
+    this->multiply(fset);
+  }
 
   // Setup / calibration methods
 
@@ -87,11 +91,6 @@ class SaberCentralBlockBase : public util::Printable, private boost::noncopyable
     {throw eckit::NotImplemented("iterativeCalibrationUpdate not implemented yet for the block "
       + this->blockName(), Here());}
 
-  // Dual resolution setup
-  virtual void dualResolutionSetup(const oops::GeometryData &)
-    {throw eckit::NotImplemented("dualResolutionSetup not implemented yet for the block "
-      + this->blockName(), Here());}
-
   // Write block data
   virtual void write() const {}
 
@@ -114,6 +113,9 @@ class SaberCentralBlockBase : public util::Printable, private boost::noncopyable
 
   // Return block name
   std::string blockName() const {return blockName_;}
+
+  // Return date/time
+  const util::DateTime validTime() const {return validTime_;}
 
   // Read model fields
   template <typename MODEL>
@@ -228,17 +230,12 @@ void SaberCentralBlockBase::read(const oops::Geometry<MODEL> & geom,
   // Read fieldsets as increments
   std::vector<oops::FieldSet3D> fsetVec;
   for (const auto & input : this->getReadConfs()) {
-    // Create variables
-    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
-
     // Create increment
-    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(vars), validTime_);
     dx.read(input.second);
     oops::Log::test() << "Norm of input parameter " << input.first
                       << ": " << dx.norm() << std::endl;
-    oops::FieldSet3D fset(validTime_, geom.geometry().getComm());
-    fset.deepCopy(dx.increment().fieldSet());
-    fsetVec.push_back(fset);
+    fsetVec.push_back(util::fieldSet(dx));
     fsetVec.back().name() = input.first;
   }
   this->setReadFields(fsetVec);
@@ -258,8 +255,7 @@ void SaberCentralBlockBase::write(const oops::Geometry<MODEL> & geom) const {
 
   // Write fieldsets as increments
   for (const auto & output : outputs) {
-    oops::Variables<MODEL> varsT(util::templatedVarsConf(output.second.variables()));
-    oops::Increment<MODEL> dx(geom, varsT, validTime_);
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(output.second.variables()), validTime_);
     dx.increment().fromFieldSet(output.second.fieldSet());
     oops::Log::test() << "Norm of output parameter " << output.second.name()
                       << ": " << dx.norm() << std::endl;

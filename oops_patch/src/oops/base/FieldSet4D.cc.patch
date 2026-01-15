@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.cc.tmp	2024-07-19 08:26:29.463121745 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.cc	2024-07-15 14:03:30.070175172 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.cc.tmp.bak	2026-01-14 08:13:38.006476864 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/base/FieldSet4D.cc	2026-01-14 08:15:20.630610073 +0100
 @@ -38,7 +38,7 @@
  FieldSet4D::FieldSet4D(const std::vector<util::DateTime> & times,
                         const eckit::mpi::Comm & commTime,
@@ -9,7 +9,7 @@
  {
    size_t mytime = this->local_time_size() * commTime.rank();
    for (size_t jj = 0; jj < this->local_time_size(); ++jj) {
-@@ -49,7 +49,7 @@
+@@ -62,7 +62,7 @@
  // -----------------------------------------------------------------------------
  
  FieldSet4D::FieldSet4D(const FieldSet3D & fset3d)

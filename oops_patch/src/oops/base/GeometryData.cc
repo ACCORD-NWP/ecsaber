@@ -240,7 +240,7 @@ bool GeometryData::containingTriangleAndBarycentricCoords(const double lat, cons
       // by the compression of the const-longitude lines towards the pole:
       const double max_to_check = 2.0 * regular_grid_nx_;  // arbitrary max: 2 bands of cells
       const double deg2rad = M_PI / 180.0;
-      const double compression = 1.0 / abs(cos(deg2rad * lat));
+      const double compression = 1.0 / std::max(std::abs(std::cos(deg2rad * lat)), 1e-14);
       // Apply scaling factor and check against max; we do this as floating-point math, because if
       // the target lat is close to a pole, then the compression will be huge and integers overflow.
       const double nb_scaled_and_bounded = std::min(nb_to_check * compression, max_to_check);
@@ -248,6 +248,22 @@ bool GeometryData::containingTriangleAndBarycentricCoords(const double lat, cons
     }
     return std::min(nb_to_check, static_cast<int>(localCellCenterTree_.size()));
   }();
+
+  // Sort the list of cells returned by KD-tree. The list is already sorted by distance,
+  // sort only equidistant points by payload (cell index).
+  const auto sortOnlyTies = [](auto & list) {
+    auto first = list.begin();
+    while (first != list.end()) {
+      auto rangeEnd = std::find_if(first, list.end(),
+                [d = first->distance()](const auto & x) { return x.distance() != d; });
+      if (std::distance(first, rangeEnd) > 1) {
+        std::sort(first, rangeEnd, [](const auto & a, const auto & b) {
+                                   return a.payload() < b.payload();
+                                   });
+      }
+      first = rangeEnd;
+    }
+  };
 
   // Find cell that contains target point
   atlas::PointLonLat pll(lon, lat);
@@ -257,7 +273,11 @@ bool GeometryData::containingTriangleAndBarycentricCoords(const double lat, cons
 
   bool success = false;
 
-  const auto list = localCellCenterTree_.closestPoints(p, nb_cells_to_check);
+  auto list = localCellCenterTree_.closestPoints(p, nb_cells_to_check);
+  // The list is already sorted by distance, now sort only equidistant points by
+  // payload (cell index). This ensures that the order is deterministic and results are
+  // reproducible with different MPI layouts.
+  sortOnlyTies(list);
   for (const auto & item : list) {
     const int cell = item.payload();
     const int nb_cols = connectivity.cols(cell);
@@ -349,6 +369,33 @@ void GeometryData::setGlobalTree() {
     }
   }
   ASSERT(counter == nb_global);
+
+  // Hacky step:
+  // When the source grid is singular and has multiple coinciding grid points, (e.g., a regular
+  // latlon grid at the poles), then many nodes of globalNodeTree_ will be at the same physical
+  // location, and the KD-tree no longer becomes useful for proximity-based search. Thus, we need
+  // to slightly spread out degenerate grid points. Because this is (so far) a rare scenario in
+  // JEDI, and because it's unclear how to correctly handle degenerate points in full generality,
+  // we write code below to address specific pathological cases.
+  //
+  // Pathological case of a structured grid with degenerate points at the poles -- shift points
+  // away from the poles by a small amount:
+  if (fspace_.type() == "StructuredColumns") {
+    const atlas::functionspace::StructuredColumns structuredcolumns(fspace_);
+    const atlas::RegularGrid rg(structuredcolumns.grid());
+    if (rg) {
+      const double eps_check = 1e-14;
+      const double shift = 1e-6;  // large epsilon to be robust to trigonometry
+      for (auto & lonlat : nodes) {
+        double & lat = lonlat[1];
+        if (std::abs(lat - 90.0) < eps_check) {
+          lat = (90.0 - shift);
+        } else if (std::abs(lat + 90.0) < eps_check) {
+          lat = -(90.0 - shift);
+        }
+      }
+    }
+  }
 
   // Create global kd-tree
   globalNodeTree_.build(nodes, tasks);

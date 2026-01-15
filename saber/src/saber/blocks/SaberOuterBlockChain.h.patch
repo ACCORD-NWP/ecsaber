@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp	2024-07-19 08:41:30.047708742 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2024-07-19 08:42:42.127755736 +0200
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2026-01-14 17:20:46.235402261 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2026-01-14 15:43:27.485110316 +0100
 @@ -20,7 +20,7 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -9,35 +9,16 @@
  #include "oops/base/GeometryData.h"
  #include "oops/interface/ModelData.h"
  
-@@ -180,6 +180,7 @@
-   /// TODO(AS): Need to expand this to create different outer blocks for different
-   /// times for the 4D with multiple times on one MPI task.
-   std::vector<std::unique_ptr<SaberOuterBlockBase>> outerBlocks_;
-+  std::unique_ptr<oops::GeometryData> geomData_;
- };
- 
- // -----------------------------------------------------------------------------
-@@ -191,7 +192,9 @@
-                        oops::FieldSet4D & fset4dFg,
-                        oops::FieldSets & fsetEns,
-                        const eckit::LocalConfiguration & covarConf,
--                       const std::vector<saber::SaberOuterBlockParametersWrapper> & params) {
-+                       const std::vector<saber::SaberOuterBlockParametersWrapper> & params) :
-+  geomData_(new oops::GeometryData(geom.geometry().functionSpace(), geom.geometry().fields(),
-+  geom.geometry().levelsAreTopDown(), geom.geometry().getComm())) {
-   oops::Log::trace() << "SaberOuterBlockChain ctor starting" << std::endl;
-   oops::Log::info() << "Info     : Creating outer blocks" << std::endl;
- 
-@@ -208,7 +211,7 @@
-     boost::adaptors::reverse(params)) {
+@@ -230,7 +230,7 @@
+   for (int jb = params.size()-1; jb >= 0; --jb) {
      // Initialize current outer geometry data
      const oops::GeometryData & currentOuterGeometryData = outerBlocks_.size() == 0 ?
 -                                       geom.generic() : outerBlocks_.back()->innerGeometryData();
-+                                       *geomData_ : outerBlocks_.back()->innerGeometryData();
++                                       util::geomData(geom) : outerBlocks_.back()->innerGeometryData();
  
      // Initialize outer block
      const auto[saberOuterBlockParams,
-@@ -287,7 +290,7 @@
+@@ -355,7 +355,7 @@
  
      for (size_t ie = 0; ie < nens; ++ie) {
        // Read ensemble member

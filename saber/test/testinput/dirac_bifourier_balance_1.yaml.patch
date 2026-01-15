@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_balance_1.yaml.tmp.bak	2026-01-14 08:44:38.896825968 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_balance_1.yaml	2026-01-14 08:56:42.210873096 +0100
+@@ -84,4 +84,5 @@
+   mpi pattern: '%MPI%'
+   filepath: testdata/dirac_bifourier_balance_1/%MPI%_dirac_%id%
+ test:
++  float relative tolerance: 1.0e-7
+   reference filename: testref/dirac_bifourier_balance_1.ref

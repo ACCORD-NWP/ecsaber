@@ -5,10 +5,14 @@
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter var - 1: 4.3289362578921313e+01
-Norm of input parameter m4 - 1: 1.3993375181143315e+02
-                Level   1: rhflt =   40000.00 km, rel. diff. =  0.33902E-02
-                Level   2: rhflt =   40000.00 km, rel. diff. =  0.19375E-01
-             Level   1 ~>  0.10169E+01 /  0.10169E+01
-             Level   2 ~>  0.10195E+01 /  0.10195E+01
-Norm of output parameter stddev - 1: 4.1359270513803665e+01
+Norm of input parameter var - 1: 5.8156147066009666e+01
+Norm of input parameter m4 - 1: 1.8927948294822818e+02
+                Level   1: rhflt =   12500.00 km, rel. diff. = -0.29703E-02
+                Level   2: rhflt =   80000.00 km, rel. diff. =  0.23559E-01
+                Level   1: rhflt =    6500.00 km, rel. diff. = -0.42795E-02
+                Level   2: rhflt =   64000.00 km, rel. diff. =  0.22996E-01
+             Level   1 ~>  0.10260E+01 /  0.10260E+01
+             Level   2 ~>  0.10176E+01 /  0.10176E+01
+             Level   1 ~>  0.97964E+00 /  0.97964E+00
+             Level   2 ~>  0.98589E+00 /  0.98589E+00
+Norm of output parameter stddev - 1: 5.5256078165539357e+01

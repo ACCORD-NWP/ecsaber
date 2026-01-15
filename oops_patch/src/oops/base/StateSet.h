@@ -22,7 +22,6 @@
 #include "oops/interface/Increment.h"
 #include "oops/interface/Model.h"
 #include "oops/interface/State.h"
-#include "oops/interface/State.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"

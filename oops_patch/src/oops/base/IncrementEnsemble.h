@@ -217,9 +217,8 @@ IncrementEnsemble<MODEL>::IncrementEnsemble(const Geometry_ & resol,
   : ensemblePerturbs_()
 {
   ensemblePerturbs_.reserve(rank);
-  const oops::Variables<MODEL> varsT(templatedVarsConf(vars));
   for (int m = 0; m < rank; ++m) {
-    ensemblePerturbs_.emplace_back(resol, varsT, time);
+    ensemblePerturbs_.emplace_back(resol, util::templatedVars<MODEL>(vars), time);
   }
   Log::trace() << "IncrementEnsemble:contructor done" << std::endl;
 }
@@ -288,6 +287,33 @@ IncrementEnsemble<MODEL>::IncrementEnsemble(const Geometry_ & resol,
                                             const IncrementEnsembleParameters_ & params)
   : ensemblePerturbs_()
 {
+  // Datetime for ensemble
+  util::DateTime time = params.date;
+
+  // Reserve memory to hold ensemble
+  const size_t nens = params.size();
+  ensemblePerturbs_.reserve(nens);
+
+  // Loop over all ensemble members
+  for (size_t jj = 0; jj < nens; ++jj) {
+    Increment_ dx(resol, vars, time);
+    dx.read(params.getIncrementParameters(jj));
+    ensemblePerturbs_.emplace_back(std::move(dx));
+  }
+  Log::trace() << "IncrementEnsemble:contructor (by reading increment ensemble) done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+IncrementEnsemble<MODEL>::IncrementEnsemble(const Geometry_ & resol,
+                                            const JediVariables & vars,
+                                            eckit::Configuration & conf)
+  : ensemblePerturbs_()
+{
+  IncrementEnsembleParameters_ params;
+  params.deserialize(conf);
+
   // Datetime for ensemble
   util::DateTime time = params.date;
 

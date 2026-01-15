@@ -26,7 +26,7 @@ END_TESTSUITE_FINALIZE
 
 ! -----------------------------------------------------------------------------
 
-TEST( test_interpolatorbump )
+TEST( test_nicas_sqrt )
   use atlas_module, only: atlas_real,atlas_fieldset,atlas_field, &
  & atlas_structuredgrid,atlas_functionspace,atlas_functionspace_structuredcolumns
   use fckit_configuration_module, only: fckit_configuration
@@ -39,16 +39,11 @@ TEST( test_interpolatorbump )
   implicit none
 
   ! Local variables
-  integer,parameter :: nl0 = 5
   integer :: n,nmga_out
-  integer,dimension(2),parameter :: var2d_int = (/0,0/)
   real(kind_real) :: dp_in,dp_out
   real(kind_real),pointer :: ptr_1(:),ptr_2(:)
   real(kind_real),allocatable :: array_out_1(:,:,:),array_out_2(:,:,:)
   logical,allocatable :: gmask_out(:,:)
-  logical,dimension(2),parameter :: var2d = (/.false.,.false./)
-  character(len=4),dimension(2),parameter :: variables = (/'var1','var2'/)
-  character(len=5),parameter :: lev2d = 'first'
   type(fckit_mpi_comm) :: f_comm
   type(atlas_field) :: cv_1,cv_2
   type(atlas_structuredgrid) :: grid_out
@@ -75,10 +70,8 @@ TEST( test_interpolatorbump )
   conf = fckit_configuration()
   call conf%set('drivers.multivariate strategy','crossed')
   call conf%set('drivers.compute nicas',.true.)
-  call conf%set('model.variables',variables)
-  call conf%set('model.nl0',nl0)
-  call conf%set('model.lev2d',lev2d)
-  call conf%set('model.var2d',var2d_int)
+  call conf%set('model.variables',(/'var1','var2'/))
+  call conf%set('model.nl0',5)
   call conf%set('nicas.resolution',4.0_kind_real)
   call conf%set('nicas.min effective resolution',1.0_kind_real)
   call conf%set('nicas.explicit length-scales',.true.)
@@ -114,14 +107,14 @@ TEST( test_interpolatorbump )
   ! Create output fieldset
   fspace_out_sc = atlas_functionspace_structuredcolumns(fspace_out%c_ptr())
   nmga_out = fspace_out_sc%size_owned()
-  allocate(gmask_out(nmga_out,nl0))
+  allocate(gmask_out(nmga_out,bump%geom%nl0))
   gmask_out = .true.
-  call fset_out_1%init(bump%mpl,fspace_out,gmask_out,variables,lev2d,var2d)
-  call fset_out_2%init(bump%mpl,fspace_out,gmask_out,variables,lev2d,var2d)
+  call fset_out_1%init(bump%mpl,fspace_out,gmask_out,bump%nam%variables,bump%nam%ilev2d,bump%nam%var2d)
+  call fset_out_2%init(bump%mpl,fspace_out,gmask_out,bump%nam%variables,bump%nam%ilev2d,bump%nam%var2d)
 
   ! Initialize output fieldset
-  allocate(array_out_1(nmga_out,nl0,2))
-  allocate(array_out_2(nmga_out,nl0,2))
+  allocate(array_out_1(nmga_out,bump%geom%nl0,bump%nam%nv))
+  allocate(array_out_2(nmga_out,bump%geom%nl0,bump%nam%nv))
   call bump%rng%rand_gau(array_out_1)
   array_out_2 = array_out_1
   call fset_out_1%from_array(bump%mpl,array_out_1)
@@ -140,6 +133,19 @@ TEST( test_interpolatorbump )
   call bump%mpl%f_comm%allreduce(dp_in,fckit_mpi_sum())
   call bump%mpl%f_comm%allreduce(dp_out,fckit_mpi_sum())
   FCTEST_CHECK_CLOSE(dp_in,dp_out,repro_th)
+
+  ! Release memory
+  call cv_1%final()
+  call cv_2%final()
+  call grid_out%final()
+  call fspace_out%final()
+  call fspace_out_sc%final()
+  call fset%final()
+  call fset_out_1%final()
+  call fset_out_2%final()
+  call conf%final()
+  call rh(1)%final()
+  call rv(1)%final()
 
   ! Release memory
   call bump%dealloc()

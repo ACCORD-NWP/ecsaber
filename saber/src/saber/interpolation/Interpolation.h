@@ -80,6 +80,7 @@ class Interpolation : public SaberOuterBlockBase {
   const oops::GeometryData & outerGeomData_;
   const oops::JediVariables innerVars_;
   const oops::JediVariables activeVars_;
+  const oops::JediVariables invVars_;
   // pointers for delayed initialization
   std::unique_ptr<oops::GeometryData> innerGeomData_;
   std::unique_ptr<oops::GlobalInterpolator> globalInterp_;

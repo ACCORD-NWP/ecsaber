@@ -20,6 +20,7 @@
 #include "oops/interface/Geometry.h"
 #include "oops/interface/Increment.h"
 #include "oops/interface/ModelData.h"
+#include "oops/util/ECUtilities.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
 #include "oops/util/Random.h"
@@ -28,7 +29,6 @@
 #include "saber/blocks/SaberBlockParametersBase.h"
 #include "saber/blocks/SaberOuterBlockChain.h"
 #include "saber/blocks/SaberParametricBlockChain.h"
-#include "oops/util/ECUtilities.h"
 #include "saber/oops/Utilities.h"
 
 namespace saber {
@@ -38,12 +38,10 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
  public:
   template<typename MODEL>
   SaberEnsembleBlockChain(const oops::Geometry<MODEL> & geom,
-                          const oops::Geometry<MODEL> & dualResGeom,
                           const oops::JediVariables & outerVars,
                           oops::FieldSet4D & fset4dXb,
                           oops::FieldSet4D & fset4dFg,
                           oops::FieldSets & fsetEns,
-                          oops::FieldSets & fsetDualResEns,
                           const eckit::LocalConfiguration & covarConf,
                           const eckit::Configuration & conf);
   ~SaberEnsembleBlockChain() = default;
@@ -81,31 +79,22 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
   /// TODO(AS): check whether this is needed or can be inferred from ensemble.
   oops::JediVariables vars_;
   int seed_ = 7;  // For reproducibility
-  /// @brief Geometry communicator.
-  const eckit::mpi::Comm & comm_;
-  const oops::GeometryData geomData_;
 };
 
 // -----------------------------------------------------------------------------
 
 template<typename MODEL>
 SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & geom,
-                       const oops::Geometry<MODEL> & dualResGeom,
                        const oops::JediVariables & outerVars,
                        oops::FieldSet4D & fset4dXb,
                        oops::FieldSet4D & fset4dFg,
                        // TODO(AS): remove as argument: this should be read inside the
                        // block.
                        oops::FieldSets & fsetEns,
-                       // TODO(AS): remove as argument: this is currently not used (and
-                       // when used should be read inside the block.
-                       oops::FieldSets & fsetDualResEns,
                        const eckit::LocalConfiguration & covarConf,
                        const eckit::Configuration & conf)
   : outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars),
-    ensemble_(fsetEns), ctlVecSize_(0), comm_(geom.geometry().getComm()),
-    geomData_(geom.geometry().functionSpace(), geom.geometry().fields(),
-    geom.geometry().levelsAreTopDown(), geom.geometry().getComm()) {
+    ensemble_(fsetEns), ctlVecSize_(0) {
   oops::Log::trace() << "SaberEnsembleBlockChain ctor starting" << std::endl;
 
   // Check that there is an ensemble of at least 2 members.
@@ -130,7 +119,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
   oops::JediVariables currentOuterVars = outerBlockChain_ ?
                                      outerBlockChain_->innerVars() : outerVars;
   const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
-                                     outerBlockChain_->innerGeometryData() : geomData_;
+                                     outerBlockChain_->innerGeometryData() : util::geomData(geom);
 
   // Get parameters:
   SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
@@ -190,11 +179,8 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
                               centralBlockConf.getSubConfiguration("inflation field.model file");
     // Copy file
     // Read fieldsets as increments
-    // Create variables
-    oops::Variables<MODEL> activeVarsT(util::templatedVarsConf(activeVars));
-
     // Create increment
-    oops::Increment<MODEL> dx(geom, activeVarsT, fset4dXb[0].validTime());
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(activeVars), fset4dXb[0].validTime());
     dx.read(inflationConf);
     oops::Log::test() << "Norm of input parameter inflation"
                       << ": " << dx.norm() << std::endl;
@@ -234,12 +220,12 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
              currentOuterVars, fset4dXb, fset4dFg, ensemble_,
              covarConfUpdated, ensTransOuterBlocksParams);
 
-    // Left inverse of ensemble transform on ensemble members
-    oops::Log::info() << "Info     : Left inverse of ensemble transform on ensemble members"
+    // Right inverse of ensemble transform on ensemble members
+    oops::Log::info() << "Info     : Right inverse of ensemble transform on ensemble members"
                       << std::endl;
     for (size_t itime = 0; itime < ensemble_.local_time_size(); ++itime) {
       for (size_t iens = 0; iens < ensemble_.local_ens_size(); ++iens) {
-        ensTransBlockChain->leftInverseMultiply(ensemble_(itime, iens));
+        ensTransBlockChain->rightInverseMultiply(ensemble_(itime, iens));
       }
     }
 
@@ -263,7 +249,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
   }
 
   const oops::GeometryData & localizationOuterGeomData = outerBlockChain_ ?
-              outerBlockChain_->innerGeometryData() : geomData_;
+              outerBlockChain_->innerGeometryData() : util::geomData(geom);
 
   // Localization
   const auto & locConf = saberCentralBlockParams.localization.value();
@@ -293,12 +279,10 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
                            "functionSpaces, building localization with standard "
                            "constructor" << std::endl;
       locBlockChain_ = std::make_unique<SaberParametricBlockChain>(geom,
-                                                                   dualResGeom,
                                                                    currentOuterVars,
                                                                    fset4dXb,
                                                                    fset4dFg,
                                                                    ensemble_,
-                                                                   fsetDualResEns,
                                                                    covarConfUpdated,
                                                                    *locConf);
     }

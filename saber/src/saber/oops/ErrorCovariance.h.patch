@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2025-01-23 12:47:08.611534043 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2024-12-12 09:26:05.149402949 +0100
-@@ -14,22 +14,19 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2026-01-14 17:39:55.454560951 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2026-01-14 17:33:21.468211981 +0100
+@@ -16,22 +16,19 @@
  
  #include "atlas/field.h"
  
@@ -33,7 +33,7 @@
  
  #include "saber/blocks/SaberBlockChainBase.h"
  #include "saber/blocks/SaberBlockParametersBase.h"
-@@ -38,6 +35,9 @@
+@@ -40,6 +37,9 @@
  #include "saber/oops/ErrorCovarianceParameters.h"
  #include "saber/oops/Utilities.h"
  
@@ -43,7 +43,7 @@
  namespace saber {
  
  // -----------------------------------------------------------------------------
-@@ -54,33 +54,48 @@
+@@ -56,33 +56,48 @@
  // -----------------------------------------------------------------------------
  
  template <typename MODEL>
@@ -63,21 +63,25 @@
  
   public:
 -  static const std::string classname() {return "saber::ErrorCovariance";}
-+  typedef ErrorCovarianceParameters<MODEL> Parameters_;
- 
+-
 -  ErrorCovariance(const Geometry_ &, const oops::JediVariables &,
 -                  const eckit::Configuration &,
 -                  const State4D_ &, const State4D_ &);
 -  virtual ~ErrorCovariance();
-+  static const std::string classname() {return "saber::ErrorCovariance4D";}
++  typedef ErrorCovarianceParameters<MODEL> Parameters_;
  
 -  void multiply(const Increment4D_ & dxi, Increment4D_ & dxo) const {this->doMultiply(dxi, dxo);}
++  static const std::string classname() {return "saber::ErrorCovariance4D";}
+ 
+- private:
+-  ErrorCovariance(const ErrorCovariance&);
+-  ErrorCovariance& operator=(const ErrorCovariance&);
 +  ErrorCovariance4D(const Geometry_ &, const Variables_ &, const eckit::Configuration &,
 +                    const State4D_ &);
 +  ~ErrorCovariance4D();
 +
 +  // Methods
-+  void advectedLinearize(const State4D_ &,const Geometry_ &,
++  void advectedLinearize(const State4D_ &, const Geometry_ &,
 +                         const eckit::Configuration &) override;
 +  void advectedMultiply(const Increment4D_ &, Increment4D_ &) const override;
 +  void advectedInverseMultiply(const Increment4D_ &, Increment4D_ &) const override;
@@ -93,23 +97,19 @@
 +  IncrEnsCtlVec_ *newIncrEnsCtlVec() const override {
 +    return new IncrEnsCtlVec_();
 +  }
-+  
-+  size_t ctlVecSize() const;
  
-  private:
--  ErrorCovariance(const ErrorCovariance&);
--  ErrorCovariance& operator=(const ErrorCovariance&);
--
 -  void doRandomize(Increment4D_ &) const override;
 -  void doMultiply(const Increment4D_ &, Increment4D_ &) const override;
 -  void doInverseMultiply(const Increment4D_ &, Increment4D_ &) const override;
--
++  size_t ctlVecSize() const;
+ 
 -  void print(std::ostream &) const override;
++ private:
 +  void print(std::ostream &) const;
  
    /// Chain of outer blocks applied to all components of hybrid covariances.
    /// Not initialized for non-hybrid covariances.
-@@ -96,50 +111,125 @@
+@@ -98,28 +113,102 @@
  
    /// Whether to run Hybrid in parallel
    bool parallelHybrid_;
@@ -149,22 +149,11 @@
 +    parallelHybrid_(false), static_()
  {
 -  oops::Log::trace() << "ErrorCovariance::ErrorCovariance starting" << std::endl;
+-  util::Timer timer(classname(), "ErrorCovariance");
 -  ErrorCovarianceParameters<MODEL> params;
 -  params.deserialize(config);
 +  oops::Log::trace() << "ErrorCovariance4D::ErrorCovariance4D starting" << std::endl;
- 
--  // Local copy of background and first guess that can undergo interpolation
--  std::unique_ptr<oops::FieldSet4D> fset4dXb;
--  std::unique_ptr<oops::FieldSet4D> fset4dFg;
--
--  // Change resolution if needed
--  if (params.changeBackgroundResolution) {
--    const State4D_ xb_lowres(geom, xb);
--    const State4D_ fg_lowres(geom, fg);
--    const oops::FieldSet4D fset4dXbTmp(xb_lowres);
--    const oops::FieldSet4D fset4dFgTmp(fg_lowres);
--    fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
--    fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
++
 +  // Save parameters
 +  params.validateAndDeserialize(config);
 +
@@ -185,16 +174,12 @@
 +      linVarChg_.push_back(std::make_unique<LinearVariableChange_>(geom, cvconf));
 +      linVarChg_[jt]->changeVarTraj(xb[jt], *anaVars_);
 +    }
-   } else {
--    const oops::FieldSet4D fset4dXbTmp(xb);
--    const oops::FieldSet4D fset4dFgTmp(fg);
--    fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
--    fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
++  } else {
 +    // Setup B and analysis variables
 +    BVars_.reset(new Variables_(incVars));
 +    anaVars_.reset(new Variables_(incVars));
-   }
- 
++  }
++
 +
 +  oops::Log::trace() << "ErrorCovariance4D::ErrorCovariance4D done" << std::endl;
 +}
@@ -240,26 +225,12 @@
 +    static_.reset();
 +
 +// Start wrong indentation to stick with SABER version
-+
-+    // Local copy of background and first guess that can undergo interpolation
-+    std::unique_ptr<oops::FieldSet4D> fset4dXb;
-+    std::unique_ptr<oops::FieldSet4D> fset4dFg;
-+
-+    // Change resolution if needed
-+    if (params.changeBackgroundResolution) {
-+      const State4D_ xb_lowres(geom, xb);
-+      const State4D_ fg_lowres(geom, fg);
-+      const oops::FieldSet4D fset4dXbTmp(xb_lowres);
-+      const oops::FieldSet4D fset4dFgTmp(fg_lowres);
-+      fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
-+      fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
-+    } else {
-+      const oops::FieldSet4D fset4dXbTmp(xb);
-+      const oops::FieldSet4D fset4dFgTmp(fg);
-+      fset4dXb = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dXbTmp));
-+      fset4dFg = std::make_unique<oops::FieldSet4D>(oops::copyFieldSet4D(fset4dFgTmp));
-+    }
-+
+ 
+   // Local copy of background and first guess that can undergo interpolation
+   std::unique_ptr<oops::FieldSet4D> fset4dXb;
+@@ -141,8 +230,8 @@
+   }
+ 
    // Initialize outer variables
 -  const std::vector<std::size_t> vlevs = geom.variableSizes(incVars);
 -  oops::JediVariables outerVars(incVars);
@@ -268,57 +239,68 @@
    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
      outerVars[i].setLevels(vlevs[i]);
    }
-@@ -177,7 +267,7 @@
-     const auto & dualResGeomConf = dualResParams->geometry.value();
-     if (dualResGeomConf != boost::none) {
-       // Create dualRes geometry
--      dualResGeom = new Geometry_(*dualResGeomConf, geom.getComm());
-+      dualResGeom = new Geometry_(*dualResGeomConf);
-     }
-     // Background and first guess at dual resolution geometry
-     const State4D_ xbDualRes(*dualResGeom, xb);
-@@ -198,7 +288,7 @@
-     std::vector<util::DateTime> dates;
-     std::vector<int> ensmems;
-     fsetDualResEns = std::make_unique<oops::FieldSets>(dates,
--                                      xb.commTime(), ensmems, xb.commEns());
-+                                      eckit::mpi::self(), ensmems, eckit::mpi::comm());
-   }
- 
-   // Add ensemble output
-@@ -227,165 +317,14 @@
-     // Hybrid central block
+@@ -199,7 +288,7 @@
      eckit::LocalConfiguration hybridConf = saberCentralBlockParams.toConfiguration();
  
--    parallelHybrid_ = hybridConf.getBool("run in parallel");
--
--    const size_t nComponents = hybridConf.getSubConfigurations("components").size();
--    const eckit::mpi::Comm & globalSpaceComm = geom.getComm();
--    const size_t ntasks = globalSpaceComm.size();
--
--    if (parallelHybrid_ && ntasks % nComponents != 0) {
--      oops::Log::warning() << "Warning  : Number of MPI tasks not divisible "
--                              "by number of Hybrid block components, running serially."
--                           << std::endl;
--      parallelHybrid_ = false;
--    }
--
+     parallelHybrid_ = hybridConf.getBool("run in parallel");
+-    const eckit::mpi::Comm & defaultSpaceComm = geom.getComm();
++    const eckit::mpi::Comm & defaultSpaceComm = geom.geometry().getComm();
+     const size_t ntasks = defaultSpaceComm.size();
+     const size_t nComponents = hybridConf.getSubConfigurations("components").size();
+ 
+@@ -213,183 +302,13 @@
+     std::vector<size_t> globalTaskOffsetPerComponent(nComponents+1, 0);
+ 
      if (parallelHybrid_) {
 -      oops::Log::info() << "Info     : Creating Hybrid block in parallel" << std::endl;
+-      // checks
+-      ASSERT(nComponents == parallelCovRelativeCpuWeight.size());
 -
--      if (dualResParams != boost::none) {
--        throw eckit::NotImplemented("Parallel Hybrid not compatible "
--                                    "with dual resolution ensemble yet",
--                                    Here());
+-      // need to check to ensure that the total sum of PEs over components is consistent
+-      // with the MPI size on the default communicator and that each component
+-      // has a minimum MPI size of 1.
+-      for (size_t component = 0; component < nComponents; ++component) {
+-        ntasksPerComponent[component] =
+-          std::round(parallelCovRelativeCpuWeight[component] * ntasks);
+-        ASSERT(ntasksPerComponent[component] > 0);
+-      }
+-      int discrepencyPE =
+-        std::accumulate(ntasksPerComponent.begin(), ntasksPerComponent.end(), 0) - ntasks;
+-
+-      for (size_t component = 0; component < nComponents && discrepencyPE != 0; ++component) {
+-        if (discrepencyPE > 0 && ntasksPerComponent[component] >= 2) {
+-          ntasksPerComponent[component] -= 1;
+-          discrepencyPE -= 1;
+-        } else if (discrepencyPE < 0) {
+-          ntasksPerComponent[component] += 1;
+-          discrepencyPE += 1;
+-        }
 -      }
 -
+-      ASSERT(std::accumulate(ntasksPerComponent.begin(),
+-                             ntasksPerComponent.end(), 0) - ntasks == 0);
+-
+-      for (size_t component = 1; component < nComponents; ++component) {
+-        globalTaskOffsetPerComponent[component] =
+-          globalTaskOffsetPerComponent[component-1] + ntasksPerComponent[component-1];
+-      }
+-      globalTaskOffsetPerComponent[nComponents] = ntasks;
+-
 -      const eckit::mpi::Comm & initialDefaultComm = eckit::mpi::comm();
--      ASSERT(initialDefaultComm.name() == globalSpaceComm.name());
+-      ASSERT(initialDefaultComm.name() == defaultSpaceComm.name());
 -
 -      // We split the space communicators only, the time parallelization is untouched
--      const size_t myTask = globalSpaceComm.rank();
--      const size_t tasksPerComponent = ntasks / nComponents;
--      myComponent_ = myTask / tasksPerComponent;
+-      const size_t myTask = defaultSpaceComm.rank();
+-
+-      // Set myComponent_  tasksPerComponent
+-      size_t tasksPerComponent;
+-      for (size_t component = 0; component < nComponents; ++component) {
+-        if ((myTask >= globalTaskOffsetPerComponent[component]) &&
+-            (myTask < globalTaskOffsetPerComponent[component+1])) {
+-          myComponent_ = component;
+-          tasksPerComponent = ntasksPerComponent[component];
+-        }
+-      }
 -
 -      oops::Log::info() << "Info     : Creating component " << myComponent_ + 1
 -                        << "/" << nComponents
@@ -330,7 +312,7 @@
 -      if (eckit::mpi::hasComm(spaceCommName.c_str())) {
 -        eckit::mpi::deleteComm(spaceCommName.c_str());
 -      }
--      const auto & localSpaceComm = globalSpaceComm.split(myComponent_, spaceCommName.c_str());
+-      const auto & localSpaceComm = defaultSpaceComm.split(myComponent_, spaceCommName.c_str());
 -
 -      // Set up default MPI communicator for atlas
 -      eckit::mpi::setCommDefault(localSpaceComm.name().c_str());
@@ -352,18 +334,18 @@
 -      for (size_t jtime = 0; jtime < xb.size(); jtime++) {
 -        util::redistributeToSubcommunicator(xb[jtime].fieldSet().fieldSet(),
 -                                            localXb[jtime].fieldSet().fieldSet(),
--                                            globalSpaceComm,
+-                                            defaultSpaceComm,
 -                                            localSpaceComm,
 -                                            geom.functionSpace(),
 -                                            localHybridGeom_->functionSpace());
 -        util::redistributeToSubcommunicator(fg[jtime].fieldSet().fieldSet(),
 -                                            localFg[jtime].fieldSet().fieldSet(),
--                                            globalSpaceComm,
+-                                            defaultSpaceComm,
 -                                            localSpaceComm,
 -                                            geom.functionSpace(),
 -                                            localHybridGeom_->functionSpace());
 -      }
--      globalSpaceComm.barrier();
+-      defaultSpaceComm.barrier();
 -
 -      const oops::FieldSet4D localFset4dXbTmp(localXb);
 -      const oops::FieldSet4D localFset4dFgTmp(localFg);
@@ -429,19 +411,17 @@
 -        SaberBlockChainFactory<MODEL>::create
 -         (parametricIfNotEnsemble(centralBlockParams.saberBlockName.value()),
 -          *localHybridGeom_,
--          *dualResGeom,
 -          cmpOuterVars,
 -          localFset4dXb,
 -          localFset4dFg,
 -          localFset4dCmpEns,
--          *fsetDualResEns,
 -          cmpCovarConf,
 -          cmpConf));
 -
 -      ASSERT(hybridBlockChain_.size() > 0);
 -
 -      // Restore previous default MPI communicator for atlas
--      eckit::mpi::setCommDefault(globalSpaceComm.name().c_str());
+-      eckit::mpi::setCommDefault(defaultSpaceComm.name().c_str());
 +      throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
      } else {
        oops::Log::info() << "Info     : Creating Hybrid block serially" << std::endl;
@@ -454,16 +434,16 @@
        }
        for (const auto & cmp : hybridConf.getSubConfigurations("components")) {
          // Initialize component outer variables
-@@ -396,7 +335,7 @@
+@@ -400,7 +319,7 @@
          // Scalar weight
          hybridScalarWeightSqrt_.push_back(std::sqrt(weightConf.getDouble("value", 1.0)));
          // File-base weight
 -        oops::FieldSet3D fsetWeight(xb[0].validTime(), geom.getComm());
-+        oops::FieldSet3D fsetWeight(xb[0].validTime(), eckit::mpi::comm());
++        oops::FieldSet3D fsetWeight(xb[0].validTime(), geom.geometry().getComm());
          if (weightConf.has("file")) {
            // File-base weight
            readHybridWeight(*hybridGeom,
-@@ -473,31 +412,39 @@
+@@ -473,31 +392,39 @@
      // Set weights
      hybridScalarWeightSqrt_.push_back(1.0);
      // File-base weight
@@ -513,7 +493,7 @@
    for (size_t jtime = 0; jtime < fset4dSum.size(); ++jtime) {
      fset4dSum[jtime].init(hybridBlockChain_[0]->outerFunctionSpace(),
                            hybridBlockChain_[0]->outerVariables(),
-@@ -505,62 +452,12 @@
+@@ -505,62 +432,12 @@
    }
  
    if (parallelHybrid_) {
@@ -523,11 +503,11 @@
 -    ASSERT(hybridBlockChain_.size() == 1);
 -
 -    // global communicator and functionSpace
--    const auto & globalSpaceComm = dx.geometry().getComm();
+-    const auto & defaultSpaceComm = dx.geometry().getComm();
 -    const auto & globalFunctionSpace = dx.geometry().functionSpace();
 -
 -    // check global communicator is the default one for atlas MPI
--    ASSERT(eckit::mpi::comm().name() == globalSpaceComm.name());
+-    ASSERT(eckit::mpi::comm().name() == defaultSpaceComm.name());
 -
 -    // subcommunicator within this component
 -    const auto spaceCommName = "comm_space_" + std::to_string(myComponent_);
@@ -552,20 +532,20 @@
 -    }
 -
 -    // Add components
--    globalSpaceComm.barrier();
+-    defaultSpaceComm.barrier();
 -
 -    for (size_t jtime = 0; jtime < fset4dCmp.size(); jtime++) {
 -      // Redistribute to global communicator and sum
 -       util::gatherAndSumFromSubcommunicator(fset4dCmp[jtime].fieldSet(),
 -                                             fset4dSum[jtime].fieldSet(),
 -                                             localSpaceComm,
--                                             globalSpaceComm,
+-                                             defaultSpaceComm,
 -                                             localHybridGeom_->functionSpace(),
 -                                             globalFunctionSpace);
 -    }
 -
 -    // Restore atlas MPI to previous
--    eckit::mpi::setCommDefault(globalSpaceComm.name().c_str());
+-    eckit::mpi::setCommDefault(defaultSpaceComm.name().c_str());
 -
 -    fset4dSum += fset4dCmp;
 +    throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
@@ -578,7 +558,7 @@
        hybridBlockChain_[jj]->randomize(fset4dCmp);
  
        // Weight square-root multiplication
-@@ -581,109 +478,63 @@
+@@ -581,109 +458,63 @@
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
    // ATLAS fieldset to Increment_
@@ -649,9 +629,9 @@
 -    ASSERT(hybridFieldWeightSqrt_.size() == 1);
 -
 -    // Global communicator
--    const auto & globalSpaceComm = dxi.geometry().getComm();
+-    const auto & defaultSpaceComm = dxi.geometry().getComm();
 -    const auto & globalFunctionSpace = dxi.geometry().functionSpace();
--    ASSERT(globalSpaceComm.name() == eckit::mpi::comm().name());
+-    ASSERT(defaultSpaceComm.name() == eckit::mpi::comm().name());
 -
 -    // Subcommunicator within component
 -    const std::string spaceCommName = "comm_space_" + std::to_string(myComponent_);
@@ -662,7 +642,7 @@
 -    for (size_t jtime = 0; jtime < fset4dCmp.size(); jtime++) {
 -      util::redistributeToSubcommunicator(fset4dInit[jtime].fieldSet(),
 -                                          fset4dCmp[jtime].fieldSet(),
--                                          globalSpaceComm,
+-                                          defaultSpaceComm,
 -                                          localSpaceComm,
 -                                          globalFunctionSpace,
 -                                          localHybridGeom_->functionSpace());
@@ -695,20 +675,20 @@
 -    }
 -
 -    // Wait for all components to have finished multiplying
--    globalSpaceComm.barrier();
+-    defaultSpaceComm.barrier();
 -
 -    // Gather and sum data across components
 -    for (size_t jtime = 0; jtime < fset4dCmp.size(); jtime++) {
 -      util::gatherAndSumFromSubcommunicator(fset4dCmp[jtime].fieldSet(),
 -                                            fset4dSum[jtime].fieldSet(),
 -                                            localSpaceComm,
--                                            globalSpaceComm,
+-                                            defaultSpaceComm,
 -                                            localHybridGeom_->functionSpace(),
 -                                            globalFunctionSpace);
 -    }
 -
 -    // Set back default MPI communicator
--    eckit::mpi::setCommDefault(globalSpaceComm.name().c_str());
+-    eckit::mpi::setCommDefault(defaultSpaceComm.name().c_str());
 -
 +    throw eckit::UserError("Parallel hybrid block not available in ECSABER", Here());
    } else {
@@ -722,7 +702,7 @@
  
        // Apply weight
        if (hybridScalarWeightSqrt_[jj] != 1.0) {
-@@ -716,27 +567,339 @@
+@@ -716,27 +547,338 @@
    // Apply outer blocks forward
    if (outerBlockChain_) outerBlockChain_->applyOuterBlocks(fset4dSum);
  
@@ -732,16 +712,16 @@
 +  // ATLAS fieldset to Increment4D_
 +  for (int jtime = dxo.first(); jtime <= dxo.last(); ++jtime) {
 +    dxo[jtime].increment().fromFieldSet(fset4dSum[jtime].fieldSet());
-+  }
-+
+   }
+ 
+-  oops::Log::trace() << "ErrorCovariance<MODEL>::doMultiply done" << std::endl;
 +  if (linVarChg_.size() > 0) {
 +    // Apply control to analysis/model variable change
 +    for (int jtime = dxo.first(); jtime <= dxo.last(); ++jtime) {
 +      linVarChg_[jtime]->changeVarTL(dxo[jtime], *anaVars_);
 +    }
-   }
- 
--  oops::Log::trace() << "ErrorCovariance<MODEL>::doMultiply done" << std::endl;
++  }
++
 +  oops::Log::trace() << "ErrorCovariance4D<MODEL>::advectedMultiply done" << std::endl;
  }
  
@@ -962,7 +942,6 @@
 +void ErrorCovariance<MODEL>::linearize(const State_ & xb3D,
 +                                       const Geometry_ & geom,
 +                                       const eckit::Configuration & config) {
-+
 +  // 4D compatibility
 +  State4D_ xb;
 +  xb.push_back(xb3D);

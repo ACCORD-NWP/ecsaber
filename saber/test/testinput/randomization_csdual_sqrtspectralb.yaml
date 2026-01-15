@@ -9,7 +9,7 @@ geometry:
     - air_horizontal_streamfunction
     - air_horizontal_velocity_potential
     - mu
-    - unbalanced_pressure_levels_minus_one   
+    - unbalanced_pressure_levels_minus_one
     levels: 70
   halo: 1
 background:
@@ -41,4 +41,5 @@ output states:
   member pattern: '%MEM%'
   filepath: testdata/randomization_csdual_sqrtspectralb/_MPI__randomized_csdual_mb%MEM%
 test:
+  float relative tolerance: 2.0e-11
   reference filename: testref/randomization_csdual_sqrtspectralb.ref

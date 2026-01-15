@@ -31,8 +31,12 @@ class StdDevReadParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(StdDevReadParameters, Parameters)
 
  public:
+  // Standard-deviation profile configuration
+  oops::OptionalParameter<eckit::LocalConfiguration> profileFileConf{"profile file", this};
+
   // ATLAS standard-deviation file
   oops::OptionalParameter<eckit::LocalConfiguration> atlasFileConf{"atlas file", this};
+
   // Model standard-deviation file
   oops::OptionalParameter<eckit::LocalConfiguration> modelFileConf{"model file", this};
 };
@@ -45,6 +49,7 @@ class StdDevWriteParameters : public oops::Parameters {
  public:
   // ATLAS standard-deviation file
   oops::OptionalParameter<eckit::LocalConfiguration> atlasFileConf{"write to atlas file", this};
+
   // Model standard-deviation file
   oops::OptionalParameter<eckit::LocalConfiguration> modelFileConf{"write to model file", this};
 };
@@ -64,8 +69,7 @@ class StdDevParameters : public SaberBlockParametersBase {
   // Scaling parameter
   oops::Parameter<double> scaleFactorParam{"stddev scale factor",
                                            "multiplicative factor applied to StdDev block",
-                                           1.0, this,
-                                          {oops::exclusiveMinConstraint(0.)}};
+                                           1.0, this, {oops::exclusiveMinConstraint(0.)}};
 
   oops::JediVariables mandatoryActiveVars() const override {return oops::JediVariables();}
 
@@ -94,7 +98,10 @@ class StdDev : public SaberOuterBlockBase {
 
   void multiply(oops::FieldSet3D &) const override;
   void multiplyAD(oops::FieldSet3D &) const override;
-  void leftInverseMultiply(oops::FieldSet3D &) const override;
+  void leftInverseMultiply(oops::FieldSet3D & fset) const override
+    {inverseMultiply(fset);}
+  void rightInverseMultiply(oops::FieldSet3D & fset) const override
+    {inverseMultiply(fset);}
 
   std::vector<std::pair<std::string, eckit::LocalConfiguration>> getReadConfs() const override;
   void setReadFields(const std::vector<oops::FieldSet3D> &) override;
@@ -114,9 +121,11 @@ class StdDev : public SaberOuterBlockBase {
 
  private:
   void print(std::ostream &) const override;
+  void inverseMultiply(oops::FieldSet3D &) const;
   const oops::GeometryData & innerGeometryData_;
   oops::JediVariables innerVars_;
   Parameters_ params_;
+  bool readFromProfile_;
   bool readFromAtlas_;
   bool readFromModel_;
   double scaleFactor_;

@@ -14,8 +14,6 @@
 #include <utility>
 #include <vector>
 
-#include <boost/range/adaptor/reversed.hpp>
-
 #include "atlas/field.h"
 #include "atlas/grid.h"
 
@@ -37,6 +35,7 @@
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/FunctionSpaceHelpers.h"
 #include "oops/util/Logger.h"
+#include "oops/util/ParallelFieldSetIO.h"
 
 #include "saber/blocks/SaberBlockParametersBase.h"
 #include "saber/blocks/SaberCentralBlockBase.h"
@@ -301,11 +300,23 @@ oops::FieldSets readEnsemble(const oops::Geometry<MODEL> & geom,
         }
       }
 
-      // Read perturbations into oops::FieldSets
-      oops::FieldSets fsetEns(fspace, vars, xb.times(),
-                              ensemblePertOtherGeom,
-                              commGeom, eckit::mpi::self());
-      return fsetEns;
+      if (varConf.has("parallel IO")) {
+        util::ParallelFieldSetIO io(fspace,
+                                    ensemblePertOtherGeom.getString("grid name"),
+                                    util::ParallelFieldSetIO::Mode::Read);
+
+        // Read perturbations into oops::FieldSets
+        oops::FieldSets fsetEns(fspace, vars, io, xb.times(),
+                                ensemblePertOtherGeom,
+                                commGeom, eckit::mpi::self());
+
+        return fsetEns;
+      } else {
+        oops::FieldSets fsetEns(fspace, vars, xb.times(),
+                                ensemblePertOtherGeom,
+                                commGeom, eckit::mpi::self());
+        return fsetEns;
+      }
     }
   }
   // Return empty ensemble if none was returned before
@@ -330,11 +341,8 @@ void readHybridWeight(const oops::Geometry<MODEL> & geom,
   // Local copy
   eckit::LocalConfiguration localConf(conf);
 
-  // Create variables
-  oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
-
   // Create Increment
-  oops::Increment<MODEL> dx(geom, varsT, date);
+  oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(vars), date);
 
   // Read file
   dx.read(localConf);
@@ -362,16 +370,13 @@ void readEnsembleMember(const oops::Geometry<MODEL> & geom,
 
   if (conf.has("ensemble")) {
     // Ensemble of states passed as increments
-    std::vector<eckit::LocalConfiguration> ensembleConf = 
+    std::vector<eckit::LocalConfiguration> ensembleConf =
       conf.getSubConfigurations("ensemble");
     std::vector<eckit::LocalConfiguration> membersConf =
       ensembleConf[0].getSubConfigurations("state");
 
-    // Create variables
-    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
-
     // Read state as increment
-    oops::Increment<MODEL> dx(geom, varsT, fset.validTime());
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(vars), fset.validTime());
     dx.read(membersConf[ie]);
 
     // Copy FieldSet
@@ -387,17 +392,19 @@ void readEnsembleMember(const oops::Geometry<MODEL> & geom,
     std::vector<eckit::LocalConfiguration> membersConf =
       ensembleConf[0].getSubConfigurations("state");
 
-    // Create variables
-    oops::Variables<MODEL> varsT(util::templatedVarsConf(vars));
-
     // Read Increment
-    oops::Increment<MODEL> dx(geom, varsT, fset.validTime());
+    oops::Increment<MODEL> dx(geom, util::templatedVars<MODEL>(vars), fset.validTime());
     dx.read(membersConf[ie]);
 
     // Get FieldSet
     fset.deepCopy(dx.increment().fieldSet());
 
     ++ensembleFound;
+  }
+
+  if (conf.has("ensemble base") && conf.has("ensemble pairs")) {
+    throw eckit::NotImplemented("readEnsembleMember not yet implemented for a"
+                                "difference of two states", Here());
   }
 
   if (conf.has("ensemble pert on other geometry")

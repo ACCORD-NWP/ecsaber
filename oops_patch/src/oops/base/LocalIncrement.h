@@ -32,9 +32,14 @@ class LocalIncrement: public util::Printable {
 
  private:
   void print(std::ostream & os) const {
-    os << "LocalIncrement, size: " << vals_.size() << ", first element: "
-       << vals_[0] << std::endl; }
-  const oops::JediVariables vars_;  // variables in the object
+    const size_t numValues = vals_.size();
+    os << "LocalIncrement, size: " << numValues;
+    if (numValues > 0) {
+      os << ", first element: " << vals_[0];
+    }
+    os << std::endl;
+  }
+  const oops::JediVariables vars_;      // variables in the object
   std::vector<double> vals_;        // data in flat array
   const std::vector<int> varlens_;  // vector containing nlevs for each variable
 };

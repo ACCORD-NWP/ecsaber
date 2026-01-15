@@ -1,11 +1,10 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt.tmp.bak	2025-01-18 07:07:09.907974833 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt	2025-01-18 07:07:21.122059308 +0100
-@@ -179,7 +179,7 @@
- # Mark Boost as a system library to silence compiler warnings from Boost headers
+--- /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt.tmp.bak	2026-01-14 08:19:53.780634989 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/vader/src/CMakeLists.txt	2026-01-14 08:20:36.959759804 +0100
+@@ -179,6 +179,7 @@
  target_include_directories( ${PROJECT_NAME} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS} )
  
--target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} ) #TODO: Change to "oops::oops" once oops adds namespace support
-+target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} oops_patch ) #TODO: Change to "oops::oops" once oops adds namespace support
+ target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} ) #TODO: Change to "oops::oops" once oops adds namespace support
++target_link_libraries( ${PROJECT_NAME} PUBLIC oops_patch )
  
  if( gsw_FOUND )
    target_link_libraries( ${PROJECT_NAME} PUBLIC gsw )

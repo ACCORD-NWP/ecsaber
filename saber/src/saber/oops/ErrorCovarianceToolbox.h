@@ -144,6 +144,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
     // Replace patterns in full configuration and deserialize parameters
     eckit::LocalConfiguration fullConfigUpdated(fullConfig);
+
     util::seekAndReplace(fullConfigUpdated, "_MPI_", std::to_string(ntasks));
     util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
     params.deserialize(fullConfigUpdated);
@@ -170,10 +171,6 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     if (params.incrementVars.value() != boost::none) {
       tmpVars = params.incrementVars.value().value();
     }
-    const Variables_ varsT(util::templatedVarsConf(tmpVars));
-
-    // Setup time
-    util::DateTime time = xx[0].validTime();
 
     const eckit::LocalConfiguration covarConf(fullConfigUpdated, "Covariance");
 
@@ -181,7 +178,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     const auto & diracParams = params.dirac.value();
     if (diracParams != boost::none) {
       // Setup Dirac field
-      Increment4D_ dxi(geom, varsT, xx.times());
+      Increment4D_ dxi(geom, util::templatedVars<MODEL>(tmpVars), xx.times());
       dirac4D(*diracParams, dxi);
       oops::Log::test() << "Input Dirac increment:" << dxi << std::endl;
 
@@ -210,14 +207,14 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
       // Apply B matrix components recursively
       std::string id;
-      dirac(covarConf, testConf, id, geom, varsT, xx, dxi);
+      dirac(covarConf, testConf, id, geom, util::templatedVars<MODEL>(tmpVars), xx, dxi);
     }
 
     const auto & randomizationSize = covarConf.getInt("randomization size", 0);
     if ((diracParams == boost::none) || (randomizationSize > 0)) {
       // Background error covariance training
       std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
-                                              covarConf, geom, varsT, xx));
+                                         covarConf, geom, util::templatedVars<MODEL>(tmpVars), xx));
 
       // Linearize
       eckit::LocalConfiguration linConf;
@@ -234,7 +231,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       Bmat->linearize(xx, geom, linConf);
 
       // Randomization
-      randomization(params, geom, varsT, xx, Bmat, ntasks);
+      randomization(params, geom, util::templatedVars<MODEL>(tmpVars), xx, Bmat, ntasks);
     }
 
     return 0;
@@ -422,26 +419,41 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     util::seekAndReplace(outputBConf, "%id%", id);
 
     // Write output increment
-    dxo[0].write(outputBConf);
+    dxo.write(outputBConf);
     oops::Log::test() << "Covariance(" << id << ") * Increment:" << dxo << std::endl;
 
     // Look for hybrid or ensemble covariance models
-    if (covarianceModel == "hybrid") {
-      eckit::LocalConfiguration staticConfig(covarConf, "static_covariance");
-      std::string staticID = "hybrid1";
-      dirac(staticConfig, testConf, staticID, geom, vars, xx, dxi);
-      eckit::LocalConfiguration ensembleConfig(covarConf, "ensemble_covariance");
-      std::string ensembleID = "hybrid2";
-      dirac(ensembleConfig, testConf, ensembleID, geom, vars, xx, dxi);
+    bool runComponentsRecursively =
+      covarConf.has("run components recursively") ?
+      covarConf.getBool("run components recursively") : false;
+
+    oops::Log::info() << "Covariance Configuration : Running components recursively : "
+      << covarConf << " " <<  covarConf.has("run components recursively") << " "
+      << runComponentsRecursively << std::endl;
+
+    if (runComponentsRecursively) {
+      if (covarianceModel == "hybrid") {
+        eckit::LocalConfiguration staticConfig(covarConf, "static_covariance");
+        std::string staticID = "hybrid1";
+        dirac(staticConfig, testConf, staticID, geom, vars, xx, dxi);
+        eckit::LocalConfiguration ensembleConfig(covarConf, "ensemble_covariance");
+        std::string ensembleID = "hybrid2";
+        dirac(ensembleConfig, testConf, ensembleID, geom, vars, xx, dxi);
+      }
     }
     if (covarianceModel == "SABER") {
       const std::string saberCentralBlockName =
         covarConf.getString("saber central block.saber block name");
+      bool runComponentsRecursively =
+        covarConf.has("saber central block.run components recursively") ?
+        covarConf.getBool("saber central block.run components recursively") :
+        false;
       if (saberCentralBlockName == "Hybrid") {
         // Check for outer blocks (can't pass the correct geometry/variables in that case)
-        if (!covarConf.has("saber outer blocks")) {
+        if (!covarConf.has("saber outer blocks") && (runComponentsRecursively)) {
           std::vector<eckit::LocalConfiguration> confs;
           covarConf.get("saber central block.components", confs);
+
           size_t componentIndex(1);
           for (const auto & conf : confs) {
             std::string idC(id + std::to_string(componentIndex));
@@ -505,7 +517,8 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       util::seekAndReplace(outputLConf, "%id%", idL);
 
       // Write output increment
-      dxo[0].write(outputLConf);
+      dxo.write(outputLConf);
+
       oops::Log::test() << "Localization(" << id << ") * Increment:" << dxo << std::endl;
     }
   }
@@ -529,9 +542,6 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       // Initialize variance
       variance.zero();
 
-      // Create empty ensemble
-      std::vector<Increment_> ens;
-
       // Output options
       const auto & outputPerturbations = params.outputPerturbations.value();
       const auto & outputStates = params.outputStates.value();
@@ -539,31 +549,10 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
       for (size_t jm = 0; jm < Bmat->randomizationSize(); ++jm) {
         // Generate member
-        oops::Log::info() << "Info     : Member " << jm << std::endl;
         Bmat->randomize(dx);
 
         if ((outputPerturbations != boost::none) || (outputStates != boost::none)) {
-          // Save member
-          ens.push_back(dx[0]);
-        }
-
-        // Square perturbation
-        dxsq = dx;
-        for (int jsub = dxsq.first(); jsub <= dxsq.last(); ++jsub) {
-          dxsq[jsub].schur_product_with(dx[jsub]);
-        }
-
-        // Update variance
-        variance += dxsq;
-      }
-      oops::Log::info() << "Info     : " << std::endl;
-
-      if ((outputPerturbations != boost::none) || (outputStates != boost::none)) {
-        oops::Log::info() << "Info     : Write states and/or perturbations:" << std::endl;
-        oops::Log::info() << "Info     : ----------------------------------" << std::endl;
-        oops::Log::info() << "Info     : " << std::endl;
-        for (size_t jm = 0; jm < Bmat->randomizationSize(); ++jm) {
-          oops::Log::test() << "Member " << jm << ": " << ens[jm] << std::endl;
+          oops::Log::test() << "Member " << jm << ": " << dx[0] << std::endl;
 
           if (outputPerturbations != boost::none) {
             // Update config
@@ -572,7 +561,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
             setMPI(outputPerturbationsUpdated, ntasks);
 
             // Write perturbation
-            ens[jm].write(outputPerturbationsUpdated);
+            dx.write(outputPerturbationsUpdated);
           }
 
           if (outputStates != boost::none) {
@@ -582,8 +571,10 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
             setMPI(outputStatesUpdated, ntasks);
 
             // Add background state to perturbation
-            State_ xp(xx[0]);
-            xp += ens[jm];
+            State4D_ xp(xx);
+            for (int jsub = dx.first(); jsub <= dx.last(); ++jsub) {
+              xp[jsub-dx.first()] += dx[jsub];
+            }
 
             // Write state
             xp.write(outputStatesUpdated);
@@ -591,7 +582,17 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
           oops::Log::info() << "Info     : " << std::endl;
         }
+
+        // Square perturbation
+        dxsq = dx;
+        for (int jsub = dx.first(); jsub <= dx.last(); ++jsub) {
+          dxsq[jsub].schur_product_with(dx[jsub]);
+        }
+
+        // Update variance
+        variance += dxsq;
       }
+      oops::Log::info() << "Info     : " << std::endl;
 
       if (outputVariance != boost::none) {
         oops::Log::info() << "Info     : Write randomized variance:" << std::endl;
@@ -608,7 +609,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
         setMPI(outputVarianceUpdated, ntasks);
 
         // Write variance
-        variance[0].write(outputVarianceUpdated);
+        variance.write(outputVarianceUpdated);
         oops::Log::test() << "Randomized variance: " << variance << std::endl;
       }
     }

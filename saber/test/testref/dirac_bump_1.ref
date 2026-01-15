@@ -2,13 +2,23 @@ Input Dirac increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 1.0000000000000000e+00
-    northward_wind: 0.0000000000000000e+00
+  - eastward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 1.0000000000000000e+00
+    + mean   = 6.5616797900262466e-04
+    + stddev = 2.5615775978927613e-02
+  - northward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 0.0000000000000000e+00
 - Valid time: 2010-01-01T18:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 0.0000000000000000e+00
-    northward_wind: 0.0000000000000000e+00
+  - eastward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 0.0000000000000000e+00
+  - northward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 0.0000000000000000e+00
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -44,7 +54,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7539391781678347e+01
+Norm of input parameter StdDev: 5.4937700734311314e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -61,7 +71,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.7539391781678347e+01
+Norm of input parameter stddev - 1: 5.4937700734311314e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -83,13 +93,29 @@ Covariance(hybrid) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 7.6609986097587923e-01
-    northward_wind: 2.4500177260209455e-01
+  - eastward_wind (2 levels):
+    + min    = -2.3729466724729659e-02
+    + max    = 4.5009786234594296e-01
+    + mean   = 1.4320619567351044e-03
+    + stddev = 1.6663505833508594e-02
+  - northward_wind (2 levels):
+    + min    = -8.1967329781737611e-02
+    + max    = 5.8541447018618777e-02
+    + mean   = -1.9228411391440539e-04
+    + stddev = 4.0653798292048298e-03
 - Valid time: 2010-01-01T18:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 1.7521481618685300e-01
-    northward_wind: 1.3888084646654242e-01
+  - eastward_wind (2 levels):
+    + min    = -6.0051914947392572e-02
+    + max    = 8.8861759331868392e-02
+    + mean   = 1.8593644276125590e-04
+    + stddev = 4.6264302559792334e-03
+  - northward_wind (2 levels):
+    + min    = -9.8562496455466622e-02
+    + max    = 9.3301263416779523e-02
+    + mean   = 6.0596382462136264e-06
+    + stddev = 5.4383433237320351e-03
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -125,7 +151,7 @@ Adjoint test for block BUMP_PsiChiToUV passed
           nc2 =      250
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7539391781678347e+01
+Norm of input parameter StdDev: 5.4937700734311314e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -142,7 +168,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.7539391781678347e+01
+Norm of input parameter stddev - 1: 5.4937700734311314e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -157,13 +183,29 @@ Covariance(hybrid1_SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 3.7259415926535379e-12
-    northward_wind: 1.3202009593235821e-12
+  - eastward_wind (2 levels):
+    + min    = -3.5362039973425105e-13
+    + max    = 1.3478032211140141e-12
+    + mean   = -5.0611716390096536e-17
+    + stddev = 8.2153148121769046e-14
+  - northward_wind (2 levels):
+    + min    = -3.2889066103205936e-13
+    + max    = 3.2622646484939685e-13
+    + mean   = -1.8065427102790339e-17
+    + stddev = 3.2868334756832761e-14
 - Valid time: 2010-01-01T18:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 3.7259415926535379e-12
-    northward_wind: 1.3202009593235821e-12
+  - eastward_wind (2 levels):
+    + min    = -3.5362039973425105e-13
+    + max    = 1.3478032211140141e-12
+    + mean   = -5.0611716390096536e-17
+    + stddev = 8.2153148121769046e-14
+  - northward_wind (2 levels):
+    + min    = -3.2889066103205936e-13
+    + max    = 3.2622646484939685e-13
+    + mean   = -1.8065427102790339e-17
+    + stddev = 3.2868334756832761e-14
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -175,13 +217,29 @@ Covariance(hybrid2_ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 1.5321997219495538e+00
-    northward_wind: 4.9000354520426198e-01
+  - eastward_wind (2 levels):
+    + min    = -4.7458933449674071e-02
+    + max    = 9.0019572469053799e-01
+    + mean   = 2.8641239134702609e-03
+    + stddev = 3.3327011666952323e-02
+  - northward_wind (2 levels):
+    + min    = -1.6393465956348074e-01
+    + max    = 1.1708289403725546e-01
+    + mean   = -3.8456822782879279e-04
+    + stddev = 8.1307596584090352e-03
 - Valid time: 2010-01-01T18:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 3.5042963237308855e-01
-    northward_wind: 2.7776169293339531e-01
+  - eastward_wind (2 levels):
+    + min    = -1.2010382989531265e-01
+    + max    = 1.7772351866320388e-01
+    + mean   = 3.7187288552256275e-04
+    + stddev = 9.2528605119436783e-03
+  - northward_wind (2 levels):
+    + min    = -1.9712499291092322e-01
+    + max    = 1.8660252683355621e-01
+    + mean   = 1.2119276492445322e-05
+    + stddev = 1.0876686647462280e-02
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -191,15 +249,31 @@ Covariance(hybrid2_ensemble) * Increment:
              Level   2 ~>  0.200E+01 vert. coord.
 Localization(hybrid2_ensemble_localization) diagnostics:
 - Localization at zero separation:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999956e-01
 Localization(hybrid2_ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 2.2517366841554378e+00
-    northward_wind: 2.2517366841554378e+00
+  - eastward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 9.9999999999999956e-01
+    + mean   = 7.1470388430498570e-03
+    + stddev = 5.4309318156277889e-02
+  - northward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 9.9999999999999956e-01
+    + mean   = 7.1470388430498570e-03
+    + stddev = 5.4309318156277889e-02
 - Valid time: 2010-01-01T18:00:00Z
   Geometry: L40x21 [840]
   Fields:
-    eastward_wind: 2.2517366841554378e+00
-    northward_wind: 2.2517366841554378e+00
+  - eastward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 9.9999999999999956e-01
+    + mean   = 7.1470388430498570e-03
+    + stddev = 5.4309318156277889e-02
+  - northward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 9.9999999999999956e-01
+    + mean   = 7.1470388430498570e-03
+    + stddev = 5.4309318156277889e-02

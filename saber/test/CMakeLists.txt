@@ -32,6 +32,14 @@ if( ENABLE_QUENCH )
   # Default test selection variables (TIER-independent)
   set( SABER_TEST_VALGRIND 0 )
   set( SABER_TEST_FASTLAM 1 )
+  set( SABER_TEST_BIFOURIER 0 )
+  if ( FFTW_FOUND OR (ECTRANS_FOUND AND ectrans_HAVE_ETRANS AND ectrans_HAVE_TRANSI ) )
+    set( SABER_TEST_BIFOURIER 1 )
+  endif()
+  set( SABER_TEST_BUMP 0 )
+  if( ENABLE_BUMP )
+      set( SABER_TEST_BUMP 1 )
+  endif()
   set( SABER_TEST_GSI_GEOS 0 )
   if( gsibec_FOUND )
       set( SABER_TEST_GSI_GEOS 1 )
@@ -59,6 +67,14 @@ if( ENABLE_QUENCH )
   if( DEFINED ENV{SABER_TEST_FASTLAM} )
       set( SABER_TEST_FASTLAM $ENV{SABER_TEST_FASTLAM} )
   endif()
+  if( DEFINED ENV{SABER_TEST_BIFOURIER} )
+      set( SABER_TEST_BIFOURIER $ENV{SABER_TEST_BIFOURIER} )
+  endif()
+  if( ENABLE_BUMP )
+      if( DEFINED ENV{SABER_TEST_BUMP} )
+          set( SABER_TEST_BUMP $ENV{SABER_TEST_BUMP} )
+      endif()
+  endif()
   if( gsibec_FOUND )
       if( DEFINED ENV{SABER_TEST_GSI_GEOS} )
           set( SABER_TEST_GSI_GEOS $ENV{SABER_TEST_GSI_GEOS} )
@@ -76,6 +92,11 @@ if( ENABLE_QUENCH )
   endif()
   if( DEFINED ENV{SABER_TEST_VADER} )
       set( SABER_TEST_VADER $ENV{SABER_TEST_VADER} )
+  endif()
+
+  # BUMP needed for FASTLAM tests
+  if( NOT SABER_TEST_BUMP )
+      set( SABER_TEST_FASTLAM 0 )
   endif()
 
   # TIER 1
@@ -96,6 +117,21 @@ if( ENABLE_QUENCH )
           list( APPEND saber_test_full ${saber_test} )
       endif()
   endif()
+  if( SABER_TEST_BIFOURIER )
+      message( STATUS "  - TIER 1 Bi-Fourier-specific" )
+      file( STRINGS testlist/saber_test_tier1-bifourier.txt saber_test )
+      list( APPEND saber_test_full ${saber_test} )
+      if( ECTRANS_FOUND AND ectrans_HAVE_ETRANS AND ectrans_HAVE_TRANSI )
+        message( STATUS "  - TIER 1 Bi-Fourier-specific - ECTRANS" )
+        file( STRINGS testlist/saber_test_tier1-bifourier-ectrans.txt saber_test )
+        list( APPEND saber_test_full ${saber_test} )
+      endif()
+  endif()
+  if( SABER_TEST_BUMP )
+      message( STATUS "  - TIER 1 BUMP-specific" )
+      file( STRINGS testlist/saber_test_tier1-bump.txt saber_test )
+      list( APPEND saber_test_full ${saber_test} )
+  endif()
   if( SABER_TEST_GSI_GEOS )
       message( STATUS "  - TIER 1 GSI-GEOS-specific" )
       file( STRINGS testlist/saber_test_tier1-gsi-geos.txt saber_test )
@@ -110,6 +146,10 @@ if( ENABLE_QUENCH )
       message( STATUS "  - TIER 1 SPECTRALB-specific" )
       file( STRINGS testlist/saber_test_tier1-spectralb.txt saber_test )
       list( APPEND saber_test_full ${saber_test} )
+      if( SABER_TEST_BUMP )
+          file( STRINGS testlist/saber_test_tier1-bump-spectralb.txt saber_test )
+          list( APPEND saber_test_full ${saber_test} )
+      endif()
   endif()
   if( SABER_TEST_VADER )
       message( STATUS "  - TIER 1 VADER-specific" )
@@ -172,10 +212,14 @@ if( ENABLE_QUENCH )
                            ${CMAKE_CURRENT_BINARY_DIR}/testref/${test}.ref )
       endif()
   endforeach()
+
+  # Path to the saber test files
+  set (jedi_model_data_tier_1_saber "${CMAKE_SOURCE_DIR}/jedi-model-data/testinput_tier_1/saber")
+
   foreach( data ${saber_data} )
       # Link to input data file
       execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-                       ${CMAKE_CURRENT_SOURCE_DIR}/testdata/${data}
+                       ${jedi_model_data_tier_1_saber}/${data}
                        ${CMAKE_CURRENT_BINARY_DIR}/testdata/${data} )
   endforeach()
 
@@ -194,7 +238,7 @@ if( ENABLE_QUENCH )
   endif()
 
   # Executables list
-  list( APPEND exe_list convertstate randomization error_covariance_training process_perts dirac )
+  list( APPEND exe_list convertcov convertstate randomization error_covariance_training process_perts dirac )
 
   # Loop over MPI/OpenMP configurations
   foreach( mpi omp IN ZIP_LISTS mpi_list omp_list )
@@ -244,7 +288,7 @@ if( ENABLE_QUENCH )
                     set (parallelHybridCheck true CACHE BOOL "" FORCE )
                   else()
                     if ( par_hyb_result GREATER_EQUAL 0 AND ${mpi} GREATER_EQUAL 2 )
-                      set (parallelHybridCheck true CACHE BOOL "" FORCE )
+                      set (parallelHybridCheck false CACHE BOOL "" FORCE )
                     else()
                       set (parallelHybridCheck false CACHE BOOL "" FORCE )
                     endif()
@@ -273,40 +317,42 @@ if( ENABLE_QUENCH )
                                         COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
                                         ARGS ${mpi}
                                              ${omp}
-                                             ${CMAKE_BINARY_DIR}/bin/quenchxx_${exename}.x
+                                             ${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x
                                              testinput/${test}.yaml
-                                        DEPENDS quenchxx_${exename}.x
+                                        DEPENDS saber_quench_${exename}.x
                                         TEST_DEPENDS ${deps_list} )
                   endif()
               endif()
           endforeach()
       endforeach()
 
-      # GSI scaling optimization for HDIAG
-      foreach( test ${saber_test_full} )
-          string( FIND ${test} "optimization_bump_hdiag_gsi" result )
-          if( result MATCHES 0 AND ${mpi} LESS_EQUAL 2 )
-              # Get dependencies
-              file( STRINGS testdeps/${test}.txt deps )
-              set( deps_list "" )
-              list( APPEND deps_list ${deps} )
-              list( LENGTH deps_list deps_length )
-              if( ${deps_length} GREATER 0 )
-                  list( TRANSFORM deps_list PREPEND saber_test_ )
-                  list( TRANSFORM deps_list APPEND _${mpi}-${omp} )
-              endif()
+      if( SABER_TEST_BUMP )
+          # GSI scaling optimization for HDIAG
+          foreach( test ${saber_test_full} )
+              string( FIND ${test} "optimization_bump_hdiag_gsi" result )
+              if( result MATCHES 0 AND ${mpi} LESS_EQUAL 2 )
+                  # Get dependencies
+                  file( STRINGS testdeps/${test}.txt deps )
+                  set( deps_list "" )
+                  list( APPEND deps_list ${deps} )
+                  list( LENGTH deps_list deps_length )
+                  if( ${deps_length} GREATER 0 )
+                      list( TRANSFORM deps_list PREPEND saber_test_ )
+                      list( TRANSFORM deps_list APPEND _${mpi}-${omp} )
+                  endif()
 
-              # Add test
-              ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-                                COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
-                                ARGS ${mpi}
-                                     ${omp}
-                                     ${CMAKE_BINARY_DIR}/bin/quenchxx_error_covariance_toolbox.x
-                                     testinput/${test}.yaml
-                                DEPENDS quenchxx_error_covariance_toolbox.x
-                                TEST_DEPENDS ${deps_list} )
-          endif()
-      endforeach()
+                  # Add test
+                  ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
+                                    COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
+                                    ARGS ${mpi}
+                                         ${omp}
+                                         ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
+                                         testinput/${yaml_prefix}${test}.yaml
+                                    DEPENDS saber_quench_error_covariance_toolbox.x
+                                    TEST_DEPENDS ${deps_list} )
+              endif()
+          endforeach()
+      endif()
 
       # Compare diagnostics
       foreach( test ${saber_test_full} )
@@ -327,22 +373,14 @@ else()
   message( STATUS "SABER-QUENCH tests deactivated" )
 endif()
 
-# BUMP interpolator test
-set( mpi 2 )
-set( omp 1 )
-add_fctest( TARGET          saber_test_interpolatorbump
-            MPI             ${mpi}
-            OMP             ${omp}
-            LINKER_LANGUAGE Fortran
-            SOURCES         fctest/fctest_interpolatorbump.F90
-            LIBS            saber )
-
-# NICAS square-root test
-set( mpi 2 )
-set( omp 1 )
-add_fctest( TARGET          saber_test_nicas_sqrt
-            MPI             ${mpi}
-            OMP             ${omp}
-            LINKER_LANGUAGE Fortran
-            SOURCES         fctest/fctest_nicas_sqrt.F90
-            LIBS            saber )
+if( SABER_TEST_BUMP )
+    # NICAS square-root test
+    set( mpi 2 )
+    set( omp 1 )
+    add_fctest( TARGET          saber_test_nicas_sqrt
+                MPI             ${mpi}
+                OMP             ${omp}
+                LINKER_LANGUAGE ${FORTRAN_LINKER_LANGUAGE}
+                SOURCES         fctest/fctest_nicas_sqrt.F90
+                LIBS            saber )
+endif()

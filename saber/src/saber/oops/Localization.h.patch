@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2024-07-19 10:07:31.533297343 +0200
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2024-07-19 09:40:26.459037198 +0200
-@@ -19,11 +19,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2026-01-14 17:20:46.747406676 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2026-01-14 15:53:47.660807819 +0100
+@@ -19,12 +19,19 @@
  #include "oops/base/FieldSets.h"
  #include "oops/base/State4D.h"
  #include "oops/base/Variables.h"
@@ -13,13 +13,14 @@
  #include "oops/util/Duration.h"
 +#include "oops/util/FieldSetHelpers.h"
  #include "oops/util/Logger.h"
+ #include "oops/util/Timer.h"
  
  #include "saber/blocks/SaberParametricBlockChain.h"
 +#include "oops/util/ECUtilities.h"
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -32,19 +39,26 @@
+@@ -33,20 +40,27 @@
  
  template<typename MODEL>
  class Localization : public oops::LocalizationBase<MODEL> {
@@ -36,6 +37,7 @@
 +               const Variables_ &,
                 const eckit::Configuration &);
    ~Localization();
+   static const std::string classname() {return "saber::Localization";}
  
 -  void randomize(Increment_ &) const override;
    void multiply(Increment_ &) const override;
@@ -48,7 +50,7 @@
   private:
    void print(std::ostream &) const override;
    std::unique_ptr<SaberParametricBlockChain> loc_;
-@@ -54,7 +68,7 @@
+@@ -56,7 +70,7 @@
  
  template<typename MODEL>
  Localization<MODEL>::Localization(const Geometry_ & geom,
@@ -57,7 +59,7 @@
                                    const eckit::Configuration & conf)
    : loc_()
  {
-@@ -64,21 +78,17 @@
+@@ -67,21 +81,17 @@
    util::DateTime dummyTime(1977, 5, 25, 0, 0, 0);
  
    // Initialize
@@ -80,28 +82,21 @@
 -  oops::FieldSet4D fg4d(fg);
 +  oops::FieldSet3D fset3d(dummyTime, eckit::mpi::comm());
 +  fset3d.deepCopy(util::createFieldSet(geom.geometry().functionSpace(), incVars, 0.0));
-+  oops::FieldSet4D fset4dXb(fset3d);
-+  oops::FieldSet4D fset4dFg(fset3d);
++  oops::FieldSet4D xb4d(fset3d);
++  oops::FieldSet4D fg4d(fset3d);
  
    oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
    // TODO(AS): revisit what configuration needs to be passed to SaberParametricBlockChain.
-@@ -99,7 +109,7 @@
-   covarConf.set("time covariance", "univariate");
-   // Initialize localization blockchain
-   loc_ = std::make_unique<SaberParametricBlockChain>(geom, geom,
--              incVars, xb4d, fg4d,
-+              incVars, fset4dXb, fset4dFg,
-               emptyFsetEns, emptyFsetEns, covarConf, conf);
- 
-   oops::Log::trace() << "Localization:Localization done" << std::endl;
-@@ -115,18 +125,35 @@
+@@ -119,19 +129,37 @@
  // -----------------------------------------------------------------------------
  
  template<typename MODEL>
 -void Localization<MODEL>::randomize(Increment_ & dx) const {
+-  util::Timer timer(classname(), "randomize");
 -  oops::Log::trace() << "Localization:randomize starting" << std::endl;
 +void Localization<MODEL>::multiplySqrt(const GenericCtlVec_ & dv,
 +                                       Increment_ & dx) const {
++  util::Timer timer(classname(), "multiplySqrt");
 +  oops::Log::trace() << "Localization:multiplySqrt starting" << std::endl;
  
 -  // SABER block chain randomization
@@ -124,6 +119,7 @@
 +template<typename MODEL>
 +void Localization<MODEL>::multiplySqrtTrans(const Increment_ & dx,
 +                                            GenericCtlVec_ & dv) const {
++  util::Timer timer(classname(), "multiplySqrtTrans");
 +  oops::Log::trace() << "Localization:multiplySqrtTrans starting" << std::endl;
 +
 +  // SABER block chain square-root adjoint
@@ -137,7 +133,7 @@
  }
  
  // -----------------------------------------------------------------------------
-@@ -136,12 +163,12 @@
+@@ -142,12 +170,12 @@
    oops::Log::trace() << "Localization:multiply starting" << std::endl;
  
    // SABER block chain multiplication
@@ -148,7 +144,7 @@
    loc_->multiply(fset4d);
  
    // ATLAS fieldset to Increment_
--  dx.synchronizeFields();
+-  dx.fromFieldSet(fset4d[0].fieldSet());
 +  dx.increment().synchronizeFields();
  
    oops::Log::trace() << "Localization:multiply done" << std::endl;

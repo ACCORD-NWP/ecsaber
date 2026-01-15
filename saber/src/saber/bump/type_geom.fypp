@@ -9,25 +9,24 @@
 !----------------------------------------------------------------------
 module type_geom
 
-use atlas_module, only: atlas_config,atlas_connectivity,atlas_field,atlas_functionspace, &
- & atlas_functionspace_nodecolumns,atlas_functionspace_pointcloud,atlas_functionspace_structuredcolumns,atlas_json,atlas_mesh, &
+use atlas_module, only: atlas_config,atlas_field,atlas_functionspace, &
+ & atlas_functionspace_nodecolumns,atlas_functionspace_pointcloud,atlas_functionspace_structuredcolumns, &
  & atlas_mesh_nodes,atlas_projection,atlas_structuredgrid
-use fckit_mpi_module, only: fckit_mpi_sum,fckit_mpi_min,fckit_mpi_max,fckit_mpi_status
+use fckit_mpi_module, only: fckit_mpi_sum,fckit_mpi_min,fckit_mpi_max
 !$ use omp_lib
 use tools_atlas, only: get_grid,field_to_array,get_atlas_functionspace_size
-use tools_const, only: zero,quarter,half,one,two,three,four,hundred,pi,req,deg2rad,rad2deg,reqkm
+use tools_const, only: zero,half,one,two,three,four,hundred,pi,deg2rad,rad2deg,reqkm
 use tools_fit, only: work_grid
-use tools_func, only: fletcher32,lonlatmod,grid_hash,independent_levels,sphere_dist,lonlat2xyz,xyz2lonlat,cart_dist, &
- & vector_product,area,cx_to_cxa,cx_to_proc,cx_to_cxu,convert_l2i,convert_i2l,zss_maxval,zss_minval,zss_sum,zss_count
-use tools_kinds, only: kind_int,kind_real,huge_real,huge_int
+use tools_func, only: lonlatmod,grid_hash,independent_levels,sphere_dist,lonlat2xyz,xyz2lonlat,cart_dist, &
+ & vector_product,area,cx_to_cxa,cx_to_proc,cx_to_cxu,convert_l2i,convert_i2l,zss_minval,zss_sum,zss_count
+use tools_kinds, only: kind_int,kind_real,huge_real
 use tools_qsort, only: qsort
-use tools_repro, only: inf,sup,eq,infeq,supeq,indist,repro_th
+use tools_repro, only: inf,sup,eq,supeq,indist,repro_th
 use type_bnda, only: bnda_type
 use type_com, only: com_type
 use type_fieldset, only: fieldset_type
 use type_hull, only: hull_type
 use type_io, only: io_type
-use type_linop, only: linop_type
 use type_mesh, only: mesh_type
 use type_minim, only: minim_type
 use type_mpl, only: mpl_type
@@ -250,7 +249,6 @@ if (allocated(geom%c0u_to_c0a)) deallocate(geom%c0u_to_c0a)
 call geom%com_AU%dealloc
 if (allocated(geom%c0a_to_c0)) deallocate(geom%c0a_to_c0)
 if (allocated(geom%c0u_to_c0)) deallocate(geom%c0u_to_c0)
-if (allocated(geom%nc0_gmask)) deallocate(geom%nc0_gmask)
 if (allocated(geom%l0i_to_l0)) deallocate(geom%l0i_to_l0)
 if (allocated(geom%area_ver_c0)) deallocate(geom%area_ver_c0)
 if (allocated(geom%vert_coordavg)) deallocate(geom%vert_coordavg)
@@ -291,16 +289,19 @@ class(geom_type),intent(inout) :: geom !< Geometry
 
 ! Release memory
 call geom%partial_dealloc
-call geom%afunctionspace_mg%final()
 if (allocated(geom%gmask_mga)) deallocate(geom%gmask_mga)
 if (allocated(geom%c0a_to_mga)) deallocate(geom%c0a_to_mga)
 if (allocated(geom%lon_c0a)) deallocate(geom%lon_c0a)
 if (allocated(geom%lat_c0a)) deallocate(geom%lat_c0a)
 if (allocated(geom%vert_coord_c0a)) deallocate(geom%vert_coord_c0a)
 if (allocated(geom%gmask_c0a)) deallocate(geom%gmask_c0a)
+if (allocated(geom%nc0_gmask)) deallocate(geom%nc0_gmask)
 if (allocated(geom%l0_to_l0i)) deallocate(geom%l0_to_l0i)
 if (allocated(geom%grp2d)) deallocate(geom%grp2d)
 call geom%io%dealloc
+call geom%aconfig_work_grid%final()
+call geom%aproj_work%final()
+call geom%afunctionspace_mg%final()
 geom%allocated = .false.
 
 ! Probe out
@@ -322,7 +323,7 @@ type(mpl_type),intent(inout) :: mpl                    !< MPI data
 type(rng_type),intent(inout) :: rng                    !< Random number generator
 type(nam_type),intent(in) :: nam                       !< Namelist
 type(atlas_functionspace),intent(in) :: afunctionspace !< ATLAS function space
-type(fieldset_type),intent(in),optional :: fieldset    !< Fieldset containing geometry elements
+type(fieldset_type),intent(in) :: fieldset             !< Fieldset containing geometry elements
 
 ! Local variables
 integer :: il0,jl0off,jl0r,jc3,jc4,iproc,iv,ig
@@ -362,18 +363,9 @@ do iv=1,nam%nv
   ig = nam%group_index(iv)
   if (.not.nam%var2d(iv)) geom%grp2d(ig) = .false.
 end do
-if (trim(nam%lev2d)=='first') then
-   geom%nl2d = 1
-else if (trim(nam%lev2d)=='last') then
-   geom%nl2d = geom%nl0
-end if
 
-! Copy function space pointer
-if (present(fieldset)) then
-   call geom%from_atlas(mpl,rng,nam,afunctionspace,fieldset)
-else
-   call geom%from_atlas(mpl,rng,nam,afunctionspace)
-end if
+! Setup geometry from atlas function space and
+call geom%from_atlas(mpl,rng,nam,afunctionspace,fieldset)
 
 ! Setup subset Sc0
 call geom%setup_c0(mpl)
@@ -518,7 +510,7 @@ type(mpl_type),intent(inout) :: mpl                    !< MPI data
 type(rng_type),intent(inout) :: rng                    !< Random number generator
 type(nam_type),intent(in) :: nam                       !< Namelist
 type(atlas_functionspace),intent(in) :: afunctionspace !< ATLAS function space
-type(fieldset_type),intent(in),optional :: fieldset    !< Fieldset
+type(fieldset_type),intent(in) :: fieldset             !< Fieldset
 
 ! Local variables
 integer :: il0,imga,ib,iprocmax,icorner,ib_1,ib_2,ib_3,nmg_owned,nmg_inside,iter,i,iproc
@@ -571,27 +563,22 @@ do il0=1,geom%nl0
 end do
 geom%gmask_mga = .true.
 
-if (present(fieldset)) then
-   ! Get owned vs halo/BC field
-   if (fieldset%has_field('owned')) then
-      afield = fieldset%field('owned')
-      call field_to_array(afield,mpl,geom%owned_mga)
-      call afield%final()
-   end if
+! Get owned vs halo/BC field
+if (fieldset%has_field('owned')) then
+   afield = fieldset%field('owned')
+   call field_to_array(afield,mpl,geom%owned_mga,1)
+end if
 
-   ! Get vertical coordinate
-   if (nam%vert_coord_name /= '') then
-      afield = fieldset%field(nam%vert_coord_name)
-      call field_to_array(afield,mpl,geom%vert_coord_mga)
-      call afield%final()
-   end if
+! Get vertical coordinate
+if ((nam%vert_coord_name/='').and.(fieldset%has_field(nam%vert_coord_name))) then
+   afield = fieldset%field(nam%vert_coord_name)
+   call field_to_array(afield,mpl,geom%vert_coord_mga,nam%ilev2d)
+end if
 
-   ! Get geometry mask
-   if (nam%gmask_name /= '') then
-      afield = fieldset%field(nam%gmask_name)
-      call field_to_array(afield,mpl,geom%gmask_mga)
-      call afield%final()
-   end if
+! Get geometry mask
+if ((nam%gmask_name/='').and.(fieldset%has_field(nam%gmask_name))) then
+   afield = fieldset%field(nam%gmask_name)
+   call field_to_array(afield,mpl,geom%gmask_mga,nam%ilev2d)
 end if
 
 ! Get lon/lat
@@ -929,6 +916,18 @@ else
    geom%ymin = geom%ymin*deg2rad
    geom%ymax = geom%ymax*deg2rad
 end if
+
+! Release memory
+call aconfig_domain%final()
+call aconfig_work_grid%final()
+call aconfig_work_proj%final()
+call afield%final()
+call afield_lonlat%final()
+call afunctionspace_nc%final()
+call afunctionspace_pc%final()
+call afunctionspace_sc%final()
+call agrid_work%final()
+call anodes%final()
 
 ! Probe out
 @:probe_out()

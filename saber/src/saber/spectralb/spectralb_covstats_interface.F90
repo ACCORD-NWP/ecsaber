@@ -8,7 +8,7 @@ subroutine c_calculatingSqrtB(N, inBoutU) &
  & bind(c,name='calculatingSqrtB_f90')
 
 use fckit_log_module, only: fckit_log
-use iso_c_binding, only : c_int, c_double, c_char
+use iso_c_binding, only : c_int, c_double
 
 implicit none
 
@@ -36,12 +36,12 @@ subroutine c_covSpectralBinsLevels(c_conf, &
  & bins, levels) &
  & bind(c,name='covSpectralBinsLevels_f90')
 
-use iso_c_binding, only : c_ptr, c_int, c_float, c_char
+use iso_c_binding, only : c_ptr, c_int, c_char
 use fckit_configuration_module, only: fckit_configuration
 use netcdf, only: nf90_max_name
 use kinds
 use string_f_c_mod
-use mo_netcdf_mod, only : cvt_nc_read_field_from_file, cvt_nc_err_rpt
+use mo_netcdf_mod, only : cvt_nc_read_field_from_file
 
 implicit none
 
@@ -88,6 +88,8 @@ print*, "index 1", start_index(1), final_index(1)
 bins = final_index(1) - start_index(1)
 levels = final_index(2) - start_index(2) + 1
 
+call f_conf%final()
+
 end subroutine c_covSpectralBinsLevels
 
 
@@ -96,12 +98,12 @@ subroutine c_covSpectralBins(c_conf, &
  & bins) &
  & bind(c,name='covSpectralBins_f90')
 
-use iso_c_binding, only : c_ptr, c_int, c_float, c_char
+use iso_c_binding, only : c_ptr, c_int, c_char
 use fckit_configuration_module, only: fckit_configuration
 use netcdf, only: nf90_max_name
 use kinds
 use string_f_c_mod
-use mo_netcdf_mod, only : cvt_nc_read_field_from_file, cvt_nc_err_rpt
+use mo_netcdf_mod, only : cvt_nc_read_field_from_file
 
 implicit none
 
@@ -139,6 +141,8 @@ call cvt_nc_read_field_from_file(covariance_file, &
 
 bins = final_index(1) - start_index(1)
 
+call f_conf%final()
+
 end subroutine c_covSpectralBins
 
 !------------------------------------------------------------------------------
@@ -153,7 +157,7 @@ use fckit_configuration_module, only: fckit_configuration
 use netcdf, only: nf90_max_name
 use kinds
 use string_f_c_mod
-use mo_netcdf_mod, only : cvt_nc_read_field_from_file, cvt_nc_err_rpt
+use mo_netcdf_mod, only : cvt_nc_read_field_from_file
 
 implicit none
 
@@ -206,5 +210,7 @@ do b = 0, bins -1
     end do
   end do
 end do
+
+call f_conf%final()
 
 end subroutine c_covSpectralUMatrix

@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -29,7 +30,7 @@ template <typename VECTOR>
 class RitzPairs {
  public:
   // Constructor and destructor
-  RitzPairs(){};
+  RitzPairs() {}
   ~RitzPairs() {}
 
   // Data accessors

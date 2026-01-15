@@ -79,6 +79,7 @@ class AirTemperature_A : public RecipeBase {
     void executeNL(atlas::FieldSet &) override;
     void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
     void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
+    oops::JediVariables trajectoryVars() const override;
 
  private:
 };
@@ -109,13 +110,13 @@ class AirTemperature_B : public RecipeBase {
 };
 
 // ------------------------------------------------------------------------------------------------
-/*! \brief AirTemperature_C class defines a recipe for temperature from air pressure and air potential
- *         temperature.
+/*! \brief AirTemperature_C class defines a recipe for temperature from air pressure and air 
+ *         potential temperature.
  *
- *  \detail This recipe is a special case for WRF. It calculates air potential temperature using 
- *          perturbation air potential temperature (T in wrfout) and base air potential temperature 
- *          (pt_base, default 290K) specified by a yaml key. Then multiply exner function derived 
- *          by air pressure to get air temperature. It does not provide TL/AD algorithms.
+ *  \detail This recipe calculates air temperature by air potential temperature with the Exner 
+ *          function (not in ingredients) derived from air pressure, reference surface pressure 
+ *          (p_zero), specific gas constant (rd), and specific heat capacity (cp). 
+ *          It does not provide TL/AD algorithms.
  */
 class AirTemperature_C : public RecipeBase {
  public:

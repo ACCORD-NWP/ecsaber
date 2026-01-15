@@ -8,7 +8,9 @@
 #pragma once
 
 #include <fstream>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -26,7 +28,7 @@ template <typename VECTOR>
 class RitzPairs {
  public:
   // Constructor and destructor
-  RitzPairs(){};
+  RitzPairs() {}
   ~RitzPairs() {}
 
   // Data accessors

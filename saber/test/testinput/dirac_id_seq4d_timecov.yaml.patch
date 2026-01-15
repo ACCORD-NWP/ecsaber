@@ -1,0 +1,18 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_id_seq4d_timecov.yaml.tmp	2025-11-06 12:17:17.612898827 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_id_seq4d_timecov.yaml	2025-11-06 10:40:54.390829444 +0100
+@@ -56,13 +56,13 @@
+     - air_horizontal_streamfunction
+     - air_horizontal_streamfunction
+ output dirac:
+-  states:
++  increment:
+   - mpi pattern: '%MPI%'
+     filepath: testdata/dirac_id_seq4d_timecov/%MPI%_dirac_%id%_12
+   - mpi pattern: '%MPI%'
+     filepath: testdata/dirac_id_seq4d_timecov/%MPI%_dirac_%id%_18
+ output variance:
+-  states:
++  increment:
+   - mpi pattern: '%MPI%'
+     filepath: testdata/dirac_id_seq4d_timecov/%MPI%_variance_12
+   - mpi pattern: '%MPI%'

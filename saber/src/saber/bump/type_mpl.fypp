@@ -9,25 +9,23 @@
 !----------------------------------------------------------------------
 module type_mpl
 
-use fckit_configuration_module, only: fckit_configuration
 use fckit_log_module, only: fckit_logchannel
 use fckit_mpi_module, only: fckit_mpi_comm,fckit_mpi_sum,fckit_mpi_status
-use iso_c_binding, only: c_ptr,c_null_ptr,c_associated
 use iso_fortran_env, only: output_unit
 !$ use omp_lib
-use tools_const, only: zero,one,ten,hundred
-use tools_kinds, only: kind_int,kind_float,kind_double,kind_real
+use tools_const, only: zero,hundred
+use tools_kinds, only: kind_int,kind_real
 use tools_log, only: write_log
 use tools_qsort, only: qsort
 use type_msv, only: msv_type
-#:if getvar('ENABLE_SABER_INSTRUMENTATION', 0)
+#:if getvar('ENABLE_BUMP_INSTRUMENTATION', 0)
 use type_probe, only: iinst,cinst,probe
 #:endif
 
 implicit none
 
 integer,parameter :: ddis = 5                !< Progression display step
-#:if getvar('ENABLE_SABER_INSTRUMENTATION', 0)
+#:if getvar('ENABLE_BUMP_INSTRUMENTATION', 0)
    real(kind_real) :: min_total_timing = one !< Minimum total timing to print
    integer :: max_calls = 10                 !< Number of timing to print with maximum calls
 #:endif
@@ -126,24 +124,11 @@ contains
    procedure :: prog_init => mpl_prog_init
    procedure :: prog_print => mpl_prog_print
    procedure :: prog_final => mpl_prog_final
-   #:if getvar('ENABLE_SABER_INSTRUMENTATION', 0)
+   #:if getvar('ENABLE_BUMP_INSTRUMENTATION', 0)
       procedure :: print_instance => mpl_print_instance
       procedure :: timings => mpl_timings
    #:endif
 end type mpl_type
-
-interface
-
-subroutine c_tools_log(channel,msg,newl,flush) bind(c,name='tools_log_f')
-  use,intrinsic :: iso_c_binding
-  implicit none
-  type(c_ptr),value :: channel
-  character(kind=c_char),dimension(*) :: msg
-  integer(c_int32_t),value :: newl
-  integer(c_int32_t),value :: flush
-end subroutine c_tools_log
-
-end interface
 
 private
 public :: mpl_type
@@ -228,6 +213,9 @@ write(mpl%info,'(a,i3,a,i2,a)') '--- Parallelization with ',mpl%nproc,' MPI task
  & mpl%nthread,' OpenMP threads'
 call mpl%flush
 
+! Release memory
+call world_comm%final()
+
 ! Probe out
 @:probe_out()
 
@@ -253,6 +241,11 @@ class(mpl_type),intent(inout) :: mpl !< MPI data
 ! Release memory
 if (allocated(mpl%pioproc)) deallocate(mpl%pioproc)
 if (allocated(mpl%done)) deallocate(mpl%done)
+call mpl%f_comm%final()
+call mpl%f_comm_io%final()
+call mpl%f_comm_iobcast%final()
+call mpl%info_channel%final()
+call mpl%test_channel%final()
 
 ! Probe out
 @:probe_out()
@@ -825,62 +818,66 @@ if (mpl%main) then
    do iproc=1,mpl%nproc
       ! Allocation
       n_loc_tmp = count(glb_to_proc==iproc)
-      allocate(rbuf(n_loc_tmp*nl))
+      if (n_loc_tmp>0) then
+         allocate(rbuf(n_loc_tmp*nl))
 
-      if (iproc==mpl%rootproc) then
-         ! Copy data
-         #:if rank == 1
-            rbuf = loc
-         #:else
-            do il=1,nl
-               do i_loc=1,n_loc
-                  rbuf((il-1)*n_loc+i_loc) = loc(i_loc,il)
-               end do
-            end do
-         #:endif
-      else
-          ! Receive data from iproc
-          call mpl%f_comm%receive(rbuf,iproc-1,mpl%tag,status)
-      end if
-
-      ! Add data to glb
-      do i_glb=1,n_glb
-         jproc = glb_to_proc(i_glb)
-         if (iproc==jproc) then
-            i_loc = glb_to_loc(i_glb)
+         if (iproc==mpl%rootproc) then
+            ! Copy data
             #:if rank == 1
-               glb(i_glb) = rbuf(i_loc)
+               rbuf = loc
             #:else
                do il=1,nl
-                  glb(i_glb,il) = rbuf((il-1)*n_loc_tmp+i_loc)
+                  do i_loc=1,n_loc
+                     rbuf((il-1)*n_loc+i_loc) = loc(i_loc,il)
+                  end do
                end do
             #:endif
+         else
+             ! Receive data from iproc
+             call mpl%f_comm%receive(rbuf,iproc-1,mpl%tag,status)
          end if
-      end do
 
-      ! Release memory
-      deallocate(rbuf)
+         ! Add data to glb
+         do i_glb=1,n_glb
+            jproc = glb_to_proc(i_glb)
+            if (iproc==jproc) then
+               i_loc = glb_to_loc(i_glb)
+               #:if rank == 1
+                  glb(i_glb) = rbuf(i_loc)
+               #:else
+                  do il=1,nl
+                     glb(i_glb,il) = rbuf((il-1)*n_loc_tmp+i_loc)
+                  end do
+               #:endif
+            end if
+         end do
+
+         ! Release memory
+         deallocate(rbuf)
+      end if
    end do
 else
-   ! Allocation
-   allocate(sbuf(n_loc*nl))
+   if (n_loc>0) then
+      ! Allocation
+      allocate(sbuf(n_loc*nl))
 
-   ! Copy data
-   #:if rank == 1
-      sbuf = loc
-   #:else
-      do il=1,nl
-         do i_loc=1,n_loc
-            sbuf((il-1)*n_loc+i_loc) = loc(i_loc,il)
+      ! Copy data
+      #:if rank == 1
+         sbuf = loc
+      #:else
+         do il=1,nl
+            do i_loc=1,n_loc
+               sbuf((il-1)*n_loc+i_loc) = loc(i_loc,il)
+            end do
          end do
-      end do
-   #:endif
+      #:endif
 
-   ! Send data to rootproc
-   call mpl%f_comm%send(sbuf,mpl%rootproc-1,mpl%tag)
+      ! Send data to rootproc
+      call mpl%f_comm%send(sbuf,mpl%rootproc-1,mpl%tag)
 
-   ! Release memory
-   deallocate(sbuf)
+      ! Release memory
+      deallocate(sbuf)
+   end if
 end if
 call mpl%update_tag(1)
 
@@ -1040,7 +1037,7 @@ deallocate(mpl%done)
 
 end subroutine mpl_prog_final
 
-#:if getvar('ENABLE_SABER_INSTRUMENTATION', 0)
+#:if getvar('ENABLE_BUMP_INSTRUMENTATION', 0)
 !----------------------------------------------------------------------
 ! Subroutine: mpl_print_instance
 !> Print instance

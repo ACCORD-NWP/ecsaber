@@ -6,7 +6,11 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <memory>
 #include <numeric>
+#include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "atlas/field.h"
@@ -17,11 +21,14 @@
 
 #include "oops/assimilation/ControlObsVector.h"
 #include "oops/base/Departures.h"
+#include "oops/base/FieldSet3D.h"
+#include "oops/base/GeometryData.h"
 #include "oops/base/Increment4D.h"
 #include "oops/base/Observations.h"
 #include "oops/base/Variables.h"
-#include "oops/generic/ObsErrorDiag.h"
-#include "oops/interface/ObsVector.h"
+#include "oops/interface/Geometry.h"
+#include "oops/interface/Increment.h"
+#include "oops/util/FieldSetHelpers.h"
 
 namespace util {
 
@@ -43,25 +50,61 @@ void expandEnsembleTemplate(eckit::LocalConfiguration &,
                             const size_t &);
 
 // -----------------------------------------------------------------------------
-
-eckit::LocalConfiguration setObsValue(const std::string &);
-
-// -----------------------------------------------------------------------------
-
-eckit::LocalConfiguration setObsValue(const eckit::Configuration &,
-                                      const std::string &);
-
-// -----------------------------------------------------------------------------
 // Timestamp
 // -----------------------------------------------------------------------------
 
 double timeStamp();
 
 // -----------------------------------------------------------------------------
+// DateTime
+// -----------------------------------------------------------------------------
+
+std::string dateTimeToStringIO(const util::DateTime &);
+
+// -----------------------------------------------------------------------------
+// Geometry
+// -----------------------------------------------------------------------------
+
+static std::unordered_map<std::string, std::unique_ptr<oops::GeometryData>> geomDataVector;
+
+// -----------------------------------------------------------------------------
+
+template <typename MODEL>
+const oops::GeometryData & geomData(const oops::Geometry<MODEL> & geom) {
+  const std::string uid = util::getGridUid(geom.geometry().functionSpace());
+  const auto it = geomDataVector.find(uid);
+  if (it != geomDataVector.end()) {
+    return *it->second;
+  } else {
+    std::unique_ptr<oops::GeometryData> geomDataPtr = std::make_unique<oops::GeometryData>(
+      geom.geometry().functionSpace(), geom.geometry().fields(),
+      geom.geometry().levelsAreTopDown(), geom.geometry().getComm());
+    geomDataVector.insert({uid, std::move(geomDataPtr)});
+    return *geomDataVector.at(uid);
+  }
+}
+
+// -----------------------------------------------------------------------------
 // Variables
 // -----------------------------------------------------------------------------
 
-eckit::LocalConfiguration templatedVarsConf(const oops::JediVariables &);
+template <typename MODEL>
+oops::Variables<MODEL> templatedVars(const oops::JediVariables & vars) {
+  eckit::LocalConfiguration varConf;
+  varConf.set("variables list", vars.variables());
+  return oops::Variables<MODEL>(varConf);
+}
+
+// -----------------------------------------------------------------------------
+// Increment
+// -----------------------------------------------------------------------------
+
+template<typename MODEL>
+oops::FieldSet3D fieldSet(const oops::Increment<MODEL> & dx) {
+  oops::FieldSet3D fset(dx.validTime(), dx.geometry().geometry().getComm());
+  fset.deepCopy(dx.increment().fieldSet());
+  return fset;
+}
 
 // -----------------------------------------------------------------------------
 // Increment4D

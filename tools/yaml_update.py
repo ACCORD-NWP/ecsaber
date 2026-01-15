@@ -273,7 +273,7 @@ if "background error" in config:
 
     # OOPS hybrid case
     if config["Covariance"]["covariance"] == "hybrid":
-        # Check whether all components are hybrid
+        # Check whether all components are SABER
         components = config["Covariance"]["components"]
         allSaber = True
         if len(components) == 2:
@@ -303,7 +303,8 @@ if "background error" in config:
                     component["covariance"].pop("square-root tolerance")
             config["Covariance"]["adjoint test"] = adjTest
             config["Covariance"]["square-root test"] = sqrtTest
-
+            if "run components recursively" in config["Covariance"]:
+              centralBlock["run components recursively"] = config["Covariance"]["run components recursively"]
         else:
             # Update static_covariance
             covariance = components[0]["covariance"]
@@ -348,6 +349,20 @@ config = add_ensemble_variables(config, False)
 # Add model
 config["model"] = {}
 config["model"]["tstep"] = "PT6H"
+
+# Output as Increment4D
+for key in ["output dirac", "output perturbations", "output variance"]:
+  if key in config:
+    if "states" in config[key]:
+      config[key]["increment"] = config[key]["states"]
+      config[key].pop("states")
+
+# Output as State4D
+for key in ["output states"]:
+  if key in config:
+    if "states" in config[key]:
+      config[key]["state"] = config[key]["state"]
+      config[key].pop("states")
 
 # Write yaml file
 with open(args.outputYaml, "w") as file:

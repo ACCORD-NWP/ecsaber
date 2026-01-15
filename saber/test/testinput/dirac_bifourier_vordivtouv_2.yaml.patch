@@ -1,0 +1,8 @@
+--- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_2.yaml.tmp.bak	2026-01-15 09:31:36.380229432 +0100
++++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_2.yaml	2026-01-15 09:24:49.171931742 +0100
+@@ -70,4 +70,5 @@
+   mpi pattern: '%MPI%'
+   filepath: testdata/dirac_bifourier_vordivtouv_2/%MPI%_dirac_%id%
+ test:
++  float relative tolerance: 7.0e-9
+   reference filename: testref/dirac_bifourier_vordivtouv_2.ref

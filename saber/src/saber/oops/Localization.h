@@ -28,6 +28,7 @@
 #include "oops/util/Duration.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
+#include "oops/util/Timer.h"
 
 #include "saber/blocks/SaberParametricBlockChain.h"
 #include "oops/util/ECUtilities.h"
@@ -51,6 +52,7 @@ class Localization : public oops::LocalizationBase<MODEL> {
                const Variables_ &,
                const eckit::Configuration &);
   ~Localization();
+  static const std::string classname() {return "saber::Localization";}
 
   void multiply(Increment_ &) const override;
 
@@ -73,6 +75,7 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
   : loc_()
 {
   oops::Log::trace() << "Localization::Localization starting" << std::endl;
+  util::Timer timer(classname(), "Localization");
 
   // Create dummy time
   util::DateTime dummyTime(1977, 5, 25, 0, 0, 0);
@@ -87,8 +90,8 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
   // Create dummy xb and fg
   oops::FieldSet3D fset3d(dummyTime, eckit::mpi::comm());
   fset3d.deepCopy(util::createFieldSet(geom.geometry().functionSpace(), incVars, 0.0));
-  oops::FieldSet4D fset4dXb(fset3d);
-  oops::FieldSet4D fset4dFg(fset3d);
+  oops::FieldSet4D xb4d(fset3d);
+  oops::FieldSet4D fg4d(fset3d);
 
   oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
   // TODO(AS): revisit what configuration needs to be passed to SaberParametricBlockChain.
@@ -108,9 +111,9 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
   // so this parameter can be anything.
   covarConf.set("time covariance", "univariate");
   // Initialize localization blockchain
-  loc_ = std::make_unique<SaberParametricBlockChain>(geom, geom,
-              incVars, fset4dXb, fset4dFg,
-              emptyFsetEns, emptyFsetEns, covarConf, conf);
+  loc_ = std::make_unique<SaberParametricBlockChain>(geom,
+              incVars, xb4d, fg4d,
+              emptyFsetEns, covarConf, conf);
 
   oops::Log::trace() << "Localization:Localization done" << std::endl;
 }
@@ -119,6 +122,7 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
 
 template<typename MODEL>
 Localization<MODEL>::~Localization() {
+  util::Timer timer(classname(), "~Localization");
   oops::Log::trace() << "Localization:~Localization destructed" << std::endl;
 }
 
@@ -127,6 +131,7 @@ Localization<MODEL>::~Localization() {
 template<typename MODEL>
 void Localization<MODEL>::multiplySqrt(const GenericCtlVec_ & dv,
                                        Increment_ & dx) const {
+  util::Timer timer(classname(), "multiplySqrt");
   oops::Log::trace() << "Localization:multiplySqrt starting" << std::endl;
 
   // SABER block chain square-root
@@ -145,6 +150,7 @@ void Localization<MODEL>::multiplySqrt(const GenericCtlVec_ & dv,
 template<typename MODEL>
 void Localization<MODEL>::multiplySqrtTrans(const Increment_ & dx,
                                             GenericCtlVec_ & dv) const {
+  util::Timer timer(classname(), "multiplySqrtTrans");
   oops::Log::trace() << "Localization:multiplySqrtTrans starting" << std::endl;
 
   // SABER block chain square-root adjoint
@@ -160,6 +166,7 @@ void Localization<MODEL>::multiplySqrtTrans(const Increment_ & dx,
 
 template<typename MODEL>
 void Localization<MODEL>::multiply(Increment_ & dx) const {
+  util::Timer timer(classname(), "multiply");
   oops::Log::trace() << "Localization:multiply starting" << std::endl;
 
   // SABER block chain multiplication
@@ -177,6 +184,7 @@ void Localization<MODEL>::multiply(Increment_ & dx) const {
 
 template<typename MODEL>
 void Localization<MODEL>::print(std::ostream & os) const {
+  util::Timer timer(classname(), "print");
   os << "Localization:print not implemeted yet";
 }
 
