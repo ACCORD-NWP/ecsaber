@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref.tmp	2025-11-06 12:17:18.257902096 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testref/dirac_bump_2.ref	2025-11-06 11:58:35.216686519 +0100
-@@ -94,33 +94,33 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_2.ref.tmp.bak	2026-01-29 15:41:08.898809526 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_2.ref	2026-01-29 15:49:35.875290999 +0100
+@@ -97,33 +97,33 @@
  Square-root test for block BUMP_NICAS passed
  Adjoint test for block Ensemble passed
  Square-root test for block Ensemble passed
@@ -48,7 +48,7 @@
         Independent levels:  1[2]
            Subset Sc0 size:              762
            Domain area (% of Earth area): 0.100E+03%
-@@ -184,7 +184,7 @@
+@@ -187,7 +187,7 @@
               Level   2 ~>  0.200E+01 vert. coord.
  Adjoint test for block BUMP_NICAS passed
  Square-root test for block BUMP_NICAS passed
@@ -57,7 +57,7 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -196,7 +196,7 @@
+@@ -199,7 +199,7 @@
    - northward_wind (2 levels):
      + min    = -3.2889066103205936e-13
      + max    = 3.2622646484939685e-13
@@ -66,7 +66,7 @@
      + stddev = 3.2868334756832761e-14
  - Valid time: 2010-01-01T18:00:00Z
    Geometry: L40x21 [840]
-@@ -209,7 +209,7 @@
+@@ -212,7 +212,7 @@
    - northward_wind (2 levels):
      + min    = -3.2889066103205936e-13
      + max    = 3.2622646484939685e-13
@@ -75,7 +75,7 @@
      + stddev = 3.2868334756832761e-14
  Norm of input parameter inflation: 6.6250433960843253e+01
  Norm of input parameter StdDev: 1.6562608490210712e+02
-@@ -223,18 +223,18 @@
+@@ -229,18 +229,18 @@
  Square-root test for block BUMP_NICAS passed
  Adjoint test for block Ensemble passed
  Square-root test for block Ensemble passed
@@ -99,7 +99,7 @@
      + mean   = -7.9744067722578474e-04
      + stddev = 1.6859943227676515e-02
  - Valid time: 2010-01-01T18:00:00Z
-@@ -242,11 +242,11 @@
+@@ -248,11 +248,11 @@
    Fields:
    - eastward_wind (2 levels):
      + min    = -2.4904730167092012e-01

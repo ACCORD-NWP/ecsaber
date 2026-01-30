@@ -28,9 +28,11 @@
 #include "oops/util/parameters/RequiredParameter.h"
 #include "oops/util/parameters/RequiredPolymorphicParameter.h"
 #include "oops/util/Printable.h"
-#include "oops/util/Random.h"
+#include "oops/util/RandomField.h"
 
 #include "saber/blocks/SaberBlockParametersBase.h"
+
+using atlas::array::make_view;
 
 namespace saber {
 
@@ -83,127 +85,60 @@ SaberCentralBlockFactory::createParameters(const std::string &name) {
 
 // -----------------------------------------------------------------------------
 
-void SaberCentralBlockBase::adjointTest(const oops::GeometryData & geometryData,
-                                        const oops::JediVariables & vars,
-                                        const double & adjointTolerance) const {
-  oops::Log::trace() << "SaberCentralBlockBase::adjointTest starting" << std::endl;
+// Default method based on random control vector generator and square-root implementations.
+void SaberCentralBlockBase::randomize(oops::FieldSet3D & fset3d) const {
+  oops::Log::trace() << "SaberCentralBlockBase::randomize starting" << std::endl;
 
-  // Create random FieldSets
-  oops::FieldSet3D fset1 = oops::randomFieldSet3D(validTime_,
-                                                  geometryData.comm(),
-                                                  geometryData.functionSpace(),
-                                                  vars);
-  oops::FieldSet3D fset2 = oops::randomFieldSet3D(validTime_,
-                                                  geometryData.comm(),
-                                                  geometryData.functionSpace(),
-                                                  vars);
+  // Create control vector
+  atlas::Field cv("genericCtlVec", atlas::array::make_datatype<double>(),
+    atlas::array::make_shape(ctlVecSize()));
 
-  // Copy FieldSets
-  oops::FieldSet3D fset1Save(fset1);
-  oops::FieldSet3D fset2Save(fset2);
+  // Generate random control vector
+  randomCtlVec(cv, 0);
 
-  // Apply forward multiplication only (self-adjointness test)
-  this->multiply(fset1);
-  this->multiply(fset2);
+  // Square-root multiply
+  multiplySqrt(cv, fset3d, 0);
 
-  // Compute adjoint test
-  const double dp1 = fset1.dot_product_with(fset2Save, vars);
-  const double dp2 = fset2.dot_product_with(fset1Save, vars);
-  oops::Log::info() << std::setprecision(16) << "Info     : Adjoint test: (Ax)^t y = " << dp1
-                    << ": x^t (Ay) = " << dp2 << " : adjoint tolerance = "
-                    << adjointTolerance << std::endl;
-  oops::Log::test() << "Adjoint test for block " << this->blockName();
-  if (std::abs(dp1-dp2)/std::abs(0.5*(dp1+dp2)) < adjointTolerance) {
-    oops::Log::test() << " passed" << std::endl;
-  } else {
-    oops::Log::test() << " failed" << std::endl;
-    throw eckit::Exception("Adjoint test failure for block " + this->blockName(), Here());
-  }
-
-  oops::Log::trace() << "SaberCentralBlockBase::adjointTest done" << std::endl;
+  oops::Log::trace() << "SaberCentralBlockBase::randomize done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-void SaberCentralBlockBase::sqrtTest(const oops::GeometryData & geometryData,
-                                     const oops::JediVariables & vars,
-                                     const double & sqrtTolerance) const {
-  oops::Log::trace() << "SaberOuterBlockBase::sqrtTest starting" << std::endl;
-
-  // Square-root test
-
-  // Create FieldSet
-  oops::FieldSet3D fset = oops::randomFieldSet3D(validTime_,
-                                                 geometryData.comm(),
-                                                 geometryData.functionSpace(),
-                                                 vars);
-
-  // Copy FieldSet
-  oops::FieldSet3D fsetSave(fset);
+// Default method based on square-root and square-root adjoint implementations.
+void SaberCentralBlockBase::multiply(oops::FieldSet3D & fset3d) const {
+  oops::Log::trace() << "SaberCentralBlockBase::multiply starting" << std::endl;
 
   // Create control vector
-  oops::Log::info() << "Control vector size for block " << this->blockName() << ": "
-                      << ctlVecSize() << std::endl;
-  atlas::Field ctlVec = atlas::Field("genericCtlVec",
-                                     atlas::array::make_datatype<double>(),
-                                     atlas::array::make_shape(ctlVecSize()));
-  size_t seed = 7;  // To avoid impact on future random generator calls
-  util::NormalDistribution<double> dist(ctlVecSize(), 0.0, 1.0, seed);
-  auto view = atlas::array::make_view<double, 1>(ctlVec);
-  for (size_t jnode = 0; jnode < ctlVecSize(); ++jnode) {
-    view(jnode) = dist[jnode];
+  atlas::Field cv("genericCtlVec", atlas::array::make_datatype<double>(),
+    atlas::array::make_shape(ctlVecSize()));
+
+  // Square-root adjoint multiply
+  multiplySqrtAD(fset3d, cv, 0);
+
+  // Square-root multiply
+  multiplySqrt(cv, fset3d, 0);
+
+  oops::Log::trace() << "SaberCentralBlockBase::multiply done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+// Default method that will not generate the same results on different MPI layouts.
+// To achieve this, it should be overridden in the central block implementation.
+void SaberCentralBlockBase::randomCtlVec(atlas::Field & cv,
+                                         const size_t & offset) const {
+  oops::Log::trace() << "SaberCentralBlockBase::randomCtlVec starting" << std::endl;
+
+  // Generate random distribution
+  util::NormalDistributionField dist(ctlVecSize(), 0.0, 1.0);
+
+  // Fill local Field
+  auto view = make_view<double, 1>(cv);
+  for (size_t jcv = 0; jcv < ctlVecSize(); ++jcv) {
+    view(jcv+offset) = dist[jcv];
   }
 
-  // Copy control vector
-  atlas::Field ctlVecSave = atlas::Field("genericCtlVec",
-                                         atlas::array::make_datatype<double>(),
-                                         atlas::array::make_shape(ctlVecSize()));
-  auto viewSave = atlas::array::make_view<double, 1>(ctlVecSave);
-  viewSave.assign(view);
-
-  // Apply square-root multiplication
-  this->multiplySqrt(ctlVecSave, fset, 0);
-
-  // Apply square-root adjoint multiplication
-  this->multiplySqrtAD(fsetSave, ctlVec, 0);
-
-  // Compute adjoint test
-  const double dp1 = fset.dot_product_with(fsetSave, vars);
-  double dp2 = 0.0;
-  for (size_t jnode = 0; jnode < ctlVecSize(); ++jnode) {
-    dp2 += view(jnode)*viewSave(jnode);
-  }
-  geometryData.comm().allReduceInPlace(dp2, eckit::mpi::sum());
-  oops::Log::info() << std::setprecision(16) << "Info     : Square-root test: y^t (Ux) = " << dp1
-                    << ": x^t (U^t y) = " << dp2 << " : square-root tolerance = "
-                    << sqrtTolerance << std::endl;
-  const bool adjComparison = (std::abs(dp1-dp2)/std::abs(0.5*(dp1+dp2)) < sqrtTolerance);
-
-  // Apply square-root multiplication
-  this->multiplySqrt(ctlVec, fset, 0);
-
-  // Apply full multiplication
-  this->multiply(fsetSave);
-
-  // Check that the fieldsets are similar within tolerance
-  const bool sqrtComparison = fset.compare_with(fsetSave, sqrtTolerance,
-                                                util::ToleranceType::relative);
-  if (sqrtComparison) {
-    oops::Log::info() << "Info     : Square-root test passed: U U^t x == B x" << std::endl;
-  } else {
-    oops::Log::info() << "Info     : Square-root test failed: U U^t x != B x" << std::endl;
-  }
-
-  // Print results
-  oops::Log::test() << "Square-root test for block " << this->blockName();
-  if (adjComparison && sqrtComparison) {
-    oops::Log::test() << " passed" << std::endl;
-  } else {
-    oops::Log::test() << " failed" << std::endl;
-    throw eckit::Exception("Square-root test failure for block " + this->blockName(), Here());
-  }
-
-  oops::Log::trace() << "SaberOuterBlockBase::sqrtTest done" << std::endl;
+  oops::Log::trace() << "SaberCentralBlockBase::randomCtlVec done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

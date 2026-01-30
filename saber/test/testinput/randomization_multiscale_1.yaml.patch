@@ -1,0 +1,12 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/randomization_multiscale_1.yaml.tmp	2026-01-30 16:40:47.753474901 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/randomization_multiscale_1.yaml	2026-01-29 15:41:06.306783530 +0100
+@@ -13,8 +13,7 @@
+   state variables:
+   - air_horizontal_streamfunction
+ background error:
+-  covariance model: SABER
+-  covariance type: hybrid
++  covariance model: hybrid
+   run components recursively: true
+   components:
+   - covariance:

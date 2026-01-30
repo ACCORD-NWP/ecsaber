@@ -58,7 +58,6 @@ class VaderBlock : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
 
-  const oops::JediVariables outerVars_;
   const oops::GeometryData & innerGeometryData_;
   const oops::JediVariables innerVars_;
   vader::Vader vader_;

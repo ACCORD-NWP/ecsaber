@@ -195,10 +195,12 @@ auto createSpectralFilter(const oops::GeometryData & geometryData,
                    spectralFilter.begin(), [](auto & e){return 1.0 - e;});
   }
 
-  // 4) Take square root (as this is an outer block)
-  // -----------------------------------------------
-  std::transform(spectralFilter.begin(), spectralFilter.end(),
-                 spectralFilter.begin(), [](auto & e){return std::sqrt(e);});
+  // 4) Take square root (optional)
+  // ------------------------------
+  if ( params.squareRootFilter.value() ) {
+    std::transform(spectralFilter.begin(), spectralFilter.end(),
+                   spectralFilter.begin(), [](auto & e){return std::sqrt(e);});
+  }
 
   return spectralFilter;
 }
@@ -212,7 +214,7 @@ SpectralAnalyticalFilter::SpectralAnalyticalFilter(const oops::GeometryData & ge
                                                    const Parameters_ & params,
                                                    const oops::FieldSet3D & xb,
                                                    const oops::FieldSet3D & fg)
-  : SaberOuterBlockBase(params, xb.validTime()), params_(params),
+  : SaberOuterBlockBase(params, xb.validTime(), geometryData, outerVars), params_(params),
     activeVars_(getActiveVars(params, outerVars)),
     innerGeometryData_(geometryData),
     innerVars_(outerVars),
@@ -285,7 +287,7 @@ void SpectralAnalyticalFilter::leftInverseMultiply(oops::FieldSet3D & fieldSet) 
 oops::FieldSet3D SpectralAnalyticalFilter::generateInnerFieldSet(
   const oops::GeometryData & innerGeometryData,
   const oops::JediVariables & innerVars) const {
-  oops::FieldSet3D fset(this->validTime(), innerGeometryData.comm());
+  oops::FieldSet3D fset(validTime_, innerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(innerGeometryData.comm(),
                                            innerGeometryData.functionSpace(),
                                            innerVars));
@@ -297,7 +299,7 @@ oops::FieldSet3D SpectralAnalyticalFilter::generateInnerFieldSet(
 oops::FieldSet3D SpectralAnalyticalFilter::generateOuterFieldSet(
   const oops::GeometryData & outerGeometryData,
   const oops::JediVariables & outerVars) const {
-  oops::FieldSet3D fset(this->validTime(), outerGeometryData.comm());
+  oops::FieldSet3D fset(validTime_, outerGeometryData.comm());
   fset.deepCopy(util::createSmoothFieldSet(outerGeometryData.comm(),
                                            outerGeometryData.functionSpace(),
                                            outerVars));

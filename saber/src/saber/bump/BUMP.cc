@@ -26,6 +26,7 @@
 #include "oops/util/Logger.h"
 
 #include "saber/bump/type_bump_parameters.h"
+#include "saber/oops/Utilities.h"
 
 namespace saber {
 namespace bump {
@@ -59,10 +60,7 @@ BUMP::BUMP(const oops::GeometryData & geometryData,
   oops::Log::info() << "Info     : +++ OpenMP threads: " << omp << std::endl;
 
   // Initialization
-  nens_ = 0;
-  if (covarConf_.has("ensemble configuration")) {
-    nens_ = covarConf_.getSubConfiguration("ensemble configuration").getInt("ensemble size");
-  }
+  nens_ = getNensFromConfig(covarConf_);
   iterativeEnsembleLoading_ = covarConf_.getBool("iterative ensemble loading", false);
 
   // Case where size are specified in the BUMP configuration
@@ -610,30 +608,6 @@ void BUMP::inverseMultiplyStdDev(oops::FieldSet3D & fset) const {
 
 // -----------------------------------------------------------------------------
 
-void BUMP::randomizeNicas(oops::FieldSet3D & fset) const {
-  oops::Log::trace() << classname() << "::randomizeNicas starting" << std::endl;
-
-  for (size_t jgrid = 0; jgrid < keyBUMP_.size(); ++jgrid) {
-    bump_randomize_f90(keyBUMP_[jgrid], fset.get());
-  }
-
-  oops::Log::trace() << classname() << "::randomizeNicas done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
-void BUMP::multiplyNicas(oops::FieldSet3D & fset) const {
-  oops::Log::trace() << classname() << "::multiplyNicas starting" << std::endl;
-
-  for (size_t jgrid = 0; jgrid < keyBUMP_.size(); ++jgrid) {
-    bump_apply_nicas_f90(keyBUMP_[jgrid], fset.get());
-  }
-
-  oops::Log::trace() << classname() << "::multiplyNicas done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
 void BUMP::filterNicas(oops::FieldSet3D & fset) const {
   oops::Log::trace() << classname() << "::filterNicas starting" << std::endl;
 
@@ -682,6 +656,23 @@ size_t BUMP::getCvSize() const {
 
   oops::Log::trace() << classname() << "::getCvSize done" << std::endl;
   return n;
+}
+
+// -----------------------------------------------------------------------------
+
+void BUMP::randomCv(atlas::Field & cv,
+                    const size_t & offset) const {
+  oops::Log::trace() << classname() << "::randomCv starting" << std::endl;
+
+  int index = offset;
+  for (unsigned int jgrid = 0; jgrid < keyBUMP_.size(); ++jgrid) {
+    bump_random_cv_f90(keyBUMP_[jgrid], cv.get(), index);
+    int nTmp;
+    bump_get_cv_size_f90(keyBUMP_[jgrid], nTmp);
+    index += nTmp;
+  }
+
+  oops::Log::trace() << classname() << "::randomCv done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

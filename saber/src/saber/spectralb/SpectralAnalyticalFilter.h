@@ -39,6 +39,9 @@ class SpectralAnalyticalFilterParameters : public SaberBlockParametersBase {
     /// Define filter as the complement of the function
     oops::Parameter<bool> complementFilter{"complement filter", false, this};
 
+    /// Define filter as a square-root
+    oops::Parameter<bool> squareRootFilter{"square root filter", false, this};
+
     /// Filter specifications (Gaussian, boxcar function, triangle...)
     oops::Parameter<eckit::LocalConfiguration> function{"function",
                                                         eckit::LocalConfiguration(), this};

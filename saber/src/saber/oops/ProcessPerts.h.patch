@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-01-14 17:39:55.420560800 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-01-14 17:33:36.595244604 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-01-30 15:33:43.509784558 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-01-30 14:29:39.092534066 +0100
 @@ -8,6 +8,7 @@
  #pragma once
  
@@ -38,23 +38,16 @@
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -149,12 +154,12 @@
-   typedef BandParameters<MODEL>                          BandParameters_;
- 
-   /// Geometry parameters.
--  oops::RequiredParameter<eckit::LocalConfiguration> geometry{"geometry", this};
-+  oops::RequiredParameter<eckit::LocalConfiguration> geometry{"resolution", this};
- 
+@@ -147,7 +152,7 @@
    /// Background parameters.
--  oops::RequiredParameter<eckit::LocalConfiguration> background{"background", this};
-+  oops::RequiredParameter<eckit::LocalConfiguration> background{"Background", this};
+   oops::RequiredParameter<eckit::LocalConfiguration> background{"background", this};
  
 -  oops::RequiredParameter<oops::JediVariables> inputVariables{"input variables", this};
 +  oops::RequiredParameter<eckit::LocalConfiguration> inputVariables{"input variables", this};
  
    oops::RequiredParameter<std::vector<BandParameters_>> bands{"bands", this};
  
-@@ -170,44 +175,73 @@
+@@ -165,44 +170,73 @@
    typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
    typedef oops::Geometry<MODEL>                             Geometry_;
    typedef oops::Increment<MODEL>                            Increment_;
@@ -137,7 +130,16 @@
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars[i].setLevels(vlevs[i]);
      }
-@@ -363,10 +397,10 @@
+@@ -222,7 +256,7 @@
+     // Read input ensemble
+     oops::FieldSets fsetEnsI = readEnsemble<MODEL>(geom,
+                                                    incVars,
+-                                                   xx.times(), xx.commTime(), xx.commEns(),
++                                                   xx.times(), eckit::mpi::self(), eckit::mpi::self(),
+                                                    fullConfig);
+     int nincrements = fsetEnsI.ens_size();
+ 
+@@ -366,10 +400,10 @@
            eckit::LocalConfiguration gconf = it->second;
            util::setMember(gconf, jm+1);
            setConcatenatedString(fullConfig,
@@ -150,22 +152,16 @@
          }
  
          if (auto it{modelWriteConfs.find(b)}; it != std::end(modelWriteConfs)) {
-@@ -374,13 +408,14 @@
+@@ -377,10 +411,10 @@
  
            // Should be on the model geometry!
            auto pert = Increment_(geom,
 -                                 fset4dDx[0].variables(),
-+                                 util::templatedVars<MODEL>(fset4dDxI[0].variables()),
++                                 util::templatedVars<MODEL>(fset4dDx[0].variables()),
                                   time);
            pert.zero();
 -          pert.fromFieldSet(fset4dDx[0].fieldSet());
 +          pert.increment().fromFieldSet(fset4dDx[0].fieldSet());
  
--          util::setMember(mconf, jm+1);
--          pert.write(mconf);
-+          eckit::LocalConfiguration writeParams = mconf;
-+          util::setMember(writeParams, jm+1);
-+          pert.write(writeParams);
-         }
-       }
-     }
+           util::setMember(mconf, jm+1);
+           pert.write(mconf);

@@ -93,13 +93,13 @@ background error:
         zero padding: 6
       localization:
         localization method: SABER
-        multivariate strategy: univariate
-        groups:
-        - group name: group1
-          variables:
-          - eastward_wind
-          - northward_wind
-          saber central block:
+        saber central block:
+          multivariate strategy: univariate
+          groups:
+          - group name: group1
+            variables:
+            - eastward_wind
+            - northward_wind
             saber block name: BUMP_NICAS
             read:
               general:
@@ -111,10 +111,9 @@ background error:
               drivers:
                 multivariate strategy: univariate
                 read local nicas: true
-        - group name: group2
-          variables:
-          - air_horizontal_streamfunction
-          saber central block:
+          - group name: group2
+            variables:
+            - air_horizontal_streamfunction
             saber block name: BUMP_NICAS
             read:
               general:
@@ -189,13 +188,13 @@ background error:
           nmembers: 25
           zero padding: 6
       localization:
-        multivariate strategy: univariate
-        groups:
-        - group name: group1
-          variables:
-          - eastward_wind
-          - northward_wind
-          saber central block:
+        saber central block:
+          multivariate strategy: univariate
+          groups:
+          - group name: group1
+            variables:
+            - eastward_wind
+            - northward_wind
             saber block name: BUMP_NICAS
             read:
               general:
@@ -207,10 +206,9 @@ background error:
               drivers:
                 multivariate strategy: univariate
                 read local nicas: true
-        - group name: group2
-          variables:
-          - air_horizontal_streamfunction
-          saber central block:
+          - group name: group2
+            variables:
+            - air_horizontal_streamfunction
             saber block name: BUMP_NICAS
             read:
               general:

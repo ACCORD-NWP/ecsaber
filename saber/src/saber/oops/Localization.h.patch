@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2026-01-14 17:20:46.747406676 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/oops/Localization.h	2026-01-14 15:53:47.660807819 +0100
-@@ -19,12 +19,19 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Localization.h.tmp.bak	2026-01-30 09:59:05.590040758 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Localization.h	2026-01-30 08:49:38.903617372 +0100
+@@ -19,12 +19,18 @@
  #include "oops/base/FieldSets.h"
  #include "oops/base/State4D.h"
  #include "oops/base/Variables.h"
@@ -8,7 +8,6 @@
  #include "oops/generic/LocalizationBase.h"
 +#include "oops/interface/Geometry.h"
 +#include "oops/interface/Increment.h"
-+#include "oops/interface/State.h"
 +#include "oops/interface/Variables.h"
  #include "oops/util/Duration.h"
 +#include "oops/util/FieldSetHelpers.h"
@@ -20,15 +19,15 @@
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -33,20 +40,27 @@
+@@ -33,20 +39,26 @@
  
  template<typename MODEL>
  class Localization : public oops::LocalizationBase<MODEL> {
 +  typedef oops::GenericCtlVec                 GenericCtlVec_;
    typedef oops::Geometry<MODEL>               Geometry_;
    typedef oops::Increment<MODEL>              Increment_;
+-  typedef oops::State<MODEL>                  State_;
 +  typedef oops::Model<MODEL>                  Model_;
-   typedef oops::State<MODEL>                  State_;
 +  typedef oops::Variables<MODEL>              Variables_;
  
   public:
@@ -50,7 +49,7 @@
   private:
    void print(std::ostream &) const override;
    std::unique_ptr<SaberParametricBlockChain> loc_;
-@@ -56,7 +70,7 @@
+@@ -56,7 +68,7 @@
  
  template<typename MODEL>
  Localization<MODEL>::Localization(const Geometry_ & geom,
@@ -59,10 +58,10 @@
                                    const eckit::Configuration & conf)
    : loc_()
  {
-@@ -67,21 +81,17 @@
+@@ -67,21 +79,17 @@
    util::DateTime dummyTime(1977, 5, 25, 0, 0, 0);
  
-   // Initialize
+   // Initialize increment variables with levels metadata
 -  const std::vector<std::size_t> vlevs = geom.variableSizes(incVarsNoMeta);
 -  oops::JediVariables incVars(incVarsNoMeta);
 +  const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsNoMeta.variables());
@@ -85,9 +84,9 @@
 +  oops::FieldSet4D xb4d(fset3d);
 +  oops::FieldSet4D fg4d(fset3d);
  
-   oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
-   // TODO(AS): revisit what configuration needs to be passed to SaberParametricBlockChain.
-@@ -119,19 +129,37 @@
+   // 3D localization always used here (4D aspects handled in oops::Localization),
+   // so this parameter can be anything.
+@@ -106,21 +114,37 @@
  // -----------------------------------------------------------------------------
  
  template<typename MODEL>
@@ -99,11 +98,13 @@
 +  util::Timer timer(classname(), "multiplySqrt");
 +  oops::Log::trace() << "Localization:multiplySqrt starting" << std::endl;
  
--  // SABER block chain randomization
+-  // Create 4D fieldset
 -  oops::FieldSet3D fset3d(dx.validTime(), dx.geometry().getComm());
 +  // SABER block chain square-root
 +  oops::FieldSet3D fset3d(dx.validTime(), eckit::mpi::comm());
    oops::FieldSet4D fset4d(fset3d);
+-
+-  // SABER block chain randomization
 -  loc_->randomize(fset4d);
 +  loc_->multiplySqrt(dv.data(), fset4d, 0);
  
@@ -133,14 +134,16 @@
  }
  
  // -----------------------------------------------------------------------------
-@@ -142,12 +170,12 @@
+@@ -131,14 +155,14 @@
    oops::Log::trace() << "Localization:multiply starting" << std::endl;
  
-   // SABER block chain multiplication
+   // Create 4D fieldset
 -  oops::FieldSet4D fset4d({dx.validTime(), dx.geometry().getComm()});
 -  fset4d[0].shallowCopy(dx.fieldSet());
 +  oops::FieldSet4D fset4d({dx.validTime(), eckit::mpi::comm()});
 +  fset4d[0].shallowCopy(dx.increment().fieldSet());
+ 
+   // SABER block chain multiplication
    loc_->multiply(fset4d);
  
    // ATLAS fieldset to Increment_

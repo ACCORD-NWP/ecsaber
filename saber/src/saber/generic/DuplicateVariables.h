@@ -78,7 +78,6 @@ class DuplicateVariables : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   std::vector<VariableGroupParameters> groups_;
-  oops::JediVariables outerVars_;
   oops::JediVariables activeVars_;
   oops::JediVariables innerVars_;
   const oops::GeometryData & innerGeometryData_;

@@ -47,9 +47,15 @@ class SaberOuterBlockBase : public util::Printable,
                             private eckit::NonCopyable {
  public:
   explicit SaberOuterBlockBase(const SaberBlockParametersBase & params,
-                               const util::DateTime & validTime)
-    : validTime_(validTime), blockName_(params.saberBlockName), skipInverse_(params.skipInverse),
-      filterMode_(params.filterMode) {}
+                               const util::DateTime & validTime,
+                               const oops::GeometryData & outerGeometryData,
+                               const oops::JediVariables & outerVars)
+    : validTime_(validTime),
+      outerGeometryData_(outerGeometryData),
+      outerVars_(outerVars),
+      blockName_(params.saberBlockName),
+      skipInverse_(params.skipInverse)
+    {}
   virtual ~SaberOuterBlockBase() {}
 
   // Accessor
@@ -83,7 +89,7 @@ class SaberOuterBlockBase : public util::Printable,
   // Read block data
   virtual void read()
     {throw eckit::NotImplemented("read not implemented yet for the block "
-      + this->blockName(), Here());}
+      + blockName_, Here());}
 
   // Read model fields
   virtual std::vector<std::pair<std::string, eckit::LocalConfiguration>> getReadConfs() const
@@ -93,18 +99,18 @@ class SaberOuterBlockBase : public util::Printable,
   // Direct calibration
   virtual void directCalibration(const oops::FieldSets &)
     {throw eckit::NotImplemented("directCalibration not implemented yet for the block "
-      + this->blockName(), Here());}
+      + blockName_, Here());}
 
   // Iterative calibration
   virtual void iterativeCalibrationInit()
     {throw eckit::NotImplemented("iterativeCalibrationInit not implemented yet for the block "
-      + this->blockName(), Here());}
+      + blockName_, Here());}
   virtual void iterativeCalibrationUpdate(const oops::FieldSet3D &)
     {throw eckit::NotImplemented("iterativeCalibrationUpdate not implemented yet for the block "
-      + this->blockName(), Here());}
+      + blockName_, Here());}
   virtual void iterativeCalibrationFinal()
     {throw eckit::NotImplemented("iterativeCalibrationUpdate not implemented yet for the block "
-      + this->blockName(), Here());}
+      + blockName_, Here());}
 
   // Write block data
   virtual void write() const {}
@@ -143,11 +149,11 @@ class SaberOuterBlockBase : public util::Printable,
   // Return flag to skip inverse application
   bool skipInverse() const {return skipInverse_;}
 
-  // Return flag to replace adjoint with inverse in blockchain
-  bool filterMode() const {return filterMode_;}
+  // Return outer geometry data
+  const oops::GeometryData & outerGeometryData() const {return outerGeometryData_;}
 
-  // Return date/time
-  const util::DateTime validTime() const {return validTime_;}
+  // Return outer variables
+  const oops::JediVariables & outerVars() const {return outerVars_;}
 
   // Read model fields
   template <typename MODEL>
@@ -180,11 +186,12 @@ class SaberOuterBlockBase : public util::Printable,
 
  protected:
   const util::DateTime validTime_;
+  const oops::GeometryData & outerGeometryData_;
+  const oops::JediVariables outerVars_;
 
  private:
   const std::string blockName_;
   const bool skipInverse_;
-  const bool filterMode_;
   virtual void print(std::ostream &) const = 0;
 };
 
@@ -205,7 +212,7 @@ class SaberOuterBlockParametersWrapper : public oops::Parameters {
 
 class SaberOuterBlockFactory {
  public:
-  static std::unique_ptr<SaberOuterBlockBase> create(const oops::GeometryData &,
+  static std::shared_ptr<SaberOuterBlockBase> create(const oops::GeometryData &,
                                                      const oops::JediVariables &,
                                                      const eckit::Configuration &,
                                                      const SaberBlockParametersBase &,
@@ -224,7 +231,7 @@ class SaberOuterBlockFactory {
   explicit SaberOuterBlockFactory(const std::string &name);
 
  private:
-  virtual std::unique_ptr<SaberOuterBlockBase> make(const oops::GeometryData &,
+  virtual std::shared_ptr<SaberOuterBlockBase> make(const oops::GeometryData &,
                                                     const oops::JediVariables &,
                                                     const eckit::Configuration &,
                                                     const SaberBlockParametersBase &,
@@ -245,14 +252,14 @@ template<class T>
 class SaberOuterBlockMaker : public SaberOuterBlockFactory {
   typedef typename T::Parameters_ Parameters_;
 
-  std::unique_ptr<SaberOuterBlockBase> make(const oops::GeometryData & outerGeometryData,
+  std::shared_ptr<SaberOuterBlockBase> make(const oops::GeometryData & outerGeometryData,
                                             const oops::JediVariables & outerVars,
                                             const eckit::Configuration & covarConf,
                                             const SaberBlockParametersBase & params,
                                             const oops::FieldSet3D & xb,
                                             const oops::FieldSet3D & fg) override {
     const auto &stronglyTypedParams = dynamic_cast<const Parameters_&>(params);
-    return std::make_unique<T>(outerGeometryData, outerVars,
+    return std::make_shared<T>(outerGeometryData, outerVars,
                                covarConf, stronglyTypedParams, xb, fg);
   }
 

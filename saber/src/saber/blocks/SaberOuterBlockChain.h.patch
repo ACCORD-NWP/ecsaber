@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2026-01-14 17:20:46.235402261 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2026-01-14 15:43:27.485110316 +0100
-@@ -20,7 +20,7 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2026-01-30 12:45:54.393859515 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2026-01-30 10:59:40.513807855 +0100
+@@ -21,7 +21,7 @@
  
  #include "oops/base/FieldSet4D.h"
  #include "oops/base/FieldSets.h"
@@ -9,16 +9,16 @@
  #include "oops/base/GeometryData.h"
  #include "oops/interface/ModelData.h"
  
-@@ -230,7 +230,7 @@
+@@ -253,7 +253,7 @@
    for (int jb = params.size()-1; jb >= 0; --jb) {
      // Initialize current outer geometry data
      const oops::GeometryData & currentOuterGeometryData = outerBlocks_.size() == 0 ?
--                                       geom.generic() : outerBlocks_.back()->innerGeometryData();
-+                                       util::geomData(geom) : outerBlocks_.back()->innerGeometryData();
+-      geom.generic() : innerGeometryData();
++      util::geomData(geom) : innerGeometryData();
  
      // Initialize outer block
      const auto[saberOuterBlockParams,
-@@ -355,7 +355,7 @@
+@@ -368,7 +368,7 @@
  
      for (size_t ie = 0; ie < nens; ++ie) {
        // Read ensemble member
@@ -26,4 +26,4 @@
 +      oops::FieldSet3D fset(fset4dXb[0].validTime(), geom.geometry().getComm());
        readEnsembleMember(geom,
                           outerVars,
-                          ensembleConf,
+                          conf,

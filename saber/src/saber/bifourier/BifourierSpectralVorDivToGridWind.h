@@ -101,9 +101,6 @@ class BifourierSpectralVorDivToGridWind : public SaberOuterBlockBase {
   // Inner variables
   oops::JediVariables innerVars_;
 
-  // Outer variables
-  const oops::JediVariables outerVars_;
-
   // Parameters
   Parameters_ params_;
 

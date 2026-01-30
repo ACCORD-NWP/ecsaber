@@ -70,7 +70,6 @@ class PsiChiToUV : public SaberOuterBlockBase {
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
   oops::JediVariables innerVars_;
-  oops::JediVariables outerVars_;
   oops::JediVariables activeVars_;
   BUMPParameters bumpParams_;
   std::unique_ptr<BUMP> bump_;

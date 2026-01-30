@@ -1,0 +1,24 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_from_csdual_states_2.yaml.tmp.bak	2026-01-30 15:38:52.796739042 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_from_csdual_states_2.yaml	2026-01-30 15:38:24.371557169 +0100
+@@ -57,9 +57,7 @@
+       filepath: testdata/process_perts_from_csdual_states_2/wb1_CS-LFR-14_mb%MEM%_inc
+       member pattern: '%MEM%'
+ - band:
+-    gauss to cubed-sphere-dual block: &GaussToCSDual # To avoid a copy in right-inverse and direct blocks
+-      saber block name: gauss to cubed-sphere-dual
+-      gauss grid uid: F14
++    gauss to cubed-sphere-dual block: *GaussToCSDual
+     filter:
+     - <<: *GaussToCSDual
+       right-inverse of a following block: true
+@@ -87,9 +85,7 @@
+       multiply fset filename: wb2_F14_inc
+     - <<: *GaussToCSDual
+ - band:
+-    gauss to cubed-sphere-dual block: &GaussToCSDual # To avoid a copy in right-inverse and direct blocks
+-      saber block name: gauss to cubed-sphere-dual
+-      gauss grid uid: F14
++    gauss to cubed-sphere-dual block: *GaussToCSDual
+     filter:
+     - <<: *GaussToCSDual
+       right-inverse of a following block: true

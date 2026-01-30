@@ -64,8 +64,6 @@ class VertLocInterp : public SaberOuterBlockBase {
   void print(std::ostream &) const override;
 
   Parameters_ params_;
-  const oops::GeometryData & outerGeometryData_;
-  oops::JediVariables outerVars_;
   oops::JediVariables activeVars_;
   oops::JediVariables innerVars_;
 };

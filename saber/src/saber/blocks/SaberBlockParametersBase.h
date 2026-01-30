@@ -41,9 +41,6 @@ class SaberBlockParametersBase : public oops::Parameters {
   // Flag to skip inverse test
   oops::Parameter<bool> skipInverseTest{"skip inverse test", false, this};
 
-  // Flag to run the left inverse instead of the adjoint.
-  oops::Parameter<bool> filterMode{"filter mode", false, this};
-
   // Fields metadata (e.g. geographical mask name, vertical coordinate field name)
   oops::Parameter<eckit::LocalConfiguration> fieldsMetaData{"fields metadata",
     eckit::LocalConfiguration(), this};
@@ -58,17 +55,11 @@ class SaberBlockParametersBase : public oops::Parameters {
   // Calibration of block parameters
   oops::OptionalParameter<eckit::LocalConfiguration> calibrationParams{"calibration", this};
 
-  // Ensemble transform parameters for the Ensemble block
-  oops::OptionalParameter<eckit::LocalConfiguration> ensembleTransform{"ensemble transform", this};
-
   // Tolerance for inner inverse test (U Uinv (U x) == (U x))
   oops::OptionalParameter<double> innerInverseTolerance{"inner inverse tolerance", this};
 
   // Inner variables to compare in outer inverse test, default is all inner active variables.
   oops::OptionalParameter<oops::JediVariables> innerVariables{"inner variables to compare", this};
-
-  // Localization parameters for the Ensemble block
-  oops::OptionalParameter<eckit::LocalConfiguration> localization{"localization", this};
 
   // Tolerance for outer inverse test (Uinv U (Uinv x) == (Uinv x))
   oops::OptionalParameter<double> outerInverseTolerance{"outer inverse tolerance", this};
@@ -84,6 +75,10 @@ class SaberBlockParametersBase : public oops::Parameters {
 
   // Force calling write()
   oops::Parameter<bool> forceWrite{"force write", false, this};
+
+  // Right-inverse of a following block (sharing pointer).
+  // Only for filters, some methods like multiplyAD are not available.
+  oops::Parameter<bool> rightInverse{"right-inverse of a following block", false, this};
 
   // METHODS
   // Find out whether calibration is needed

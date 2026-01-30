@@ -14,13 +14,8 @@ oops/base/FieldSets.cc
 oops/base/FieldSets.h
 oops/base/GeometryData.cc
 oops/base/GeometryData.h
-oops/base/IncrementEnsemble.h
-oops/base/IncrementSet.h
-oops/base/LocalIncrement.cc
-oops/base/LocalIncrement.h
 oops/base/ParameterTraitsVariables.cc
 oops/base/ParameterTraitsVariables.h
-oops/base/StateEnsemble.h
 oops/base/Variable.cc
 oops/base/Variable.h
 oops/base/Variables.cc
@@ -57,6 +52,8 @@ oops/util/FieldSetHelpers.cc
 oops/util/FieldSetHelpers.h
 oops/util/FieldSetOperations.cc
 oops/util/FieldSetOperations.h
+oops/util/FieldSetSubCommunicators.cc
+oops/util/FieldSetSubCommunicators.h
 oops/util/FloatCompare.h
 oops/util/for_each.cc
 oops/util/for_each.h
@@ -145,6 +142,7 @@ util/LibOOPS.h
 util/Logger.h
 util/ObjectCounter.h
 util/Printable.h
+util/Timer.cc
 util/Timer.h
 )
 

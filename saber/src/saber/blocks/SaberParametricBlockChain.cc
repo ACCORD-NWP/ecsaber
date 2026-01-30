@@ -18,87 +18,76 @@ namespace saber {
 // outer geometry cannot be a MODEL geometry.
 SaberParametricBlockChain::SaberParametricBlockChain(
                           const oops::GeometryData & outerGeometryData,
+                          const bool levelsAreTopDown,
                           const oops::JediVariables & outerVars,
                           oops::FieldSet4D & fset4dXb,
                           oops::FieldSet4D & fset4dFg,
-                          const eckit::LocalConfiguration & covarConf,
                           const eckit::Configuration & conf)
   : outerFunctionSpace_(outerGeometryData.functionSpace()),
     outerVariables_(outerVars),
-    crossTimeCov_(covarConf.getString("time covariance") == "multivariate duplicated"),
     timeComm_(fset4dXb.commTime()),
     size4D_(fset4dXb.size()) {
   oops::Log::trace() << "SaberParametricBlockChain generic ctor starting" << std::endl;
 
+  // Deserialize parameters and fill configuration with missing values
+  SaberParametricBlockChainParameters params;
+  params.deserialize(conf);
+  eckit::LocalConfiguration fullConf;
+  params.serialize(fullConf);
+
+  // Set cross-time covariance flag
+  crossTimeCov_ = (params.timeCovariance.value() == "multivariate duplicated");
+
   // If needed create generic outer block chain
-  if (conf.has("saber outer blocks")) {
-    std::vector<SaberOuterBlockParametersWrapper> cmpOuterBlocksParams;
-    for (const auto & cmpOuterBlockConf : conf.getSubConfigurations("saber outer blocks")) {
-      SaberOuterBlockParametersWrapper cmpOuterBlockParamsWrapper;
-      cmpOuterBlockParamsWrapper.deserialize(cmpOuterBlockConf);
-      cmpOuterBlocksParams.push_back(cmpOuterBlockParamsWrapper);
-    }
+  if (params.saberOuterBlocksParams.value()) {
     outerBlockChain_ = std::make_unique<SaberOuterBlockChain>(outerGeometryData,
-                                                              outerVariables_,
-                                                              fset4dXb,
-                                                              fset4dFg,
-                                                              covarConf,
-                                                              cmpOuterBlocksParams);
+        outerVariables_,
+        fset4dXb,
+        fset4dFg,
+        fullConf,
+        *params.saberOuterBlocksParams.value());
   }
 
   // Set outer geometry data for central block
   const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
                              outerBlockChain_->innerGeometryData() : outerGeometryData;
 
-  SaberCentralBlockParametersWrapper saberCentralBlockParamsWrapper;
-  saberCentralBlockParamsWrapper.deserialize(conf.getSubConfiguration("saber central block"));
+  SaberCentralBlockParameters saberCentralBlockParams;
+  saberCentralBlockParams.deserialize(conf.getSubConfiguration("saber central block"));
 
-  const SaberBlockParametersBase & saberCentralBlockParams =
-    saberCentralBlockParamsWrapper.saberCentralBlockParameters;
-  oops::Log::info() << "Info     : Creating central block: "
-                    << saberCentralBlockParams.saberBlockName.value() << std::endl;
+  oops::Log::info() << "Info     : Creating central block: " << std::endl;
 
   const auto[currentOuterVars, activeVars]
               = initCentralBlock(currentOuterGeom,
-                                 conf,
-                                 covarConf,
+                                 levelsAreTopDown,
+                                 fullConf,
                                  saberCentralBlockParams,
                                  fset4dXb,
                                  fset4dFg);
 
-  // Check block doesn't expect model fields to be read as this is a generic ctor
-  if (centralBlock_->getReadConfs().size() != 0) {
-    throw eckit::UserError("The generic constructor of the SABER parametric block chain "
-                           "does not allow to read MODEL fields.", Here());
-  }
-
   // Check block doesn't expect calibration, as this could be done with the standard ctor
-  if (saberCentralBlockParams.doCalibration()) {
+  if (centralBlock_->doCalibration()) {
     throw eckit::UserError("The generic constructor of the SABER parametric block chain "
                            "does not allow covariance calibration.", Here());
   }
-  if (covarConf.has("dual resolution ensemble configuration")) {
-    throw eckit::UserError("The generic constructor of the SABER parametric block chain "
-                           "does not allow dual resolution ensemble.", Here());
-  }
-  if (covarConf.has("output ensemble")) {
+  if (fullConf.has("output ensemble")) {
     throw eckit::UserError("The generic constructor of the SABER parametric block chain "
                            "does not allow ensemble output.", Here());
   }
 
-  if (saberCentralBlockParams.doRead()) {
+  if (centralBlock_->doRead()) {
     // Read data
     oops::Log::info() << "Info     : Read data" << std::endl;
     centralBlock_->read();
   }
 
-  if (saberCentralBlockParams.forceWrite.value()) {
+  if (centralBlock_->forceWrite()) {
     // Write data
     oops::Log::info() << "Info     : Write data" << std::endl;
     centralBlock_->write();
   }
 
-  testCentralBlock(covarConf, saberCentralBlockParams, currentOuterGeom, activeVars);
+  testCentralBlock(fullConf, saberCentralBlockParams, currentOuterGeom, activeVars);
 
   oops::Log::trace() << "SaberParametricBlockChain generic ctor done" << std::endl;
 }
@@ -108,9 +97,9 @@ SaberParametricBlockChain::SaberParametricBlockChain(
 std::tuple<oops::JediVariables, oops::JediVariables>
     SaberParametricBlockChain::initCentralBlock(
         const oops::GeometryData & outerGeom,
+        const bool levelsAreTopDown,
         const eckit::Configuration & conf,
-        const eckit::LocalConfiguration & covarConf,
-        const SaberBlockParametersBase & saberCentralBlockParams,
+        const SaberCentralBlockParameters & saberCentralBlockParams,
         const oops::FieldSet4D & fset4dXb,
         const oops::FieldSet4D & fset4dFg) {
   oops::Log::trace() << "SaberParametricBlockChain::initCentralBlock starting" << std::endl;
@@ -129,12 +118,13 @@ std::tuple<oops::JediVariables, oops::JediVariables>
   }
 
   // Create central block
-  centralBlock_ = SaberCentralBlockFactory::create(outerGeom,
-                                                   activeVars,
-                                                   covarConf,
-                                                   saberCentralBlockParams,
-                                                   fset4dXb[0],
-                                                   fset4dFg[0]);
+  centralBlock_ = std::make_unique<SaberCentralBlock>(outerGeom,
+                                                      levelsAreTopDown,
+                                                      activeVars,
+                                                      conf,
+                                                      saberCentralBlockParams,
+                                                      fset4dXb[0],
+                                                      fset4dFg[0]);
 
   // Save central function space and variables
   centralFunctionSpace_ = outerGeom.functionSpace();
@@ -149,56 +139,29 @@ std::tuple<oops::JediVariables, oops::JediVariables>
 // -----------------------------------------------------------------------------
 
 void SaberParametricBlockChain::testCentralBlock(
-        const eckit::LocalConfiguration & covarConf,
-        const SaberBlockParametersBase & saberCentralBlockParams,
+        const eckit::Configuration & conf,
+        const SaberCentralBlockParameters & saberCentralBlockParams,
         const oops::GeometryData & outerGeom,
         const oops::JediVariables & activeVars) const {
   oops::Log::trace() << "SaberParametricBlockChain::testCentralBlock starting" << std::endl;
   // Adjoint test
-  if (covarConf.getBool("adjoint test")) {
-    // Get tolerance
-    const double localAdjointTolerance =
-      saberCentralBlockParams.adjointTolerance.value().get_value_or(
-      covarConf.getDouble("adjoint tolerance"));
-
+  if (conf.getBool("adjoint test")) {
+    // Get tolerance (can be overridden from central block parameters)
+    const double adjointTolerance = conf.getDouble("adjoint tolerance");
     // Run test
     centralBlock_->adjointTest(outerGeom,
-                               activeVars,
-                               localAdjointTolerance);
+                               adjointTolerance);
   }
 
   // Square-root test
-  if (covarConf.getBool("square-root test")) {
-    // Get tolerance
-    const double localSqrtTolerance =
-      saberCentralBlockParams.sqrtTolerance.value().get_value_or(
-      covarConf.getDouble("square-root tolerance"));
-
+  if (conf.getBool("square-root test")) {
+    // Get tolerance (can be overridden from central block parameters)
+    const double sqrtTolerance = conf.getDouble("square-root tolerance");
     // Run test
     centralBlock_->sqrtTest(outerGeom,
-                            activeVars,
-                            localSqrtTolerance);
+                            sqrtTolerance);
   }
   oops::Log::trace() << "SaberParametricBlockChain::testCentralBlock done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-void SaberParametricBlockChain::filter(oops::FieldSet4D & fset4d) const {
-  // Outer blocks for adjoint multiplication or left inverse (acting as filter)
-  if (outerBlockChain_) {
-    outerBlockChain_->applyOuterBlocksFilter(fset4d);
-  }
-
-  // No cross-time covariances: apply central block to each of the
-  // time slots.
-  for (size_t jtime = 0; jtime < fset4d.size(); ++jtime) {
-    centralBlock_->filter(fset4d[jtime]);
-  }
-
-  // Outer blocks forward multiplication
-  if (outerBlockChain_) {
-    outerBlockChain_->applyOuterBlocks(fset4d);
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -227,7 +190,7 @@ void SaberParametricBlockChain::multiply(oops::FieldSet4D & fset4d) const {
     //             (Id)                 (x_3)   (Id)                      (C_3D ( x_1 + x_2 + x_3 ))
     // Reference in section 3.4.2. of https://rmets.onlinelibrary.wiley.com/doi/full/10.1002/qj.2325.
     // Local sum of x1, x2, ...
-    for (size_t jtime = 1; jtime < fset4d.size(); ++jtime) {
+    for (size_t jtime = 1; jtime < size4D_; ++jtime) {
       fset4d[0] += fset4d[jtime];
     }
     if (timeComm_.rank() > 0) {
@@ -251,7 +214,7 @@ void SaberParametricBlockChain::multiply(oops::FieldSet4D & fset4d) const {
   } else {
     // No cross-time covariances: apply central block to each of the
     // time slots.
-    for (size_t jtime = 0; jtime < fset4d.size(); ++jtime) {
+    for (size_t jtime = 0; jtime < size4D_; ++jtime) {
       centralBlock_->multiply(fset4d[jtime]);
     }
   }
@@ -267,7 +230,7 @@ void SaberParametricBlockChain::multiply(oops::FieldSet4D & fset4d) const {
 
 void SaberParametricBlockChain::randomize(oops::FieldSet4D & fset4d) const {
   // Create central FieldSet4D
-  for (size_t jtime = 0; jtime < fset4d.size(); ++jtime) {
+  for (size_t jtime = 0; jtime < size4D_; ++jtime) {
     fset4d[jtime].init(centralFunctionSpace_, centralVars_);
   }
 
@@ -285,7 +248,7 @@ void SaberParametricBlockChain::randomize(oops::FieldSet4D & fset4d) const {
     }
   } else {
     // No cross-time covariances
-    for (size_t jtime = 0; jtime < fset4d.size(); ++jtime) {
+    for (size_t jtime = 0; jtime < size4D_; ++jtime) {
       centralBlock_->randomize(fset4d[jtime]);
     }
   }
@@ -316,11 +279,31 @@ size_t SaberParametricBlockChain::ctlVecSize() const {
 
 // -----------------------------------------------------------------------------
 
+void SaberParametricBlockChain::randomCtlVec(atlas::Field & cv,
+                                             const size_t & offset) const {
+  if (crossTimeCov_) {
+    // Duplicated cross-time covariances
+    if (timeComm_.rank() == 0) {
+      // Central block square-root for rank 0
+      centralBlock_->randomCtlVec(cv, offset);
+    }
+  } else {
+    // No cross-time covariances
+    size_t index = offset;
+    for (size_t jtime = 0; jtime < size4D_; ++jtime) {
+      centralBlock_->randomCtlVec(cv, index);
+      index += centralBlock_->ctlVecSize();
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+
 void SaberParametricBlockChain::multiplySqrt(const atlas::Field & cv,
                                              oops::FieldSet4D & fset4d,
                                              const size_t & offset) const {
   // Create central FieldSet4D
-  for (size_t jtime = 0; jtime < fset4d.size(); ++jtime) {
+  for (size_t jtime = 0; jtime < size4D_; ++jtime) {
     fset4d[jtime].init(centralFunctionSpace_, centralVars_);
   }
 
@@ -340,7 +323,7 @@ void SaberParametricBlockChain::multiplySqrt(const atlas::Field & cv,
   } else {
     // No cross-time covariances
     size_t index = offset;
-    for (size_t jtime = 0; jtime < fset4d.size(); ++jtime) {
+    for (size_t jtime = 0; jtime < size4D_; ++jtime) {
       centralBlock_->multiplySqrt(cv, fset4d[jtime], index);
       index += centralBlock_->ctlVecSize();
     }

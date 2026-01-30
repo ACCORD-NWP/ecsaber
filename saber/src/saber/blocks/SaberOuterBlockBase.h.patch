@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2026-01-14 17:20:46.372403443 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2026-01-14 15:42:55.788884905 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h.tmp.bak	2026-01-29 15:41:02.613746419 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockBase.h	2026-01-29 15:43:59.482436407 +0100
 @@ -17,9 +17,9 @@
  #include "eckit/memory/NonCopyable.h"
  
@@ -20,7 +20,7 @@
  
  namespace oops {
    class FieldSet3D;
-@@ -286,13 +287,13 @@
+@@ -293,13 +294,13 @@
      } else {
        incVars.reset(new oops::JediVariables(vars));
      }
@@ -36,7 +36,7 @@
      fsetVec.back().name() = input.first;
    }
    this->setReadFields(fsetVec);
-@@ -326,10 +327,10 @@
+@@ -333,10 +334,10 @@
      } else {
        incVars.reset(new oops::JediVariables(vars));
      }

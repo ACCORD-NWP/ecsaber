@@ -23,7 +23,6 @@
 #include "oops/generic/LocalizationBase.h"
 #include "oops/interface/Geometry.h"
 #include "oops/interface/Increment.h"
-#include "oops/interface/State.h"
 #include "oops/interface/Variables.h"
 #include "oops/util/Duration.h"
 #include "oops/util/FieldSetHelpers.h"
@@ -44,7 +43,6 @@ class Localization : public oops::LocalizationBase<MODEL> {
   typedef oops::Geometry<MODEL>               Geometry_;
   typedef oops::Increment<MODEL>              Increment_;
   typedef oops::Model<MODEL>                  Model_;
-  typedef oops::State<MODEL>                  State_;
   typedef oops::Variables<MODEL>              Variables_;
 
  public:
@@ -80,7 +78,7 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
   // Create dummy time
   util::DateTime dummyTime(1977, 5, 25, 0, 0, 0);
 
-  // Initialize
+  // Initialize increment variables with levels metadata
   const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsNoMeta.variables());
   oops::JediVariables incVars(incVarsNoMeta.variables().variablesList());
   for (std::size_t i = 0; i < vlevs.size() ; ++i) {
@@ -93,27 +91,14 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
   oops::FieldSet4D xb4d(fset3d);
   oops::FieldSet4D fg4d(fset3d);
 
-  oops::FieldSets emptyFsetEns({}, oops::mpi::myself(), {}, oops::mpi::myself());
-  // TODO(AS): revisit what configuration needs to be passed to SaberParametricBlockChain.
-  eckit::LocalConfiguration covarConf;
-  eckit::LocalConfiguration ensembleConf;
-  ensembleConf.set("ensemble size", 0);
-  covarConf.set("ensemble configuration", ensembleConf);
-  covarConf.set("adjoint test", conf.getBool("adjoint test", false));
-  covarConf.set("adjoint tolerance", conf.getDouble("adjoint tolerance", 1.0e-12));
-  covarConf.set("inverse test", conf.getBool("inverse test", false));
-  covarConf.set("inverse tolerance", conf.getDouble("inverse tolerance", 1.0e-12));
-  covarConf.set("square-root test", conf.getBool("square-root test", false));
-  covarConf.set("square-root tolerance", conf.getDouble("square-root tolerance", 1.0e-12));
-  covarConf.set("iterative ensemble loading", false);
-
   // 3D localization always used here (4D aspects handled in oops::Localization),
   // so this parameter can be anything.
-  covarConf.set("time covariance", "univariate");
+  eckit::LocalConfiguration confUpdated(conf);
+  confUpdated.set("time covariance", "univariate");
+
   // Initialize localization blockchain
   loc_ = std::make_unique<SaberParametricBlockChain>(geom,
-              incVars, xb4d, fg4d,
-              emptyFsetEns, covarConf, conf);
+              incVars, xb4d, fg4d, conf);
 
   oops::Log::trace() << "Localization:Localization done" << std::endl;
 }
@@ -169,9 +154,11 @@ void Localization<MODEL>::multiply(Increment_ & dx) const {
   util::Timer timer(classname(), "multiply");
   oops::Log::trace() << "Localization:multiply starting" << std::endl;
 
-  // SABER block chain multiplication
+  // Create 4D fieldset
   oops::FieldSet4D fset4d({dx.validTime(), eckit::mpi::comm()});
   fset4d[0].shallowCopy(dx.increment().fieldSet());
+
+  // SABER block chain multiplication
   loc_->multiply(fset4d);
 
   // ATLAS fieldset to Increment_
