@@ -3,12 +3,12 @@ Input Dirac increment:
   Geometry: structured [3723]
   Fields:
   - air_upward_absolute_vorticity (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-05
     + stddev = 5.1826691088793144e-03
   - air_horizontal_divergence (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-05
     + stddev = 5.1826691088793144e-03

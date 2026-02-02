@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-01-15 10:03:55.146182740 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/CMakeLists.txt	2026-01-15 10:00:18.987382024 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-02-02 14:49:20.941054771 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-02-02 14:19:15.342693987 +0100
 @@ -200,9 +200,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
@@ -14,24 +14,6 @@
  
        # Link to reference file
        if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -274,7 +275,7 @@
- 
-                   # Special check for 4D tests
-                   string( FIND ${test} "_4d" found_result )
--                  if( found_result EQUAL -1 OR ( found_result GREATER_EQUAL 0 AND ${mpi} GREATER 1 ) )
-+                  if( found_result EQUAL -1 )
-                       set( 4dCheck true CACHE BOOL "" FORCE )
-                   else()
-                       set( 4dCheck false CACHE BOOL "" FORCE )
-@@ -287,7 +288,7 @@
-                     set (parallelHybridCheck true CACHE BOOL "" FORCE )
-                   else()
-                     if ( par_hyb_result GREATER_EQUAL 0 AND ${mpi} GREATER_EQUAL 2 )
--                      set (parallelHybridCheck true CACHE BOOL "" FORCE )
-+                      set (parallelHybridCheck false CACHE BOOL "" FORCE )
-                     else()
-                       set (parallelHybridCheck false CACHE BOOL "" FORCE )
-                     endif()
 @@ -313,10 +314,11 @@
  
                        # Add test

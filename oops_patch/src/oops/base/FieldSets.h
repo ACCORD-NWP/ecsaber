@@ -78,7 +78,6 @@ FieldSets::FieldSets(const Geometry<MODEL> & geom,
                      const std::vector<eckit::LocalConfiguration> & memConfs,
                      const bool & removeMean)
   : Base_(times, eckit::mpi::self(), members, eckit::mpi::self()) {
-
   // Allocate ensemble
   for (size_t jm = 0; jm < members.size(); ++jm) {
     for (size_t jt = 0; jt < times.size(); ++jt) {
@@ -94,8 +93,10 @@ FieldSets::FieldSets(const Geometry<MODEL> & geom,
     oops::Increment4D<MODEL> dx(geom, util::templatedVars<MODEL>(vars), times);
 
     // Read 4D increment
-    if (memConfs[jm].has("increment")) {
-      dx.read(memConfs[jm]);
+    if (memConfs[jm].has("states")) {
+      eckit::LocalConfiguration memConf;
+      memConf.set("increment", memConfs[jm].getSubConfiguration("states"));
+      dx.read(memConf);
     } else {
       ASSERT(times.size() == 1);
       dx[0].read(memConfs[jm]);

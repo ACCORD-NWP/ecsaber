@@ -245,7 +245,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     dirac4D(diagConf, diagPoints);
 
     // Get diagnostic values
-    for (int jj = data.first(); jj <= data.last(); ++jj) {
+    for (size_t jj = 0; jj < data.times().size(); ++jj) {
       util::printDiagValues(oops::mpi::myself(),
                             geom.geometry().getComm(),
                             geom.geometry().functionSpace(),
@@ -263,7 +263,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
                               const Increment4D_ & data) const {
   oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
 
-  if (data.last()-data.first()+1 > 1) {
+  if (data.times().size() > 1) {
     throw eckit::NotImplemented("Not implemented for 4D covariances", Here());
   }
 
@@ -560,7 +560,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
             // Add background state to perturbation
             State4D_ xp(xx);
-            for (int jsub = dx.first(); jsub <= dx.last(); ++jsub) {
+            for (int jsub = 0; jsub < dx.times().size(); ++jsub) {
               xp[jsub-dx.first()] += dx[jsub];
             }
 
@@ -573,7 +573,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
         // Square perturbation
         dxsq = dx;
-        for (int jsub = dx.first(); jsub <= dx.last(); ++jsub) {
+        for (int jsub = 0; jsub < dx.times().size(); ++jsub) {
           dxsq[jsub].schur_product_with(dx[jsub]);
         }
 

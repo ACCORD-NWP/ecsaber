@@ -64,6 +64,33 @@ def find_and_replace(d, value, repl):
         newd = d
     return newd
 
+# Switch hybrid and ensemble covariance models to SABER covariance model
+def to_saber(config):
+    config["covariance"] = config["covariance model"]
+    config.pop("covariance model")
+    if config["covariance"] == "hybrid":
+        config["covariance"] = "SABER"
+        config["covariance type"] = "hybrid"
+        components = []
+        for cmp in config["components"]:
+            newCmp = {}
+            newCmp["covariance"] = to_saber(cmp["covariance"])
+            newCmp["weight"] = cmp["weight"]
+            components.append(newCmp)
+        config["components"] = components
+    elif config["covariance"] == "ensemble":
+        config["covariance"] = "SABER"
+        config["covariance type"] = "ensemble"
+        if "members" in config:
+            config["ensemble"] = {}
+            config["ensemble"]["members"] =  config["members"]
+            config.pop("members")
+        elif "members from template" in config:
+            config["ensemble"] = {}
+            config["ensemble"]["members from template"] =  config["members from template"]
+            config.pop("members from template")
+    return config
+
 # Parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("inputYaml", help="Yaml file name")
@@ -101,8 +128,7 @@ if "background" in config:
 
 # Background error
 if "background error" in config:
-    config["background error"]["covariance"] = config["background error"]["covariance model"]
-    config["background error"].pop("covariance model")
+    config["background error"] = to_saber(config["background error"])   
     if config["background error"]["covariance"] == "hybrid":
        config["background error"]["covariance"] = "SABER"
        config["background error"]["covariance type"] = "hybrid"

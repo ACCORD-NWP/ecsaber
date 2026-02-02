@@ -3,12 +3,12 @@ Input Dirac increment:
   Geometry: structured [3723]
   Fields:
   - air_upward_absolute_vorticity (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-05
     + stddev = 5.1826691088793144e-03
   - air_horizontal_divergence (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-05
     + stddev = 5.1826691088793144e-03
@@ -16,12 +16,12 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - log_of_air_pressure_at_surface (1 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-04
     + stddev = 1.6389038743052555e-02
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-05
     + stddev = 5.1826691088793144e-03
@@ -70,7 +70,7 @@ Covariance(SABER) * Increment:
   - air_temperature (10 levels):
     + min    = -1.2357841483690619e+10
     + max    = 1.1035868802069090e+10
-    + mean   ~ 0
+    + mean close to zero
     + stddev = 3.0235128985460033e+09
   - log_of_air_pressure_at_surface (1 levels):
     + min    = -1.1649819520862186e+07

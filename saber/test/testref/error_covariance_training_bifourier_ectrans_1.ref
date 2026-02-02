@@ -9,7 +9,7 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_temperature (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-05
     + stddev = 5.1826691088793144e-03
@@ -70,12 +70,12 @@ Covariance(SABER) * Increment:
   - geographical_x_wind (10 levels):
     + min    = -4.4933869716445477e-04
     + max    = 4.4933869716445483e-04
-    + mean   ~ 0
+    + mean close to zero
     + stddev = 1.3585235650957346e-04
   - geographical_y_wind (10 levels):
     + min    = -4.6265891871727469e-04
     + max    = 4.6265891871727480e-04
-    + mean   ~ 0
+    + mean close to zero
     + stddev = 1.0606399018475063e-04
   - air_temperature (10 levels):
     + min    = -3.6692424521247618e-03
@@ -90,5 +90,5 @@ Covariance(SABER) * Increment:
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
     + min    = -8.4592556460534714e-07
     + max    = 6.4485199600456523e-06
-    + mean   ~ 0
+    + mean close to zero
     + stddev = 3.3197806668879587e-07

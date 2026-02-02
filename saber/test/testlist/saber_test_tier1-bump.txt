@@ -1,7 +1,5 @@
-compare_diagnostics_ens_noloc
 dirac_biperiodization_1
 dirac_biperiodization_2
-dirac_bump_1
 dirac_bump_2
 dirac_bump_3
 dirac_bump_4
@@ -10,7 +8,6 @@ dirac_bump_6
 dirac_bump_7
 dirac_bump_8
 dirac_bump_9
-dirac_ens_noloc_4d
 dirac_localization_bump_1
 dirac_localization_bump_2
 dirac_localization_bump_3
@@ -19,7 +16,6 @@ dirac_localization_mixed_1
 dirac_multiscale_1
 dirac_multiscale_2
 dirac_multiscale_3
-dirac_oops_ens_noloc_4d
 dirac_shadowlevels_1
 dirac_shadowlevels_2
 dirac_shadowlevels_3

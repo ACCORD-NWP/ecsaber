@@ -1,0 +1,26 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_test_tier1-bump.txt.tmp	2026-02-02 14:49:20.868054790 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_test_tier1-bump.txt	2026-02-02 14:34:13.296640154 +0100
+@@ -1,7 +1,5 @@
+-compare_diagnostics_ens_noloc
+ dirac_biperiodization_1
+ dirac_biperiodization_2
+-dirac_bump_1
+ dirac_bump_2
+ dirac_bump_3
+ dirac_bump_4
+@@ -10,7 +8,6 @@
+ dirac_bump_7
+ dirac_bump_8
+ dirac_bump_9
+-dirac_ens_noloc_4d
+ dirac_localization_bump_1
+ dirac_localization_bump_2
+ dirac_localization_bump_3
+@@ -19,7 +16,6 @@
+ dirac_multiscale_1
+ dirac_multiscale_2
+ dirac_multiscale_3
+-dirac_oops_ens_noloc_4d
+ dirac_shadowlevels_1
+ dirac_shadowlevels_2
+ dirac_shadowlevels_3

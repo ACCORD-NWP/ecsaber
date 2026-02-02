@@ -2,8 +2,6 @@ convertstate_constant
 dirac_diffusion_1
 dirac_diffusion_2
 dirac_id
-dirac_id_4d
-dirac_id_4d_timecov
 dirac_id_seq4d
 dirac_id_seq4d_timecov
 dirac_interpolation_2

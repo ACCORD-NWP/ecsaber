@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-01-30 15:33:43.509784558 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-01-30 14:29:39.092534066 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-02-02 14:49:16.261056080 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-02-02 14:06:34.157954168 +0100
 @@ -8,6 +8,7 @@
  #pragma once
  
@@ -139,12 +139,8 @@
                                                     fullConfig);
      int nincrements = fsetEnsI.ens_size();
  
-@@ -366,10 +400,10 @@
-           eckit::LocalConfiguration gconf = it->second;
-           util::setMember(gconf, jm+1);
-           setConcatenatedString(fullConfig,
--                                std::vector<std::string>{"geometry", "grid"},
-+                                std::vector<std::string>{"resolution", "grid"},
+@@ -369,7 +403,7 @@
+                                 std::vector<std::string>{"geometry", "grid"},
                                  "grid pattern",
                                  gconf);
 -          util::writeFieldSet(geom.getComm(), gconf, fset4dDx[0].fieldSet());

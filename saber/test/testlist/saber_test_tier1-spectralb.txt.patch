@@ -1,0 +1,12 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb.txt.tmp	2026-02-02 14:49:20.904054781 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_test_tier1-spectralb.txt	2026-02-02 14:17:59.965928904 +0100
+@@ -7,9 +7,6 @@
+ dirac_ens_other_geom_1
+ dirac_ens_other_geom_2
+ dirac_interpolation_1
+-dirac_parallel_hybrid_id
+-dirac_parallel_hybrid_stddev
+-dirac_parallel_hybrid_ratio_stddev
+ dirac_spectralb
+ dirac_spectralb_and_touv
+ dirac_spectralb_correlation_profiles

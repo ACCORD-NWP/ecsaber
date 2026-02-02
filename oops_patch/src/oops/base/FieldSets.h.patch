@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/base/FieldSets.h.tmp.bak	2026-01-30 15:33:36.048738212 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/base/FieldSets.h	2026-01-30 14:09:11.774322738 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/base/FieldSets.h.tmp.bak	2026-02-02 14:48:55.455063005 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/base/FieldSets.h	2026-02-02 14:23:03.634472992 +0100
 @@ -14,8 +14,10 @@
  
  #include "oops/base/DataSetBase.h"
@@ -26,7 +26,7 @@
  
    FieldSets(const std::vector<util::DateTime> &, const eckit::mpi::Comm &,
              const std::vector<int> &, const eckit::mpi::Comm &);
-@@ -64,12 +71,63 @@
+@@ -64,12 +71,64 @@
  // -----------------------------------------------------------------------------
  
  template<typename MODEL>
@@ -43,7 +43,6 @@
 +                     const std::vector<eckit::LocalConfiguration> & memConfs,
 +                     const bool & removeMean)
 +  : Base_(times, eckit::mpi::self(), members, eckit::mpi::self()) {
-+
 +  // Allocate ensemble
 +  for (size_t jm = 0; jm < members.size(); ++jm) {
 +    for (size_t jt = 0; jt < times.size(); ++jt) {
@@ -59,8 +58,10 @@
 +    oops::Increment4D<MODEL> dx(geom, util::templatedVars<MODEL>(vars), times);
 +
 +    // Read 4D increment
-+    if (memConfs[jm].has("increment")) {
-+      dx.read(memConfs[jm]);
++    if (memConfs[jm].has("states")) {
++      eckit::LocalConfiguration memConf;
++      memConf.set("increment", memConfs[jm].getSubConfiguration("states"));
++      dx.read(memConf);
 +    } else {
 +      ASSERT(times.size() == 1);
 +      dx[0].read(memConfs[jm]);

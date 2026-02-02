@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-01-30 16:40:46.138465509 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-01-30 16:25:36.482617402 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-02-02 14:49:16.344056056 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-02-02 14:07:52.296750756 +0100
 @@ -26,17 +26,16 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
@@ -198,7 +198,7 @@
 -                            geom.functionSpace(),
 -                            data[jj].fieldSet().fieldSet(),
 -                            diagPoints[jj].fieldSet().fieldSet());
-+    for (int jj = data.first(); jj <= data.last(); ++jj) {
++    for (size_t jj = 0; jj < data.times().size(); ++jj) {
 +      util::printDiagValues(oops::mpi::myself(),
 +                            geom.geometry().getComm(),
 +                            geom.geometry().functionSpace(),
@@ -212,7 +212,7 @@
    oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
  
 -  if (data.size() > 1) {
-+  if (data.last()-data.first()+1 > 1) {
++  if (data.times().size() > 1) {
      throw eckit::NotImplemented("Not implemented for 4D covariances", Here());
    }
  
@@ -345,7 +345,7 @@
              // Add background state to perturbation
              State4D_ xp(xx);
 -            xp += dx;
-+            for (int jsub = dx.first(); jsub <= dx.last(); ++jsub) {
++            for (int jsub = 0; jsub < dx.times().size(); ++jsub) {
 +              xp[jsub-dx.first()] += dx[jsub];
 +            }
  
@@ -356,7 +356,7 @@
          // Square perturbation
          dxsq = dx;
 -        dxsq.schur_product_with(dx);
-+        for (int jsub = dx.first(); jsub <= dx.last(); ++jsub) {
++        for (int jsub = 0; jsub < dx.times().size(); ++jsub) {
 +          dxsq[jsub].schur_product_with(dx[jsub]);
 +        }
  
