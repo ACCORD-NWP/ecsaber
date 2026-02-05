@@ -1,5 +1,6 @@
 dirac_biperiodization_1
 dirac_biperiodization_2
+dirac_bump_1
 dirac_bump_2
 dirac_bump_3
 dirac_bump_4

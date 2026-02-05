@@ -194,6 +194,10 @@ Covariance(SABER2_SABER) * Increment:
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
+Adjoint test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Adjoint test for block Ensemble passed
+Square-root test for block Ensemble passed
 Covariance(SABER3_SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
@@ -225,6 +229,12 @@ Covariance(SABER3_SABER) * Increment:
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
+Adjoint test for block BUMP_NICAS passed
+Adjoint test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Adjoint test for block Ensemble passed
+Square-root test for block Ensemble passed
 Covariance(SABER4_SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]

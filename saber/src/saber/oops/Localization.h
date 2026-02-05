@@ -85,9 +85,19 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
     incVars[i].setLevels(vlevs[i]);
   }
 
-  // Create dummy xb and fg
+  // Create dummy FieldSet3D
   oops::FieldSet3D fset3d(dummyTime, eckit::mpi::comm());
   fset3d.deepCopy(util::createFieldSet(geom.geometry().functionSpace(), incVars, 0.0));
+
+  // Add nearest 3D level metadata if needed
+  if (conf.has("nearest 3d level")) {
+    const int nearest3dLevel = conf.getInt("nearest 3d level");
+    for (auto & field : fset3d) {
+      field.metadata().set("nearest 3d level", nearest3dLevel);
+    }
+  }
+
+  // Create dummy xb and fg
   oops::FieldSet4D xb4d(fset3d);
   oops::FieldSet4D fg4d(fset3d);
 

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_3.ref.tmp.bak	2026-02-02 20:04:49.181154409 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_3.ref	2026-02-02 19:50:12.210239490 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_3.ref.tmp.bak	2026-02-05 12:57:43.523600625 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_3.ref	2026-02-05 11:56:51.785981056 +0100
 @@ -92,7 +92,7 @@
  Square-root test for block BUMP_NICAS passed
  Adjoint test for block Ensemble passed
@@ -92,7 +92,7 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -274,52 +216,7 @@
+@@ -274,52 +216,11 @@
               Level   2 ~> 100.0%
               Level   1 ~>  0.100E+01 vert. coord.
               Level   2 ~>  0.200E+01 vert. coord.
@@ -137,25 +137,19 @@
 -             Level   2 ~> 100.0%
 -             Level   1 ~>  0.100E+01 vert. coord.
 -             Level   2 ~>  0.200E+01 vert. coord.
--Adjoint test for block BUMP_NICAS passed
--Square-root test for block BUMP_NICAS passed
--Adjoint test for block Ensemble passed
--Square-root test for block Ensemble passed
+ Adjoint test for block BUMP_NICAS passed
+ Square-root test for block BUMP_NICAS passed
+ Adjoint test for block Ensemble passed
+ Square-root test for block Ensemble passed
 -Covariance(hybrid3_SABER) * Increment:
 +Covariance(SABER3_SABER) * Increment:
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -357,13 +254,7 @@
-              Level   2 ~> 100.0%
-              Level   1 ~>  0.100E+01 vert. coord.
-              Level   2 ~>  0.200E+01 vert. coord.
--Adjoint test for block BUMP_NICAS passed
--Adjoint test for block BUMP_NICAS passed
--Square-root test for block BUMP_NICAS passed
--Square-root test for block BUMP_NICAS passed
--Adjoint test for block Ensemble passed
--Square-root test for block Ensemble passed
+@@ -363,7 +264,7 @@
+ Square-root test for block BUMP_NICAS passed
+ Adjoint test for block Ensemble passed
+ Square-root test for block Ensemble passed
 -Covariance(hybrid4_SABER) * Increment:
 +Covariance(SABER4_SABER) * Increment:
  - Valid time: 2010-01-01T12:00:00Z

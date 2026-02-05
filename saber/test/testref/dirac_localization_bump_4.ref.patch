@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_4.ref.tmp.bak	2026-02-02 20:04:49.312153235 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_4.ref	2026-02-02 19:50:42.874529267 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_4.ref.tmp.bak	2026-02-05 12:57:43.658601625 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_4.ref	2026-02-05 11:57:10.057187718 +0100
 @@ -63,7 +63,7 @@
  Square-root test for block BUMP_NICAS passed
  Adjoint test for block Ensemble passed
@@ -69,7 +69,7 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -195,41 +153,7 @@
+@@ -195,41 +153,11 @@
               Level   2 ~> 100.0%
               Level   1 ~>  0.100E+01 vert. coord.
               Level   2 ~>  0.200E+01 vert. coord.
@@ -103,23 +103,19 @@
 -             Level   2 ~> 100.0%
 -             Level   1 ~>  0.100E+01 vert. coord.
 -             Level   2 ~>  0.200E+01 vert. coord.
--Adjoint test for block BUMP_NICAS passed
--Square-root test for block BUMP_NICAS passed
--Adjoint test for block Ensemble passed
--Square-root test for block Ensemble passed
+ Adjoint test for block BUMP_NICAS passed
+ Square-root test for block BUMP_NICAS passed
+ Adjoint test for block Ensemble passed
+ Square-root test for block Ensemble passed
 -Covariance(hybrid3_SABER) * Increment:
 +Covariance(SABER3_SABER) * Increment:
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -255,11 +179,7 @@
-              Level   2 ~> 100.0%
-              Level   1 ~>  0.100E+01 vert. coord.
-              Level   2 ~>  0.200E+01 vert. coord.
--Adjoint test for block BUMP_NICAS passed
--Square-root test for block BUMP_NICAS passed
--Adjoint test for block Ensemble passed
--Square-root test for block Ensemble passed
+@@ -259,7 +187,7 @@
+ Square-root test for block BUMP_NICAS passed
+ Adjoint test for block Ensemble passed
+ Square-root test for block Ensemble passed
 -Covariance(hybrid4_SABER) * Increment:
 +Covariance(SABER4_SABER) * Increment:
  - Valid time: 2010-01-01T12:00:00Z

@@ -127,7 +127,7 @@ class SaberHybridBlockChain : public SaberBlockChainBase {
 
  private:
   /// Function space
-  const atlas::FunctionSpace outerFunctionSpace_;
+  const atlas::FunctionSpace & outerFunctionSpace_;
   /// JediVariables
   const oops::JediVariables outerVariables_;
 
@@ -260,7 +260,12 @@ void SaberHybridBlockChain<MODEL>::randomize(oops::FieldSet4D & fset4d) const {
 
   // Initialize FieldSet4D
   for (size_t jtime = 0; jtime < fset4d.size(); ++jtime) {
-    fset4d[jtime].init(outerFunctionSpace_, outerVariables_);
+    if (outerBlockChain_) {
+      fset4d[jtime].init(outerBlockChain_->innerGeometryData().functionSpace(),
+        outerBlockChain_->innerVars());
+    } else {
+      fset4d[jtime].init(outerFunctionSpace_, outerVariables_);
+    }
   }
   fset4d.zero();
 

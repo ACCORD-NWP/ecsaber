@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberHybridBlockChain.h.tmp.bak	2026-01-30 16:40:45.516461892 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberHybridBlockChain.h	2026-01-30 16:19:43.225604029 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberHybridBlockChain.h.tmp.bak	2026-02-05 11:26:23.584763395 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberHybridBlockChain.h	2026-02-05 11:28:06.162311851 +0100
 @@ -20,7 +20,7 @@
  #include "oops/base/FieldSet3D.h"
  #include "oops/base/FieldSet4D.h"
@@ -9,15 +9,6 @@
  #include "oops/base/State4D.h"
  #include "oops/base/Variables.h"
  #include "oops/util/ConfigFunctions.h"
-@@ -127,7 +127,7 @@
- 
-  private:
-   /// Function space
--  const atlas::FunctionSpace & outerFunctionSpace_;
-+  const atlas::FunctionSpace outerFunctionSpace_;
-   /// JediVariables
-   const oops::JediVariables outerVariables_;
- 
 @@ -157,7 +157,7 @@
                         oops::FieldSet4D & fset4dXb,
                         oops::FieldSet4D & fset4dFg,
@@ -203,7 +194,7 @@
        if (weightParams.file.value()) {
          // File-base weight
          readHybridWeight(*hybridGeom,
-@@ -406,56 +265,7 @@
+@@ -411,56 +270,7 @@
    fset4d.zero();
  
    if (parallelHybrid_) {
@@ -261,7 +252,7 @@
    } else {
      // Loop over components for the central block
      for (size_t jj = 0; jj < hybridBlockChain_.size(); ++jj) {
-@@ -499,73 +309,7 @@
+@@ -504,73 +314,7 @@
  
    // Loop over B components
    if (parallelHybrid_) {
