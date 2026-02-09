@@ -80,14 +80,8 @@ class FastLAM : public SaberCentralBlockBase {
     override;
 
  private:
-  // Model grid geometry data
-  const oops::GeometryData & gdata_;
-
   // Communicator
   const eckit::mpi::Comm & comm_;
-
-  // Active variables
-  const oops::JediVariables activeVars_;
 
   // Active 2D variables
   oops::JediVariables active2dVars_;

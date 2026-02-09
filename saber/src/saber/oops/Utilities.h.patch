@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-01-30 16:40:46.093465247 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-01-30 14:09:30.422420107 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-02-09 13:47:04.409680732 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-02-09 13:53:10.174589209 +0100
 @@ -21,13 +21,12 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -17,23 +17,15 @@
  #include "oops/util/ConfigFunctions.h"
  #include "oops/util/DateTime.h"
  #include "oops/util/FieldSetHelpers.h"
-@@ -40,6 +39,7 @@
- #include "saber/blocks/SaberCentralBlock.h"
- #include "saber/blocks/SaberOuterBlockBase.h"
- #include "saber/oops/ErrorCovarianceParameters.h"
+@@ -37,6 +36,7 @@
+ #include "oops/util/ParallelFieldSetIO.h"
+ 
+ #include "saber/blocks/SaberBlockParametersBase.h"
 +#include "oops/util/ECUtilities.h"
  
  namespace oops {
    class FieldSet3D;
-@@ -56,6 +56,7 @@
- 
- oops::JediVariables getActiveVars(const SaberBlockParametersBase & params,
-                               const oops::JediVariables & defaultVars);
-+
- // -----------------------------------------------------------------------------
- 
- oops::JediVariables getUnionOfInnerActiveAndOuterVars(const SaberBlockParametersBase & params,
-@@ -160,19 +161,26 @@
+@@ -153,19 +153,26 @@
      if (!ensembleConf.empty()) {
        oops::Log::info() << "Info     : Ensemble of states, perturbation using the mean"
                          << std::endl;
@@ -67,7 +59,7 @@
        return fsetEns;
      }
  
-@@ -180,13 +188,7 @@
+@@ -173,13 +180,7 @@
      if (!ensembleBaseConf.empty() && !ensemblePairsConf.empty()) {
        oops::Log::info() << "Info     : Increment ensemble from difference of two states"
                          << std::endl;
@@ -82,7 +74,7 @@
      }
  
      // Increment ensemble from increments on disk on other geometry
-@@ -240,7 +242,7 @@
+@@ -233,7 +234,7 @@
          // Read perturbations into oops::FieldSets
          oops::FieldSets fsetEns(fspace, vars, io, times,
                                  ensemblePertOtherGeomConf,
@@ -91,7 +83,7 @@
  
          return fsetEns;
        } else {
-@@ -275,13 +277,13 @@
+@@ -268,13 +269,13 @@
    eckit::LocalConfiguration localConf(conf);
  
    // Create Increment
@@ -107,7 +99,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -302,13 +304,14 @@
+@@ -295,13 +296,14 @@
    size_t ensembleFound = 0;
  
    if (conf.has("ensemble")) {
@@ -125,7 +117,7 @@
  
      ++ensembleFound;
    }
-@@ -319,33 +322,18 @@
+@@ -312,33 +314,18 @@
        conf.getSubConfiguration("ensemble pert"), ie);
  
      // Read Increment

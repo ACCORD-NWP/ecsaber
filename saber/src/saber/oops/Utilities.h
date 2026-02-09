@@ -36,9 +36,6 @@
 #include "oops/util/ParallelFieldSetIO.h"
 
 #include "saber/blocks/SaberBlockParametersBase.h"
-#include "saber/blocks/SaberCentralBlock.h"
-#include "saber/blocks/SaberOuterBlockBase.h"
-#include "saber/oops/ErrorCovarianceParameters.h"
 #include "oops/util/ECUtilities.h"
 
 namespace oops {
@@ -46,11 +43,6 @@ namespace oops {
 }
 
 namespace saber {
-
-// -----------------------------------------------------------------------------
-
-oops::JediVariables getActiveVars(const SaberCentralBlockParameters & params,
-                              const oops::JediVariables & defaultVars);
 
 // -----------------------------------------------------------------------------
 

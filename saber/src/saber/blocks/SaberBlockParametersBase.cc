@@ -38,4 +38,29 @@ bool SaberBlockParametersBase::doRead() const {
 
 // -----------------------------------------------------------------------------
 
+oops::JediVariables SaberBlockParametersBase::getActiveVars(const oops::JediVariables & defaultVars) const {
+  oops::JediVariables activeVars_nomd;
+  if (this->mandatoryActiveVars().size() == 0) {
+    // No mandatory active variables for this block
+    activeVars_nomd = this->activeVars.value().get_value_or(defaultVars);
+  } else {
+    // Block with mandatory active variables
+    activeVars_nomd = this->activeVars.value().get_value_or(this->mandatoryActiveVars());
+    ASSERT(this->mandatoryActiveVars() <= activeVars_nomd);
+  }
+  // Copy the variables that exist in defaultVars from defaultVars (they have metadata
+  // associated with them)
+  oops::JediVariables activeVars;
+  for (auto & var : activeVars_nomd) {
+    if (defaultVars.has(var.name())) {
+      activeVars.push_back(defaultVars[var.name()]);
+    } else {
+      activeVars.push_back(var);
+    }
+  }
+  return activeVars;
+}
+
+// -----------------------------------------------------------------------------
+
 }  // namespace saber

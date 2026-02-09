@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-01-30 12:45:54.576860287 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-01-30 10:05:19.219396088 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-02-09 13:47:03.355675504 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-02-09 13:51:57.207196120 +0100
 @@ -18,9 +18,10 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -13,7 +13,7 @@
  #include "oops/util/FieldSetHelpers.h"
  #include "oops/util/Logger.h"
  #include "oops/util/Random.h"
-@@ -217,7 +218,7 @@
+@@ -218,7 +219,7 @@
                         oops::FieldSet4D & fset4dXb,
                         oops::FieldSet4D & fset4dFg,
                         const eckit::Configuration & conf)
@@ -22,7 +22,7 @@
    oops::Log::trace() << "SaberEnsembleBlockChain ctor starting" << std::endl;
  
    // Deserialize parameters and fill configuration with missing values
-@@ -254,7 +255,7 @@
+@@ -255,7 +256,7 @@
    oops::JediVariables currentOuterVars = outerBlockChain_ ?
                                       outerBlockChain_->innerVars() : outerVars;
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
@@ -31,7 +31,7 @@
  
    // Get active variables
    const oops::JediVariables activeVars = currentOuterVars;
-@@ -282,7 +283,7 @@
+@@ -283,7 +284,7 @@
    // Read inflation field
    const double inflationValue = params.inflationValue;
    oops::Log::info() << "Info     : Read inflation field" << std::endl;
@@ -40,7 +40,7 @@
    if (params.inflationField.value()) {
      const auto & inflationParams = *params.inflationField.value();
      // Read ATLAS inflation file
-@@ -305,11 +306,11 @@
+@@ -306,11 +307,11 @@
        // Copy file
        // Read fieldsets as increments
        // Create increment
@@ -54,7 +54,7 @@
      }
    }
  
-@@ -416,7 +417,7 @@
+@@ -417,7 +418,7 @@
  
      // Get interpolator outer geometry data
      const oops::GeometryData & interpolatorOuterGeomData = outerBlockChain_ ?
@@ -63,7 +63,7 @@
  
      // Interpolator outer block chain
      if (scaleParams.interpolatorParams.value()) {
-@@ -468,7 +469,7 @@
+@@ -469,7 +470,7 @@
  
        // Check consistency of `geom` and the current geometry
        const auto & currentFspace = filterOuterGeomData.functionSpace();
@@ -72,7 +72,7 @@
          oops::Log::info() << "Info     : Localization and ensemble are on different "
                               "functionSpaces, building localization with generic "
                               "constructor" << std::endl;
-@@ -476,7 +477,7 @@
+@@ -477,7 +478,7 @@
          // constructor, but other models usually don't have this ability to create a
          // Geometry on any mesh.
          scaleData.localization() = std::make_unique<SaberParametricBlockChain>(filterOuterGeomData,
@@ -81,7 +81,7 @@
                                                                       currentOuterVars,
                                                                       fset4dXb,
                                                                       fset4dFg,
-@@ -612,10 +613,10 @@
+@@ -613,10 +614,10 @@
          for (size_t ie = 0; ie < scaleData.ensemble()->ens_size(); ++ie) {
            // Should be on the model geometry!
            auto pert = oops::Increment<MODEL>(geom,

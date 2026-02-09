@@ -1,7 +1,7 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_1.ref.tmp.bak	2026-02-05 12:57:43.617601321 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_1.ref	2026-02-05 11:55:37.337108957 +0100
-@@ -91,7 +91,7 @@
- Square-root test for block BUMP_NICAS passed
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_1.ref.tmp.bak	2026-02-09 13:47:12.808722464 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_1.ref	2026-02-09 13:55:28.385345815 +0100
+@@ -93,7 +93,7 @@
+ Square-root test for the multivariate central block passed
  Adjoint test for block Ensemble passed
  Square-root test for block Ensemble passed
 -Covariance(hybrid) * Increment:
@@ -9,7 +9,7 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -139,7 +139,7 @@
+@@ -141,7 +141,7 @@
               ns =                             1178
               v%n_s =                             2
               c%n_s[global] =                 28436
@@ -18,7 +18,7 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -163,58 +163,6 @@
+@@ -165,58 +165,6 @@
               Level   2 ~> 100.0%
               Level   1 ~>  0.100E+01 vert. coord.
               Level   2 ~>  0.200E+01 vert. coord.
@@ -77,7 +77,7 @@
         Independent levels:  1[2]
            Subset Sc0 size:              762
            Domain area (% of Earth area): 0.100E+03%
-@@ -222,7 +170,7 @@
+@@ -224,7 +172,7 @@
               Level   2 ~> 100.0%
               Level   1 ~>  0.100E+01 vert. coord.
               Level   2 ~>  0.200E+01 vert. coord.
@@ -86,7 +86,7 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -246,46 +194,11 @@
+@@ -248,46 +196,11 @@
               Level   2 ~> 100.0%
               Level   1 ~>  0.100E+01 vert. coord.
               Level   2 ~>  0.200E+01 vert. coord.
@@ -134,8 +134,8 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -322,7 +235,7 @@
- Square-root test for block BUMP_NICAS passed
+@@ -326,7 +239,7 @@
+ Square-root test for the multivariate central block passed
  Adjoint test for block Ensemble passed
  Square-root test for block Ensemble passed
 -Covariance(hybrid4_SABER) * Increment:

@@ -117,7 +117,7 @@ std::tuple<const SaberBlockParametersBase&, oops::JediVariables, oops::JediVaria
                                    outerVars : innerVars();
 
   // Get active variables
-  const oops::JediVariables activeVars = getActiveVars(saberOuterBlockParams, currentOuterVars);
+  const oops::JediVariables activeVars = saberOuterBlockParams.getActiveVars(currentOuterVars);
 
   if (saberOuterBlockParams.rightInverse.value()) {
     // Creating inverse of a following outer block

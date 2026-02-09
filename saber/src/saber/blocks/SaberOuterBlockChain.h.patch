@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2026-01-30 12:45:54.393859515 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2026-01-30 10:59:40.513807855 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h.tmp.bak	2026-02-09 13:47:02.782672662 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberOuterBlockChain.h	2026-02-09 13:48:52.705227621 +0100
 @@ -21,7 +21,7 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -9,7 +9,7 @@
  #include "oops/base/GeometryData.h"
  #include "oops/interface/ModelData.h"
  
-@@ -253,7 +253,7 @@
+@@ -263,7 +263,7 @@
    for (int jb = params.size()-1; jb >= 0; --jb) {
      // Initialize current outer geometry data
      const oops::GeometryData & currentOuterGeometryData = outerBlocks_.size() == 0 ?
@@ -18,7 +18,7 @@
  
      // Initialize outer block
      const auto[saberOuterBlockParams,
-@@ -368,7 +368,7 @@
+@@ -378,7 +378,7 @@
  
      for (size_t ie = 0; ie < nens; ++ie) {
        // Read ensemble member

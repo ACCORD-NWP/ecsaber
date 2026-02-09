@@ -1,4 +1,4 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberHybridBlockChain.h.tmp.bak	2026-02-05 11:26:23.584763395 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberHybridBlockChain.h.tmp.bak	2026-02-09 13:47:02.754672524 +0100
 +++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberHybridBlockChain.h	2026-02-05 11:28:06.162311851 +0100
 @@ -20,7 +20,7 @@
  #include "oops/base/FieldSet3D.h"
@@ -72,7 +72,7 @@
 -    const size_t myTask = defaultSpaceComm.rank();
 -
 -    // Set myComponent_  tasksPerComponent
--    size_t tasksPerComponent;
+-    size_t tasksPerComponent = 0;
 -    for (size_t component = 0; component < nComponents; ++component) {
 -      if ((myTask >= globalTaskOffsetPerComponent[component]) &&
 -          (myTask < globalTaskOffsetPerComponent[component+1])) {
