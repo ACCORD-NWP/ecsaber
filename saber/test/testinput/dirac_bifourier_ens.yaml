@@ -41,6 +41,7 @@ background error:
   square-root test: true
   square-root tolerance: 1.0e-9
   inverse test: true
+  run components recursively: true
   ensemble:
     members from template:
       template:

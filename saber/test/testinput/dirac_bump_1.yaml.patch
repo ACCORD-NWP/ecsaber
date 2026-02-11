@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_1.yaml.tmp	2026-02-04 13:48:28.423897256 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_1.yaml	2026-02-04 13:47:13.534455656 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_1.yaml.tmp.bak	2026-02-11 15:00:25.556739741 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_1.yaml	2026-02-11 15:13:06.010763201 +0100
 @@ -5,10 +5,6 @@
      N: 10
    groups:
@@ -269,6 +269,6 @@
 +      filepath: testdata/randomization_bump_nicas_L10L2T18/_MPI_-_OMP__member_000024
 +    - date: 2010-01-01T18:00:00Z
 +      filepath: testdata/randomization_bump_nicas_L10L2T18/_MPI_-_OMP__member_000025
+ parallel subwindows: false
  dirac:
  - lon:
-   - 0.0

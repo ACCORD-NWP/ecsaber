@@ -10,9 +10,10 @@ Input Dirac increment:
   - air_horizontal_velocity_potential (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-parametric) dirac test:
 Adjoint test for block ID passed
 Square-root test for block ID passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F10 [800]
   Fields:

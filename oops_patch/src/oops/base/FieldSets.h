@@ -55,7 +55,7 @@ class FieldSets : public DataSetBase<FieldSet3D, atlas::FunctionSpace> {
             const eckit::mpi::Comm & = oops::mpi::myself(),
             const eckit::mpi::Comm & = oops::mpi::myself());
 
-  /// @brief Emplace back FieldSet3D in empty FieldSets
+  /// @brief Emplace back FieldSet3D in FieldSets
   void emplace_back(const size_t &,
                     const size_t &,
                     const FieldSet3D &);

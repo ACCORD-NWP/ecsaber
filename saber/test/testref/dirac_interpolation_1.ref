@@ -7,11 +7,12 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 1.1574074074074073e-03
     + stddev = 3.4020690871988765e-02
+Covariance(SABER-parametric) dirac test:
 Adjoint test for block gauss to cubed-sphere-dual passed
 Inner inverse test for block gauss to cubed-sphere-dual passed: U Uinv (U x) == (U x)
 Outer inverse test for block gauss to cubed-sphere-dual passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block ID passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:

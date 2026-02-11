@@ -19,6 +19,7 @@ Input Dirac increment:
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-parametric) dirac test:
 - xspace: LocalConfiguration[root={type => linear , start => 5.1870971254055749e+05 , end => 6.9870971254055749e+05 , N => 73 , endpoint => true}]
 - yspace: LocalConfiguration[root={type => linear , start => -1.8673080099392682e+04 , end => 1.0632691990060732e+05 , N => 51 , endpoint => true}]
 Outer grid size: 3723
@@ -49,7 +50,7 @@ Inner inverse test for block BifourierAromeBalance passed: U Uinv (U x) == (U x)
 Outer inverse test for block BifourierAromeBalance passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block BifourierAromeCovariance passed
 Square-root test for block BifourierAromeCovariance passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3723]
   Fields:

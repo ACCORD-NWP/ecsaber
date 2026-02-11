@@ -22,6 +22,7 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 5.3418803418803419e-05
     + stddev = 7.3088168275599876e-03
+Covariance(SABER-parametric) dirac test:
 - xspace: LocalConfiguration[root={type => linear , start => 5.4495971254055749e+05 , end => 6.7245971254055749e+05 , N => 52 , endpoint => true}]
 - yspace: LocalConfiguration[root={type => linear , start => 7.6919900607317686e+01 , end => 8.7576919900607318e+04 , N => 36 , endpoint => true}]
 Outer grid size: 1872
@@ -49,7 +50,7 @@ Inner inverse test for block BifourierSpectralToGrid passed: U Uinv (U x) == (U 
 Outer inverse test for block BifourierSpectralToGrid passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block BifourierCovariance passed
 Square-root test for block BifourierCovariance passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [1872]
   Fields:

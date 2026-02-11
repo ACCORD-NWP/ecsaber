@@ -29,6 +29,7 @@ background error:
         vertical:
           levels: *levels
           filepath: testdata/error_covariance_training_diffusion_1/vt-_MPI_-_OMP_
+parallel subwindows: false
 dirac:
   lon:
   - 0.01

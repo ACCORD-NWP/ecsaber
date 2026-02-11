@@ -37,26 +37,13 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 1.2226134585289515e-05
     + stddev = 3.4965889928992807e-03
+Covariance(SABER-parametric) dirac test:
 Adjoint test for block mo vertical interpolation for localization passed
 Adjoint test for block mo_vertical_localization passed
 Adjoint test for block spectral to gauss passed
 Adjoint test for block spectral analytical filter passed
 Adjoint test for block ID passed
-Covariance(SABER) diagnostics:
-- Variances at Dirac points:
-  + Value for variable var1, subwindow 0, at (longitude, latitude, vertical index) point (240.00000, 84.37646, 65): 1.1522331746599182e-01
-  + Value for variable var2, subwindow 0, at (longitude, latitude, vertical index) point (15.00000, 62.42622, 70): 1.1522331746599181e-01
-  + Value for variable var1_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 33.05347, 1): 1.1522331746599183e-01
-  + Value for variable var2_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (90.00000, 3.67270, 65): 1.1402712139744763e-01
-  + Value for variable var1_levels, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 33.05347, 1): 1.1522331746599183e-01
-  + Value for variable var2_levels, subwindow 0, at (longitude, latitude, vertical index) point (90.00000, 3.67270, 65): 1.1402712139744763e-01
-  + Value for variable var3_levels, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 71): 1.1522331746599179e-01
-- Covariances at diagnostic points:
-  + Value for variable var1, subwindow 0, at (longitude, latitude, vertical index) point (240.00000, 33.05347, 1): 1.5894858119770299e-02
-  + Value for variable var2, subwindow 0, at (longitude, latitude, vertical index) point (60.00000, 3.67270, 2): 2.2646886133176638e-02
-  + Value for variable var1_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (195.00000, 69.76378, 1): 9.2714277292209726e-02
-  + Value for variable var1_levels, subwindow 0, at (longitude, latitude, vertical index) point (90.00000, 33.05347, 1): 4.9433025513610458e-02
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F12 [1152]
   Fields:
@@ -95,3 +82,17 @@ Covariance(SABER) * Increment:
     + max    = 1.1522331746599179e-01
     + mean   = 1.6472201954486645e-02
     + stddev = 1.7184506161755635e-02
+Covariance(SABER-parametric) diagnostics:
+- Variances at Dirac points:
+  + Value for variable var1, subwindow 0, at (longitude, latitude, vertical index) point (240.00000, 84.37646, 65): 1.1522331746599182e-01
+  + Value for variable var2, subwindow 0, at (longitude, latitude, vertical index) point (15.00000, 62.42622, 70): 1.1522331746599181e-01
+  + Value for variable var1_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 33.05347, 1): 1.1522331746599183e-01
+  + Value for variable var2_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (90.00000, 3.67270, 65): 1.1402712139744763e-01
+  + Value for variable var1_levels, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 33.05347, 1): 1.1522331746599183e-01
+  + Value for variable var2_levels, subwindow 0, at (longitude, latitude, vertical index) point (90.00000, 3.67270, 65): 1.1402712139744763e-01
+  + Value for variable var3_levels, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 71): 1.1522331746599179e-01
+- Covariances at diagnostic points:
+  + Value for variable var1, subwindow 0, at (longitude, latitude, vertical index) point (240.00000, 33.05347, 1): 1.5894858119770299e-02
+  + Value for variable var2, subwindow 0, at (longitude, latitude, vertical index) point (60.00000, 3.67270, 2): 2.2646886133176638e-02
+  + Value for variable var1_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (195.00000, 69.76378, 1): 9.2714277292209726e-02
+  + Value for variable var1_levels, subwindow 0, at (longitude, latitude, vertical index) point (90.00000, 33.05347, 1): 4.9433025513610458e-02

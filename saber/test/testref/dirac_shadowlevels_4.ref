@@ -7,6 +7,7 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 1.4120304998587970e-04
     + stddev = 1.1882888957904500e-02
+Covariance(SABER-parametric) dirac test:
 Norm of output parameter rv: 5.0492771759925468e+01
 Norm of output parameter weight: 8.4154619599865256e+01
        Independent levels:  1[11]
@@ -54,7 +55,7 @@ Norm of output parameter weight: 8.4154619599865256e+01
           Communication AC adjoint test result:            T
           Convolution / communication adjoint test result: T
           Component NICAS adjoint test result:             T
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L120x61 [7320]
   Fields:

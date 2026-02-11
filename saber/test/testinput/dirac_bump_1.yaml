@@ -132,6 +132,7 @@ background error:
       filepath: testdata/randomization_bump_nicas_L10L2T18/_MPI_-_OMP__member_000024
     - date: 2010-01-01T18:00:00Z
       filepath: testdata/randomization_bump_nicas_L10L2T18/_MPI_-_OMP__member_000025
+parallel subwindows: false
 dirac:
 - lon:
   - 0.0

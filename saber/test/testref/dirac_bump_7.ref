@@ -16,6 +16,7 @@ Input Dirac increment:
   - air_pressure_at_surface (1 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-parametric) dirac test:
        Independent levels:  1[4]
           Subset Sc0 size:             3170
           Domain area (% of Earth area): 0.100E+03%
@@ -49,7 +50,7 @@ Adjoint test for block StdDev passed
              Level   1 ~>  0.100E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L72x46 [3312]
   Fields:

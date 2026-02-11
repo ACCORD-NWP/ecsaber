@@ -1,6 +1,6 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_1.ref.tmp.bak	2026-02-09 13:47:12.808722464 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_1.ref	2026-02-09 13:55:28.385345815 +0100
-@@ -93,7 +93,7 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_1.ref.tmp.bak	2026-02-11 15:00:27.351992571 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_bump_1.ref	2026-02-11 15:17:07.069296276 +0100
+@@ -94,7 +94,7 @@
  Square-root test for the multivariate central block passed
  Adjoint test for block Ensemble passed
  Square-root test for block Ensemble passed
@@ -9,7 +9,7 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -141,7 +141,7 @@
+@@ -143,7 +143,7 @@
               ns =                             1178
               v%n_s =                             2
               c%n_s[global] =                 28436
@@ -18,128 +18,12 @@
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:
-@@ -165,58 +165,6 @@
-              Level   2 ~> 100.0%
-              Level   1 ~>  0.100E+01 vert. coord.
-              Level   2 ~>  0.200E+01 vert. coord.
--             Effective levels:   1   2 
--                Horizontal support radius:    6000.00 km (   6000.00 km -    6000.00 km)
--                Estimated nc1 from horizontal support radius:      261
--                   Decimate full grid, at least      261 points required,     762 valid points found
--                   Subgrid hash:   -216098172
--                Final nc1:      261
--                Effective horizontal resolution:  3.99
--             nc1(  1) =                        261
--             nc1(  2) =                        261
--             ns =                              522
--             v%n_s =                             2
--             c%n_s[global] =                 13688
--             Effective levels:   1   2 
--                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
--                Estimated nc1 from horizontal support radius:      589
--                   Decimate full grid, at least      589 points required,     762 valid points found
--                   Subgrid hash:   1676590011
--                Final nc1:      589
--                Effective horizontal resolution:  4.00
--             nc1(  1) =                        589
--             nc1(  2) =                        589
--             ns =                             1178
--             v%n_s =                             2
--             c%n_s[global] =                 28436
--Localization(hybrid1_ensemble_localization) diagnostics:
--- Localization at zero separation:
--  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999956e-01
--  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
--Localization(hybrid1_ensemble) * Increment:
--- Valid time: 2010-01-01T12:00:00Z
--  Geometry: L40x21 [840]
--  Fields:
--  - eastward_wind (2 levels):
--    + min close to zero
--    + max    = 9.9999999999999956e-01
--    + mean   = 2.3360110528429061e-02
--    + stddev = 9.8541774629410106e-02
--  - northward_wind (2 levels):
--    + min    = 0.0000000000000000e+00
--    + max    = 0.0000000000000000e+00
--  - air_horizontal_streamfunction (2 levels):
--    + min close to zero
--    + max    = 1.0000000000000002e+00
--    + mean   = 6.7588404393921202e-03
--    + stddev = 5.4149030644156722e-02
--       Independent levels:  1[2]
--          Subset Sc0 size:              762
--          Domain area (% of Earth area): 0.100E+03%
--             Level   1 ~> 100.0%
--             Level   2 ~> 100.0%
--             Level   1 ~>  0.100E+01 vert. coord.
--             Level   2 ~>  0.200E+01 vert. coord.
-        Independent levels:  1[2]
-           Subset Sc0 size:              762
-           Domain area (% of Earth area): 0.100E+03%
-@@ -224,7 +172,7 @@
+@@ -228,7 +228,7 @@
               Level   2 ~> 100.0%
               Level   1 ~>  0.100E+01 vert. coord.
               Level   2 ~>  0.200E+01 vert. coord.
 -Covariance(hybrid2_ensemble) * Increment:
 +Covariance(SABER2_SABER) * Increment:
- - Valid time: 2010-01-01T12:00:00Z
-   Geometry: L40x21 [840]
-   Fields:
-@@ -248,46 +196,11 @@
-              Level   2 ~> 100.0%
-              Level   1 ~>  0.100E+01 vert. coord.
-              Level   2 ~>  0.200E+01 vert. coord.
--       Independent levels:  1[2]
--          Subset Sc0 size:              762
--          Domain area (% of Earth area): 0.100E+03%
--             Level   1 ~> 100.0%
--             Level   2 ~> 100.0%
--             Level   1 ~>  0.100E+01 vert. coord.
--             Level   2 ~>  0.200E+01 vert. coord.
--Localization(hybrid2_ensemble_localization) diagnostics:
--- Localization at zero separation:
--  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999956e-01
--  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
--Localization(hybrid2_ensemble) * Increment:
--- Valid time: 2010-01-01T12:00:00Z
--  Geometry: L40x21 [840]
--  Fields:
--  - eastward_wind (2 levels):
--    + min close to zero
--    + max    = 9.9999999999999956e-01
--    + mean   = 2.3360110528429061e-02
--    + stddev = 9.8541774629410106e-02
--  - northward_wind (2 levels):
--    + min    = 0.0000000000000000e+00
--    + max    = 0.0000000000000000e+00
--  - air_horizontal_streamfunction (2 levels):
--    + min close to zero
--    + max    = 1.0000000000000002e+00
--    + mean   = 6.7588404393921202e-03
--    + stddev = 5.4149030644156722e-02
--       Independent levels:  1[2]
--          Subset Sc0 size:              762
--          Domain area (% of Earth area): 0.100E+03%
--             Level   1 ~> 100.0%
--             Level   2 ~> 100.0%
--             Level   1 ~>  0.100E+01 vert. coord.
--             Level   2 ~>  0.200E+01 vert. coord.
- Adjoint test for block BUMP_NICAS passed
- Square-root test for block BUMP_NICAS passed
- Adjoint test for block Ensemble passed
- Square-root test for block Ensemble passed
--Covariance(hybrid3_SABER) * Increment:
-+Covariance(SABER3_SABER) * Increment:
- - Valid time: 2010-01-01T12:00:00Z
-   Geometry: L40x21 [840]
-   Fields:
-@@ -326,7 +239,7 @@
- Square-root test for the multivariate central block passed
- Adjoint test for block Ensemble passed
- Square-root test for block Ensemble passed
--Covariance(hybrid4_SABER) * Increment:
-+Covariance(SABER4_SABER) * Increment:
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:

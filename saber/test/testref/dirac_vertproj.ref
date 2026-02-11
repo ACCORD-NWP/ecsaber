@@ -16,11 +16,12 @@ Input Dirac increment:
   - eastward_wind (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-parametric) dirac test:
 Adjoint test for block simple vertical projection passed
 Inner inverse test for block simple vertical projection passed: U Uinv (U x) == (U x)
 Outer inverse test for block simple vertical projection passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block ID passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2016-01-01T16:00:00Z
   Geometry: F12 [1152]
   Fields:

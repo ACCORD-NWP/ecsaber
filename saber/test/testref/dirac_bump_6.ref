@@ -10,6 +10,7 @@ Input Dirac increment:
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(hybrid) dirac test:
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
 Covariance(SABER) * Increment:
@@ -26,9 +27,10 @@ Covariance(SABER) * Increment:
     + max    = 5.9924954825054466e-01
     + mean   = -1.5150635424641333e-02
     + stddev = 1.9061663485918223e-01
+Covariance(hybrid1_SABER-ensemble) dirac test:
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER1_SABER) * Increment:
+Covariance(hybrid1_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -42,7 +44,8 @@ Covariance(SABER1_SABER) * Increment:
     + max    = 5.9924954825054466e-01
     + mean   = -1.5150635424641333e-02
     + stddev = 1.9061663485918223e-01
-Covariance(SABER2_SABER) * Increment:
+Covariance(hybrid2_ensemble) dirac test:
+Covariance(hybrid2_ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:

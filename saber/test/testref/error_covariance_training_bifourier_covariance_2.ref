@@ -16,6 +16,7 @@ Input Dirac increment:
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-parametric) dirac test:
 - Regional grid size: 73x51
 - Cell sizes: 2.5000000000000000e+00 km x 2.5000000000000000e+00 km
 - Mean latitude: 5.6289831946322792e+01 deg
@@ -50,7 +51,7 @@ Covariance norms:
   + standard-deviation:      5.0827697900926027e-04
 Adjoint test for block BifourierCovariance passed
 Square-root test for block BifourierCovariance passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3723]
   Fields:

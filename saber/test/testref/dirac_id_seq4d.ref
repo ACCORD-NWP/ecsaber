@@ -19,14 +19,8 @@ Input Dirac increment:
   - air_horizontal_velocity_potential (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER) diagnostics:
-- Variances at Dirac points:
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -4.38894, 1): 1.0000000000000000e+00
-- Covariances at diagnostic points:
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (9.00000, -4.38894, 1): 0.0000000000000000e+00
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -4.38894, 1): 0.0000000000000000e+00
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (9.00000, -4.38894, 1): 0.0000000000000000e+00
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) dirac test:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F10 [800]
   Fields:
@@ -47,6 +41,13 @@ Covariance(SABER) * Increment:
   - air_horizontal_velocity_potential (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-parametric) diagnostics:
+- Variances at Dirac points:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -4.38894, 1): 1.0000000000000000e+00
+- Covariances at diagnostic points:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (9.00000, -4.38894, 1): 0.0000000000000000e+00
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -4.38894, 1): 0.0000000000000000e+00
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (9.00000, -4.38894, 1): 0.0000000000000000e+00
 Randomized variance: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F10 [800]

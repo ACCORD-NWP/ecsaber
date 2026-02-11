@@ -1,36 +1,13 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_spectralb_gauss_vader_3.ref.tmp.bak	2026-02-02 17:25:41.196953892 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_spectralb_gauss_vader_3.ref	2026-02-02 17:26:31.849126220 +0100
-@@ -28,14 +28,14 @@
-   - water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water (70 levels):
-     + min    = 0.0000000000000000e+00
-     + max    = 0.0000000000000000e+00
--Covariance(hybrid) diagnostics:
-+Covariance(SABER) diagnostics:
- - Variances at Dirac points:
-   + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.0355549127483617e-07
- - Covariances at diagnostic points:
-   + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -8.5299495350436338e-10
-   + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): 7.2264863000533227e-16
-   + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.0355549127483617e-07
--Covariance(hybrid) * Increment:
-+Covariance(SABER) * Increment:
- - Valid time: 2016-01-01T16:00:00Z
-   Geometry: F12 [1152]
-   Fields:
-@@ -79,14 +79,14 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_spectralb_gauss_vader_3.ref.tmp.bak	2026-02-11 15:00:26.834919708 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_spectralb_gauss_vader_3.ref	2026-02-11 15:14:26.255815697 +0100
+@@ -125,10 +125,3 @@
      + max    = 2.7997032594450769e-08
      + mean   = 4.5094718781909049e-14
      + stddev = 4.3893637202727890e-10
--Covariance(hybrid1_SABER) diagnostics:
-+Covariance(SABER1_SABER) diagnostics:
- - Variances at Dirac points:
-   + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.0355549127483617e-07
- - Covariances at diagnostic points:
-   + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -8.5299495350436338e-10
-   + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): 7.2264863000533227e-16
-   + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.0355549127483617e-07
--Covariance(hybrid1_SABER) * Increment:
-+Covariance(SABER1_SABER) * Increment:
- - Valid time: 2016-01-01T16:00:00Z
-   Geometry: F12 [1152]
-   Fields:
+-Covariance(hybrid1_SABER-ensemble) diagnostics:
+-- Variances at Dirac points:
+-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.0355549127483617e-07
+-- Covariances at diagnostic points:
+-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -8.5299495350436338e-10
+-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): 7.2264863000533227e-16
+-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.0355549127483617e-07

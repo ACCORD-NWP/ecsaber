@@ -28,14 +28,8 @@ Input Dirac increment:
   - water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER) diagnostics:
-- Variances at Dirac points:
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 8.0978966795293537e-08
-- Covariances at diagnostic points:
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -2.9328744608507945e-08
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -7.7150246187184523e-14
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 8.0978966795293537e-08
-Covariance(SABER) * Increment:
+Covariance(SABER-hybrid) dirac test:
+Covariance(SABER-hybrid) * Increment:
 - Valid time: 2016-01-01T16:00:00Z
   Geometry: F12 [1152]
   Fields:
@@ -79,3 +73,10 @@ Covariance(SABER) * Increment:
     + max    = 7.3118513151867963e-09
     + mean   = 2.7930058449944166e-11
     + stddev = 6.1441223318764488e-10
+Covariance(SABER-hybrid) diagnostics:
+- Variances at Dirac points:
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 8.0978966795293537e-08
+- Covariances at diagnostic points:
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -2.9328744608507945e-08
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -7.7150246187184523e-14
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 8.0978966795293537e-08

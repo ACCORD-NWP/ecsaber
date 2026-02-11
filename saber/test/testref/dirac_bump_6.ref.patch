@@ -1,29 +1,11 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_6.ref.tmp.bak	2026-02-05 12:57:43.076597312 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_6.ref	2026-02-05 12:35:41.110570903 +0100
-@@ -12,7 +12,7 @@
-     + max    = 0.0000000000000000e+00
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_6.ref.tmp.bak	2026-02-11 15:00:26.232834911 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_6.ref	2026-02-11 15:13:45.915998903 +0100
+@@ -13,7 +13,7 @@
+ Covariance(hybrid) dirac test:
  Adjoint test for block Ensemble passed
  Square-root test for block Ensemble passed
 -Covariance(hybrid) * Increment:
 +Covariance(SABER) * Increment:
- - Valid time: 2010-01-01T12:00:00Z
-   Geometry: L40x21 [840]
-   Fields:
-@@ -28,7 +28,7 @@
-     + stddev = 1.9061663485918223e-01
- Adjoint test for block Ensemble passed
- Square-root test for block Ensemble passed
--Covariance(hybrid1_SABER) * Increment:
-+Covariance(SABER1_SABER) * Increment:
- - Valid time: 2010-01-01T12:00:00Z
-   Geometry: L40x21 [840]
-   Fields:
-@@ -42,7 +42,7 @@
-     + max    = 5.9924954825054466e-01
-     + mean   = -1.5150635424641333e-02
-     + stddev = 1.9061663485918223e-01
--Covariance(hybrid2_ensemble) * Increment:
-+Covariance(SABER2_SABER) * Increment:
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:

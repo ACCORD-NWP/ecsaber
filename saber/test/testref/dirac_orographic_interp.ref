@@ -12,7 +12,8 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-05
     + stddev = 5.1826691088792225e-03
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) dirac test:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3723]
   Fields:

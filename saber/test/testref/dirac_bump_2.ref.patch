@@ -1,29 +1,11 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_2.ref.tmp.bak	2026-02-05 12:57:43.538600736 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_2.ref	2026-02-05 12:35:06.040290320 +0100
-@@ -97,7 +97,7 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_2.ref.tmp.bak	2026-02-11 15:00:27.224974668 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_bump_2.ref	2026-02-11 15:17:04.037145931 +0100
+@@ -98,7 +98,7 @@
  Square-root test for block BUMP_NICAS passed
  Adjoint test for block Ensemble passed
  Square-root test for block Ensemble passed
 -Covariance(hybrid) * Increment:
 +Covariance(SABER) * Increment:
- - Valid time: 2010-01-01T12:00:00Z
-   Geometry: L40x21 [840]
-   Fields:
-@@ -187,7 +187,7 @@
-              Level   2 ~>  0.200E+01 vert. coord.
- Adjoint test for block BUMP_NICAS passed
- Square-root test for block BUMP_NICAS passed
--Covariance(hybrid1_SABER) * Increment:
-+Covariance(SABER1_SABER) * Increment:
- - Valid time: 2010-01-01T12:00:00Z
-   Geometry: L40x21 [840]
-   Fields:
-@@ -229,7 +229,7 @@
- Square-root test for block BUMP_NICAS passed
- Adjoint test for block Ensemble passed
- Square-root test for block Ensemble passed
--Covariance(hybrid2_SABER) * Increment:
-+Covariance(SABER2_SABER) * Increment:
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: L40x21 [840]
    Fields:

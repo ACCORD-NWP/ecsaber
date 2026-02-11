@@ -32,21 +32,10 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 7.9365079365079362e-06
     + stddev = 2.8171808490961210e-03
+Covariance(SABER-parametric) dirac test:
 Adjoint test for block duplicate variables passed
 Adjoint test for block ID passed
-Covariance(SABER) diagnostics:
-- Variances at Dirac points:
-  + Value for variable water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 3.0000000000000000e+00
-  + Value for variable q_cl, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 3.0000000000000000e+00
-  + Value for variable q_cf, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 3.0000000000000000e+00
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 2.0000000000000000e+00
-  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 2.0000000000000000e+00
-  + Value for variable air_pressure, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 1.0000000000000000e+00
-- Covariances at diagnostic points:
-  + Value for variable water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 0.0000000000000000e+00
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 0.0000000000000000e+00
-  + Value for variable air_pressure, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 0.0000000000000000e+00
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F15 [1800]
   Fields:
@@ -80,3 +69,15 @@ Covariance(SABER) * Increment:
     + max    = 1.0000000000000000e+00
     + mean   = 7.9365079365079362e-06
     + stddev = 2.8171808490961210e-03
+Covariance(SABER-parametric) diagnostics:
+- Variances at Dirac points:
+  + Value for variable water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 3.0000000000000000e+00
+  + Value for variable q_cl, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 3.0000000000000000e+00
+  + Value for variable q_cf, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 3.0000000000000000e+00
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 2.0000000000000000e+00
+  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 2.0000000000000000e+00
+  + Value for variable air_pressure, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 1.0000000000000000e+00
+- Covariances at diagnostic points:
+  + Value for variable water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 0.0000000000000000e+00
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 0.0000000000000000e+00
+  + Value for variable air_pressure, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 0.0000000000000000e+00

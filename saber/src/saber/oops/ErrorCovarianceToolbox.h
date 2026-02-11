@@ -47,6 +47,7 @@
 #include "oops/util/parameters/Parameters.h"
 #include "oops/util/parameters/RequiredParameter.h"
 
+#include "saber/blocks/SaberParametricBlockChain.h"
 #include "saber/oops/ErrorCovarianceParameters.h"
 #include "oops/util/ECUtilities.h"
 #include "saber/oops/Utilities.h"
@@ -207,8 +208,8 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       }
 
       // Apply B matrix components recursively
-      std::string id;
-      dirac(covarConf, testConf, id, geom, util::templatedVars<MODEL>(vars), xx, dxi);
+      const std::string id = "";
+      dirac(covarConf, testConf, id, geom, vars, xx, dxi);
     }
 
     // Background error covariance base parameters
@@ -222,7 +223,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
       // Randomization
       if (params.backgroundError.value().randomizationSize.value()) {
-        randomization(params, geom, util::templatedVars<MODEL>(vars), xx, Bmat, ntasks);
+        randomization(params, geom, vars, xx, Bmat, ntasks);
       }
     }
 
@@ -345,17 +346,34 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 // The passed geometry/variables should be consistent with the passed increment
   void dirac(const eckit::LocalConfiguration & covarConf,
              const eckit::LocalConfiguration & testConf,
-             std::string & id,
+             const std::string & id,
              const Geometry_ & geom,
-             const Variables_ & vars,
+             const oops::JediVariables & vars,
              const State4D_ & xx,
              const Increment4D_ & dxi) const {
+    // Get covariance model
+    const std::string covarianceModel(covarConf.getString("covariance"));
+
+    // Update ID
+    std::string updId = id;
+    if (updId != "") {
+      updId.append("_");
+    }
+    updId.append(replaceWhiteSpace(covarianceModel));
+    if (covarianceModel == "SABER") {
+      const std::string covarianceType = covarConf.getString("covariance type", "parametric");
+      updId.append("-" + replaceWhiteSpace(covarianceType));
+    }
+
+    // Dirac test
+    oops::Log::test() << "Covariance(" << updId << ") dirac test:" << std::endl;
+
     // Define output increment
     Increment4D_ dxo(dxi, false);
 
     // Covariance
     std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
-                                            covarConf, geom, vars, xx));
+                                            covarConf, geom, util::templatedVars<MODEL>(vars), xx));
 
     // Linearize
     Bmat->linearize(xx, geom, covarConf);
@@ -363,12 +381,18 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     // Multiply
     Bmat->multiply(dxi, dxo);
 
-    // Update ID
-    if (id != "") id.append("_");
-    id.append(Bmat->covarianceModel());
+    // Copy configuration
+    eckit::LocalConfiguration outputBConf(testConf.getSubConfiguration("output dirac"));
+
+    // Seek and replace %id% with updId, recursively
+    util::seekAndReplace(outputBConf, "%id%", updId);
+
+    // Write output increment
+    dxo.write(outputBConf);
+    oops::Log::test() << "Covariance(" << updId << ") * Increment:" << dxo << std::endl;
 
     if (testConf.has("diagnostic points")) {
-      oops::Log::test() << "Covariance(" << id << ") diagnostics:" << std::endl;
+      oops::Log::test() << "Covariance(" << updId << ") diagnostics:" << std::endl;
 
       // Print variances
       oops::Log::test() << "- Variances at Dirac points:" << std::endl;
@@ -380,101 +404,68 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     }
 
     if (testConf.has("covariance profile")) {
-      oops::Log::test() << "Extracting covariances as a function of separation distance"
-                        << std::endl;
+      oops::Log::test() << "Covariance(" << updId << ") profile:" << std::endl;
+
+      // Get configuration
       eckit::LocalConfiguration covProfileConf(testConf.getSubConfiguration("covariance profile"));
 
-      // Seek and replace %id% with id, recursively
-      util::seekAndReplace(covProfileConf, "%id%", id);
+      // Seek and replace %id% with updId, recursively
+      util::seekAndReplace(covProfileConf, "%id%", updId);
 
+      // Extract 1D covariance profiles
       extract_1d_covariances(testConf.getSubConfiguration("dirac"),
                              covProfileConf,
                              geom,
                              dxo);
     }
 
-    // Copy configuration
-    eckit::LocalConfiguration outputBConf(testConf.getSubConfiguration("output dirac"));
+    // Get recursive mode
+    const bool runComponentsRecursively = covarConf.getBool("run components recursively", false);
 
-    // Seek and replace %id% with id, recursively
-    util::seekAndReplace(outputBConf, "%id%", id);
+    // Recursive call for hybrid covariance model in recursive model
+    if ((covarianceModel == "hybrid") && runComponentsRecursively) {
+      // Get components configurations
+      std::vector<eckit::LocalConfiguration> confs;
+      covarConf.get("components", confs);
 
-    // Write output increment
-    dxo.write(outputBConf);
-    oops::Log::test() << "Covariance(" << id << ") * Increment:" << dxo << std::endl;
+      // Initialize component index
+      size_t componentIndex = 1;
 
-    // Look for hybrid or ensemble covariance models
-    const std::string covarianceModel(covarConf.getString("covariance"));
-    bool runComponentsRecursively =
-      covarConf.has("run components recursively") ?
-      covarConf.getBool("run components recursively") : false;
+      // Loop over components
+      for (const auto & conf : confs) {
+        // Prepare sub-covariance configuration
+        const eckit::LocalConfiguration componentConfig(conf, "covariance");
 
-    oops::Log::info() << "Covariance Configuration : Running components recursively : "
-      << covarConf << " " <<  covarConf.has("run components recursively") << " "
-      << runComponentsRecursively << std::endl;
+        // Update ID
+        const std::string covId(updId + "-cmp" + std::to_string(componentIndex));
 
-    if (runComponentsRecursively) {
-      if (covarianceModel == "hybrid") {
-        std::vector<eckit::LocalConfiguration> confs;
-        covarConf.get("components", confs);
-        size_t componentIndex(1);
-        for (const auto & conf : confs) {
-          std::string idC(id + std::to_string(componentIndex));
-          const eckit::LocalConfiguration componentConfig(conf, "covariance");
-          dirac(componentConfig, testConf, idC, geom, vars, xx, dxi);
-          ++componentIndex;
-        }
+        // Call dirac function
+        dirac(componentConfig, testConf, covId, geom, vars, xx, dxi);
+        ++componentIndex;
       }
     }
-    if (covarianceModel == "SABER") {
-      const std::string covarianceType =
-        covarConf.getString("covariance type", "parametric");
-      if (covarianceType == "hybrid") {
-        bool runComponentsRecursively =
-          covarConf.has("run components recursively") ?
-          covarConf.getBool("run components recursively") :
-          false;
-        // Check for outer blocks (can't pass the correct geometry/variables in that case)
-        if (!covarConf.has("saber outer blocks") && (runComponentsRecursively)) {
-          // Deserialize base parameters
-          ErrorCovarianceParametersBase paramsBase;
-          paramsBase.deserialize(covarConf);
 
-          // Get components configurations list
-          std::vector<eckit::LocalConfiguration> confs;
-          covarConf.get("components", confs);
+    // Localization output for ensemble covariance model
+    if (covarianceModel == "ensemble" && covarConf.has("localization") &&
+      (!covarConf.has("ensemble geometry"))) {
+      // Update ID
+      std::string locId(updId);
+      locId.append("_localization");
 
-          // Initialize component index
-          size_t componentIndex(1);
+      // Dirac test
+      oops::Log::test() << "Localization(" << locId<< ") dirac test:" << std::endl;
 
-          for (const auto & conf : confs) {
-            // Prepare sub-covariance configuration
-            eckit::LocalConfiguration componentConfig(conf, "covariance");
-            componentConfig.set("covariance", "SABER");
-
-            // Merge configuration with full configuration (order of arguments matters!)
-            componentConfig = util::mergeConfigs(componentConfig, paramsBase.toConfiguration());
-
-            // Update ID
-            std::string idC(id + std::to_string(componentIndex));
-
-            // Call dirac function
-            dirac(componentConfig, testConf, idC, geom, vars, xx, dxi);
-            ++componentIndex;
-          }
-        }
-      }
-    }
-    if (covarianceModel == "ensemble" && covarConf.has("localization")) {
-      // Localization configuration
+      // Get localization configuration
       eckit::LocalConfiguration locConfig(covarConf.getSubConfiguration("localization"));
+
+      // Add date to localization configuration
       locConfig.set("date", xx[0].validTime().toString());
 
       // Define output increment
       Increment4D_ dxo(dxi);
 
       // Setup localization
-      Localization_ Lmat(geom, vars, locConfig);
+      Localization_ Lmat(geom, util::templatedVars<MODEL>(vars), locConfig);
 
       // Apply localization
       Increment_ dxoSum(dxo[0]);
@@ -487,36 +478,127 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
         dxo[jsub].axpy(1.0, dxoSum, false);
       }
 
-      // Update ID
-      std::string idL(id);
-      idL.append("_localization");
+      // Copy configuration
+      eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
 
-      // Print localization
-      oops::Log::test() << "Localization(" << idL << ") diagnostics:" << std::endl;
+      // Seek and replace %id% with locId, recursively
+      util::seekAndReplace(outputLConf, "%id%", locId);
+
+      // Write output increment
+      dxo.write(outputLConf);
+      oops::Log::test() << "Localization(" << locId << ") * Increment:" << dxo << std::endl;
+
+      // Print localization diagnostics
+      oops::Log::test() << "Localization(" << locId << ") diagnostics:" << std::endl;
       oops::Log::test() << "- Localization at zero separation:" << std::endl;
 
+      // Print value at certain positions
       print_value_at_positions(testConf.getSubConfiguration("dirac"), geom, dxo);
       if (testConf.has("diagnostic points")) {
         oops::Log::test() << "- Localization at diagnostic points:" << std::endl;
         print_value_at_positions(testConf.getSubConfiguration("diagnostic points"), geom, dxo);
       }
+    }
 
-      // Copy configuration
-      eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
+    // SABER covariance model without outer blocks
+    if ((covarianceModel == "SABER") && (!covarConf.has("saber outer blocks"))) {
+      // Get covariance type
+      const std::string covarianceType = covarConf.getString("covariance type", "parametric");
 
-      // Seek and replace %id% with id, recursively
-      util::seekAndReplace(outputLConf, "%id%", idL);
+      // Recursive call for hybrid covariance type in recursive mode
+      if ((covarianceType == "hybrid") && runComponentsRecursively) {
+        // Deserialize base parameters
+        ErrorCovarianceParametersBase paramsBase;
+        paramsBase.deserialize(covarConf);
 
-      // Write output increment
-      dxo.write(outputLConf);
+        // Get components configurations listrandomization
+        std::vector<eckit::LocalConfiguration> confs;
+        covarConf.get("components", confs);
 
-      oops::Log::test() << "Localization(" << id << ") * Increment:" << dxo << std::endl;
+        // Initialize component index
+        size_t componentIndex(1);
+
+        for (const auto & conf : confs) {
+          // Prepare sub-covariance configuration
+          eckit::LocalConfiguration componentConfig(conf, "covariance");
+          componentConfig.set("covariance", "SABER");
+
+          // Merge configuration with full configuration (order of arguments matters!)
+          componentConfig = util::mergeConfigs(componentConfig, paramsBase.toConfiguration());
+
+          // Update ID
+          const std::string covId(updId + "-cmp" + std::to_string(componentIndex));
+
+          // Call dirac function
+          dirac(componentConfig, testConf, covId, geom, vars, xx, dxi);
+          ++componentIndex;
+        }
+      }
+
+      // Localization output for ensemble covariance type
+      if (covarianceType == "ensemble" && covarConf.has("localization") &&
+        (!covarConf.has("ensemble geometry"))) {
+        // Update ID
+        std::string locId(updId);
+        locId.append("_localization");
+
+        // Dirac test
+        oops::Log::test() << "Localization(" << locId<< ") dirac test:" << std::endl;
+
+        // Deserialize base parameters
+        ErrorCovarianceParametersBase paramsBase;
+        paramsBase.deserialize(covarConf);
+
+        // Get localization configuration
+        eckit::LocalConfiguration locConfig(covarConf.getSubConfiguration("localization"));
+
+        // Merge configuration with full configuration (order of arguments matters!)
+        locConfig = util::mergeConfigs(locConfig, paramsBase.toConfiguration());
+
+        // Get background as FieldSet4D
+        oops::FieldSet4D fset4d(xx);
+
+        // Setup localization
+        const SaberParametricBlockChain Lmat(geom,
+                                             vars,
+                                             fset4d,
+                                             fset4d,
+                                             locConfig);
+
+        // Define output increment
+        Increment4D_ dxo(dxi);
+        oops::FieldSet4D fset4dDxo(dxo);
+
+        // Apply localization
+        Lmat.multiply(fset4dDxo);
+
+        // Copy configuration
+        eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
+
+        // Seek and replace %id% with locId, recursively
+        util::seekAndReplace(outputLConf, "%id%", locId);
+
+        // Write output increment
+        dxo.write(outputLConf);
+        oops::Log::test() << "Localization(" << locId << ") * Increment:" << dxo << std::endl;
+
+        // Print localization diagnostics
+        oops::Log::test() << "Localization(" << locId << ") diagnostics:" << std::endl;
+        oops::Log::test() << "- Localization at zero separation:" << std::endl;
+
+        // Print value at certain positions
+        print_value_at_positions(testConf.getSubConfiguration("dirac"), geom, dxo);
+        if (testConf.has("diagnostic points")) {
+          oops::Log::test() << "- Localization at diagnostic points:" << std::endl;
+          print_value_at_positions(testConf.getSubConfiguration("diagnostic points"), geom, dxo);
+        }
+      }
     }
   }
 // -----------------------------------------------------------------------------
   void randomization(const ErrorCovarianceToolboxParameters & params,
                      const Geometry_ & geom,
-                     const Variables_ & vars,
+                     const oops::JediVariables & vars,
                      const State4D_ & xx,
                      const std::unique_ptr<Covariance4DBase_> & Bmat,
                      const size_t & ntasks) const {
@@ -530,9 +612,9 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       oops::Log::info() << "Info     : -----------------------" << std::endl;
 
       // Create increments
-      Increment4D_ dx(geom, vars, xx.times());
-      Increment4D_ dxsq(geom, vars, xx.times());
-      Increment4D_ variance(geom, vars, xx.times());
+      Increment4D_ dx(geom, util::templatedVars<MODEL>(vars), xx.times());
+      Increment4D_ dxsq(geom, util::templatedVars<MODEL>(vars), xx.times());
+      Increment4D_ variance(geom, util::templatedVars<MODEL>(vars), xx.times());
 
       // Initialize variance
       variance.zero();
@@ -608,6 +690,13 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
         oops::Log::test() << "Randomized variance: " << variance << std::endl;
       }
     }
+  }
+// -----------------------------------------------------------------------------
+// Replace white space with dash in strings
+  std::string replaceWhiteSpace(const std::string & inputStr) const {
+    std::string outputStr(inputStr);
+    std::replace(outputStr.begin(), outputStr.end(), ' ', '-');
+    return outputStr;
   }
 // -----------------------------------------------------------------------------
 };

@@ -132,32 +132,33 @@ background error:
           zero padding: 6
       inflation value: 1.2
       inflation field:
-          model file:
-            filepath: testdata/convertstate_constant/inflation
+        model file:
+          filepath: testdata/convertstate_constant/inflation
       ensemble transform:
-          - saber block name: ID
-          - saber block name: StdDev
-            read:
-              model file:
-                filepath: testdata/convertstate_constant/ensemble_transform
+      - saber block name: ID
+      - saber block name: StdDev
+        read:
+          model file:
+            filepath: testdata/convertstate_constant/ensemble_transform
       localization:
-          saber central block:
-            saber block name: BUMP_NICAS
-            read:
-              general:
-                testing: true
-              io:
-                data directory: testdata
-                files prefix: dirac_bump_2/_MPI_-_OMP_
-                alias:
-                - in code: common
-                  in file: air_horizontal_streamfunction
-                overriding nicas file: error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__nicas
-              drivers:
-                multivariate strategy: duplicated
-                read local nicas: true
+        saber central block:
+          saber block name: BUMP_NICAS
+          read:
+            general:
+              testing: true
+            io:
+              data directory: testdata
+              files prefix: dirac_bump_2/_MPI_-_OMP_
+              alias:
+              - in code: common
+                in file: air_horizontal_streamfunction
+              overriding nicas file: error_covariance_training_bump_hdiag-nicas_1/_MPI_-_OMP__nicas
+            drivers:
+              multivariate strategy: duplicated
+              read local nicas: true
     weight:
       value: 0.5
+parallel subwindows: false
 dirac:
 - lon:
   - 0.0

@@ -10,12 +10,8 @@ Input Dirac increment:
   - air_horizontal_velocity_potential (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER) diagnostics:
-- Variances at Dirac points:
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 4.4638148389652103e+08
-- Covariances at diagnostic points:
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 4.4638148389652103e+08
-Covariance(SABER) * Increment:
+Covariance(SABER-hybrid) dirac test:
+Covariance(SABER-hybrid) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-14 [1176]
   Fields:
@@ -29,12 +25,13 @@ Covariance(SABER) * Increment:
     + max    = 3.9893773664606133e+10
     + mean   = 1.0729779900882090e+06
     + stddev = 6.8013426609311209e+09
-Covariance(SABER1_SABER) diagnostics:
+Covariance(SABER-hybrid) diagnostics:
 - Variances at Dirac points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 4.4638148389652103e+08
 - Covariances at diagnostic points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 4.4638148389652103e+08
-Covariance(SABER1_SABER) * Increment:
+Covariance(SABER-hybrid1_SABER-ensemble) dirac test:
+Covariance(SABER-hybrid1_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-14 [1176]
   Fields:
@@ -48,12 +45,13 @@ Covariance(SABER1_SABER) * Increment:
     + max    = 7.9787547329212250e+10
     + mean   = 2.1459559801762956e+06
     + stddev = 1.3602685321862242e+10
-Covariance(SABER2_SABER) diagnostics:
+Covariance(SABER-hybrid1_SABER-ensemble) diagnostics:
 - Variances at Dirac points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 4.4638148389652103e+08
 - Covariances at diagnostic points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 4.4638148389652103e+08
-Covariance(SABER2_SABER) * Increment:
+Covariance(SABER-hybrid2_SABER-ensemble) dirac test:
+Covariance(SABER-hybrid2_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-14 [1176]
   Fields:
@@ -65,3 +63,8 @@ Covariance(SABER2_SABER) * Increment:
   - air_horizontal_velocity_potential (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-hybrid2_SABER-ensemble) diagnostics:
+- Variances at Dirac points:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 4.4638148389652115e+08
+- Covariances at diagnostic points:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 4.4638148389652115e+08

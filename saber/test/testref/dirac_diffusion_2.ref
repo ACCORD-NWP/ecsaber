@@ -12,8 +12,9 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 1.2500000000000000e-04
     + stddev = 1.1180339887497228e-02
+Covariance(SABER-parametric) dirac test:
 Adjoint test for block diffusion passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F10 [800]
   Fields:

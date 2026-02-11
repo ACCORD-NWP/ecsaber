@@ -15,6 +15,7 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 2.3917087430241827e-03
     + stddev = 4.8853072639868877e-02
+Covariance(SABER-parametric) dirac test:
 Norm of input parameter weight_0: 7.1411305064704095e+01
 Norm of input parameter weight_1: 1.8142158345688827e+02
 Norm of input parameter weight_2: 8.7308306621531173e+01
@@ -35,7 +36,7 @@ Norm of input parameter normalization_2: 3.2182807170911502e+02
     FastLAM interpolation adjoint test passed
 Adjoint test for block FastLAM passed
 Square-root test for block FastLAM passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3763]
   Fields:

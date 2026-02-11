@@ -12,6 +12,7 @@ Input Dirac increment:
     + max    = 1.0000000000000000e+00
     + mean   = 2.6860059092130003e-05
     + stddev = 5.1826691088793144e-03
+Covariance(SABER-parametric) dirac test:
 - Regional grid size: 73x51
 - Cell sizes: 2.5000000000000000e+00 km x 2.5000000000000000e+00 km
 - Mean latitude: 5.6289831946322792e+01 deg
@@ -36,7 +37,7 @@ Inner inverse test for block BifourierSpectralVorDivToGridWind passed: U Uinv (U
 Outer inverse test for block BifourierSpectralVorDivToGridWind passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block ID passed
 Square-root test for block ID passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3723]
   Fields:
