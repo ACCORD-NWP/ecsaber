@@ -99,8 +99,9 @@ class Geometry : public util::Printable,
     {return eckit::mpi::self();}
   const std::vector<double> & vertCoordAvg(const std::string & var) const
     {return groups_[groupIndex(var)].vertCoordAvg_;}
-  const oops::GeometryData & generic() const
-    {return *geomData_;}
+
+  // Return geometry data
+  const oops::GeometryData & generic() const;
 
   // Interpolation
   Interpolation & getInterpolation(const Geometry &) const;

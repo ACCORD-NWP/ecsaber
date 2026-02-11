@@ -290,6 +290,15 @@ std::vector<size_t> Geometry::variableSizes(const std::vector<std::string> & var
 
 // -----------------------------------------------------------------------------
 
+const oops::GeometryData & Geometry::generic() const {
+  if (!geomData_) {
+    geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
+  }
+  return *geomData_;
+}
+
+// -----------------------------------------------------------------------------
+
 Interpolation & Geometry::getInterpolation(const Geometry & tgtGeom) const {
   oops::Log::trace() << classname() << "::getInterpolation starting" << std::endl;
 
@@ -310,11 +319,6 @@ Interpolation & Geometry::getInterpolation(const Geometry & tgtGeom) const {
     oops::Log::trace() << classname() << "::getInterpolation done" << std::endl;
     return *(it->second);
   } else {
-    // Create GeometryData if needed
-    if ((interpolationType == "unstructured") && !geomData_) {
-      geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
-    }
-
     // Create new interpolation
     std::shared_ptr<Interpolation> interpolation(new Interpolation(*this, tgtGeom));
 

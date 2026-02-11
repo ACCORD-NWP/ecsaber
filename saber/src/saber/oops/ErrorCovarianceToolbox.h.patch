@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-02-11 17:13:23.547013743 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-02-11 17:14:04.573591524 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-02-11 19:01:46.032533329 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-02-11 18:58:06.196973047 +0100
 @@ -26,17 +26,16 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
@@ -110,7 +110,7 @@
  
      // Get number of MPI tasks and OpenMP threads
      size_t ntasks = commSpace->size();
-@@ -185,14 +149,25 @@
+@@ -185,14 +149,28 @@
      util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
      params.deserialize(fullConfigUpdated);
  
@@ -136,10 +136,13 @@
      // Setup variables
 -    oops::JediVariables tmpVars = xx.variables();
 +    oops::JediVariables tmpVars(xx[0].state().fieldSet().field_names());
++    for (auto & var : tmpVars) {
++      var.setLevels(xx[0].state().fieldSet()[var.name()].shape(1));
++    }
      if (params.incrementVars.value() != boost::none) {
        tmpVars = params.incrementVars.value().value();
      }
-@@ -205,8 +180,8 @@
+@@ -205,8 +183,8 @@
      const auto & diracParams = params.dirac.value();
      if (diracParams != boost::none) {
        // Setup Dirac field
@@ -150,7 +153,7 @@
        oops::Log::test() << "Input Dirac increment:" << dxi << std::endl;
  
        // Test configuration
-@@ -240,8 +215,11 @@
+@@ -240,8 +218,11 @@
      // Background error covariance base parameters
      if ((!diracParams) || (params.backgroundError.value().randomizationSize.value())) {
        // Background error covariance training
@@ -164,7 +167,7 @@
  
        // Randomization
        if (params.backgroundError.value().randomizationSize.value()) {
-@@ -265,15 +243,15 @@
+@@ -265,15 +246,15 @@
  
      // Create diagnostic field
      Increment4D_ diagPoints(data);
@@ -187,7 +190,7 @@
      }
  
      oops::Log::trace() << appname() << "::print_value_at_position done" << std::endl;
-@@ -286,13 +264,13 @@
+@@ -286,13 +267,13 @@
                                const Increment4D_ & data) const {
    oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
  
@@ -203,7 +206,7 @@
  
    // Define maximum length of horizontal profile
    double maxLength = std::numeric_limits<double>::infinity();
-@@ -301,7 +279,7 @@
+@@ -301,7 +282,7 @@
      maxLength = profileConf.getDouble("maximum distance");
    } else {
      // If no maximum length input is given, try to compute a default value from the grid
@@ -212,7 +215,7 @@
      if (fspace.type() == "StructuredColumns") {
        const atlas::functionspace::StructuredColumns fs(fspace);
        if (fs.grid().name().compare(0, 1, "F") == 0) {
-@@ -328,19 +306,19 @@
+@@ -328,19 +309,19 @@
  
    // Get values as a function of separation distance
    auto[distances, covariances, lons, lats, levs, fieldIndexes] =
@@ -238,7 +241,7 @@
                                 distances,
                                 covariances,
                                 lons,
-@@ -374,7 +352,7 @@
+@@ -374,7 +355,7 @@
               const State4D_ & xx,
               const Increment4D_ & dxi) const {
      // Get covariance model
@@ -247,7 +250,7 @@
  
      // Update ID
      std::string updId = id;
-@@ -394,8 +372,11 @@
+@@ -394,8 +375,11 @@
      Increment4D_ dxo(dxi, false);
  
      // Covariance
@@ -261,7 +264,7 @@
  
      // Multiply
      Bmat->multiply(dxi, dxo);
-@@ -484,10 +465,18 @@
+@@ -484,10 +468,18 @@
        Increment4D_ dxo(dxi);
  
        // Setup localization
@@ -282,7 +285,7 @@
  
        // Copy configuration
        eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
-@@ -522,7 +511,7 @@
+@@ -522,7 +514,7 @@
          ErrorCovarianceParametersBase paramsBase;
          paramsBase.deserialize(covarConf);
  
@@ -291,7 +294,7 @@
          std::vector<eckit::LocalConfiguration> confs;
          covarConf.get("components", confs);
  
-@@ -532,7 +521,7 @@
+@@ -532,7 +524,7 @@
          for (const auto & conf : confs) {
            // Prepare sub-covariance configuration
            eckit::LocalConfiguration componentConfig(conf, "covariance");
@@ -300,7 +303,7 @@
  
            // Merge configuration with full configuration (order of arguments matters!)
            componentConfig = util::mergeConfigs(componentConfig, paramsBase.toConfiguration());
-@@ -611,7 +600,7 @@
+@@ -611,7 +603,7 @@
                       const Geometry_ & geom,
                       const oops::JediVariables & vars,
                       const State4D_ & xx,
@@ -309,7 +312,7 @@
                       const size_t & ntasks) const {
      // Get randomization size
      ASSERT(params.backgroundError.value().randomizationSize.value());
-@@ -623,9 +612,9 @@
+@@ -623,9 +615,9 @@
        oops::Log::info() << "Info     : -----------------------" << std::endl;
  
        // Create increments
@@ -322,7 +325,7 @@
  
        // Initialize variance
        variance.zero();
-@@ -660,7 +649,9 @@
+@@ -660,7 +652,9 @@
  
              // Add background state to perturbation
              State4D_ xp(xx);
@@ -333,7 +336,7 @@
  
              // Write state
              xp.write(outputStatesUpdated);
-@@ -671,7 +662,9 @@
+@@ -671,7 +665,9 @@
  
          // Square perturbation
          dxsq = dx;

@@ -1,11 +1,47 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_mixed_1.ref.tmp.bak	2026-02-11 15:00:26.918931540 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_mixed_1.ref	2026-02-11 15:14:32.816992154 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_mixed_1.ref.tmp.bak	2026-02-11 21:46:03.710898704 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testref/dirac_localization_mixed_1.ref	2026-02-11 21:27:07.500051583 +0100
+@@ -18,7 +18,7 @@
+   - air_pressure_at_surface (1 levels):
+     + min    = 0.0000000000000000e+00
+     + max    = 0.0000000000000000e+00
+-Covariance(ensemble) dirac test:
++Covariance(SABER-ensemble) dirac test:
+        Independent levels:  1[2]
+           Subset Sc0 size:             1152
+           Domain area (% of Earth area): 0.100E+03%
 @@ -38,7 +38,7 @@
               ns =                             1178
               v%n_s =                             2
               c%n_s[global] =                 35280
 -Covariance(ensemble) * Increment:
-+Covariance(SABER) * Increment:
++Covariance(SABER-ensemble) * Increment:
  - Valid time: 2010-01-01T12:00:00Z
    Geometry: F12 [1152]
    Fields:
+@@ -62,7 +62,7 @@
+     + max    = 2.5520989808562905e-01
+     + mean   = 2.2153636986599744e-04
+     + stddev = 7.5191937317618650e-03
+-Localization(ensemble_localization) dirac test:
++Localization(SABER-ensemble_localization) dirac test:
+        Independent levels:  1[2]
+           Subset Sc0 size:             1152
+           Domain area (% of Earth area): 0.100E+03%
+@@ -82,7 +82,7 @@
+              ns =                             1178
+              v%n_s =                             2
+              c%n_s[global] =                 35280
+-Localization(ensemble_localization) * Increment:
++Localization(SABER-ensemble_localization) * Increment:
+ - Valid time: 2010-01-01T12:00:00Z
+   Geometry: F12 [1152]
+   Fields:
+@@ -106,7 +106,7 @@
+     + max    = 1.0000000000000000e+00
+     + mean   = 8.6805555555555551e-04
+     + stddev = 2.9462782549438682e-02
+-Localization(ensemble_localization) diagnostics:
++Localization(SABER-ensemble_localization) diagnostics:
+ - Localization at zero separation:
+   + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 1): 1.0000000000000004e+00
+   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 84.37646, 2): 1.0000000000000000e+00

@@ -28,8 +28,8 @@ Covariance(SABER-hybrid) diagnostics:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.6986258356481079e+10
 - Covariances at diagnostic points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.6986258356481079e+10
-Covariance(SABER-hybrid1_SABER-ensemble) dirac test:
-Covariance(SABER-hybrid1_SABER-ensemble) * Increment:
+Covariance(SABER-hybrid-cmp1_SABER-ensemble) dirac test:
+Covariance(SABER-hybrid-cmp1_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-14 [1176]
   Fields:
@@ -41,13 +41,13 @@ Covariance(SABER-hybrid1_SABER-ensemble) * Increment:
   - air_horizontal_velocity_potential (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER-hybrid1_SABER-ensemble) diagnostics:
+Covariance(SABER-hybrid-cmp1_SABER-ensemble) diagnostics:
 - Variances at Dirac points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 1.7200747176413024e+06
 - Covariances at diagnostic points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 1.7200747176413024e+06
-Covariance(SABER-hybrid2_SABER-ensemble) dirac test:
-Covariance(SABER-hybrid2_SABER-ensemble) * Increment:
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) dirac test:
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-14 [1176]
   Fields:
@@ -59,13 +59,13 @@ Covariance(SABER-hybrid2_SABER-ensemble) * Increment:
   - air_horizontal_velocity_potential (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER-hybrid2_SABER-ensemble) diagnostics:
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) diagnostics:
 - Variances at Dirac points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 1.2017369001890378e+09
 - Covariances at diagnostic points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 1.2017369001890378e+09
-Covariance(SABER-hybrid3_SABER-ensemble) dirac test:
-Covariance(SABER-hybrid3_SABER-ensemble) * Increment:
+Covariance(SABER-hybrid-cmp3_SABER-ensemble) dirac test:
+Covariance(SABER-hybrid-cmp3_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-14 [1176]
   Fields:
@@ -77,13 +77,13 @@ Covariance(SABER-hybrid3_SABER-ensemble) * Increment:
   - air_horizontal_velocity_potential (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER-hybrid3_SABER-ensemble) diagnostics:
+Covariance(SABER-hybrid-cmp3_SABER-ensemble) diagnostics:
 - Variances at Dirac points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.5782801381574402e+10
 - Covariances at diagnostic points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 3.5782801381574402e+10
-Localization(SABER-hybrid3_SABER-ensemble_localization) dirac test:
-Localization(SABER-hybrid3_SABER-ensemble_localization) * Increment:
+Localization(SABER-hybrid-cmp3_SABER-ensemble_localization) dirac test:
+Localization(SABER-hybrid-cmp3_SABER-ensemble_localization) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-14 [1176]
   Fields:
@@ -95,7 +95,7 @@ Localization(SABER-hybrid3_SABER-ensemble_localization) * Increment:
   - air_horizontal_velocity_potential (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Localization(SABER-hybrid3_SABER-ensemble_localization) diagnostics:
+Localization(SABER-hybrid-cmp3_SABER-ensemble_localization) diagnostics:
 - Localization at zero separation:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (176.78571, 3.20924, 1): 1.0000000000000000e+00
 - Localization at diagnostic points:

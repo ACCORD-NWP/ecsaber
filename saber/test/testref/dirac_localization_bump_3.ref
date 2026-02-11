@@ -16,7 +16,7 @@ Input Dirac increment:
   - air_horizontal_streamfunction (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(hybrid) dirac test:
+Covariance(SABER-hybrid) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -95,7 +95,7 @@ Square-root test for block BUMP_NICAS passed
 Square-root test for the multivariate central block passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER) * Increment:
+Covariance(SABER-hybrid) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -119,7 +119,7 @@ Covariance(SABER) * Increment:
     + max    = 4.2682332240482297e-02
     + mean   = -1.5373909405488812e-03
     + stddev = 1.0971854026778714e-02
-Covariance(hybrid1_ensemble) dirac test:
+Covariance(SABER-hybrid-cmp1_SABER-ensemble) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -151,7 +151,7 @@ Covariance(hybrid1_ensemble) dirac test:
              ns =                             1178
              v%n_s =                             2
              c%n_s[global] =                 28436
-Covariance(SABER1_SABER) * Increment:
+Covariance(SABER-hybrid-cmp1_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -175,7 +175,7 @@ Covariance(SABER1_SABER) * Increment:
     + max    = 4.2682332240482297e-02
     + mean   = -1.5373909405488812e-03
     + stddev = 1.0971854026778714e-02
-Localization(hybrid1_ensemble_localization) dirac test:
+Localization(SABER-hybrid-cmp1_SABER-ensemble_localization) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -207,7 +207,7 @@ Localization(hybrid1_ensemble_localization) dirac test:
              ns =                             1178
              v%n_s =                             2
              c%n_s[global] =                 28436
-Localization(hybrid1_ensemble_localization) * Increment:
+Localization(SABER-hybrid-cmp1_SABER-ensemble_localization) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -231,10 +231,10 @@ Localization(hybrid1_ensemble_localization) * Increment:
     + max    = 8.6639546451475236e-01
     + mean   = 1.1423257214589796e-02
     + stddev = 6.5894523136080435e-02
-Localization(hybrid1_ensemble_localization) diagnostics:
+Localization(SABER-hybrid-cmp1_SABER-ensemble_localization) diagnostics:
 - Localization at zero separation:
   + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000011e+00
-Covariance(hybrid2_ensemble) dirac test:
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -249,7 +249,7 @@ Covariance(hybrid2_ensemble) dirac test:
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Covariance(SABER2_SABER) * Increment:
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -273,7 +273,7 @@ Covariance(SABER2_SABER) * Increment:
     + max    = 4.2682332240482297e-02
     + mean   = -1.5373909405488812e-03
     + stddev = 1.0971854026778714e-02
-Localization(hybrid2_ensemble_localization) dirac test:
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -288,7 +288,7 @@ Localization(hybrid2_ensemble_localization) dirac test:
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Localization(hybrid2_ensemble_localization) * Increment:
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -312,10 +312,10 @@ Localization(hybrid2_ensemble_localization) * Increment:
     + max    = 8.6639546451475236e-01
     + mean   = 1.1423257214589796e-02
     + stddev = 6.5894523136080435e-02
-Localization(hybrid2_ensemble_localization) diagnostics:
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) diagnostics:
 - Localization at zero separation:
   + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000011e+00
-Covariance(hybrid3_SABER-ensemble) dirac test:
+Covariance(SABER-hybrid-cmp3_SABER-ensemble) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -327,7 +327,7 @@ Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(hybrid3_SABER-ensemble) * Increment:
+Covariance(SABER-hybrid-cmp3_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -351,7 +351,7 @@ Covariance(hybrid3_SABER-ensemble) * Increment:
     + max    = 4.2682332240482297e-02
     + mean   = -1.5373909405488812e-03
     + stddev = 1.0971854026778714e-02
-Localization(hybrid3_SABER-ensemble_localization) dirac test:
+Localization(SABER-hybrid-cmp3_SABER-ensemble_localization) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -361,7 +361,7 @@ Localization(hybrid3_SABER-ensemble_localization) dirac test:
              Level   2 ~>  0.200E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Localization(hybrid3_SABER-ensemble_localization) * Increment:
+Localization(SABER-hybrid-cmp3_SABER-ensemble_localization) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -385,10 +385,10 @@ Localization(hybrid3_SABER-ensemble_localization) * Increment:
     + max    = 8.6639546451475236e-01
     + mean   = 1.1423257214589796e-02
     + stddev = 6.5894523136080435e-02
-Localization(hybrid3_SABER-ensemble_localization) diagnostics:
+Localization(SABER-hybrid-cmp3_SABER-ensemble_localization) diagnostics:
 - Localization at zero separation:
   + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000011e+00
-Covariance(hybrid4_SABER-ensemble) dirac test:
+Covariance(SABER-hybrid-cmp4_SABER-ensemble) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -411,7 +411,7 @@ Square-root test for block BUMP_NICAS passed
 Square-root test for the multivariate central block passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(hybrid4_SABER-ensemble) * Increment:
+Covariance(SABER-hybrid-cmp4_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -435,7 +435,7 @@ Covariance(hybrid4_SABER-ensemble) * Increment:
     + max    = 4.2682332240482297e-02
     + mean   = -1.5373909405488812e-03
     + stddev = 1.0971854026778714e-02
-Localization(hybrid4_SABER-ensemble_localization) dirac test:
+Localization(SABER-hybrid-cmp4_SABER-ensemble_localization) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -456,7 +456,7 @@ Adjoint test for the multivariate central block passed
 Square-root test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Square-root test for the multivariate central block passed
-Localization(hybrid4_SABER-ensemble_localization) * Increment:
+Localization(SABER-hybrid-cmp4_SABER-ensemble_localization) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -480,6 +480,6 @@ Localization(hybrid4_SABER-ensemble_localization) * Increment:
     + max    = 8.6639546451475236e-01
     + mean   = 1.1423257214589796e-02
     + stddev = 6.5894523136080435e-02
-Localization(hybrid4_SABER-ensemble_localization) diagnostics:
+Localization(SABER-hybrid-cmp4_SABER-ensemble_localization) diagnostics:
 - Localization at zero separation:
   + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000011e+00

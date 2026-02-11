@@ -103,7 +103,7 @@ Covariance(SABER-hybrid) * Increment:
     + max    = 1.2139154453781746e-01
     + mean   = -3.9872033861290110e-04
     + stddev = 8.4299716138385768e-03
-Covariance(SABER-hybrid1_SABER-parametric) dirac test:
+Covariance(SABER-hybrid-cmp1_SABER-parametric) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -167,7 +167,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~>  0.200E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Covariance(SABER-hybrid1_SABER-parametric) * Increment:
+Covariance(SABER-hybrid-cmp1_SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -181,7 +181,7 @@ Covariance(SABER-hybrid1_SABER-parametric) * Increment:
     + max    = 3.2622646484939685e-13
     + mean   = -1.8065427102790403e-17
     + stddev = 3.2868334756832761e-14
-Covariance(SABER-hybrid2_SABER-ensemble) dirac test:
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) dirac test:
 Norm of input parameter inflation: 6.9558608381710329e+01
 Norm of input parameter StdDev: 1.6562608490210712e+02
 Adjoint test for block StdDev passed
@@ -197,7 +197,7 @@ Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER-hybrid2_SABER-ensemble) * Increment:
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -211,7 +211,7 @@ Covariance(SABER-hybrid2_SABER-ensemble) * Increment:
     + max    = 2.4278308907565277e-01
     + mean   = -7.9744067722578474e-04
     + stddev = 1.6859943227676515e-02
-Localization(SABER-hybrid2_SABER-ensemble_localization) dirac test:
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -221,7 +221,7 @@ Localization(SABER-hybrid2_SABER-ensemble_localization) dirac test:
              Level   2 ~>  0.200E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Localization(SABER-hybrid2_SABER-ensemble_localization) * Increment:
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -235,6 +235,6 @@ Localization(SABER-hybrid2_SABER-ensemble_localization) * Increment:
     + max    = 9.9999999999999956e-01
     + mean   = 7.1470388430498570e-03
     + stddev = 5.4309318156277889e-02
-Localization(SABER-hybrid2_SABER-ensemble_localization) diagnostics:
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) diagnostics:
 - Localization at zero separation:
   + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999956e-01
