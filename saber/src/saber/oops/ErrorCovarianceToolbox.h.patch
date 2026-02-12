@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-02-11 19:01:46.032533329 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-02-11 18:58:06.196973047 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-02-12 08:32:28.930755604 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-02-12 08:24:54.609270765 +0100
 @@ -26,17 +26,16 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
@@ -110,7 +110,7 @@
  
      // Get number of MPI tasks and OpenMP threads
      size_t ntasks = commSpace->size();
-@@ -185,14 +149,28 @@
+@@ -185,17 +149,31 @@
      util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
      params.deserialize(fullConfigUpdated);
  
@@ -136,12 +136,15 @@
      // Setup variables
 -    oops::JediVariables tmpVars = xx.variables();
 +    oops::JediVariables tmpVars(xx[0].state().fieldSet().field_names());
-+    for (auto & var : tmpVars) {
-+      var.setLevels(xx[0].state().fieldSet()[var.name()].shape(1));
-+    }
      if (params.incrementVars.value() != boost::none) {
        tmpVars = params.incrementVars.value().value();
      }
++    for (auto & var : tmpVars) {
++      var.setLevels(xx[0].state().fieldSet()[var.name()].shape(1));
++    }
+     const oops::JediVariables vars = tmpVars;
+ 
+     // Covariance parameters
 @@ -205,8 +183,8 @@
      const auto & diracParams = params.dirac.value();
      if (diracParams != boost::none) {

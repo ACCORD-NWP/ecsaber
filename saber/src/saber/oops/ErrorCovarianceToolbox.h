@@ -168,11 +168,11 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
     // Setup variables
     oops::JediVariables tmpVars(xx[0].state().fieldSet().field_names());
-    for (auto & var : tmpVars) {
-      var.setLevels(xx[0].state().fieldSet()[var.name()].shape(1));
-    }
     if (params.incrementVars.value() != boost::none) {
       tmpVars = params.incrementVars.value().value();
+    }
+    for (auto & var : tmpVars) {
+      var.setLevels(xx[0].state().fieldSet()[var.name()].shape(1));
     }
     const oops::JediVariables vars = tmpVars;
 
