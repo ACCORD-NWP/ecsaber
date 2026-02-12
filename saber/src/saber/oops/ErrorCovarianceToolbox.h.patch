@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-02-12 08:32:28.930755604 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-02-12 08:24:54.609270765 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-02-12 09:59:17.255336851 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-02-12 09:22:46.272306090 +0100
 @@ -26,17 +26,16 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
@@ -306,7 +306,27 @@
  
            // Merge configuration with full configuration (order of arguments matters!)
            componentConfig = util::mergeConfigs(componentConfig, paramsBase.toConfiguration());
-@@ -611,7 +603,7 @@
+@@ -577,11 +569,16 @@
+                                              locConfig);
+ 
+         // Define output increment
+-        Increment4D_ dxo(dxi);
+-        oops::FieldSet4D fset4dDxo(dxo);
++        oops::FieldSet4D fset4dDx(dxi);
+ 
+         // Apply localization
+-        Lmat.multiply(fset4dDxo);
++        Lmat.multiply(fset4dDx);
++
++        // Reset output
++        Increment4D_ dxo(dxi);
++        for (int jsub = 0; jsub < dxo.times().size(); ++jsub) {
++          dxo[jsub].increment().fromFieldSet(fset4dDx[jsub].fieldSet());
++        }
+ 
+         // Copy configuration
+         eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
+@@ -611,7 +608,7 @@
                       const Geometry_ & geom,
                       const oops::JediVariables & vars,
                       const State4D_ & xx,
@@ -315,7 +335,7 @@
                       const size_t & ntasks) const {
      // Get randomization size
      ASSERT(params.backgroundError.value().randomizationSize.value());
-@@ -623,9 +615,9 @@
+@@ -623,9 +620,9 @@
        oops::Log::info() << "Info     : -----------------------" << std::endl;
  
        // Create increments
@@ -328,7 +348,7 @@
  
        // Initialize variance
        variance.zero();
-@@ -660,7 +652,9 @@
+@@ -660,7 +657,9 @@
  
              // Add background state to perturbation
              State4D_ xp(xx);
@@ -339,7 +359,7 @@
  
              // Write state
              xp.write(outputStatesUpdated);
-@@ -671,7 +665,9 @@
+@@ -671,7 +670,9 @@
  
          // Square perturbation
          dxsq = dx;

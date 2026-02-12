@@ -569,11 +569,16 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
                                              locConfig);
 
         // Define output increment
-        Increment4D_ dxo(dxi);
-        oops::FieldSet4D fset4dDxo(dxo);
+        oops::FieldSet4D fset4dDx(dxi);
 
         // Apply localization
-        Lmat.multiply(fset4dDxo);
+        Lmat.multiply(fset4dDx);
+
+        // Reset output
+        Increment4D_ dxo(dxi);
+        for (int jsub = 0; jsub < dxo.times().size(); ++jsub) {
+          dxo[jsub].increment().fromFieldSet(fset4dDx[jsub].fieldSet());
+        }
 
         // Copy configuration
         eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
