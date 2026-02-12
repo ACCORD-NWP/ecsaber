@@ -63,6 +63,10 @@ class SaberCentralBlockGroupParameters : public oops::Parameters {
   oops::OptionalParameter<std::vector<SaberOuterBlockParametersWrapper>>
     auxOuterBlocksParams{"auxiliary outer blocks", this};
 
+  // Optional parameter specific to "duplicated"
+  oops::Parameter<std::vector<std::string>>
+    varsOnExtraLevels{"variables on extra levels", {}, this};
+
   // Optional parameters specific to "duplicated and weighted" strategy
   oops::Parameter<double> defOffDiagWeight{"default off-diagonal weight", 0.0, this};
   oops::OptionalParameter<std::vector<OffDiagWeightParameters>>
@@ -100,7 +104,6 @@ class SaberCentralBlockParameters : public oops::Parameters {
 class SaberCentralBlock : public util::Printable {
  public:
   SaberCentralBlock(const oops::GeometryData & geometryData,
-                    const bool levelsAreTopDown,
                     const oops::JediVariables & outerVars,
                     const eckit::Configuration & covarConf,
                     const SaberCentralBlockParameters & params,
@@ -211,8 +214,8 @@ class SaberCentralBlock : public util::Printable {
 
   // Weights for the "duplicated and weighted" strategy
   std::vector<Eigen::MatrixXd> wgtSqrt_;
-  // Level for 2D fields (for 3D and 2D fields summation)
-  std::unordered_map<std::string, size_t> lev2d_;
+  // First level (for 3D and 2D fields summation)
+  std::unordered_map<std::string, int> firstLevel_;
 
   void print(std::ostream &) const {}
 };

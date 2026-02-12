@@ -105,7 +105,6 @@ oops::JediVariables SaberCentralBlockParameters::getActiveVars(
 // -----------------------------------------------------------------------------
 
 SaberCentralBlock::SaberCentralBlock(const oops::GeometryData & outerGeom,
-                                     const bool levelsAreTopDown,
                                      const oops::JediVariables & outerVars,
                                      const eckit::Configuration & covarConf,
                                      const SaberCentralBlockParameters & params,
@@ -215,11 +214,71 @@ SaberCentralBlock::SaberCentralBlock(const oops::GeometryData & outerGeom,
         }
       }
 
+      // Get variables on extra level
+      const std::vector<std::string> & varsOnExtraLevels = groupParams.varsOnExtraLevels.value();
+      ASSERT((varsOnExtraLevels.size() == 0) || (strategy_ == "duplicated"));
+
+      // Initialize flags
+      bool addFirstLevel = false;
+      bool addLastLevel = false;
+
+      for (auto & var : groupVars) {
+        // First level
+        int firstLevel = 0;
+
+        // Check wheter an extra level is needed for this variable
+        const bool extraLevel = (std::find(varsOnExtraLevels.begin(), varsOnExtraLevels.end(),
+        var.name()) != varsOnExtraLevels.end());
+
+        if ((refVar.getLevels() > 1) && (var.getLevels() == 1)) {
+          // This is a 2D variable in a group containing 3D variables
+
+          // Get field
+          const auto field = xb[var.name()];
+
+          // Find first level
+          const std::string nearest3dLevel = field.metadata().getString("nearest 3d level");
+          ASSERT((nearest3dLevel == "top") || (nearest3dLevel == "bottom"));
+          if ((outerGeom.levelsAreTopDown() && (nearest3dLevel == "top")) ||
+            (!outerGeom.levelsAreTopDown() && (nearest3dLevel == "bottom"))) {
+            firstLevel = extraLevel ? -1 : 0;
+          } else {
+            firstLevel = extraLevel ? refVar.getLevels() : refVar.getLevels()-1;
+          }
+
+          // Update flags to add levels
+          if (firstLevel == -1) {
+            addFirstLevel = true;
+          }
+          if (firstLevel == refVar.getLevels()) {
+            addLastLevel = true;
+          }
+        } else {
+          // No extra level for 3D variables
+          ASSERT(!extraLevel);
+        }
+
+        // Insert first level
+        firstLevel_.insert({var.name(), firstLevel});
+      }
+
+      // Compute final number of levels and update first level index
+      int refVarLevels = refVar.getLevels();
+      if (addFirstLevel) {
+        ++refVarLevels;
+        for (auto & pair : firstLevel_) {
+          ++pair.second;
+        }
+      }
+      if (addLastLevel) {
+        ++refVarLevels;
+      }
+
       // Append group parameters
       groupInputVars_.push_back(groupVars);
       groupNames_.push_back(groupParams.groupName.value());
       groupInnerVars_.push_back(oops::JediVariables(
-        {oops::Variable(groupNames_.back(), refVar.metaData(), refVar.getLevels())}));
+        {oops::Variable(groupNames_.back(), refVar.metaData(), refVarLevels)}));
       doCalibration_.push_back(groupParams.centralBlockParams().doCalibration());
       doRead_.push_back(groupParams.centralBlockParams().doRead());
       forceWrite_.push_back(groupParams.centralBlockParams().forceWrite.value());
@@ -255,25 +314,6 @@ SaberCentralBlock::SaberCentralBlock(const oops::GeometryData & outerGeom,
                                                          groupParams.centralBlockParams(),
                                                          xb,
                                                          fg));
-
-      // Get the nearest 3D level for 2D variables
-      for (auto & var : groupVars) {
-        if ((refVar.getLevels() > 1) && (var.getLevels() == 1)) {
-          // Get field
-          const auto field = xb[var.name()];
-
-          // 2D level only
-          const std::string nearest3dLevel = field.metadata().getString("nearest 3d level");
-          ASSERT((nearest3dLevel == "top") || (nearest3dLevel == "bottom"));
-          size_t lev2d;
-          if (levelsAreTopDown) {
-            lev2d = (nearest3dLevel == "top") ? 0 : refVar.getLevels()-1;
-          } else {
-            lev2d = (nearest3dLevel == "bottom") ? 0 : refVar.getLevels()-1;
-          }
-          lev2d_.insert({var.name(), lev2d});
-        }
-      }
 
       // Strategy-specific setup
       if (strategy_ == "duplicated and weighted") {
@@ -403,18 +443,20 @@ void SaberCentralBlock::multiply(oops::FieldSet3D & fset3d) const {
           // Get field view
           const auto view = make_view<double, 2>(field);
 
+          // Get first level
+          const int firstLevel = firstLevel_.at(var.name());
+
           // Check whether the field is a 2D field added to a reference 3D field
           if ((inputRefField.levels() > 1) && (field.levels() == 1)) {
             // 2D level only
-            const size_t lev2d = lev2d_.at(var.name());
             for (int jnode = 0; jnode < field.shape(0); ++jnode) {
-              inputRefView(jnode, lev2d) += view(jnode, 0);
+              inputRefView(jnode, firstLevel) += view(jnode, 0);
             }
           } else {
             // All levels
             for (int jnode = 0; jnode < field.shape(0); ++jnode) {
               for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
-                inputRefView(jnode, jlevel) += view(jnode, jlevel);
+                inputRefView(jnode, firstLevel+jlevel) += view(jnode, jlevel);
               }
             }
           }
@@ -439,18 +481,20 @@ void SaberCentralBlock::multiply(oops::FieldSet3D & fset3d) const {
           // Get field view
           auto view = make_view<double, 2>(field);
 
+          // Get first level
+          const int firstLevel = firstLevel_.at(var.name());
+
           // Check whether the field is a 2D field added to a reference 3D field
           if ((outputRefField.levels() > 1) && (field.levels() == 1)) {
             // 2D level only
-            const size_t lev2d = lev2d_.at(var.name());
             for (int jnode = 0; jnode < field.shape(0); ++jnode) {
-              view(jnode, 0) = outputRefView(jnode, lev2d);
+              view(jnode, 0) = outputRefView(jnode, firstLevel);
             }
           } else {
             // All levels
             for (int jnode = 0; jnode < field.shape(0); ++jnode) {
               for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
-                view(jnode, jlevel) = outputRefView(jnode, jlevel);
+                view(jnode, jlevel) = outputRefView(jnode, firstLevel+jlevel);
               }
             }
           }
@@ -544,16 +588,22 @@ void SaberCentralBlock::randomize(oops::FieldSet3D & fset3d) const {
           // Get field view
           auto view = make_view<double, 2>(field);
 
+          // Get first level
+          const int firstLevel = firstLevel_.at(var.name());
+
           // Check whether the field is a 2D field added to a reference 3D field
           if ((outputRefField.levels() > 1) && (field.levels() == 1)) {
             // 2D level only
-            const size_t lev2d = lev2d_.at(var.name());
             for (int jnode = 0; jnode < field.shape(0); ++jnode) {
-              view(jnode, 0) = outputRefView(jnode, lev2d);
+              view(jnode, 0) = outputRefView(jnode, firstLevel);
             }
           } else {
             // All levels
-            view.assign(outputRefView);
+            for (int jnode = 0; jnode < field.shape(0); ++jnode) {
+              for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
+                view(jnode, jlevel) = outputRefView(jnode, firstLevel+jlevel);
+              }
+            }
           }
         }
       }
@@ -860,16 +910,22 @@ void SaberCentralBlock::multiplySqrt(const atlas::Field & cv,
           // Get field view
           auto view = make_view<double, 2>(field);
 
+          // Get first level
+          const int firstLevel = firstLevel_.at(var.name());
+
           // Check whether the field is a 2D field added to a reference 3D field
           if ((outputRefField.levels() > 1) && (field.levels() == 1)) {
             // 2D level only
-            const size_t lev2d = lev2d_.at(var.name());
             for (int jnode = 0; jnode < field.shape(0); ++jnode) {
-              view(jnode, 0) = outputRefView(jnode, lev2d);
+              view(jnode, 0) = outputRefView(jnode, firstLevel);
             }
           } else {
             // All levels
-            view.assign(outputRefView);
+            for (int jnode = 0; jnode < field.shape(0); ++jnode) {
+              for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
+                view(jnode, jlevel) = outputRefView(jnode, firstLevel+jlevel);
+              }
+            }
           }
         }
       }
@@ -1013,18 +1069,20 @@ void SaberCentralBlock::multiplySqrtAD(const oops::FieldSet3D & fset3d,
           // Get field view
           const auto view = make_view<double, 2>(field);
 
+          // Get first level
+          const int firstLevel = firstLevel_.at(var.name());
+
           // Check whether the field is a 2D field added to a reference 3D field
           if ((inputRefField.levels() > 1) && (field.levels() == 1)) {
             // 2D level only
-            const size_t lev2d = lev2d_.at(var.name());
             for (int jnode = 0; jnode < field.shape(0); ++jnode) {
-              inputRefView(jnode, lev2d) += view(jnode, 0);
+              inputRefView(jnode, firstLevel) += view(jnode, 0);
             }
           } else {
             // All levels
             for (int jnode = 0; jnode < field.shape(0); ++jnode) {
               for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
-                inputRefView(jnode, jlevel) += view(jnode, jlevel);
+                inputRefView(jnode, firstLevel+jlevel) += view(jnode, jlevel);
               }
             }
           }

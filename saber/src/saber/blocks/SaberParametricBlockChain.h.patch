@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2026-02-09 13:47:02.854673020 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2026-02-09 13:50:43.187802773 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2026-02-12 15:56:23.132305584 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2026-02-12 15:57:35.990011381 +0100
 @@ -21,6 +21,7 @@
  #include "oops/base/FieldSets.h"
  #include "oops/interface/ModelData.h"
@@ -8,7 +8,7 @@
  
  #include "saber/blocks/SaberBlockChainBase.h"
  #include "saber/blocks/SaberBlockParametersBase.h"
-@@ -132,7 +133,7 @@
+@@ -130,7 +131,7 @@
                         oops::FieldSet4D & fset4dXb,
                         oops::FieldSet4D & fset4dFg,
                         const eckit::Configuration & conf)
@@ -17,7 +17,7 @@
    timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
    oops::Log::trace() << "SaberParametricBlockChain ctor starting" << std::endl;
  
-@@ -165,13 +166,13 @@
+@@ -163,7 +164,7 @@
  
    // Set outer geometry data for central block
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
@@ -26,10 +26,3 @@
  
    // Create central block
    oops::Log::info() << "Info     : Creating central block: " << std::endl;
- 
-   const auto currentOuterVars = initCentralBlock(currentOuterGeom,
--                                                 geom.levelsAreTopDown(),
-+                                                 geom.geometry().levelsAreTopDown(),
-                                                  fullConf,
-                                                  saberCentralBlockParams,
-                                                  fset4dXb,

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-02-09 13:47:03.355675504 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-02-09 13:51:57.207196120 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-02-12 15:56:23.298307226 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-02-12 15:58:13.705365591 +0100
 @@ -18,9 +18,10 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -72,16 +72,7 @@
          oops::Log::info() << "Info     : Localization and ensemble are on different "
                               "functionSpaces, building localization with generic "
                               "constructor" << std::endl;
-@@ -477,7 +478,7 @@
-         // constructor, but other models usually don't have this ability to create a
-         // Geometry on any mesh.
-         scaleData.localization() = std::make_unique<SaberParametricBlockChain>(filterOuterGeomData,
--                                                                     geom.levelsAreTopDown(),
-+                                                                     geom.geometry().levelsAreTopDown(),
-                                                                      currentOuterVars,
-                                                                      fset4dXb,
-                                                                      fset4dFg,
-@@ -613,10 +614,10 @@
+@@ -612,10 +613,10 @@
          for (size_t ie = 0; ie < scaleData.ensemble()->ens_size(); ++ie) {
            // Should be on the model geometry!
            auto pert = oops::Increment<MODEL>(geom,
