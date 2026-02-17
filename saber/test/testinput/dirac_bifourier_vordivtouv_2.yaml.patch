@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_2.yaml.tmp.bak	2026-02-02 20:04:48.468160817 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_2.yaml	2026-02-02 20:03:53.786698795 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_2.yaml.tmp.bak	2026-02-17 18:20:28.106276727 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bifourier_vordivtouv_2.yaml	2026-02-17 18:23:58.898859012 +0100
 @@ -70,4 +70,5 @@
    mpi pattern: '%MPI%'
    filepath: testdata/dirac_bifourier_vordivtouv_2/%MPI%_dirac_%id%

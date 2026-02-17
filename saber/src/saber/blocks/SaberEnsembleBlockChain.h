@@ -362,6 +362,9 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
 
       // Update outer variables
       currentOuterVars = outerBlockChain_->innerVars();
+
+      // Check that the geometry is still the same
+      ASSERT(&currentOuterGeom == &(outerBlockChain_->innerGeometryData()));
     }
   }
 

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/convertcov_bifourier_balance_3.yaml.tmp.bak	2026-01-15 09:31:35.573235689 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/convertcov_bifourier_balance_3.yaml	2026-01-15 09:04:17.567536145 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/convertcov_bifourier_balance_3.yaml.tmp.bak	2026-02-17 18:20:27.096269124 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/convertcov_bifourier_balance_3.yaml	2026-02-17 18:21:54.428925713 +0100
 @@ -88,4 +88,5 @@
    mpi pattern: '%MPI%'
    filepath: testdata/convertcov_bifourier_balance_3/%MPI%_dirac_%id%

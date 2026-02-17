@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bifourier_7.yaml.tmp	2026-01-14 15:27:01.494615070 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/error_covariance_training_bifourier_7.yaml	2026-01-14 13:18:51.842243403 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/error_covariance_training_bifourier_7.yaml.tmp.bak	2026-02-17 18:20:27.965275665 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/error_covariance_training_bifourier_7.yaml	2026-02-17 18:23:35.211681596 +0100
 @@ -113,4 +113,5 @@
    mpi pattern: '%MPI%'
    filepath: testdata/error_covariance_training_bifourier_7/%MPI%_dirac_%id%

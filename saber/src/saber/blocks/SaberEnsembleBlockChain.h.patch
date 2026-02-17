@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-02-17 13:03:59.136979160 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-02-17 13:05:18.558345968 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-02-17 18:20:25.019253488 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-02-17 18:21:14.215623577 +0100
 @@ -18,9 +18,10 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -26,7 +26,7 @@
    oops::JediVariables currentOuterVars = outerBlockChain_ ?
                                       outerBlockChain_->innerVars() : outerVars;
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
--                                     outerBlockChain_->innerGeometryData() : geom.generic();
+-                                   outerBlockChain_->innerGeometryData() : geom.generic();
 +                                     outerBlockChain_->innerGeometryData() : util::geomData(geom);
  
    // Get active variables
@@ -54,7 +54,7 @@
      }
    }
  
-@@ -424,7 +425,7 @@
+@@ -427,7 +428,7 @@
  
      // Get interpolator outer geometry data
      const oops::GeometryData & interpolatorOuterGeomData = outerBlockChain_ ?
@@ -63,7 +63,7 @@
  
      // Interpolator outer block chain
      if (scaleParams.interpolatorParams.value()) {
-@@ -486,7 +487,7 @@
+@@ -489,7 +490,7 @@
  
        // Check consistency of `geom` and the current geometry
        const auto & currentFspace = filterOuterGeomData.functionSpace();
@@ -72,7 +72,7 @@
          oops::Log::info() << "Info     : Localization and ensemble are on different "
                               "functionSpaces, building localization with generic "
                               "constructor" << std::endl;
-@@ -645,10 +646,10 @@
+@@ -648,10 +649,10 @@
          for (size_t ie = 0; ie < ne; ++ie) {
            // Should be on the model geometry!
            auto pert = oops::Increment<MODEL>(geom,
