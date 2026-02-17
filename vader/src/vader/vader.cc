@@ -160,6 +160,7 @@ oops::JediVariables Vader::changeVar(atlas::FieldSet & afieldset,
     onlyIngredientVars -= neededVars;
 
     oops::JediVariables ingredientVars(afieldset.field_names());
+    ASSERT_MSG(plan.empty(), "plan must be empty before calling planVariables");
     planVariables(ingredientVars, neededVars, plan);
     executePlanNL(afieldset, plan);
 
@@ -247,6 +248,11 @@ oops::JediVariables Vader::initTLAD(oops::JediVariables & ingredientVars,
     oops::JediVariables trajectoryVars(trajectory_.field_names());
     oops::JediVariables neededVars(toVariables_);
     oops::JediVariables neededVarsProduced(toVariables_);
+    ASSERT_MSG(recipeExecutionPlan_.empty(),
+        "recipeExecutionPlan_ must be empty before calling planVariables");
+    ASSERT_MSG(trajRecipeExecutionPlan.empty(),
+        "trajRecipeExecutionPlan must be empty before calling planVariables");
+
     planVariables(ingredientVars, neededVars, recipeExecutionPlan_, planTLAD,
                   trajectoryVars, trajRecipeExecutionPlan);
     recipeExecutionPlanBuilt_ = true;
@@ -376,7 +382,6 @@ void Vader::planVariables(oops::JediVariables & ingredientVars,
     // Loop through all the requested fields in neededVars
     // Since neededVars can be modified by planVariable and planVariable calls
     // itself recursively, we make a copy of the list here before we start.
-    plan.clear();
 
     const oops::JediVariables targetVariables(neededVars);
 
@@ -393,6 +398,7 @@ void Vader::planVariables(oops::JediVariables & ingredientVars,
         }
         oops::JediVariables excludedVars;
         auto initPlanSize = plan.size();
+        auto initTrajPlanSize = trajRecipeExecutionPlan.size();
         if (!planVariable(ingredientVars, neededVars, targetVariable, excludedVars, plan,
                           planTLAD, trajectoryVars, trajRecipeExecutionPlan)) {
             // If we couldn't plan the variable, remove anything that might have been added to the
@@ -401,6 +407,10 @@ void Vader::planVariables(oops::JediVariables & ingredientVars,
                 " since we couldn't plan it." << std::endl;
             while (plan.size() > initPlanSize) {
                 plan.pop_back();
+            }
+            // Also clean up any trajectory plan entries that were added
+            while (trajRecipeExecutionPlan.size() > initTrajPlanSize) {
+                trajRecipeExecutionPlan.pop_back();
             }
         }
     }
@@ -510,8 +520,21 @@ bool Vader::planVariable(oops::JediVariables & ingredientVars,
                         // create it again as an ingredient at a lower level of recursion. Then
                         // call planVariable recursively.
                         excludedVars.push_back(targetVariable);
+                        // Track trajPlan size before recursive call in case we need to clean up
+                        auto trajPlanSizeBeforeIngredient = trajPlan.size();
                         haveIngredient = planVariable(ingredientVars, neededVars, ingredient,
                                             excludedVars, plan, planTLAD, trajectoryVars, trajPlan);
+                        // If the ingredient recipe failed, clean up any trajectory plan entries
+                        // that were added during the recursive call
+                        if (!haveIngredient && trajPlan.size() > trajPlanSizeBeforeIngredient) {
+                            oops::Log::debug() << "Ingredient recipe failed, removing "
+                                << (trajPlan.size() - trajPlanSizeBeforeIngredient)
+                                << " trajectory plan entries added during recursive call."
+                                << std::endl;
+                            while (trajPlan.size() > trajPlanSizeBeforeIngredient) {
+                                trajPlan.pop_back();
+                            }
+                        }
                         // Remove the ingredient from excludedVars since we're back to this level.
                         excludedVars -= targetVariable;
                     }
@@ -531,6 +554,7 @@ bool Vader::planVariable(oops::JediVariables & ingredientVars,
                     "Trajectory vars for recipe " << recipe->name() << " are: " << std::endl <<
                     trajNeededVars << std::endl;
                 auto trajPlanInitSize = trajPlan.size();
+                auto trajVarsInitSize = trajectoryVars.size();
                 planVariables(trajectoryVars, trajNeededVars, trajPlan);
                 if (trajNeededVars.size() == 0) {
                     oops::Log::debug() <<

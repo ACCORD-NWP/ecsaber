@@ -25,7 +25,7 @@ Adjoint test for block gauss to cubed-sphere-dual passed
 Inner inverse test for block gauss to cubed-sphere-dual passed: U Uinv (U x) == (U x)
 Outer inverse test for block gauss to cubed-sphere-dual passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block spectral to gauss passed
-skipping inverse test for block spectral to gauss
+Skipping inverse test for block spectral to gauss
 Adjoint test for block spectral covariance passed
 Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
