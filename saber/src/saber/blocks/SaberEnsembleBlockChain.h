@@ -53,7 +53,11 @@ class ScaleParameters : public oops::Parameters {
   oops::OptionalParameter<std::vector<SaberOuterBlockParametersWrapper>> interpolatorParams{
     "interpolator", this};
 
-  // Ensemble perturbations to read (optional)
+  // Ensemble perturbations to read using generic reader (optional)
+  oops::OptionalParameter<eckit::LocalConfiguration> genericEnsemble{
+    "generic ensemble", this};
+
+  // Ensemble perturbations to read using model reader (optional)
   oops::OptionalParameter<eckit::LocalConfiguration> ensemblePert{
     "ensemble pert", this};
 
@@ -161,6 +165,10 @@ class SaberEnsembleBlockChainParameters: public ErrorCovarianceParametersBase {
                         "ensemble pert on other geometry", this};
   oops::OptionalParameter<eckit::LocalConfiguration> ensembleGeom{
                         "ensemble geometry", this};
+
+  // Sub-ensembles size: if subEnsSize = p, it means that sets of members {0,...,p-1}, {p,...,2p-1},
+  // etc. are distinct sub-ensembles. The mean of each sub-ensemble is subtracted.
+  oops::OptionalParameter<size_t> subEnsSize{"sub-ensembles size", this};
 };
 
 /// Chain of outer (optional) and an ensemble "block".
@@ -215,11 +223,13 @@ class SaberEnsembleBlockChain : public SaberBlockChainBase {
 
 template<typename MODEL>
 SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & geom,
-                       const oops::JediVariables & outerVars,
-                       oops::FieldSet4D & fset4dXb,
-                       oops::FieldSet4D & fset4dFg,
-                       const eckit::Configuration & conf)
-  : comm_(geom.geometry().getComm()), outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars) {
+                                                 const oops::JediVariables & outerVars,
+                                                 oops::FieldSet4D & fset4dXb,
+                                                 oops::FieldSet4D & fset4dFg,
+                                                 const eckit::Configuration & conf)
+  : comm_(geom.geometry().getComm()),
+    outerFunctionSpace_(geom.geometry().functionSpace()),
+    outerVariables_(outerVars) {
   oops::Log::trace() << "SaberEnsembleBlockChain ctor starting" << std::endl;
 
   // Deserialize parameters and fill configuration with missing values
@@ -243,6 +253,41 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
   if (ensemble->ens_size() == 1) {
     throw eckit::BadParameter("Ensemble for SaberEnsembleBlockChain has to have at least"
                               " two members (or no member)", Here());
+  }
+
+  // Remove specific means for sub-ensembles
+  if (params.subEnsSize.value()) {
+    // Sub-ensemble size
+    const size_t subEnsSize = *params.subEnsSize.value();
+
+    // Consistency checks
+    ASSERT(subEnsSize > 1);
+    ASSERT(ensemble->ens_size()%subEnsSize == 0);
+
+    // Loop over sub-ensembles
+    for (size_t jsub=0; jsub < ensemble->ens_size()/subEnsSize; ++jsub) {
+      // Member index offset
+      const size_t offset = jsub*subEnsSize;
+
+      for (size_t it = 0; it < fset4dXb.size(); ++it) {
+        // Initialize mean with first member of the sub-ensemble
+        oops::FieldSet3D mean((*ensemble)(it, offset));
+
+        // Accumule other members of the sub-ensemble
+        for (size_t ie = 1; ie < subEnsSize; ++ie) {
+          mean += (*ensemble)(it, offset+ie);
+        }
+
+        // Normalize mean
+        const double rk = 1.0/static_cast<double>(subEnsSize);
+        mean *= rk;
+
+        // Subtract mean
+        for (size_t ie = 0; ie < subEnsSize; ++ie) {
+          (*ensemble)(it, offset+ie) -= mean;
+        }
+      }
+    }
   }
 
   // Create outer blocks if needed
@@ -417,7 +462,7 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
         }
       } else {
         // First scale does not include a filter: all scales should read ensemble perturbations
-        ASSERT(scaleParams.ensemblePert.value());
+        ASSERT(scaleParams.genericEnsemble.value() || scaleParams.ensemblePert.value());
       }
     }
 
@@ -605,19 +650,45 @@ SaberEnsembleBlockChain::SaberEnsembleBlockChain(const oops::Geometry<MODEL> & g
             // Copy perturbation into ensemble
             scaleData.ensemble()->emplace_back(it, ie, fset4dDx[0]);
 
-            // TODO(Benjamin): if last scale, remove members from initial ensemble sequentially,
-            // as there are not needed anymore
+            if (&scaleData == &scaleDataVec_.back()) {
+              // Remove member from initial ensemble as there are not needed anymore
+              ensemble->clear(it, ie);
+            }
           }
         }
       }
     } else {
       // Read ensemble perturbations
       for (auto & scaleData : scaleDataVec_) {
-        scaleData.ensemble() = std::make_unique<oops::FieldSets>(readEnsemble(
-                                 geom,
-                                 scaleData.localization()->outerVariables(),
-                                 fset4dXb.times(), fset4dXb.commTime(), fset4dXb.commEns(),
-                                 scaleData.params().toConfiguration()));
+        if (scaleData.params().genericEnsemble.value()) {
+          // Get current geometry
+          const oops::GeometryData & ensGeom = scaleData.interpolator() ?
+            scaleData.interpolator()->innerGeometryData() : outerBlockChain_ ?
+            outerBlockChain_->innerGeometryData() : util::geomData(geom);
+
+          // Read ensemble using generic reader
+          scaleData.ensemble() = std::make_unique<oops::FieldSets>(readEnsemble(
+                                   ensGeom,
+                                   scaleData.localization()->outerVariables(),
+                                   fset4dXb.times(), fset4dXb.commTime(), fset4dXb.commEns(),
+                                   *scaleData.params().genericEnsemble.value()));
+        } else {
+          // Check geometry consistency
+          if (outerBlockChain_) {
+            ASSERT(util::getGridUid(outerBlockChain_->innerGeometryData().functionSpace())
+              == util::getGridUid(geom.geometry().functionSpace()));
+          }
+
+          // No interpolator allowed
+          ASSERT(!scaleData.interpolator());
+
+          // Read ensemble using model reader
+          scaleData.ensemble() = std::make_unique<oops::FieldSets>(readEnsemble(
+                                   geom,
+                                   scaleData.localization()->outerVariables(),
+                                   fset4dXb.times(), fset4dXb.commTime(), fset4dXb.commEns(),
+                                   scaleData.params().toConfiguration()));
+        }
       }
     }
   } else {

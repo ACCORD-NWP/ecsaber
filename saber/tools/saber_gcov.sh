@@ -28,8 +28,12 @@ fi
 # Hard-coded parameters
 build_dir=${HOME}/build/gnu_10.3.0/bundle_debug
 saber_dirs="
+bifourier
+blocks
 bump
-external
+diffusion
+fastlam
+generic
 gsi
 interpolation
 oops
