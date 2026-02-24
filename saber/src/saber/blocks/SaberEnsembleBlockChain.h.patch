@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-02-23 15:00:03.487922619 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-02-23 15:10:39.251359544 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-02-24 10:27:53.387802254 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-02-24 10:28:38.615220299 +0100
 @@ -18,9 +18,10 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -74,7 +74,25 @@
          oops::Log::info() << "Info     : Localization and ensemble are on different "
                               "functionSpaces, building localization with generic "
                               "constructor" << std::endl;
-@@ -719,10 +720,10 @@
+@@ -675,7 +676,7 @@
+           // Get current geometry
+           const oops::GeometryData & ensGeom = scaleData.interpolator() ?
+             scaleData.interpolator()->innerGeometryData() : outerBlockChain_ ?
+-            outerBlockChain_->innerGeometryData() : geom.generic();
++            outerBlockChain_->innerGeometryData() : util::geomData(geom);
+ 
+           // Read ensemble using generic reader
+           scaleData.ensemble() = std::make_unique<oops::FieldSets>(readEnsemble(
+@@ -687,7 +688,7 @@
+           // Check geometry consistency
+           if (outerBlockChain_) {
+             ASSERT(util::getGridUid(outerBlockChain_->innerGeometryData().functionSpace())
+-              == util::getGridUid(geom.functionSpace()));
++              == util::getGridUid(geom.geometry().functionSpace()));
+           }
+ 
+           // No interpolator allowed
+@@ -731,10 +732,10 @@
          for (size_t ie = 0; ie < ne; ++ie) {
            // Should be on the model geometry!
            auto pert = oops::Increment<MODEL>(geom,

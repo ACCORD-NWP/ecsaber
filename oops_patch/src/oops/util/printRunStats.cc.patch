@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/util/printRunStats.cc.tmp	2025-11-06 08:18:48.059332533 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/util/printRunStats.cc	2025-11-06 08:11:59.485932755 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/util/printRunStats.cc.tmp.bak	2026-02-24 10:27:02.326314232 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/util/printRunStats.cc	2026-02-24 10:27:45.276725907 +0100
 @@ -14,6 +14,7 @@
  #include "eckit/system/ResourceUsage.h"
  
