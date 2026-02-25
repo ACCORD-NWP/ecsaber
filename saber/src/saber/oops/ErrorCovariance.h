@@ -87,6 +87,9 @@ class ErrorCovariance4D : public oops::ModelSpaceCovariance4DBase<MODEL> {
  private:
   void print(std::ostream &) const;
 
+  /// Constructor configuration (used in the linearize method)
+  const eckit::LocalConfiguration config_;
+
   /// Chain of blocks (hybrid or ensemble or parametric)
   std::unique_ptr<SaberBlockChainBase> blockChain_;
 
@@ -109,15 +112,16 @@ ErrorCovariance4D<MODEL>::ErrorCovariance4D(const Geometry_ & geom,
                                             const Variables_ & incVars,
                                             const eckit::Configuration & config,
                                             const State4D_ & xb)
-  : oops::ModelSpaceCovariance4DBase<MODEL>::ModelSpaceCovariance4DBase(geom, config)
+  : oops::ModelSpaceCovariance4DBase<MODEL>::ModelSpaceCovariance4DBase(geom, config),
+    config_(config)
 {
   oops::Log::trace() << "ErrorCovariance4D::ErrorCovariance4D starting" << std::endl;
 
   // Deserialize parameters
   ErrorCovarianceParameters params;
-  params.deserialize(config);
+  params.deserialize(config_);
 
-  const eckit::LocalConfiguration cvconf = config.getSubConfiguration("linear variable change");
+  const eckit::LocalConfiguration cvconf = config_.getSubConfiguration("linear variable change");
   if (!cvconf.empty()) {
      // Setup linear variable changes
     if (cvconf.has("input variables")) {
@@ -158,12 +162,13 @@ ErrorCovariance4D<MODEL>::~ErrorCovariance4D() {
 template <typename MODEL>
 void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
                                                  const Geometry_ & geom,
-                                                 const eckit::Configuration & config) {
+                                                 const eckit::Configuration &) {
   oops::Log::trace() << "ErrorCovariance4D::advectedLinearize starting" << std::endl;
 
   // Deserialize parameters
+  // WARNING: the input config is not used, the constructor config is used instead!
   ErrorCovarianceParameters params;
-  params.deserialize(config);
+  params.deserialize(config_);
 
   // Check whether a new setup is required
   bool newSetup = true;
@@ -216,7 +221,7 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
           outerVars,
           *fset4dXb,
           *fset4dFg,
-          config);
+          config_);
   }
 
   oops::Log::trace() << "ErrorCovariance4D advectedLinearize done" << std::endl;
@@ -480,15 +485,18 @@ ErrorCovariance<MODEL>::~ErrorCovariance() {
 template <typename MODEL>
 void ErrorCovariance<MODEL>::linearize(const State_ & xb3D,
                                        const Geometry_ & geom,
-                                       const eckit::Configuration & config) {
+                                       const eckit::Configuration &) {
+  oops::Log::trace() << "ErrorCovariance<MODEL>::linearize starting" << std::endl;
+
   // 4D compatibility
   State4D_ xb;
   xb.push_back(xb3D);
 
   // ErrorCovariance4D linearize
-  Bmat4D_->linearize(xb, geom, config);
+  // WARNING: the input config is not used, the constructor config is used instead!
+  Bmat4D_->linearize(xb, geom, eckit::LocalConfiguration());
 
-  oops::Log::trace() << "ErrorCovariance linearized." << std::endl;
+  oops::Log::trace() << "ErrorCovariance<MODEL>::linearize starting" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
