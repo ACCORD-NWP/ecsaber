@@ -15,7 +15,7 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - dry_air_density_levels_minus_one (70 levels):
-    + min close to zero
+    + min    = 0.0000000000000000e+00
     + max    = 1.0000000000000000e+00
     + mean   = 1.2400793650793651e-05
     + stddev = 3.5214760613667046e-03
@@ -28,7 +28,6 @@ Input Dirac increment:
   - water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER-parametric) dirac test:
 Adjoint test for block mo_dry_air_density_from_exnerm1 passed
 Skipping inverse test for block mo_dry_air_density_from_exnerm1
 Adjoint test for block mo_super_mio passed
@@ -49,7 +48,14 @@ Outer inverse test for block mo_hydrostatic_pressure_levels_minus_one passed: Ui
 Adjoint test for block spectral to gauss passed
 Skipping inverse test for block spectral to gauss
 Adjoint test for block spectral covariance passed
-Covariance(SABER-parametric) * Increment:
+Covariance(SABER) diagnostics:
+- Variances at Dirac points:
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 1): 2.2031232623154436e-06
+- Covariances at diagnostic points:
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): 7.0437460947724173e-09
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -9.7257297010025786e-14
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): -2.4808505278048470e-08
+Covariance(SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F12 [1152]
   Fields:
@@ -93,10 +99,3 @@ Covariance(SABER-parametric) * Increment:
     + max    = 1.0093587373743486e-08
     + mean   = -6.3620266829470682e-11
     + stddev = 1.6968694837369788e-09
-Covariance(SABER-parametric) diagnostics:
-- Variances at Dirac points:
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 1): 2.2031232623153347e-06
-- Covariances at diagnostic points:
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): 7.0437460947794566e-09
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -9.7257297010022769e-14
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): -2.4808505278077318e-08

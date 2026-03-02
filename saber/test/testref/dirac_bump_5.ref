@@ -3,11 +3,10 @@ Input Dirac increment:
   Geometry: L40x21 [840]
   Fields:
   - air_horizontal_streamfunction (2 levels):
-    + min close to zero
+    + min    = 0.0000000000000000e+00
     + max    = 1.0000000000000000e+00
     + mean   = 6.5616797900262466e-04
     + stddev = 2.5615775978927613e-02
-Covariance(SABER-ensemble) dirac test:
 Norm of input parameter StdDev: 3.8981333255790183e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
@@ -21,7 +20,7 @@ Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER-ensemble) * Increment:
+Covariance(SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
@@ -30,27 +29,3 @@ Covariance(SABER-ensemble) * Increment:
     + max    = 1.2608232812918880e+00
     + mean   = 4.1121691930575610e-03
     + stddev = 4.5965982709855774e-02
-Localization(SABER-ensemble_localization) dirac test:
-Norm of input parameter StdDev: 3.8981333255790183e+01
-Adjoint test for block StdDev passed
-       Independent levels:  1[2]
-          Subset Sc0 size:              762
-          Domain area (% of Earth area): 0.100E+03%
-             Level   1 ~> 100.0%
-             Level   2 ~> 100.0%
-             Level   1 ~>  0.100E+01 vert. coord.
-             Level   2 ~>  0.200E+01 vert. coord.
-Adjoint test for block BUMP_NICAS passed
-Square-root test for block BUMP_NICAS passed
-Localization(SABER-ensemble_localization) * Increment:
-- Valid time: 2010-01-01T12:00:00Z
-  Geometry: L40x21 [840]
-  Fields:
-  - air_horizontal_streamfunction (2 levels):
-    + min close to zero
-    + max    = 9.9487936906051966e-01
-    + mean   = 7.1175196171531785e-03
-    + stddev = 5.4075758395428185e-02
-Localization(SABER-ensemble_localization) diagnostics:
-- Localization at zero separation:
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9487936906051966e-01

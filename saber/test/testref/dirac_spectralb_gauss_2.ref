@@ -3,15 +3,21 @@ Input Dirac increment:
   Geometry: F12 [1152]
   Fields:
   - eastward_wind (70 levels):
-    + min close to zero
+    + min    = 0.0000000000000000e+00
     + max    = 1.0000000000000000e+00
     + mean   = 1.2400793650793651e-05
     + stddev = 3.5214760613667857e-03
   - northward_wind (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER-hybrid) dirac test:
-Covariance(SABER-hybrid) * Increment:
+Covariance(SABER) diagnostics:
+- Variances at Dirac points:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 4.2922340580544179e-03
+- Covariances at diagnostic points:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -1.0927368690165423e-03
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 4.2922340580544179e-03
+  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -6.6315654421112054e-04
+Covariance(SABER) * Increment:
 - Valid time: 2016-01-01T16:00:00Z
   Geometry: F12 [1152]
   Fields:
@@ -25,15 +31,14 @@ Covariance(SABER-hybrid) * Increment:
     + max    = 3.3379163867763822e-02
     + mean   = -2.6683939432027197e-05
     + stddev = 2.4858806705893521e-03
-Covariance(SABER-hybrid) diagnostics:
+Covariance(SABER1_SABER) diagnostics:
 - Variances at Dirac points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 4.2922340580544179e-03
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.1967095973420680e-04
 - Covariances at diagnostic points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -1.0927368690165423e-03
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 4.2922340580544179e-03
-  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -6.6315654421112054e-04
-Covariance(SABER-hybrid-cmp1_SABER-ensemble) dirac test:
-Covariance(SABER-hybrid-cmp1_SABER-ensemble) * Increment:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): 2.0952050726045948e-08
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.1967095973420680e-04
+  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): 2.2952535089541306e-05
+Covariance(SABER1_SABER) * Increment:
 - Valid time: 2016-01-01T16:00:00Z
   Geometry: F12 [1152]
   Fields:
@@ -47,15 +52,14 @@ Covariance(SABER-hybrid-cmp1_SABER-ensemble) * Increment:
     + max    = 1.0698023905254901e-03
     + mean   = -1.2381929452927699e-06
     + stddev = 1.4243405948037431e-04
-Covariance(SABER-hybrid-cmp1_SABER-ensemble) diagnostics:
+Covariance(SABER2_SABER) diagnostics:
 - Variances at Dirac points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.1967095973420680e-04
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 2.2923248975444174e-03
 - Covariances at diagnostic points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): 2.0952050726045948e-08
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.1967095973420680e-04
-  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): 2.2952535089541306e-05
-Covariance(SABER-hybrid-cmp2_SABER-ensemble) dirac test:
-Covariance(SABER-hybrid-cmp2_SABER-ensemble) * Increment:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -5.6077669036063782e-04
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 2.2923248975444174e-03
+  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -5.5944874645495214e-04
+Covariance(SABER2_SABER) * Increment:
 - Valid time: 2016-01-01T16:00:00Z
   Geometry: F12 [1152]
   Fields:
@@ -69,15 +73,14 @@ Covariance(SABER-hybrid-cmp2_SABER-ensemble) * Increment:
     + max    = 1.9217701530323428e-02
     + mean   = 9.5838449293656424e-06
     + stddev = 1.4899983594347109e-03
-Covariance(SABER-hybrid-cmp2_SABER-ensemble) diagnostics:
+Covariance(SABER3_SABER) diagnostics:
 - Variances at Dirac points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 2.2923248975444174e-03
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.8802382007757942e-03
 - Covariances at diagnostic points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -5.6077669036063782e-04
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 2.2923248975444174e-03
-  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -5.5944874645495214e-04
-Covariance(SABER-hybrid-cmp3_SABER-ensemble) dirac test:
-Covariance(SABER-hybrid-cmp3_SABER-ensemble) * Increment:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -5.3198113070663036e-04
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.8802382007757942e-03
+  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -1.2666033284570966e-04
+Covariance(SABER3_SABER) * Increment:
 - Valid time: 2016-01-01T16:00:00Z
   Geometry: F12 [1152]
   Fields:
@@ -91,10 +94,3 @@ Covariance(SABER-hybrid-cmp3_SABER-ensemble) * Increment:
     + max    = 1.4450146421148025e-02
     + mean   = -3.5029591416098697e-05
     + stddev = 1.0986575044158215e-03
-Covariance(SABER-hybrid-cmp3_SABER-ensemble) diagnostics:
-- Variances at Dirac points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.8802382007757942e-03
-- Covariances at diagnostic points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -5.3198113070663036e-04
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): 1.8802382007757942e-03
-  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): -1.2666033284570966e-04

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceParameters.h.tmp.bak	2026-02-17 18:20:25.440256658 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceParameters.h	2026-02-17 18:21:23.916696494 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceParameters.h.tmp.bak	2026-03-02 14:06:07.577077411 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceParameters.h	2026-03-02 14:06:26.927198827 +0100
 @@ -52,7 +52,7 @@
    /// ModelSpaceCovarianceBase class parameters
  
@@ -8,4 +8,4 @@
 +  oops::OptionalParameter<std::string> covarianceModel{"covariance", this};
  
    // Randomization size
-   oops::OptionalParameter<size_t> randomizationSize{"randomization size", this};
+   oops::Parameter<size_t> randomizationSize{"randomization size", 0, this};

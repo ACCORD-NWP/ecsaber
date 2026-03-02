@@ -3,11 +3,10 @@ Input Dirac increment:
   Geometry: structured [3848]
   Fields:
   - air_temperature (10 levels):
-    + min close to zero
+    + min    = 0.0000000000000000e+00
     + max    = 1.0000000000000000e+00
     + mean   = 5.1975051975051978e-05
     + stddev = 7.2092788291837394e-03
-Covariance(SABER-parametric) dirac test:
 - Regional grid size: 74x52
 - Cell sizes: 2.5000000000000000e+00 km x 2.5000000000000000e+00 km
 - Mean latitude: 5.6289536019444682e+01 deg
@@ -30,7 +29,7 @@ Covariance norms:
   + standard-deviation:      3.1622776601683795e+00
 Adjoint test for block BifourierCovariance passed
 Square-root test for block BifourierCovariance passed
-Covariance(SABER-parametric) * Increment:
+Covariance(SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:

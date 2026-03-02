@@ -55,7 +55,7 @@ class ErrorCovarianceParameters : public ErrorCovarianceParametersBase {
   oops::OptionalParameter<std::string> covarianceModel{"covariance", this};
 
   // Randomization size
-  oops::OptionalParameter<size_t> randomizationSize{"randomization size", this};
+  oops::Parameter<size_t> randomizationSize{"randomization size", 0, this};
 
   // Inverse parameters
   oops::Parameter<bool> fullInverse{"full inverse", false, this};

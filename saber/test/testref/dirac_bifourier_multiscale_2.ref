@@ -9,7 +9,7 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_temperature (10 levels):
-    + min close to zero
+    + min    = 0.0000000000000000e+00
     + max    = 1.0000000000000000e+00
     + mean   = 2.5987525987525989e-05
     + stddev = 5.0977961892907635e-03
@@ -19,7 +19,6 @@ Input Dirac increment:
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER-ensemble) dirac test:
 - Regional grid size: 74x52
 - Cell sizes: 2.5000000000000000e+00 km x 2.5000000000000000e+00 km
 - Mean latitude: 5.6289536019444682e+01 deg
@@ -104,7 +103,7 @@ Square-root test for block BifourierCovariance passed
 Square-root test for the multivariate central block passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER-ensemble) * Increment:
+Covariance(SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:

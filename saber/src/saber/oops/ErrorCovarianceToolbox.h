@@ -19,6 +19,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
 #include "atlas/functionspace.h"
 #include "atlas/util/Earth.h"
 
@@ -105,32 +106,71 @@ class ErrorCovarianceToolboxParameters :
 // -----------------------------------------------------------------------------
 
 template <typename MODEL> class ErrorCovarianceToolbox : public oops::Application {
-  typedef oops::ModelSpaceCovariance4DBase<MODEL>         Covariance4DBase_;
-  typedef oops::Covariance4DFactory<MODEL>                Covariance4DFactory_;
+  typedef oops::ModelSpaceCovarianceBase<MODEL>           CovarianceBase_;
+  typedef oops::CovarianceFactory<MODEL>                  CovarianceFactory_;
   typedef oops::Geometry<MODEL>                           Geometry_;
   typedef oops::Increment<MODEL>                          Increment_;
   typedef oops::Increment4D<MODEL>                        Increment4D_;
-  typedef oops::Model<MODEL>                              Model_;
   typedef oops::State<MODEL>                              State_;
   typedef oops::State4D<MODEL>                            State4D_;
   typedef oops::Localization<MODEL>                       Localization_;
-  typedef oops::Variables<MODEL>                          Variables_;
 
  public:
-// -----------------------------------------------------------------------------
-  ErrorCovarianceToolbox() {
-    instantiateCovarFactory<MODEL>();
+  explicit ErrorCovarianceToolbox(const eckit::mpi::Comm & comm = eckit::mpi::comm()) :
+    Application(comm) {
+    oops::instantiateCovarFactory<MODEL>();
   }
+
 // -----------------------------------------------------------------------------
+
   virtual ~ErrorCovarianceToolbox() {}
+
 // -----------------------------------------------------------------------------
-  int execute(const eckit::Configuration & fullConfig) const {
+
+  int execute(const eckit::Configuration & fullConfig) const override {
     // Deserialize parameters
     ErrorCovarianceToolboxParameters params;
     params.deserialize(fullConfig);
 
+    // Define number of subwindows
+    const eckit::LocalConfiguration backgroundConfig(fullConfig, "background");
+    size_t nsubwin = 1;
+    if (backgroundConfig.has("states")) {
+      std::vector<eckit::LocalConfiguration> confs;
+      backgroundConfig.get("states", confs);
+      nsubwin = confs.size();
+    }
+
     // Define space and time communicators
-    const eckit::mpi::Comm * commSpace = &eckit::mpi::comm();
+    const eckit::mpi::Comm * commSpace = &this->getComm();
+    const eckit::mpi::Comm * commTime = &oops::mpi::myself();
+    if (nsubwin > 1) {
+      // Define sub-windows
+      const size_t ntasks = this->getComm().size();
+      size_t mysubwin = 0;
+      size_t nsublocal = nsubwin;
+      if (params.parallel.value() && (ntasks%nsubwin == 0)) {
+        nsublocal = 1;
+        mysubwin = this->getComm().rank() / (ntasks / nsubwin);
+        ASSERT(mysubwin < nsubwin);
+      } else if (params.parallel.value()) {
+        oops::Log::warning() << "Parallel time subwindows specified in yaml "
+                             << "but number of tasks is not divisible by "
+                             << "the number of subwindows, ignoring." << std::endl;
+      }
+
+      // Create a communicator for same sub-window, to be used for communications in space
+      const std::string sgeom = "comm_geom_" + std::to_string(mysubwin);
+      char const *geomName = sgeom.c_str();
+      commSpace = &this->getComm().split(mysubwin, geomName);
+
+      // Create a communicator for same local area, to be used for communications in time
+      const size_t myarea = commSpace->rank();
+      const std::string stime = "comm_time_" + std::to_string(myarea);
+      char const *timeName = stime.c_str();
+      commTime = &this->getComm().split(myarea, timeName);
+      ASSERT(commTime->size() == (nsubwin / nsublocal));
+    }
 
     // Get number of MPI tasks and OpenMP threads
     size_t ntasks = commSpace->size();
@@ -144,35 +184,19 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
     // Replace patterns in full configuration and deserialize parameters
     eckit::LocalConfiguration fullConfigUpdated(fullConfig);
-
-    util::seekAndReplace(fullConfigUpdated, "_MPI_", std::to_string(ntasks));
-    util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
+    setMPI(fullConfigUpdated, ntasks, nthreads);
     params.deserialize(fullConfigUpdated);
 
-    // Set precision for test channel
-    oops::Log::test() << std::scientific
-                      << std::setprecision(std::numeric_limits<double>::digits10+1);
-
     // Setup geometry
-    const Geometry_ geom(params.geometry);
-
-    // Setup model
-    eckit::LocalConfiguration modelConf;
-    if (fullConfigUpdated.has("model")) {
-      modelConf = fullConfigUpdated.getSubConfiguration("model");
-    }
-    const Model_ model(geom, modelConf);
+    const Geometry_ geom(params.geometry.value(), *commSpace, *commTime);
 
     // Setup background
-    const State4D_ xx(params.background, geom, model);
+    const State4D_ xx(geom, params.background.value(), *commTime);
 
     // Setup variables
-    oops::JediVariables tmpVars(xx[0].state().fieldSet().field_names());
+    oops::JediVariables tmpVars = xx.variables();
     if (params.incrementVars.value() != boost::none) {
       tmpVars = params.incrementVars.value().value();
-    }
-    for (auto & var : tmpVars) {
-      var.setLevels(xx[0].state().fieldSet()[var.name()].shape(1));
     }
     const oops::JediVariables vars = tmpVars;
 
@@ -215,30 +239,30 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       dirac(covarConf, testConf, id, geom, vars, xx, dxi);
     }
 
-    // Background error covariance base parameters
-    if ((!diracParams) || (params.backgroundError.value().randomizationSize.value())) {
-      // Background error covariance training
-      std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
-                                              covarConf, geom, util::templatedVars<MODEL>(vars), xx));
+    // Randomization
+    const auto & randomizationSize = params.backgroundError.value().randomizationSize.value();
+    if (randomizationSize > 0) {
+      randomization(params, geom, vars, xx, ntasks);
+    }
 
-      // Linearize
-      Bmat->linearize(xx, geom, covarConf);
-
-      // Randomization
-      if (params.backgroundError.value().randomizationSize.value()) {
-        randomization(params, geom, vars, xx, Bmat, ntasks);
-      }
+    // If background error covariance has not been setup yet, do it now
+    if ((diracParams == boost::none) && (randomizationSize == 0)) {
+      std::unique_ptr<CovarianceBase_> Bmat(CovarianceFactory_::create(
+                                            geom, vars, covarConf, xx, xx));
     }
 
     return 0;
   }
+
 // -----------------------------------------------------------------------------
+
  private:
   std::string appname() const override {
     return "oops::ErrorCovarianceToolbox<" + MODEL::name() + ">";
   }
+
 // -----------------------------------------------------------------------------
-// The passed geometry should be consistent with the passed increment
+
   void print_value_at_positions(const eckit::LocalConfiguration & diagConf,
                                 const Geometry_ & geom,
                                 const Increment4D_ & data) const {
@@ -259,94 +283,97 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
     oops::Log::trace() << appname() << "::print_value_at_position done" << std::endl;
   }
+
 // -----------------------------------------------------------------------------
-// The passed geometry should be consistent with the passed increment
+
   void extract_1d_covariances(const eckit::LocalConfiguration & diracConf,
                               const eckit::LocalConfiguration & profileConf,
                               const Geometry_ & geom,
                               const Increment4D_ & data) const {
-  oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
+    oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
 
-  if (data.times().size() > 1) {
-    throw eckit::NotImplemented("Not implemented for 4D covariances", Here());
-  }
+    if (data.size() > 1) {
+      throw eckit::NotImplemented("Not implemented for 4D covariances", Here());
+    }
 
-  // Create dirac field
-  Increment4D_ diracPoints(data);
-  dirac4D(diracConf, diracPoints);
+    // Create dirac field
+    Increment4D_ diracPoints(data);
+    diracPoints.dirac(diracConf);
 
-  // Define maximum length of horizontal profile
-  double maxLength = std::numeric_limits<double>::infinity();
-  if (profileConf.has("maximum distance")) {
-    oops::Log::info() << "Info     : Reading user-provided maximum distance:" << std::endl;
-    maxLength = profileConf.getDouble("maximum distance");
-  } else {
-    // If no maximum length input is given, try to compute a default value from the grid
-    const auto & fspace = geom.geometry().functionSpace();
-    if (fspace.type() == "StructuredColumns") {
-      const atlas::functionspace::StructuredColumns fs(fspace);
-      if (fs.grid().name().compare(0, 1, "F") == 0) {
-        oops::Log::info() << "Info     : maximum distance computed as twice the cell "
-                             "length at the Equator:" << std::endl;
-        const int n = std::stoi(fs.grid().name().substr(1, std::string::npos));
-        maxLength = atlas::util::Earth().radius() * M_PI / n;
-      }
-    } else if (fspace.type() == "NodeColumns") {
-      const atlas::functionspace::NodeColumns fs(fspace);
-      if (fs.mesh().grid().name().compare(0, 7, "CS-LFR-") == 0) {
-        oops::Log::info() << "Info     : maximum distance computed as twice the cell "
-                             "length at the Equator:" << std::endl;
-        const int n = std::stoi(fs.mesh().grid().name().substr(7, std::string::npos));
-        maxLength = atlas::util::Earth().radius() * M_PI / n;
+    // Define maximum length of horizontal profile
+    double maxLength = std::numeric_limits<double>::infinity();
+    if (profileConf.has("maximum distance")) {
+      oops::Log::info() << "Info     : Reading user-provided maximum distance:" << std::endl;
+      maxLength = profileConf.getDouble("maximum distance");
+    } else {
+      // If no maximum length input is given, try to compute a default value from the grid
+      const auto & fspace = geom.functionSpace();
+      if (fspace.type() == "StructuredColumns") {
+        const atlas::functionspace::StructuredColumns fs(fspace);
+        if (fs.grid().name().compare(0, 1, "F") == 0) {
+          oops::Log::info() << "Info     : maximum distance computed as twice the cell "
+                               "length at the Equator:" << std::endl;
+          const int n = std::stoi(fs.grid().name().substr(1, std::string::npos));
+          maxLength = atlas::util::Earth().radius() * M_PI / n;
+        }
+      } else if (fspace.type() == "NodeColumns") {
+        const atlas::functionspace::NodeColumns fs(fspace);
+        if (fs.mesh().grid().name().compare(0, 7, "CS-LFR-") == 0) {
+          oops::Log::info() << "Info     : maximum distance computed as twice the cell "
+                               "length at the Equator:" << std::endl;
+          const int n = std::stoi(fs.mesh().grid().name().substr(7, std::string::npos));
+          maxLength = atlas::util::Earth().radius() * M_PI / n;
+        }
       }
     }
+    oops::Log::info() << "Info     : maximum distance is " << maxLength << " m." << std::endl;
+
+    // Boolean flag to remove duplicate points (is isotropy for instance)
+    const bool removeDuplicates = profileConf.getBool("remove duplicate distances",
+                                                      false);
+
+    // Get values as a function of separation distance
+    auto[distances, covariances, lons, lats, levs, fieldIndexes] =
+        util::sortBySeparationDistance(geom.getComm(),
+                                       geom.functionSpace(),
+                                       data[0].fieldSet().fieldSet(),
+                                       diracPoints[0].fieldSet().fieldSet(),
+                                       maxLength,
+                                       removeDuplicates);
+
+    // Write to file or to test Log
+    const auto & names = data[0].fieldSet().fieldSet().field_names();
+    if (profileConf.has("output filepath")) {
+      // Write to file
+      const auto outputPath = profileConf.getString("output filepath");
+      util::write_1d_covariances(geom.getComm(),
+                                 distances,
+                                 covariances,
+                                 lons,
+                                 lats,
+                                 levs,
+                                 fieldIndexes,
+                                 names,
+                                 outputPath);
+    }
+
+    // Output first 10 values of first 10  profiles to test log
+    const int numProfiles = std::min(10, static_cast<int>(distances.size()));
+    for (int i=0; i < numProfiles; i++) {
+      oops::Log::test() << "Covariance profile for variable " << names[fieldIndexes[i]]
+                        << ", at level " << levs[i] << ": " << std::endl;
+      const int numValues = std::min(10, static_cast<int>(distances[i].size()));
+      const std::vector<double> subDist(distances[i].begin(), distances[i].begin() + numValues);
+      const std::vector<double> subCovs(covariances[i].begin(), covariances[i].begin() + numValues);
+      oops::Log::test() << "Separation distance: " << subDist << std::endl;
+      oops::Log::test() << "Covariance: " << subCovs << std::endl;
+    }
+
+    oops::Log::trace() << appname() << "::extract_1d_covariances done" << std::endl;
   }
-  oops::Log::info() << "Info     : maximum distance is " << maxLength << " m." << std::endl;
 
-  // Boolean flag to remove duplicate points (is isotropy for instance)
-  const bool removeDuplicates = profileConf.getBool("remove duplicate distances",
-                                                    false);
-
-  // Get values as a function of separation distance
-  auto[distances, covariances, lons, lats, levs, fieldIndexes] =
-      util::sortBySeparationDistance(geom.geometry().getComm(),
-                                     geom.geometry().functionSpace(),
-                                     data[0].increment().fieldSet(),
-                                     diracPoints[0].increment().fieldSet(),
-                                     maxLength,
-                                     removeDuplicates);
-
-  // Write to file or to test Log
-  const auto & names = data[0].increment().fieldSet().field_names();
-  if (profileConf.has("output filepath")) {
-    // Write to file
-    const auto outputPath = profileConf.getString("output filepath");
-    util::write_1d_covariances(geom.geometry().getComm(),
-                               distances,
-                               covariances,
-                               lons,
-                               lats,
-                               levs,
-                               fieldIndexes,
-                               names,
-                               outputPath);
-  }
-  // Output first 10 values of first 10  profiles to test log
-  const int numProfiles = std::min(10, static_cast<int>(distances.size()));
-  for (int i=0; i < numProfiles; i++) {
-    oops::Log::test() << "Covariance profile for variable " << names[fieldIndexes[i]]
-                      << ", at level " << levs[i] << ": " << std::endl;
-    const int numValues = std::min(10, static_cast<int>(distances[i].size()));
-    const std::vector<double> subDist(distances[i].begin(), distances[i].begin() + numValues);
-    const std::vector<double> subCovs(covariances[i].begin(), covariances[i].begin() + numValues);
-    oops::Log::test() << "Separation distance: " << subDist << std::endl;
-    oops::Log::test() << "Covariance: " << subCovs << std::endl;
-  }
-
-  oops::Log::trace() << appname() << "::extract_1d_covariances done" << std::endl;
-}
 // -----------------------------------------------------------------------------
-// The passed geometry/variables should be consistent with the passed increment
+
   void dirac(const eckit::LocalConfiguration & covarConf,
              const eckit::LocalConfiguration & testConf,
              const std::string & id,
@@ -354,6 +381,8 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
              const oops::JediVariables & vars,
              const State4D_ & xx,
              const Increment4D_ & dxi) const {
+    oops::Log::trace() << appname() << "::dirac starting" << std::endl;
+
     // Get covariance model
     const std::string covarianceModel(covarConf.getString("covariance"));
 
@@ -514,7 +543,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
         ErrorCovarianceParametersBase paramsBase;
         paramsBase.deserialize(covarConf);
 
-        // Get components configurations listrandomization
+        // Get components configurations list
         std::vector<eckit::LocalConfiguration> confs;
         covarConf.get("components", confs);
 
@@ -602,110 +631,107 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
         }
       }
     }
+
+    oops::Log::trace() << appname() << "::dirac done" << std::endl;
   }
+
 // -----------------------------------------------------------------------------
+
   void randomization(const ErrorCovarianceToolboxParameters & params,
                      const Geometry_ & geom,
                      const oops::JediVariables & vars,
                      const State4D_ & xx,
-                     const std::unique_ptr<Covariance4DBase_> & Bmat,
                      const size_t & ntasks) const {
-    // Get randomization size
-    ASSERT(params.backgroundError.value().randomizationSize.value());
-    const size_t randomizationSize = *params.backgroundError.value().randomizationSize.value();
+    oops::Log::info() << "Info     : " << std::endl;
+    oops::Log::info() << "Info     : Generate perturbations:" << std::endl;
+    oops::Log::info() << "Info     : -----------------------" << std::endl;
 
-    if (randomizationSize > 0) {
-      oops::Log::info() << "Info     : " << std::endl;
-      oops::Log::info() << "Info     : Generate perturbations:" << std::endl;
-      oops::Log::info() << "Info     : -----------------------" << std::endl;
+    // Build covariance
+    oops::Log::info() << "Info     : Build covariance" << std::endl;
+    const eckit::LocalConfiguration covarConf = params.backgroundError.value().toConfiguration();
 
-      // Create increments
-      Increment4D_ dx(geom, util::templatedVars<MODEL>(vars), xx.times());
-      Increment4D_ dxsq(geom, util::templatedVars<MODEL>(vars), xx.times());
-      Increment4D_ variance(geom, util::templatedVars<MODEL>(vars), xx.times());
+    std::unique_ptr<CovarianceBase_> Bmat(CovarianceFactory_::create(
+                                          geom, vars, covarConf, xx, xx));
 
-      // Initialize variance
-      variance.zero();
+    // Create increments
+    Increment4D_ dx(geom, vars, xx.times(), xx.commTime());
+    Increment4D_ dxsq(geom, vars, xx.times(), xx.commTime());
+    Increment4D_ variance(geom, vars, xx.times(), xx.commTime());
 
-      // Output options
-      const auto & outputPerturbations = params.outputPerturbations.value();
-      const auto & outputStates = params.outputStates.value();
-      const auto & outputVariance = params.outputVariance.value();
+    // Initialize variance
+    variance.zero();
 
-      for (size_t jm = 0; jm < randomizationSize; ++jm) {
-        // Generate member
-        Bmat->randomize(dx);
+    // Output options
+    const auto & outputPerturbations = params.outputPerturbations.value();
+    const auto & outputStates = params.outputStates.value();
+    const auto & outputVariance = params.outputVariance.value();
 
-        if ((outputPerturbations != boost::none) || (outputStates != boost::none)) {
-          oops::Log::test() << "Member " << jm << ": " << dx[0] << std::endl;
+    for (size_t jm = 0; jm < Bmat->randomizationSize(); ++jm) {
+      // Generate member
+      oops::Log::info() << "Info     : Member " << jm+1 << std::endl;
+      Bmat->randomize(dx);
 
-          if (outputPerturbations != boost::none) {
-            // Update config
-            auto outputPerturbationsUpdated = *outputPerturbations;
-            util::setMember(outputPerturbationsUpdated, jm+1);
-            setMPI(outputPerturbationsUpdated, ntasks);
-
-            // Write perturbation
-            dx.write(outputPerturbationsUpdated);
-          }
-
-          if (outputStates != boost::none) {
-            // Update config
-            auto outputStatesUpdated = *outputStates;
-            util::setMember(outputStatesUpdated, jm+1);
-            setMPI(outputStatesUpdated, ntasks);
-
-            // Add background state to perturbation
-            State4D_ xp(xx);
-            for (int jsub = 0; jsub < dx.times().size(); ++jsub) {
-              xp[jsub-dx.first()] += dx[jsub];
-            }
-
-            // Write state
-            xp.write(outputStatesUpdated);
-          }
-
-          oops::Log::info() << "Info     : " << std::endl;
-        }
-
-        // Square perturbation
-        dxsq = dx;
-        for (int jsub = 0; jsub < dx.times().size(); ++jsub) {
-          dxsq[jsub].schur_product_with(dx[jsub]);
-        }
-
-        // Update variance
-        variance += dxsq;
-      }
-      oops::Log::info() << "Info     : " << std::endl;
-
-      if (outputVariance != boost::none) {
-        oops::Log::info() << "Info     : Write randomized variance:" << std::endl;
-        oops::Log::info() << "Info     : --------------------------" << std::endl;
-        oops::Log::info() << "Info     : " << std::endl;
-        if (randomizationSize > 1) {
-          // Normalize variance
-          double rk_norm = 1.0/static_cast<double>(randomizationSize);
-          variance *= rk_norm;
-        }
-
+      if (outputPerturbations != boost::none) {
         // Update config
-        auto outputVarianceUpdated = *outputVariance;
-        setMPI(outputVarianceUpdated, ntasks);
+        auto outputPerturbationsUpdated = *outputPerturbations;
+        util::setMember(outputPerturbationsUpdated, jm+1);
+        setMPI(outputPerturbationsUpdated, ntasks);
 
-        // Write variance
-        variance.write(outputVarianceUpdated);
-        oops::Log::test() << "Randomized variance: " << variance << std::endl;
+        // Write perturbation
+        oops::Log::test() << "Write perturbation: " << dx;
+        dx.write(outputPerturbationsUpdated);
       }
+
+      if (outputStates != boost::none) {
+        // Update config
+        auto outputStatesUpdated = *outputStates;
+        util::setMember(outputStatesUpdated, jm+1);
+        setMPI(outputStatesUpdated, ntasks);
+
+        // Add background state to perturbation
+        State4D_ xp(xx);
+        xp += dx;
+
+        // Write state
+        oops::Log::test() << "Write state: " << xp;
+        xp.write(outputStatesUpdated);
+      }
+
+      // Square perturbation
+      dxsq = dx;
+      dxsq.schur_product_with(dx);
+
+      // Update variance
+      variance += dxsq;
+
+      oops::Log::info() << "Info     :" << std::endl;
+    }
+
+    if (outputVariance != boost::none) {
+      if (Bmat->randomizationSize() > 1) {
+        // Normalize variance
+        double rk_norm = 1.0/static_cast<double>(Bmat->randomizationSize());
+        variance *= rk_norm;
+      }
+
+      // Update config
+      auto outputVarianceUpdated = *outputVariance;
+      setMPI(outputVarianceUpdated, ntasks);
+
+      // Write variance
+      oops::Log::test() << "Write randomized variance:" << variance[0] << std::endl;
+      variance.write(outputVarianceUpdated);
     }
   }
+
 // -----------------------------------------------------------------------------
-// Replace white space with dash in strings
+
   std::string replaceWhiteSpace(const std::string & inputStr) const {
     std::string outputStr(inputStr);
     std::replace(outputStr.begin(), outputStr.end(), ' ', '-');
     return outputStr;
   }
+
 // -----------------------------------------------------------------------------
 };
 

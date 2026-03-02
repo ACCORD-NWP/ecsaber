@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-02-02 14:49:20.941054771 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-02-02 14:19:15.342693987 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-03-02 15:52:59.556926813 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-03-02 15:54:53.198026248 +0100
 @@ -200,9 +200,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  

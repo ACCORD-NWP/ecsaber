@@ -3,17 +3,22 @@ Input Dirac increment:
   Geometry: F15 [1800]
   Fields:
   - eastward_wind (70 levels):
-    + min close to zero
+    + min    = 0.0000000000000000e+00
     + max    = 1.0000000000000000e+00
     + mean   = 7.9365079365079362e-06
     + stddev = 2.8171808490961210e-03
   - northward_wind (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER-parametric) dirac test:
 Adjoint test for block spectral to gauss passed
 Adjoint test for block spectral covariance passed
-Covariance(SABER-parametric) * Increment:
+Covariance(SABER) diagnostics:
+- Variances at Dirac points:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 1.2843501075304320e-01
+- Covariances at diagnostic points:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 3.1173377011171153e-03
+  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): -5.4373743887613495e-04
+Covariance(SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F15 [1800]
   Fields:
@@ -25,11 +30,5 @@ Covariance(SABER-parametric) * Increment:
   - northward_wind (70 levels):
     + min    = -2.1219231756330587e-02
     + max    = 2.1219231756330583e-02
-    + mean close to zero
+    + mean   ~ 0
     + stddev = 6.3419826881309124e-04
-Covariance(SABER-parametric) diagnostics:
-- Variances at Dirac points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 1.2843501075304320e-01
-- Covariances at diagnostic points:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 3.1173377011171153e-03
-  + Value for variable northward_wind, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): -5.4373743887613495e-04

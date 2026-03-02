@@ -1052,7 +1052,6 @@ void readFieldSet(const eckit::mpi::Comm & comm,
 
   if (oneFilePerTask) {
     // Case 1: one file per MPI task
-
     oops::Log::info() << "Info     : Reading file: " << ncfilepath << std::endl;
 
     // Open NetCDF file

@@ -3,7 +3,7 @@ Input Dirac increment:
   Geometry: L72x46 [3312]
   Fields:
   - air_horizontal_streamfunction (72 levels):
-    + min close to zero
+    + min    = 0.0000000000000000e+00
     + max    = 1.0000000000000000e+00
     + mean   = 2.1906764808973012e-05
     + stddev = 4.6804252886295970e-03
@@ -13,15 +13,14 @@ Input Dirac increment:
   - air_pressure_at_surface (1 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
-Covariance(SABER-gsi-hybrid-covariance) dirac test:
 Adjoint test for block interpolation passed
 Adjoint test for block gsi hybrid covariance passed
-Covariance(SABER-gsi-hybrid-covariance) * Increment:
+Covariance(SABER) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L72x46 [3312]
   Fields:
   - air_horizontal_streamfunction (72 levels):
-    + min close to zero
+    + min    = 0.0000000000000000e+00
     + max    = 9.9998888073528969e-01
     + mean   = 1.3966896856185048e-02
     + stddev = 5.7534879555833383e-02
