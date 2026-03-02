@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-03-02 14:00:47.036075258 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-02-23 15:11:51.440850775 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp	2026-03-02 17:02:31.289066136 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-03-02 17:03:14.718299122 +0100
 @@ -21,13 +21,12 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -25,17 +25,7 @@
  
  namespace oops {
    class FieldSet3D;
-@@ -62,8 +62,7 @@
- // -----------------------------------------------------------------------------
- 
- void setMPI(eckit::LocalConfiguration & conf,
--            const int & mpi,
--            const int & omp = 0);
-+            const int & mpi);
- 
- // -----------------------------------------------------------------------------
- 
-@@ -163,19 +162,26 @@
+@@ -163,19 +163,26 @@
      if (!ensembleConf.empty()) {
        oops::Log::info() << "Info     : Ensemble of states, perturbation using the mean"
                          << std::endl;
@@ -69,7 +59,7 @@
        return fsetEns;
      }
  
-@@ -183,13 +189,7 @@
+@@ -183,13 +190,7 @@
      if (!ensembleBaseConf.empty() && !ensemblePairsConf.empty()) {
        oops::Log::info() << "Info     : Increment ensemble from difference of two states"
                          << std::endl;
@@ -84,7 +74,7 @@
      }
  
      // Increment ensemble from increments on disk on other geometry
-@@ -243,7 +243,7 @@
+@@ -243,7 +244,7 @@
          // Read perturbations into oops::FieldSets
          oops::FieldSets fsetEns(fspace, vars, io, times,
                                  ensemblePertOtherGeomConf,
@@ -93,7 +83,7 @@
  
          return fsetEns;
        } else {
-@@ -278,13 +278,13 @@
+@@ -278,13 +279,13 @@
    eckit::LocalConfiguration localConf(conf);
  
    // Create Increment
@@ -109,7 +99,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -305,13 +305,14 @@
+@@ -305,13 +306,14 @@
    size_t ensembleFound = 0;
  
    if (conf.has("ensemble")) {
@@ -127,7 +117,7 @@
  
      ++ensembleFound;
    }
-@@ -322,33 +323,18 @@
+@@ -322,33 +324,18 @@
        conf.getSubConfiguration("ensemble pert"), ie);
  
      // Read Increment

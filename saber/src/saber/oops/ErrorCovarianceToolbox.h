@@ -106,19 +106,21 @@ class ErrorCovarianceToolboxParameters :
 // -----------------------------------------------------------------------------
 
 template <typename MODEL> class ErrorCovarianceToolbox : public oops::Application {
-  typedef oops::ModelSpaceCovarianceBase<MODEL>           CovarianceBase_;
-  typedef oops::CovarianceFactory<MODEL>                  CovarianceFactory_;
+  typedef oops::ModelSpaceCovariance4DBase<MODEL>         Covariance4DBase_;
+  typedef oops::Covariance4DFactory<MODEL>                Covariance4DFactory_;
   typedef oops::Geometry<MODEL>                           Geometry_;
   typedef oops::Increment<MODEL>                          Increment_;
   typedef oops::Increment4D<MODEL>                        Increment4D_;
+  typedef oops::Model<MODEL>                              Model_;
   typedef oops::State<MODEL>                              State_;
   typedef oops::State4D<MODEL>                            State4D_;
   typedef oops::Localization<MODEL>                       Localization_;
+  typedef oops::Variables<MODEL>                          Variables_;
 
  public:
-  explicit ErrorCovarianceToolbox(const eckit::mpi::Comm & comm = eckit::mpi::comm()) :
-    Application(comm) {
-    oops::instantiateCovarFactory<MODEL>();
+// -----------------------------------------------------------------------------
+  ErrorCovarianceToolbox() {
+    instantiateCovarFactory<MODEL>();
   }
 
 // -----------------------------------------------------------------------------
@@ -127,50 +129,13 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
 // -----------------------------------------------------------------------------
 
-  int execute(const eckit::Configuration & fullConfig) const override {
+  int execute(const eckit::Configuration & fullConfig) const {
     // Deserialize parameters
     ErrorCovarianceToolboxParameters params;
     params.deserialize(fullConfig);
 
-    // Define number of subwindows
-    const eckit::LocalConfiguration backgroundConfig(fullConfig, "background");
-    size_t nsubwin = 1;
-    if (backgroundConfig.has("states")) {
-      std::vector<eckit::LocalConfiguration> confs;
-      backgroundConfig.get("states", confs);
-      nsubwin = confs.size();
-    }
-
     // Define space and time communicators
-    const eckit::mpi::Comm * commSpace = &this->getComm();
-    const eckit::mpi::Comm * commTime = &oops::mpi::myself();
-    if (nsubwin > 1) {
-      // Define sub-windows
-      const size_t ntasks = this->getComm().size();
-      size_t mysubwin = 0;
-      size_t nsublocal = nsubwin;
-      if (params.parallel.value() && (ntasks%nsubwin == 0)) {
-        nsublocal = 1;
-        mysubwin = this->getComm().rank() / (ntasks / nsubwin);
-        ASSERT(mysubwin < nsubwin);
-      } else if (params.parallel.value()) {
-        oops::Log::warning() << "Parallel time subwindows specified in yaml "
-                             << "but number of tasks is not divisible by "
-                             << "the number of subwindows, ignoring." << std::endl;
-      }
-
-      // Create a communicator for same sub-window, to be used for communications in space
-      const std::string sgeom = "comm_geom_" + std::to_string(mysubwin);
-      char const *geomName = sgeom.c_str();
-      commSpace = &this->getComm().split(mysubwin, geomName);
-
-      // Create a communicator for same local area, to be used for communications in time
-      const size_t myarea = commSpace->rank();
-      const std::string stime = "comm_time_" + std::to_string(myarea);
-      char const *timeName = stime.c_str();
-      commTime = &this->getComm().split(myarea, timeName);
-      ASSERT(commTime->size() == (nsubwin / nsublocal));
-    }
+    const eckit::mpi::Comm * commSpace = &eckit::mpi::comm();
 
     // Get number of MPI tasks and OpenMP threads
     size_t ntasks = commSpace->size();
@@ -187,16 +152,30 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     setMPI(fullConfigUpdated, ntasks, nthreads);
     params.deserialize(fullConfigUpdated);
 
+    // Set precision for test channel
+    oops::Log::test() << std::scientific
+                      << std::setprecision(std::numeric_limits<double>::digits10+1);
+
     // Setup geometry
-    const Geometry_ geom(params.geometry.value(), *commSpace, *commTime);
+    const Geometry_ geom(params.geometry);
+
+    // Setup model
+    eckit::LocalConfiguration modelConf;
+    if (fullConfigUpdated.has("model")) {
+      modelConf = fullConfigUpdated.getSubConfiguration("model");
+    }
+    const Model_ model(geom, modelConf);
 
     // Setup background
-    const State4D_ xx(geom, params.background.value(), *commTime);
+    const State4D_ xx(params.background, geom, model);
 
     // Setup variables
-    oops::JediVariables tmpVars = xx.variables();
+    oops::JediVariables tmpVars(xx[0].state().fieldSet().field_names());
     if (params.incrementVars.value() != boost::none) {
       tmpVars = params.incrementVars.value().value();
+    }
+    for (auto & var : tmpVars) {
+      var.setLevels(xx[0].state().fieldSet()[var.name()].shape(1));
     }
     const oops::JediVariables vars = tmpVars;
 
@@ -247,8 +226,11 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
     // If background error covariance has not been setup yet, do it now
     if ((diracParams == boost::none) && (randomizationSize == 0)) {
-      std::unique_ptr<CovarianceBase_> Bmat(CovarianceFactory_::create(
-                                            geom, vars, covarConf, xx, xx));
+      std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
+                                              covarConf, geom, util::templatedVars<MODEL>(vars), xx));
+
+      // Linearize
+      Bmat->linearize(xx, geom, covarConf);
     }
 
     return 0;
@@ -292,13 +274,13 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
                               const Increment4D_ & data) const {
     oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
 
-    if (data.size() > 1) {
+    if (data.times().size() > 1) {
       throw eckit::NotImplemented("Not implemented for 4D covariances", Here());
     }
 
     // Create dirac field
     Increment4D_ diracPoints(data);
-    diracPoints.dirac(diracConf);
+    dirac4D(diracConf, diracPoints);
 
     // Define maximum length of horizontal profile
     double maxLength = std::numeric_limits<double>::infinity();
@@ -307,7 +289,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       maxLength = profileConf.getDouble("maximum distance");
     } else {
       // If no maximum length input is given, try to compute a default value from the grid
-      const auto & fspace = geom.functionSpace();
+      const auto & fspace = geom.geometry().functionSpace();
       if (fspace.type() == "StructuredColumns") {
         const atlas::functionspace::StructuredColumns fs(fspace);
         if (fs.grid().name().compare(0, 1, "F") == 0) {
@@ -334,19 +316,19 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
     // Get values as a function of separation distance
     auto[distances, covariances, lons, lats, levs, fieldIndexes] =
-        util::sortBySeparationDistance(geom.getComm(),
-                                       geom.functionSpace(),
-                                       data[0].fieldSet().fieldSet(),
-                                       diracPoints[0].fieldSet().fieldSet(),
+        util::sortBySeparationDistance(geom.geometry().getComm(),
+                                       geom.geometry().functionSpace(),
+                                       data[0].increment().fieldSet(),
+                                       diracPoints[0].increment().fieldSet(),
                                        maxLength,
                                        removeDuplicates);
 
     // Write to file or to test Log
-    const auto & names = data[0].fieldSet().fieldSet().field_names();
+    const auto & names = data[0].increment().fieldSet().field_names();
     if (profileConf.has("output filepath")) {
       // Write to file
       const auto outputPath = profileConf.getString("output filepath");
-      util::write_1d_covariances(geom.getComm(),
+      util::write_1d_covariances(geom.geometry().getComm(),
                                  distances,
                                  covariances,
                                  lons,
@@ -367,10 +349,10 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       const std::vector<double> subCovs(covariances[i].begin(), covariances[i].begin() + numValues);
       oops::Log::test() << "Separation distance: " << subDist << std::endl;
       oops::Log::test() << "Covariance: " << subCovs << std::endl;
-    }
-
-    oops::Log::trace() << appname() << "::extract_1d_covariances done" << std::endl;
   }
+
+  oops::Log::trace() << appname() << "::extract_1d_covariances done" << std::endl;
+}
 
 // -----------------------------------------------------------------------------
 
@@ -650,13 +632,14 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     oops::Log::info() << "Info     : Build covariance" << std::endl;
     const eckit::LocalConfiguration covarConf = params.backgroundError.value().toConfiguration();
 
-    std::unique_ptr<CovarianceBase_> Bmat(CovarianceFactory_::create(
-                                          geom, vars, covarConf, xx, xx));
+    std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
+                                            covarConf, geom, util::templatedVars<MODEL>(vars), xx));
+    Bmat->linearize(xx, geom, covarConf);
 
     // Create increments
-    Increment4D_ dx(geom, vars, xx.times(), xx.commTime());
-    Increment4D_ dxsq(geom, vars, xx.times(), xx.commTime());
-    Increment4D_ variance(geom, vars, xx.times(), xx.commTime());
+    Increment4D_ dx(geom, util::templatedVars<MODEL>(vars), xx.times());
+    Increment4D_ dxsq(geom, util::templatedVars<MODEL>(vars), xx.times());
+    Increment4D_ variance(geom, util::templatedVars<MODEL>(vars), xx.times());
 
     // Initialize variance
     variance.zero();
@@ -690,7 +673,9 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
         // Add background state to perturbation
         State4D_ xp(xx);
-        xp += dx;
+        for (int jsub = 0; jsub < dx.times().size(); ++jsub) {
+          xp[jsub-dx.first()] += dx[jsub];
+        }
 
         // Write state
         oops::Log::test() << "Write state: " << xp;
@@ -699,7 +684,9 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
       // Square perturbation
       dxsq = dx;
-      dxsq.schur_product_with(dx);
+      for (int jsub = 0; jsub < dx.times().size(); ++jsub) {
+        dxsq[jsub].schur_product_with(dx[jsub]);
+      }
 
       // Update variance
       variance += dxsq;
