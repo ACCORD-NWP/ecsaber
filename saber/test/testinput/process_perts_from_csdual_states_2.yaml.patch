@@ -1,6 +1,6 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_from_csdual_states_2.yaml.tmp.bak	2026-01-30 15:38:52.796739042 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_from_csdual_states_2.yaml	2026-01-30 15:38:24.371557169 +0100
-@@ -57,9 +57,7 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_from_csdual_states_2.yaml.tmp.bak	2026-03-04 18:36:58.627760986 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_from_csdual_states_2.yaml	2026-03-04 18:39:14.697720855 +0100
+@@ -59,9 +59,7 @@
        filepath: testdata/process_perts_from_csdual_states_2/wb1_CS-LFR-14_mb%MEM%_inc
        member pattern: '%MEM%'
  - band:
@@ -10,8 +10,8 @@
 +    gauss to cubed-sphere-dual block: *GaussToCSDual
      filter:
      - <<: *GaussToCSDual
-       right-inverse of a following block: true
-@@ -87,9 +85,7 @@
+       right-inverse: true
+@@ -91,9 +89,7 @@
        multiply fset filename: wb2_F14_inc
      - <<: *GaussToCSDual
  - band:
@@ -21,4 +21,4 @@
 +    gauss to cubed-sphere-dual block: *GaussToCSDual
      filter:
      - <<: *GaussToCSDual
-       right-inverse of a following block: true
+       right-inverse: true
