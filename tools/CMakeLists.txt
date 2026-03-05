@@ -6,6 +6,8 @@ list( APPEND tool_files
     yaml_update.py
 )
 
+file( MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+
 foreach(FILENAME IN LISTS tool_files)
     set(_tool ${PROJECT_NAME}_${FILENAME})
     #Install in build-tree
