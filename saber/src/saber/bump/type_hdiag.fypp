@@ -168,6 +168,10 @@ do ildwv=0,nam%nldwv
          call put_var(mpl,grpid,as_id,geom%as(1:nam%nc4))
          call put_var(mpl,grpid,vert_coord_id,geom%vert_coordavg)
 
+         ! Write ensemble covariance
+         if (nam%compute_cov) call hdiag%cov%blk(ic2a(ildwv),ig)%write(mpl,nam,geom,grpid,nc3_id,nc4_id,nl0r_id, &
+ & nl0_1_id,nl0_2_id)
+
          ! Write ensemble correlation
          if (nam%compute_cor) call hdiag%cor%blk(ic2a(ildwv),ig)%write(mpl,nam,geom,grpid,nc3_id,nc4_id,nl0r_id, &
  & nl0_1_id,nl0_2_id)
