@@ -1,6 +1,6 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-03-02 19:57:45.883191012 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-03-02 17:21:05.823528099 +0100
-@@ -27,17 +27,16 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-03-06 12:51:11.787317173 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-03-06 12:51:45.184558183 +0100
+@@ -26,17 +26,16 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
  
@@ -25,7 +25,7 @@
  #include "oops/runs/Application.h"
  #include "oops/util/ConfigFunctions.h"
  #include "oops/util/ConfigHelpers.h"
-@@ -51,6 +50,7 @@
+@@ -50,6 +49,7 @@
  
  #include "saber/blocks/SaberParametricBlockChain.h"
  #include "saber/oops/ErrorCovarianceParameters.h"
@@ -33,7 +33,7 @@
  #include "saber/oops/Utilities.h"
  #include "saber/util/HorizontalProfiles.h"
  
-@@ -106,19 +106,21 @@
+@@ -105,19 +105,21 @@
  // -----------------------------------------------------------------------------
  
  template <typename MODEL> class ErrorCovarianceToolbox : public oops::Application {
@@ -60,7 +60,7 @@
    }
  
  // -----------------------------------------------------------------------------
-@@ -127,50 +129,13 @@
+@@ -126,50 +128,13 @@
  
  // -----------------------------------------------------------------------------
  
@@ -113,7 +113,7 @@
  
      // Get number of MPI tasks and OpenMP threads
      size_t ntasks = commSpace->size();
-@@ -187,17 +152,31 @@
+@@ -186,17 +151,31 @@
      setMPI(fullConfigUpdated, ntasks, nthreads);
      params.deserialize(fullConfigUpdated);
  
@@ -148,7 +148,7 @@
      const oops::JediVariables vars = tmpVars;
  
      // Covariance parameters
-@@ -207,8 +186,8 @@
+@@ -206,8 +185,8 @@
      const auto & diracParams = params.dirac.value();
      if (diracParams != boost::none) {
        // Setup Dirac field
@@ -159,7 +159,7 @@
        oops::Log::test() << "Input Dirac increment:" << dxi << std::endl;
  
        // Test configuration
-@@ -247,8 +226,11 @@
+@@ -246,8 +225,11 @@
  
      // If background error covariance has not been setup yet, do it now
      if ((diracParams == boost::none) && (randomizationSize == 0)) {
@@ -173,7 +173,7 @@
      }
  
      return 0;
-@@ -270,15 +252,15 @@
+@@ -269,15 +251,15 @@
  
      // Create diagnostic field
      Increment4D_ diagPoints(data);
@@ -196,7 +196,7 @@
      }
  
      oops::Log::trace() << appname() << "::print_value_at_position done" << std::endl;
-@@ -292,13 +274,13 @@
+@@ -291,13 +273,13 @@
                                const Increment4D_ & data) const {
      oops::Log::trace() << appname() << "::extract_1d_covariances starting" << std::endl;
  
@@ -212,7 +212,7 @@
  
      // Define maximum length of horizontal profile
      double maxLength = std::numeric_limits<double>::infinity();
-@@ -307,7 +289,7 @@
+@@ -306,7 +288,7 @@
        maxLength = profileConf.getDouble("maximum distance");
      } else {
        // If no maximum length input is given, try to compute a default value from the grid
@@ -221,7 +221,7 @@
        if (fspace.type() == "StructuredColumns") {
          const atlas::functionspace::StructuredColumns fs(fspace);
          if (fs.grid().name().compare(0, 1, "F") == 0) {
-@@ -334,19 +316,19 @@
+@@ -333,19 +315,19 @@
  
      // Get values as a function of separation distance
      auto[distances, covariances, lons, lats, levs, fieldIndexes] =
@@ -247,7 +247,7 @@
                                   distances,
                                   covariances,
                                   lons,
-@@ -367,11 +349,11 @@
+@@ -366,11 +348,11 @@
        const std::vector<double> subCovs(covariances[i].begin(), covariances[i].begin() + numValues);
        oops::Log::test() << "Separation distance: " << subDist << std::endl;
        oops::Log::test() << "Covariance: " << subCovs << std::endl;
@@ -262,7 +262,7 @@
  // -----------------------------------------------------------------------------
  
    void dirac(const eckit::LocalConfiguration & covarConf,
-@@ -384,7 +366,7 @@
+@@ -383,7 +365,7 @@
      oops::Log::trace() << appname() << "::dirac starting" << std::endl;
  
      // Get covariance model
@@ -271,7 +271,7 @@
  
      // Update ID
      std::string updId = id;
-@@ -404,8 +386,11 @@
+@@ -403,8 +385,11 @@
      Increment4D_ dxo(dxi, false);
  
      // Covariance
@@ -285,7 +285,7 @@
  
      // Multiply
      Bmat->multiply(dxi, dxo);
-@@ -494,10 +479,18 @@
+@@ -493,10 +478,18 @@
        Increment4D_ dxo(dxi);
  
        // Setup localization
@@ -306,7 +306,7 @@
  
        // Copy configuration
        eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
-@@ -542,7 +535,7 @@
+@@ -541,7 +534,7 @@
          for (const auto & conf : confs) {
            // Prepare sub-covariance configuration
            eckit::LocalConfiguration componentConfig(conf, "covariance");
@@ -315,7 +315,7 @@
  
            // Merge configuration with full configuration (order of arguments matters!)
            componentConfig = util::mergeConfigs(componentConfig, paramsBase.toConfiguration());
-@@ -587,11 +580,16 @@
+@@ -586,11 +579,16 @@
                                               locConfig);
  
          // Define output increment
@@ -335,7 +335,7 @@
  
          // Copy configuration
          eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
-@@ -634,13 +632,14 @@
+@@ -633,13 +631,14 @@
      oops::Log::info() << "Info     : Build covariance" << std::endl;
      const eckit::LocalConfiguration covarConf = params.backgroundError.value().toConfiguration();
  
@@ -355,7 +355,7 @@
  
      // Initialize variance
      variance.zero();
-@@ -674,7 +673,9 @@
+@@ -673,7 +672,9 @@
  
          // Add background state to perturbation
          State4D_ xp(xx);
@@ -366,7 +366,7 @@
  
          // Write state
          oops::Log::test() << "Write state: " << xp;
-@@ -683,7 +684,9 @@
+@@ -682,7 +683,9 @@
  
        // Square perturbation
        dxsq = dx;

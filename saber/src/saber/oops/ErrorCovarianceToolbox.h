@@ -10,7 +10,6 @@
 #pragma once
 
 #include <math.h>
-#include <netcdf.h>
 #include <omp.h>
 
 #include <algorithm>
