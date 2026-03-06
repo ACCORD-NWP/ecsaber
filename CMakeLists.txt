@@ -132,10 +132,19 @@ if( NOT EXISTS ${fullpath} )
     file( DOWNLOAD https://media.githubusercontent.com/media/jcsda/saber/develop/quench/data/landsea.nc ${fullpath} )
 endif()
 
-# Add subdirectories
-if( NOT DEFINED ENABLE_QUENCH )
-  set( ENABLE_QUENCH ON )
+# ATLAS is needed
+if( WITH_ATLAS )
+    add_compile_definitions( WITH_ATLAS )
+else()
+    message( FATAL_ERROR "WITH_ATLAS required to compile OOPS" )
 endif()
+
+# Do not compile quench if the environment variable is not set
+if( NOT DEFINED ENABLE_QUENCH )
+    set( ENABLE_QUENCH OFF CACHE BOOL "Compile quench" )
+endif()
+
+# Add subdirectories
 add_subdirectory( oops_patch )
 add_subdirectory( vader )
 add_subdirectory( saber )

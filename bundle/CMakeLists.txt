@@ -19,6 +19,10 @@ option( ENABLE_MKL "Compile with MKL" OFF )
 option( ENABLE_TRANSI "Compile TransI C-interface to trans" ON )
 option( ENABLE_ETRANS "Include Limited-Area-Model Transforms" ON )
 option( ENABLE_JEDI_MODEL_DATA "Obtain saber/vader test data from jedi-model-data repository (vs tarball)" ON )
+option( ENABLE_QUENCH "Compile quench" ON )
+
+# Use ATLAS
+set( WITH_ATLAS ON CACHE BOOL "Compile with ATLAS" )
 
 # Initialize bundle
 ecbuild_bundle_initialize()
@@ -42,7 +46,8 @@ ecbuild_bundle( PROJECT ectrans  GIT "https://github.com/ecmwf-ifs/ectrans.git" 
 ecbuild_bundle( PROJECT atlas    GIT "https://github.com/ecmwf/atlas.git" TAG 0.40.0 )
 
 # OOPS
-ecbuild_bundle( PROJECT oops GIT "https://github.com/benjaminmenetrier/oops.git" BRANCH feature/CY49T2h_ecsaber_to_CY50 UPDATE )
+#ecbuild_bundle( PROJECT oops GIT "https://github.com/benjaminmenetrier/oops.git" BRANCH feature/CY49T2h_ecsaber_to_CY50 UPDATE )
+ecbuild_bundle( PROJECT oops )
 
 # jedi-data
 ecbuild_bundle( PROJECT jedi-model-data GIT "https://github.com/jcsda-internal/jedi-model-data.git" BRANCH develop UPDATE )
