@@ -21,8 +21,8 @@ option( ENABLE_ETRANS "Include Limited-Area-Model Transforms" ON )
 option( ENABLE_JEDI_MODEL_DATA "Obtain saber/vader test data from jedi-model-data repository (vs tarball)" ON )
 option( ENABLE_QUENCH "Compile quench" ON )
 
-# Use ATLAS
-set( WITH_ATLAS ON CACHE BOOL "Compile with ATLAS" )
+# Activate ECSABER
+set( ECSABER ON CACHE BOOL "Compile for ECSABER" )
 
 # Initialize bundle
 ecbuild_bundle_initialize()

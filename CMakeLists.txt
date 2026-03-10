@@ -132,12 +132,8 @@ if( NOT EXISTS ${fullpath} )
     file( DOWNLOAD https://media.githubusercontent.com/media/jcsda/saber/develop/quench/data/landsea.nc ${fullpath} )
 endif()
 
-# ATLAS is needed
-if( WITH_ATLAS )
-    add_compile_definitions( WITH_ATLAS )
-else()
-    message( FATAL_ERROR "WITH_ATLAS required to compile OOPS" )
-endif()
+# ECSABER compile definition required for OOPS
+add_compile_definitions( ECSABER )
 
 # Do not compile quench if the environment variable is not set
 if( NOT DEFINED ENABLE_QUENCH )
