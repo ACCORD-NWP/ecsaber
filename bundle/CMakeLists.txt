@@ -39,15 +39,14 @@ else()
 endif()
 
 # ECMWF tools
-ecbuild_bundle( PROJECT eckit    GIT "https://github.com/ecmwf/eckit.git" TAG 1.24.4 )
-ecbuild_bundle( PROJECT fckit    GIT "https://github.com/ecmwf/fckit.git" TAG 0.11.0 )
-ecbuild_bundle( PROJECT fiat     GIT "https://github.com/ecmwf-ifs/fiat.git" BRANCH main )
-ecbuild_bundle( PROJECT ectrans  GIT "https://github.com/ecmwf-ifs/ectrans.git" BRANCH main )
-ecbuild_bundle( PROJECT atlas    GIT "https://github.com/ecmwf/atlas.git" TAG 0.40.0 )
+ecbuild_bundle( PROJECT eckit    GIT "https://github.com/ecmwf/eckit.git" TAG 1.26.3 )
+ecbuild_bundle( PROJECT fckit    GIT "https://github.com/ecmwf/fckit.git" TAG 0.11.2 )
+ecbuild_bundle( PROJECT fiat     GIT "https://github.com/hirlam/fiat.git " BRANCH fiat-CY49T2h_oops )
+ecbuild_bundle( PROJECT ectrans  GIT "https://github.com/accord-nwp/ectrans.git" BRANCH for-CY49T1 )
+ecbuild_bundle( PROJECT atlas    GIT "https://github.com/benjaminmenetrier/atlas.git" BRANCH atlas-CY49T2h_oops )
 
 # OOPS
-#ecbuild_bundle( PROJECT oops GIT "https://github.com/benjaminmenetrier/oops.git" BRANCH feature/CY49T2h_ecsaber_to_CY50 UPDATE )
-ecbuild_bundle( PROJECT oops )
+ecbuild_bundle( PROJECT oops GIT "https://github.com/benjaminmenetrier/oops.git" BRANCH feature/CY49T2h_ecsaber_to_CY50_4dvar UPDATE )
 
 # jedi-data
 ecbuild_bundle( PROJECT jedi-model-data GIT "https://github.com/jcsda-internal/jedi-model-data.git" BRANCH develop UPDATE )

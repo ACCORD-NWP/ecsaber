@@ -80,7 +80,7 @@ Localization<MODEL>::Localization(const Geometry_ & geom,
 
   // Initialize increment variables with levels metadata
   const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(incVarsNoMeta.variables());
-  oops::JediVariables incVars(incVarsNoMeta.variables().variablesList());
+  oops::JediVariables incVars(incVarsNoMeta.variables().variables());
   for (std::size_t i = 0; i < vlevs.size() ; ++i) {
     incVars[i].setLevels(vlevs[i]);
   }

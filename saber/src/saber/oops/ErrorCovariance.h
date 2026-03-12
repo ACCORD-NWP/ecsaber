@@ -210,7 +210,7 @@ void ErrorCovariance4D<MODEL>::advectedLinearize(const State4D_ & xb,
 
     // Initialize outer variables
     const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(BVars_->variables());
-    oops::JediVariables outerVars(BVars_->variables().variablesList());
+    oops::JediVariables outerVars(BVars_->variables().variables());
     for (std::size_t i = 0; i < vlevs.size() ; ++i) {
       outerVars[i].setLevels(vlevs[i]);
     }

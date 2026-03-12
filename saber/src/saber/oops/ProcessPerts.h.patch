@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-02-02 14:49:16.261056080 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-02-02 14:06:34.157954168 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-03-12 12:21:09.869412817 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-03-12 12:15:26.195520977 +0100
 @@ -8,6 +8,7 @@
  #pragma once
  
@@ -122,7 +122,7 @@
  
 -    oops::JediVariables incVars = params.inputVariables;
 +    const Variables_ incVarsT(params.inputVariables);
-+    oops::JediVariables incVars(incVarsT.variables().variablesList());
++    oops::JediVariables incVars(incVarsT.variables().variables());
  
      // Initialize outer variables
 -    const std::vector<std::size_t> vlevs = geom.variableSizes(incVars);

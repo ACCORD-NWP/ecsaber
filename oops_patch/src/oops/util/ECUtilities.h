@@ -91,7 +91,7 @@ const oops::GeometryData & geomData(const oops::Geometry<MODEL> & geom) {
 template <typename MODEL>
 oops::Variables<MODEL> templatedVars(const oops::JediVariables & vars) {
   eckit::LocalConfiguration varConf;
-  varConf.set("variables list", vars.variables());
+  varConf.set("variables", vars.variables());
   return oops::Variables<MODEL>(varConf);
 }
 

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2026-02-25 12:19:46.916420820 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2026-02-25 12:19:27.322331215 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h.tmp.bak	2026-03-12 12:21:09.920413111 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovariance.h	2026-03-12 12:15:22.981504371 +0100
 @@ -8,144 +8,236 @@
  
  #pragma once
@@ -281,7 +281,7 @@
 +
 +    // Initialize outer variables
 +    const std::vector<std::size_t> vlevs = geom.geometry().variableSizes(BVars_->variables());
-+    oops::JediVariables outerVars(BVars_->variables().variablesList());
++    oops::JediVariables outerVars(BVars_->variables().variables());
 +    for (std::size_t i = 0; i < vlevs.size() ; ++i) {
 +      outerVars[i].setLevels(vlevs[i]);
 +    }

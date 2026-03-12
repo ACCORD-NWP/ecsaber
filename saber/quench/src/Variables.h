@@ -34,10 +34,6 @@ class Variables : public oops::JediVariables,
 
 // Extra constructor
   explicit Variables(const eckit::Configuration &);
-
-// Extra accessor
-  std::vector<std::string> variablesList() const
-    {return this->variables();}
 };
 
 // -----------------------------------------------------------------------------
