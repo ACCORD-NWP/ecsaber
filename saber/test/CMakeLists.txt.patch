@@ -1,6 +1,6 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-03-02 15:52:59.556926813 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-03-02 15:54:53.198026248 +0100
-@@ -200,9 +200,10 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-03-24 15:28:05.217198871 +0100
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-03-24 15:33:02.625271699 +0100
+@@ -247,9 +247,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
  
        # Link to yaml file
@@ -14,7 +14,7 @@
  
        # Link to reference file
        if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -313,10 +314,11 @@
+@@ -366,10 +367,11 @@
  
                        # Add test
                        ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
@@ -30,7 +30,7 @@
                                          DEPENDS saber_quench_${exename}.x
                                          TEST_DEPENDS ${deps_list} )
                    endif()
-@@ -341,10 +343,11 @@
+@@ -394,10 +396,11 @@
  
                    # Add test
                    ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
@@ -46,7 +46,7 @@
                                      DEPENDS saber_quench_error_covariance_toolbox.x
                                      TEST_DEPENDS ${deps_list} )
                endif()
-@@ -381,12 +384,3 @@
+@@ -434,12 +437,3 @@
                  SOURCES         fctest/fctest_nicas_sqrt.F90
                  LIBS            saber )
  endif()

@@ -46,7 +46,8 @@ ecbuild_bundle( PROJECT ectrans  GIT "https://github.com/accord-nwp/ectrans.git"
 ecbuild_bundle( PROJECT atlas    GIT "https://github.com/benjaminmenetrier/atlas.git" BRANCH atlas-CY49T2h_oops )
 
 # OOPS
-ecbuild_bundle( PROJECT oops GIT "https://github.com/benjaminmenetrier/oops.git" BRANCH feature/CY49T2h_ecsaber_to_CY50_4dvar UPDATE )
+#ecbuild_bundle( PROJECT oops GIT "https://github.com/benjaminmenetrier/oops.git" BRANCH feature/CY49T2h_ecsaber_to_CY50_4dvar UPDATE )
+ecbuild_bundle( PROJECT oops )
 
 # jedi-data
 ecbuild_bundle( PROJECT jedi-model-data GIT "https://github.com/jcsda-internal/jedi-model-data.git" BRANCH develop UPDATE )

@@ -16,6 +16,7 @@
 #include "eckit/config/Configuration.h"
 #include "eckit/exception/Exceptions.h"
 
+#include "oops/util/abor1_cpp.h"
 #include "oops/util/Logger.h"
 
 // -----------------------------------------------------------------------------
@@ -27,7 +28,7 @@ JediVariables::JediVariables(const eckit::Configuration & conf, const std::strin
   std::vector<std::string> vars;
   if (!conf.get(name, vars)) {
     Log::error() << name << " not found in " << conf << std::endl;
-    throw eckit::BadParameter("Undefined variable: '" + name + "'");
+    ABORT("Undefined variable: '" + name + "'");
   }
   vars_.reserve(vars.size());
   for (const auto & var : vars) {
@@ -68,7 +69,7 @@ const oops::Variable & JediVariables::operator[](const std::string & varname) co
   const auto & it = std::find(vars_.begin(), vars_.end(), Variable(varname));
   if (it == vars_.end()) {
     Log::error() << "Could not find " << varname << " in variables list: " << *this << std::endl;
-    throw eckit::BadParameter("Error accessing a non-existent variable", Here());
+    ABORT("Error accessing a non-existent variable");
   }
   return *it;
 }
@@ -79,7 +80,7 @@ oops::Variable & JediVariables::operator[](const std::string & varname) {
   const auto & it = std::find(vars_.begin(), vars_.end(), Variable(varname));
   if (it == vars_.end()) {
     Log::error() << "Could not find " << varname << " in variables list: " << *this << std::endl;
-    throw eckit::BadParameter("Error accessing a non-existent variable", Here());
+    ABORT("Error accessing a non-existent variable");
   }
   return *it;
 }
