@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-03-06 12:51:11.787317173 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-03-06 12:51:45.184558183 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-04-01 16:29:42.378270073 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-04-01 16:30:44.498023220 +0200
 @@ -26,17 +26,16 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
@@ -285,6 +285,15 @@
  
      // Multiply
      Bmat->multiply(dxi, dxo);
+@@ -473,7 +458,7 @@
+       }
+     }
+ 
+-    // Ensemble covariance model
++    // Localization output for ensemble covariance model
+     if (covarianceModel == "ensemble" && covarConf.has("localization") &&
+       (!covarConf.has("ensemble geometry"))) {
+       // Update ID
 @@ -493,10 +478,18 @@
        Increment4D_ dxo(dxi);
  
@@ -335,7 +344,27 @@
  
          // Copy configuration
          eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
-@@ -633,13 +631,14 @@
+@@ -647,11 +645,16 @@
+                                                locConfig);
+ 
+           // Define output increment
+-          Increment4D_ dxo(dxi);
+-          oops::FieldSet4D fset4dDxo(dxo);
++          oops::FieldSet4D fset4dDx(dxi);
+ 
+           // Apply localization
+-          Lmat.multiply(fset4dDxo);
++          Lmat.multiply(fset4dDx);
++
++          // Reset output
++          Increment4D_ dxo(dxi);
++          for (int jsub = 0; jsub < dxo.times().size(); ++jsub) {
++            dxo[jsub].increment().fromFieldSet(fset4dDx[jsub].fieldSet());
++          }
+ 
+           // Copy configuration
+           eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
+@@ -695,13 +698,14 @@
      oops::Log::info() << "Info     : Build covariance" << std::endl;
      const eckit::LocalConfiguration covarConf = params.backgroundError.value().toConfiguration();
  
@@ -355,7 +384,7 @@
  
      // Initialize variance
      variance.zero();
-@@ -673,7 +672,9 @@
+@@ -735,7 +739,9 @@
  
          // Add background state to perturbation
          State4D_ xp(xx);
@@ -366,7 +395,7 @@
  
          // Write state
          oops::Log::test() << "Write state: " << xp;
-@@ -682,7 +683,9 @@
+@@ -744,7 +750,9 @@
  
        // Square perturbation
        dxsq = dx;

@@ -611,6 +611,73 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
           print_value_at_positions(testConf.getSubConfiguration("diagnostic points"), geom, dxo);
         }
       }
+
+      // Localization output for ensemble covariance type with several scales
+      if (covarianceType == "ensemble" && covarConf.has("scales") &&
+          (!covarConf.has("ensemble geometry"))) {
+        size_t iscale = 1;
+        for (const auto & scaleConfig : covarConf.getSubConfigurations("scales")) {
+          // Update ID
+          std::string locId(updId);
+          locId.append("_localization_wb" + std::to_string(iscale));
+
+          // Dirac test
+          oops::Log::test() << "Localization(" << locId<< ") dirac test:" << std::endl;
+
+          // Deserialize base parameters
+          ErrorCovarianceParametersBase paramsBase;
+          paramsBase.deserialize(covarConf);
+
+          // Get localization configuration
+          eckit::LocalConfiguration locConfig(scaleConfig.getSubConfiguration("localization"));
+
+          // Merge configuration with full configuration (order of arguments matters!)
+          locConfig = util::mergeConfigs(locConfig, paramsBase.toConfiguration());
+
+          // Get background as FieldSet4D
+          oops::FieldSet4D fset4d(xx);
+
+          // Setup localization
+          const SaberParametricBlockChain Lmat(geom,
+                                               vars,
+                                               fset4d,
+                                               fset4d,
+                                               locConfig);
+
+          // Define output increment
+          oops::FieldSet4D fset4dDx(dxi);
+
+          // Apply localization
+          Lmat.multiply(fset4dDx);
+
+          // Reset output
+          Increment4D_ dxo(dxi);
+          for (int jsub = 0; jsub < dxo.times().size(); ++jsub) {
+            dxo[jsub].increment().fromFieldSet(fset4dDx[jsub].fieldSet());
+          }
+
+          // Copy configuration
+          eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
+
+          // Seek and replace %id% with locId, recursively
+          util::seekAndReplace(outputLConf, "%id%", locId);
+
+          // Write output increment
+          dxo.write(outputLConf);
+          oops::Log::test() << "Localization(" << locId << ") * Increment:" << dxo << std::endl;
+
+          // Print localization diagnostics
+          oops::Log::test() << "Localization(" << locId << ") diagnostics:" << std::endl;
+          oops::Log::test() << "- Localization at zero separation:" << std::endl;
+
+          // Print value at certain positions
+          print_value_at_positions(testConf.getSubConfiguration("dirac"), geom, dxo);
+          if (testConf.has("diagnostic points")) {
+            oops::Log::test() << "- Localization at diagnostic points:" << std::endl;
+            print_value_at_positions(testConf.getSubConfiguration("diagnostic points"), geom, dxo);
+          }
+        }
+      }
     }
 
     oops::Log::trace() << appname() << "::dirac done" << std::endl;
