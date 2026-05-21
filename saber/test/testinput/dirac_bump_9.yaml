@@ -32,7 +32,7 @@ background error:
         multivariate strategy: univariate
         compute nicas: true
       nicas:
-        resolution: 4.0
+        resolution: 5
         explicit length-scales: true
         horizontal length-scale:
         - groups:
@@ -74,9 +74,7 @@ dirac:
 - {}
 output dirac:
   increment:
-  - mpi pattern: '%MPI%'
-    filepath: testdata/dirac_bump_9/%MPI%_dirac_%id%_12
-  - mpi pattern: '%MPI%'
-    filepath: testdata/dirac_bump_9/%MPI%_dirac_%id%_18
+  - filepath: testdata/dirac_bump_9/_MPI_-_OMP__dirac_%id%_12
+  - filepath: testdata/dirac_bump_9/_MPI_-_OMP__dirac_%id%_18
 test:
   reference filename: testref/dirac_bump_9.ref

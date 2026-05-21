@@ -89,6 +89,11 @@ class SaberHybridBlockChainParameters: public ErrorCovarianceParametersBase {
   // Resource weighting for each hybrid component.
   oops::OptionalParameter<std::vector<double>> parallelCovarRelativeCPUWeight{
       "parallel covariance relative cpu weight", this};
+
+  // Which method to use in the atlas field redistribution between subcommunicator
+  // and parent communicator.
+  oops::Parameter<std::string> commRedistributionMethod{"comm redistribution method",
+      "straight", this};
 };
 
 /// Hybrid covariance block chain implementation
@@ -146,6 +151,10 @@ class SaberHybridBlockChain : public SaberBlockChainBase {
   size_t myComponent_;
   /// local geometry for parallel Hybrid block (type-erased)
   std::shared_ptr<atlas::FunctionSpace> localHybridFs_, globalHybridFs_;
+
+  /// Which method to use for comm redistribution, if any.
+  std::string redistributionMethod_;
+
   std::unique_ptr<oops::Geometry<MODEL>> localHybridGeom_;
 };
 
@@ -158,7 +167,9 @@ SaberHybridBlockChain<MODEL>::SaberHybridBlockChain(const oops::Geometry<MODEL> 
                        oops::FieldSet4D & fset4dFg,
                        const eckit::Configuration & conf)
   : outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars),
-    parallelHybrid_(false), myComponent_(0) {
+    parallelHybrid_(false), myComponent_(0),
+    redistributionMethod_{""}
+{
   oops::Log::trace() << "SaberHybridBlockChain ctor starting" << std::endl;
 
   // Deserialize parameters and fill configuration with missing values
@@ -184,9 +195,10 @@ SaberHybridBlockChain<MODEL>::SaberHybridBlockChain(const oops::Geometry<MODEL> 
 
   // Hybrid central block
   parallelHybrid_ = params.runInParallel;
-  const eckit::mpi::Comm & defaultSpaceComm = geom.geometry().getComm();
-  const size_t ntasks = defaultSpaceComm.size();
+  redistributionMethod_ = params.commRedistributionMethod;
+
   const size_t nComponents = params.components.value().size();
+  globalHybridFs_.reset(new atlas::FunctionSpace(geom.geometry().functionSpace()));
 
   std::vector<double> parallelCovRelativeCpuWeight;
   if (params.parallelCovarRelativeCPUWeight.value()) {

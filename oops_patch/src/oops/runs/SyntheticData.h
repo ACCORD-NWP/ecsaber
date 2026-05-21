@@ -15,6 +15,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "eckit/config/Configuration.h"
 #include "eckit/config/LocalConfiguration.h"
 
 #include "oops/assimilation/ControlVariable.h"
@@ -111,11 +112,11 @@ class SyntheticData : public Application {
     yobs.save(obsConf);
 
     // Setup variables
-    const std::vector<std::string> varNames = fullConfig.getStringVector("variables");
-    JediVariables tmpVars(varNames);
+    const eckit::LocalConfiguration varConf(fullConfig, "variables");
+    const Variables_ tmpVars(varConf);
 
     // Create background perturbation
-    Increment_ dx(resol, util::templatedVars<MODEL>(tmpVars), xx.state()[0].validTime());
+    Increment_ dx(resol, tmpVars, xx.state()[0].validTime());
     J->jb().jbState().covar().randomize(dx);
 
     // Write background perturbation

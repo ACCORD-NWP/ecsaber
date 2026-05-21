@@ -1,4 +1,4 @@
-#:include 'instrumentation.fypp'
+#:include 'generics.fypp'
 !----------------------------------------------------------------------
 ! Module: type_nicas
 !> NICAS data derived type
@@ -21,7 +21,6 @@ use type_geom, only: geom_type
 use type_mpl, only: mpl_type
 use type_nam, only: nam_type
 use type_nicas_blk, only: nicas_blk_type
-@:use_probe()
 use type_rng, only: rng_type
 
 implicit none
@@ -88,9 +87,6 @@ integer :: ig
 ! Set name
 @:set_name(nicas_alloc)
 
-! Probe in
-@:probe_in()
-
 ! Allocation
 if (.not.allocated(nicas%blk)) allocate(nicas%blk(nam%ng))
 
@@ -104,9 +100,6 @@ end do
 
 ! Update allocation flag
 nicas%allocated = .true.
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_alloc
 
@@ -125,9 +118,6 @@ integer :: ig
 ! Set name
 @:set_name(nicas_partial_dealloc)
 
-! Probe in
-@:probe_in()
-
 ! Release memory (partial)
 if (allocated(nicas%blk)) then
    do ig=1,size(nicas%blk)
@@ -137,9 +127,6 @@ end if
 if (allocated(nicas%blkid)) deallocate(nicas%blkid)
 if (allocated(nicas%dirac_id)) deallocate(nicas%dirac_id)
 if (allocated(nicas%bens_id)) deallocate(nicas%bens_id)
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_partial_dealloc
 
@@ -158,9 +145,6 @@ integer :: ig
 ! Set name
 @:set_name(nicas_dealloc)
 
-! Probe in
-@:probe_in()
-
 ! Release memory
 if (allocated(nicas%blk)) then
    do ig=1,size(nicas%blk)
@@ -173,9 +157,6 @@ if (allocated(nicas%dirac_bens)) deallocate(nicas%dirac_bens)
 
 ! Update allocation flag
 nicas%allocated = .false.
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_dealloc
 
@@ -199,9 +180,6 @@ type(nicas_type) :: nicas_tmp
 
 ! Set name
 @:set_name(nicas_read_local)
-
-! Probe in
-@:probe_in()
 
 write(mpl%info,'(a7,a)') '','Read NICAS local data'
 call mpl%flush
@@ -324,48 +302,34 @@ if (nam%strategy=='crossed') then
          exit
       end if
    end do
-
-   do ig=1,nam%ng
-      do icmp=1,nicas%blk(ig)%ncmp
-         ! Control variable size
-         nicas%blk(ig)%cmp(icmp)%ncv = nicas%blk(nicas%igref)%cmp(icmp)%nsa
-
-         ! Control variable section starting and end indices
-         if (geom%grp2d(ig)) then
-            if (nam%ilev2d==1) then
-               ! First level only
-               nicas%blk(ig)%cmp(icmp)%ias = 1
-               nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
-            else
-               ! Last level only
-               nicas%blk(ig)%cmp(icmp)%ias = nicas%blk(ig)%cmp(icmp)%ncv-nicas%blk(ig)%cmp(icmp)%nsa+1
-               nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%ncv
-            end if
-         else
-            ! 
-            nicas%blk(ig)%cmp(icmp)%ias = 1
-            nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
-         end if
-      end do
-   end do
 else
-   ! Missing value
+   ! Missing reference group
    nicas%igref = mpl%msv%vali
-
-   do ig=1,nam%ng
-      do icmp=1,nicas%blk(ig)%ncmp
-         ! Control variable size
-         nicas%blk(ig)%cmp(icmp)%ncv = nicas%blk(ig)%cmp(icmp)%nsa
-
-         ! Control variable section starting and end indices
-         nicas%blk(ig)%cmp(icmp)%ias = 1
-         nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
-      end do
-   end do
 end if
 
-! Probe out
-@:probe_out()
+do ig=1,nam%ng
+   do icmp=1,nicas%blk(ig)%ncmp
+      ! Control variable size
+      nicas%blk(ig)%cmp(icmp)%ncv = nicas%blk(ig)%cmp(icmp)%nsa
+
+      ! Control variable section starting and end indices
+      if ((nam%strategy=='crossed').and.geom%grp2d(ig)) then
+         if (nam%ilev2d==1) then
+            ! First level only
+            nicas%blk(ig)%cmp(icmp)%ias = 1
+            nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
+         else
+            ! Last level only
+            nicas%blk(ig)%cmp(icmp)%ias = nicas%blk(ig)%cmp(icmp)%ncv-nicas%blk(ig)%cmp(icmp)%nsa+1
+            nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%ncv
+         end if
+      else
+         ! All levels
+         nicas%blk(ig)%cmp(icmp)%ias = 1
+         nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
+      end if
+   end do
+end do
 
 end subroutine nicas_read_local
 
@@ -390,9 +354,6 @@ type(nicas_type) :: nicas_tmp
 
 ! Set name
 @:set_name(nicas_write_local)
-
-! Probe in
-@:probe_in()
 
 write(mpl%info,'(a7,a)') '','Write NICAS local data'
 call mpl%flush
@@ -465,9 +426,6 @@ end do
 ! Update tag
 call mpl%update_tag(4)
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_write_local
 
 !----------------------------------------------------------------------
@@ -489,9 +447,6 @@ integer :: ig
 ! Set name
 @:set_name(nicas_read_global)
 
-! Probe in
-@:probe_in()
-
 write(mpl%info,'(a7,a)') '','Read NICAS global data'
 call mpl%flush
 
@@ -508,9 +463,6 @@ end do
 
 ! Close file
 call close_file(mpl,ncid)
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_read_global
 
@@ -532,9 +484,6 @@ integer :: ig
 
 ! Set name
 @:set_name(nicas_write_global)
-
-! Probe in
-@:probe_in()
 
 write(mpl%info,'(a7,a)') '','Write NICAS global data'
 call mpl%flush
@@ -564,9 +513,6 @@ end do
 ! Close file
 call close_file(mpl,ncid)
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_write_global
 
 !----------------------------------------------------------------------
@@ -586,9 +532,6 @@ integer :: ig
 
 ! Set name
 @:set_name(nicas_write_grids)
-
-! Probe in
-@:probe_in()
 
 ! Open file
 if (nam%new_files) then
@@ -615,9 +558,6 @@ end do
 ! Close file
 call close_file(mpl,ncid,io_override=.true.)
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_write_grids
 
 !----------------------------------------------------------------------
@@ -637,9 +577,6 @@ integer :: ig
 
 ! Set name
 @:set_name(nicas_write_steps)
-
-! Probe in
-@:probe_in()
 
 ! Open file
 if (nam%new_files) then
@@ -666,9 +603,6 @@ end do
 ! Close file
 call close_file(mpl,ncid,io_override=.true.)
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_write_steps
 
 !----------------------------------------------------------------------
@@ -693,9 +627,6 @@ logical,allocatable :: bufl(:)
 
 ! Set name
 @:set_name(nicas_send)
-
-! Probe in
-@:probe_in()
 
 ! Buffer size
 nbufi = 0
@@ -742,9 +673,6 @@ deallocate(bufi)
 deallocate(bufr)
 deallocate(bufl)
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_send
 
 !----------------------------------------------------------------------
@@ -770,9 +698,6 @@ type(fckit_mpi_status) :: status
 
 ! Set name
 @:set_name(nicas_receive)
-
-! Probe in
-@:probe_in()
 
 ! Receive buffer size
 call mpl%f_comm%receive(bufs,iproc-1,mpl%tag,status)
@@ -812,9 +737,6 @@ deallocate(bufi)
 deallocate(bufr)
 deallocate(bufl)
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_receive
 
 !----------------------------------------------------------------------
@@ -838,9 +760,6 @@ integer :: ig,icmp,ic0a,il0
 
 ! Set name
 @:set_name(nicas_run_nicas)
-
-! Probe in
-@:probe_in()
 
 ! Allocation
 call nicas%alloc(nam)
@@ -903,14 +822,6 @@ call mpl%flush
 write(mpl%info,'(a)') '--- Compute NICAS parameters'
 call mpl%flush
 
-do ig=1,nam%ng
-   write(mpl%info,'(a)') '--- Block: '//trim(nam%group_names(ig))
-   call mpl%flush
-
-   ! NICAS parameters
-   call nicas%blk(ig)%compute_parameters(mpl,rng,nam,geom)
-end do
-
 if (nam%strategy=='crossed') then
    ! Define reference group
    nicas%igref = 1
@@ -921,44 +832,54 @@ if (nam%strategy=='crossed') then
       end if
    end do
 
-   do ig=1,nam%ng
-      do icmp=1,nicas%blk(ig)%ncmp
-         ! Control variable size
-         nicas%blk(ig)%cmp(icmp)%ncv = nicas%blk(nicas%igref)%cmp(icmp)%nsa
+   ! NICAS parameters for the reference group
+   write(mpl%info,'(a)') '--- Block: '//trim(nam%group_names(nicas%igref))
+   call mpl%flush
+   call nicas%blk(nicas%igref)%compute_parameters(mpl,rng,nam,geom)
 
-         ! Control variable section starting and end indices
-         if (geom%grp2d(ig)) then
-            if (nam%ilev2d==1) then
-               ! First level only
-               nicas%blk(ig)%cmp(icmp)%ias = 1
-               nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
-            else
-               ! Last level only
-               nicas%blk(ig)%cmp(icmp)%ias = nicas%blk(ig)%cmp(icmp)%ncv-nicas%blk(ig)%cmp(icmp)%nsa+1
-               nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%ncv
-            end if
-         else
-            ! 
-            nicas%blk(ig)%cmp(icmp)%ias = 1
-            nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
-         end if
-      end do
+   ! NICAS parameters for other blocks
+   do ig=1,nam%ng
+      if (ig/=nicas%igref) then
+         write(mpl%info,'(a)') '--- Block: '//trim(nam%group_names(ig))
+         call mpl%flush
+         call nicas%blk(ig)%compute_parameters(mpl,rng,nam,geom,nicas%blk(nicas%igref))
+      end if
    end do
 else
-   ! Missing value
+   ! Missing reference group
    nicas%igref = mpl%msv%vali
 
+   ! NICAS parameters for all groups
    do ig=1,nam%ng
-      do icmp=1,nicas%blk(ig)%ncmp
-         ! Control variable size
-         nicas%blk(ig)%cmp(icmp)%ncv = nicas%blk(ig)%cmp(icmp)%nsa
-
-         ! Control variable section starting and end indices
-         nicas%blk(ig)%cmp(icmp)%ias = 1
-         nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
-      end do
+      write(mpl%info,'(a)') '--- Block: '//trim(nam%group_names(ig))
+      call mpl%flush
+      call nicas%blk(ig)%compute_parameters(mpl,rng,nam,geom)
    end do
 end if
+
+do ig=1,nam%ng
+   do icmp=1,nicas%blk(ig)%ncmp
+      ! Control variable size
+      nicas%blk(ig)%cmp(icmp)%ncv = nicas%blk(ig)%cmp(icmp)%nsa
+
+      ! Control variable section starting and end indices
+      if ((nam%strategy=='crossed').and.geom%grp2d(ig)) then
+         if (nam%ilev2d==1) then
+            ! First level only
+            nicas%blk(ig)%cmp(icmp)%ias = 1
+            nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
+         else
+            ! Last level only
+            nicas%blk(ig)%cmp(icmp)%ias = nicas%blk(ig)%cmp(icmp)%ncv-nicas%blk(ig)%cmp(icmp)%nsa+1
+            nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%ncv
+         end if
+      else
+         ! All levels
+         nicas%blk(ig)%cmp(icmp)%ias = 1
+         nicas%blk(ig)%cmp(icmp)%iae = nicas%blk(ig)%cmp(icmp)%nsa
+      end if
+   end do
+end do
 
 if (nam%write_nicas_local.or.nam%write_nicas_global.or.nam%write_nicas_grids) then
    ! Write NICAS parameters
@@ -983,34 +904,30 @@ call nicas%partial_dealloc
 ! Reset random seed if necessary
 call rng%reseed
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_run_nicas
 
 !----------------------------------------------------------------------
 ! Subroutine: nicas_run_nicas_tests
 !> NICAS tests driver
 !----------------------------------------------------------------------
-subroutine nicas_run_nicas_tests(nicas,mpl,rng,nam,geom)
+subroutine nicas_run_nicas_tests(nicas,mpl,rng,nam,geom,cmat)
 
 implicit none
 
 ! Passed variables
-class(nicas_type),intent(inout) :: nicas  !< NICAS data
-type(mpl_type),intent(inout) :: mpl       !< MPI data
-type(rng_type),intent(inout) :: rng       !< Random number generator
-type(nam_type),intent(inout) :: nam       !< Namelist
-type(geom_type),intent(inout) :: geom     !< Geometry
+class(nicas_type),intent(inout) :: nicas !< NICAS data
+type(mpl_type),intent(inout) :: mpl      !< MPI data
+type(rng_type),intent(inout) :: rng      !< Random number generator
+type(nam_type),intent(inout) :: nam      !< Namelist
+type(geom_type),intent(inout) :: geom    !< Geometry
+type(cmat_type),intent(in) :: cmat       !< C matrix data
 
 ! Local variables
-integer :: ig,icmp
+integer :: ig,icmp,ist,iat
+real(kind_real),allocatable :: fld(:,:,:)
 
 ! Set name
 @:set_name(nicas_run_nicas_tests)
-
-! Probe in
-@:probe_in()
 
 if (nam%check_adjoints) then
    ! Test adjoint
@@ -1084,8 +1001,25 @@ if (nam%check_randomization) then
    call nicas%test_randomization(mpl,rng,nam,geom)
 end if
 
-! Probe out
-@:probe_out()
+if (nam%timers) then
+   ! Allocation
+   allocate(fld(geom%nc0a,geom%nl0,nam%nv))
+
+   do ist=1,nam%nicas_setup_timings
+      ! Setup timing
+      call nicas%dealloc
+      call nicas%run_nicas(mpl,rng,nam,geom,cmat)
+
+      ! Application timing
+      do iat=1,nam%nicas_application_timings
+         call rng%rand(zero,one,fld)
+         call nicas%apply(mpl,nam,geom,fld)
+      end do
+   end do
+
+   ! Release memory
+   deallocate(fld)
+end if
 
 end subroutine nicas_run_nicas_tests
 
@@ -1111,9 +1045,6 @@ logical :: lgetsizeonly
 
 ! Set name
 @:set_name(nicas_alloc_cv)
-
-! Probe in
-@:probe_in()
 
 ! Local flag
 lgetsizeonly = .false.
@@ -1186,9 +1117,6 @@ do ib=1,cv%nb
    end do
 end do
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_alloc_cv
 
 !----------------------------------------------------------------------
@@ -1213,9 +1141,6 @@ integer :: ib,ig,icmp
 ! Set name
 @:set_name(nicas_random_cv)
 
-! Probe in
-@:probe_in()
-
 ! Allocation
 call nicas%alloc_cv(mpl,nam,geom,cv)
 
@@ -1229,9 +1154,6 @@ do ib=1,cv%nb
       call nicas%blk(ig)%cmp(icmp)%random_cv(mpl,rng,cv%blk(ib)%cmp(icmp))
    end do
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_random_cv
 
@@ -1251,24 +1173,16 @@ type(geom_type),intent(in) :: geom                              !< Geometry
 real(kind_real),intent(inout) :: fld(geom%nc0a,geom%nl0,nam%nv) !< Field
 
 ! Local variable
-real(kind_real) :: prod
-real(kind_real),allocatable :: fld_save(:,:,:)
 type(cv_type) :: cv
 
 ! Set name
 @:set_name(nicas_apply)
-
-! Probe in
-@:probe_in()
 
 ! Apply square-root adjoint
 call nicas%apply_sqrt_ad(mpl,nam,geom,fld,cv)
 
 ! Apply square-root
 call nicas%apply_sqrt(mpl,nam,geom,cv,fld)
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_apply
 
@@ -1293,9 +1207,6 @@ integer :: ig,iv
 ! Set name
 @:set_name(nicas_apply_filter)
 
-! Probe in
-@:probe_in()
-
 do iv=1,nam%nv
    ! Group index
    ig = nam%group_index(iv)
@@ -1303,9 +1214,6 @@ do iv=1,nam%nv
    ! Apply NICAS
    call nicas%blk(ig)%apply_filter(mpl,geom,fld(:,:,iv))
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_apply_filter
 
@@ -1331,9 +1239,6 @@ real(kind_real),allocatable :: fld_3d(:,:)
 
 ! Set name
 @:set_name(nicas_apply_sqrt)
-
-! Probe in
-@:probe_in()
 
 select case (nam%strategy)
 case ('univariate')
@@ -1401,9 +1306,6 @@ case ('crossed')
    deallocate(fld_3d)
 end select
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_apply_sqrt
 
 !----------------------------------------------------------------------
@@ -1429,9 +1331,6 @@ type(cv_type) :: cv_tmp
 
 ! Set name
 @:set_name(nicas_apply_sqrt_ad)
-
-! Probe in
-@:probe_in()
 
 ! Allocation
 call nicas%alloc_cv(mpl,nam,geom,cv)
@@ -1513,9 +1412,6 @@ case ('crossed')
    deallocate(fld_3d)
 end select
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_apply_sqrt_ad
 
 !----------------------------------------------------------------------
@@ -1543,9 +1439,6 @@ type(cv_type) :: cv_ens(ne)
 ! Set name
 @:set_name(nicas_gen_ens_pert)
 
-! Probe in
-@:probe_in()
-
 ! Allocation
 call ens%alloc(ne,1)
 
@@ -1568,9 +1461,6 @@ call ens%normalize(mpl,nam,geom)
 
 ! Reset random seed if necessary
 call rng%reseed
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_gen_ens_pert
 
@@ -1598,9 +1488,6 @@ real(kind_real) :: pert(geom%nc0a,geom%nl0,nam%nv)
 ! Set name
 @:set_name(nicas_apply_bens)
 
-! Probe in
-@:probe_in()
-
 ! Copy field
 fld_copy = fld
 
@@ -1622,9 +1509,6 @@ do ie=1,ens%ne
    ! Normalization
    fld = fld/real(ens%ne-1,kind_real)
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_apply_bens
 
@@ -1651,9 +1535,6 @@ real(kind_real) :: fld2(geom%nc0a,geom%nl0,nam%nv),fld2_save(geom%nc0a,geom%nl0,
 ! Set name
 @:set_name(nicas_test_adjoint)
 
-! Probe in
-@:probe_in()
-
 ! Generate random field
 call rng%rand(zero,one,fld1_save)
 call rng%rand(zero,one,fld2_save)
@@ -1676,9 +1557,6 @@ call mpl%flush
 
 ! Reset random seed if necessary
 call rng%reseed
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_test_adjoint
 
@@ -1703,9 +1581,6 @@ real(kind_real),allocatable :: fld_c0a(:,:,:)
 ! Set name
 @:set_name(nicas_test_dirac)
 
-! Probe in
-@:probe_in()
-
 ! Allocation
 allocate(fld_c0a(geom%nc0a,geom%nl0,nam%nv))
 allocate(nicas%dirac(geom%nc0a,geom%nl0,nam%nv))
@@ -1728,9 +1603,6 @@ do idir=1,geom%ndir
       end do
    end do
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_test_dirac
 
@@ -1758,9 +1630,6 @@ type(ens_type) :: ens
 
 ! Set name
 @:set_name(nicas_test_randomization)
-
-! Probe in
-@:probe_in()
 
 ! Allocation
 allocate(fld_ref(geom%nc0a,geom%nl0,nam%nv,ntest))
@@ -1863,9 +1732,6 @@ deallocate(fld_save)
 
 ! Reset random seed if necessary
 call rng%reseed
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_test_randomization
 

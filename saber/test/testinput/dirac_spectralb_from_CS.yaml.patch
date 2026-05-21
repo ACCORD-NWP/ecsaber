@@ -1,8 +1,0 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_spectralb_from_CS.yaml.tmp	2025-11-06 12:17:17.540898463 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_spectralb_from_CS.yaml	2025-11-06 12:14:41.461396787 +0100
-@@ -101,4 +101,5 @@
-   mpi pattern: '%MPI%'
-   filepath: testdata/dirac_spectralb_from_CS/%MPI%_dirac_%id%
- test:
-+  float relative tolerance: 2.0e-12
-   reference filename: testref/dirac_spectralb_from_CS.ref

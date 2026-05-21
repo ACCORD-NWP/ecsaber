@@ -203,7 +203,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
 
       // Add output Dirac configuration
       eckit::LocalConfiguration outputDiracUpdated = params.outputDirac.value().value();
-      setMPI(outputDiracUpdated, ntasks);
+      setMPI(outputDiracUpdated, ntasks, nthreads);
       testConf.set("output dirac", outputDiracUpdated);
 
       // Add covariance profile configuration
@@ -218,13 +218,13 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     }
 
     // Randomization
-    const auto & randomizationSize = params.backgroundError.value().randomizationSize.value();
+    const size_t & randomizationSize = params.backgroundError.value().randomizationSize.value();
     if (randomizationSize > 0) {
-      randomization(params, geom, vars, xx, ntasks);
+      randomization(params, geom, vars, covarConf, xx, ntasks, nthreads);
     }
 
     // If background error covariance has not been setup yet, do it now
-    if ((diracParams == boost::none) && (randomizationSize == 0)) {
+    if (!diracParams && (randomizationSize == 0)) {
       std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
                                               covarConf, geom, util::templatedVars<MODEL>(vars), xx));
 
@@ -458,7 +458,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
       }
     }
 
-    // Localization output for ensemble covariance model
+    // Ensemble covariance model
     if (covarianceModel == "ensemble" && covarConf.has("localization") &&
       (!covarConf.has("ensemble geometry"))) {
       // Update ID
@@ -579,15 +579,15 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
                                              locConfig);
 
         // Define output increment
-        oops::FieldSet4D fset4dDx(dxi);
+        Increment4D_ dxo(dxi);
+        oops::FieldSet4D fset4dDxo(dxo);
 
         // Apply localization
-        Lmat.multiply(fset4dDx);
+        Lmat.multiply(fset4dDxo);
 
-        // Reset output
-        Increment4D_ dxo(dxi);
+        // Reset output (TODO: necessary?)
         for (int jsub = 0; jsub < dxo.times().size(); ++jsub) {
-          dxo[jsub].increment().fromFieldSet(fset4dDx[jsub].fieldSet());
+          dxo[jsub].increment().fromFieldSet(fset4dDxo[jsub].fieldSet());
         }
 
         // Copy configuration
@@ -645,15 +645,15 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
                                                locConfig);
 
           // Define output increment
-          oops::FieldSet4D fset4dDx(dxi);
+          Increment4D_ dxo(dxi);
+          oops::FieldSet4D fset4dDxo(dxo);
 
           // Apply localization
-          Lmat.multiply(fset4dDx);
+          Lmat.multiply(fset4dDxo);
 
-          // Reset output
-          Increment4D_ dxo(dxi);
+          // Reset output (TODO: necessary?)
           for (int jsub = 0; jsub < dxo.times().size(); ++jsub) {
-            dxo[jsub].increment().fromFieldSet(fset4dDx[jsub].fieldSet());
+            dxo[jsub].increment().fromFieldSet(fset4dDxo[jsub].fieldSet());
           }
 
           // Copy configuration
@@ -688,16 +688,16 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
   void randomization(const ErrorCovarianceToolboxParameters & params,
                      const Geometry_ & geom,
                      const oops::JediVariables & vars,
+                     const eckit::LocalConfiguration & covarConf,
                      const State4D_ & xx,
-                     const size_t & ntasks) const {
+                     const size_t & ntasks,
+                     const size_t & nthreads) const {
     oops::Log::info() << "Info     : " << std::endl;
     oops::Log::info() << "Info     : Generate perturbations:" << std::endl;
     oops::Log::info() << "Info     : -----------------------" << std::endl;
 
     // Build covariance
     oops::Log::info() << "Info     : Build covariance" << std::endl;
-    const eckit::LocalConfiguration covarConf = params.backgroundError.value().toConfiguration();
-
     std::unique_ptr<Covariance4DBase_> Bmat(Covariance4DFactory_::create(
                                             covarConf, geom, util::templatedVars<MODEL>(vars), xx));
     Bmat->linearize(xx, geom, covarConf);
@@ -715,7 +715,11 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     const auto & outputStates = params.outputStates.value();
     const auto & outputVariance = params.outputVariance.value();
 
-    for (size_t jm = 0; jm < Bmat->randomizationSize(); ++jm) {
+    // Get randomization size
+    const size_t & randomizationSize = params.backgroundError.value().randomizationSize.value();
+    ASSERT(randomizationSize > 0);
+
+    for (size_t jm = 0; jm < randomizationSize; ++jm) {
       // Generate member
       oops::Log::info() << "Info     : Member " << jm+1 << std::endl;
       Bmat->randomize(dx);
@@ -724,7 +728,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
         // Update config
         auto outputPerturbationsUpdated = *outputPerturbations;
         util::setMember(outputPerturbationsUpdated, jm+1);
-        setMPI(outputPerturbationsUpdated, ntasks);
+        setMPI(outputPerturbationsUpdated, ntasks, nthreads);
 
         // Write perturbation
         oops::Log::test() << "Write perturbation: " << dx;
@@ -735,7 +739,7 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
         // Update config
         auto outputStatesUpdated = *outputStates;
         util::setMember(outputStatesUpdated, jm+1);
-        setMPI(outputStatesUpdated, ntasks);
+        setMPI(outputStatesUpdated, ntasks, nthreads);
 
         // Add background state to perturbation
         State4D_ xp(xx);
@@ -761,15 +765,15 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
     }
 
     if (outputVariance != boost::none) {
-      if (Bmat->randomizationSize() > 1) {
+      if (randomizationSize > 1) {
         // Normalize variance
-        double rk_norm = 1.0/static_cast<double>(Bmat->randomizationSize());
+        double rk_norm = 1.0/static_cast<double>(randomizationSize);
         variance *= rk_norm;
       }
 
       // Update config
       auto outputVarianceUpdated = *outputVariance;
-      setMPI(outputVarianceUpdated, ntasks);
+      setMPI(outputVarianceUpdated, ntasks, nthreads);
 
       // Write variance
       oops::Log::test() << "Write randomized variance:" << variance[0] << std::endl;

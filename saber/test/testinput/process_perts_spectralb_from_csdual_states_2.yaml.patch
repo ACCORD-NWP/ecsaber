@@ -1,0 +1,24 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_spectralb_from_csdual_states_2.yaml.tmp.bak	2026-05-19 13:40:48.044212824 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_spectralb_from_csdual_states_2.yaml	2026-05-19 13:39:09.837728331 +0200
+@@ -59,9 +59,7 @@
+       filepath: testdata/process_perts_spectralb_from_csdual_states_2/_MPI_-_OMP__wb1_CS-LFR-14_mb%MEM%_inc
+       member pattern: '%MEM%'
+ - band:
+-    gauss to cubed-sphere-dual block: &GaussToCSDual # To avoid a copy in right inverse and direct blocks
+-      saber block name: gauss to cubed-sphere-dual
+-      gauss grid uid: F14
++    gauss to cubed-sphere-dual block: *GaussToCSDual
+     filter:
+     - <<: *GaussToCSDual
+       right inverse: true
+@@ -91,9 +89,7 @@
+       multiply fset filename: wb2_F14_inc
+     - <<: *GaussToCSDual
+ - band:
+-    gauss to cubed-sphere-dual block: &GaussToCSDual # To avoid a copy in right inverse and direct blocks
+-      saber block name: gauss to cubed-sphere-dual
+-      gauss grid uid: F14
++    gauss to cubed-sphere-dual block: *GaussToCSDual
+     filter:
+     - <<: *GaussToCSDual
+       right inverse: true

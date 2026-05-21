@@ -1,8 +1,0 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_gaussuvtogp.yaml.tmp	2025-11-06 12:17:17.459898053 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/dirac_gaussuvtogp.yaml	2025-11-06 12:15:48.899507242 +0100
-@@ -40,4 +40,5 @@
-   mpi pattern: '%MPI%'
-   filepath: testdata/dirac_gaussuvtogp/%MPI%_dirac_%id%
- test:
-+  float relative tolerance: 2.0e-12
-   reference filename: testref/dirac_gaussuvtogp.ref

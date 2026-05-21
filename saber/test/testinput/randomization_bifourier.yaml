@@ -85,5 +85,4 @@ background error:
 output states:
   filepath: testdata/randomization_bifourier/_MPI_-_OMP__member
 test:
-  float relative tolerance: 5.0e-11
   reference filename: testref/randomization_bifourier.ref

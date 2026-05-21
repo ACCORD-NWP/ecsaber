@@ -3,6 +3,13 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 # List source files from OOPS-JEDI
 list( APPEND oops_jedi_src_files
+oops/util/ConfigFunctions.cc
+oops/util/ConfigFunctions.h
+)
+
+if( ECSABER )
+# List source files from OOPS-JEDI
+list( APPEND oops_jedi_src_files
 oops/atlas/Interpolator.cc
 oops/atlas/Interpolator.h
 oops/base/DataSetBase.h
@@ -33,8 +40,12 @@ oops/generic/UnstructuredInterpolator.h
 oops/interface/LinearVariableChange.h
 oops/interface/ModelData.h
 oops/interface/VariableChange.h
+oops/mpi/ColorInfo.cc
+oops/mpi/ColorInfo.h
 oops/mpi/mpi.cc
 oops/mpi/mpi.h
+oops/mpi/Scope.cc
+oops/mpi/Scope.h
 oops/runs/ConvertState.h
 oops/util/AnyOf.h
 oops/util/AssociativeContainers.h
@@ -42,12 +53,12 @@ oops/util/AtlasArrayUtil.cc
 oops/util/AtlasArrayUtil.h
 oops/util/CompositePath.cc
 oops/util/CompositePath.h
-oops/util/ConfigFunctions.cc
-oops/util/ConfigFunctions.h
 oops/util/ConfigHelpers.cc
 oops/util/ConfigHelpers.h
 oops/util/dateFunctions.cc
 oops/util/dateFunctions.h
+oops/util/defines.h
+oops/util/Factory.h
 oops/util/FieldSetHelpers.cc
 oops/util/FieldSetHelpers.h
 oops/util/FieldSetOperations.cc
@@ -104,6 +115,17 @@ oops/util/printRunStats.cc
 oops/util/printRunStats.h
 oops/util/RandomField.h
 oops/util/Random.h
+oops/util/redistribution/CommGatherScatterRedistribution.cc 
+oops/util/redistribution/CommGatherScatterRedistribution.h
+oops/util/redistribution/CommRedistributionCompatChecker.cc
+oops/util/redistribution/CommRedistributionCompatChecker.h
+oops/util/redistribution/CommRedistribution.h
+oops/util/redistribution/CommRedistributionRepository.cc
+oops/util/redistribution/CommRedistributionRepository.h
+oops/util/redistribution/CommStraightRedistribution.cc
+oops/util/redistribution/CommStraightRedistribution.h
+oops/util/redistribution/detail/AllToAllRouting.cc
+oops/util/redistribution/detail/AllToAllRouting.h
 oops/util/reduction.cc
 oops/util/reduction.h
 oops/util/ScalarOrMap.h
@@ -114,6 +136,7 @@ oops/util/TimeWindow.cc
 oops/util/TimeWindow.h
 oops/util/TypeTraits.h
 )
+endif()
 
 # Copy and update source files from OOPS-JEDI
 patch_init()
@@ -127,6 +150,7 @@ patch_apply()
 # Check update summary
 add_custom_command( OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/update_result.sh"
                     COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/update_patch.sh" )
+
 
 # Link oops source files from OOPS-ECMWF
 list( APPEND oops_ecmwf_src_files
@@ -173,33 +197,42 @@ foreach( src_file ${util-patch_src_files} )
     list( APPEND oops_patch_src_files ${src_file} )
 endforeach()
 
-# List ECSABER-specific source files
+# List oops_patch source files
 list( APPEND oops_patch_src_files
-oops/assimilation/DRPLanczosEVILMinimizer_cy46.h
+oops/util/ECConfigFunctions.cc
+oops/util/ECConfigFunctions.h
+oops/runs/AssimEnsemblePatched.h
+oops/runs/BGOS.h
+oops/runs/EnsembleVariance.h
+oops/runs/MakeObsPatched.h
+oops/runs/SyntheticData.h
+)
+
+if( ECEVIL )
+# List ECEVIL-specific oops_patch source files
+list( APPEND oops_patch_src_files
 oops/assimilation/DRPLanczosEVILMinimizer.h
-oops/assimilation/instantiateEvilMinFactory_cy46.h
 oops/assimilation/instantiateEvilMinFactory.h
 oops/assimilation/PLanczosEVILMinimizer.h
-oops/assimilation/RitzPairs_cy46.h
 oops/assimilation/RitzPairs.h
 oops/assimilation/RPLanczosEVILMinimizer.h
 oops/assimilation/SQRTBPLanczosEVILMinimizer.h
 oops/assimilation/SQRTPLanczosEVILMinimizer.h
-oops/runs/AssimEnsemblePatched.h
-oops/runs/BGOS.h
-oops/runs/EnsembleVariance.h
-oops/runs/EvilUpdate_cy46.h
 oops/runs/EvilUpdate.h
-oops/runs/MakeObsPatched.h
-oops/runs/SyntheticData_cy46.h
-oops/runs/SyntheticData.h
+)
+endif()
+
+if( ECSABER )
+# List ECSABER-specific oops_patch source files
+list( APPEND oops_patch_src_files
 oops/util/ECUtilities.cc
 oops/util/ECUtilities.h
 )
+endif()
 
 ecbuild_add_library( TARGET          oops_patch
                      SOURCES         ${oops_patch_src_files}
-                     PUBLIC_LIBS     NetCDF::NetCDF_Fortran NetCDF::NetCDF_C Eigen3::Eigen eckit fckit atlas_f Boost::boost oops
+                     PUBLIC_LIBS     NetCDF::NetCDF_Fortran NetCDF::NetCDF_C Eigen3::Eigen MPI::MPI_CXX eckit fckit atlas_f Boost::boost oops
                      PUBLIC_INCLUDES ${EIGEN3_INCLUDE_DIR}
                                      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/util>
@@ -210,6 +243,7 @@ ecbuild_add_library( TARGET          oops_patch
                      INSTALL_HEADERS LISTED
                      LINKER_LANGUAGE ${OOPS_LINKER_LANGUAGE}
                    )
+
 if( NOT OOPS_LINK_LAPACK )
   # Only here to allow CY47R2.DP to be bitreproducible with operational CY47R1.DP; It can be removed for CY48R1.
   ecbuild_warn( "Not linking oops with LAPACK_LIBRARIES. \nUndefined references need to be resolved later." )

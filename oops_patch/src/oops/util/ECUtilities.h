@@ -28,26 +28,10 @@
 #include "oops/base/Variables.h"
 #include "oops/interface/Geometry.h"
 #include "oops/interface/Increment.h"
+#include "oops/util/ECConfigFunctions.h"
 #include "oops/util/FieldSetHelpers.h"
 
 namespace util {
-
-// -----------------------------------------------------------------------------
-// Configuration
-// -----------------------------------------------------------------------------
-
-void setMember(eckit::LocalConfiguration &,
-               const size_t &);
-
-// -----------------------------------------------------------------------------
-
-void setMPI(eckit::LocalConfiguration & conf,
-            const int & mpi);
-
-// -----------------------------------------------------------------------------
-
-void expandEnsembleTemplate(eckit::LocalConfiguration &,
-                            const size_t &);
 
 // -----------------------------------------------------------------------------
 // Timestamp

@@ -1,4 +1,4 @@
-#:include 'instrumentation.fypp'
+#:include 'generics.fypp'
 !----------------------------------------------------------------------
 ! Module: type_tree
 !> Tree derived type
@@ -6,16 +6,16 @@
 ! Licensing: this code is distributed under the CeCILL-C license
 ! Copyright 2015-... UCAR, CERFACS, METEO-FRANCE and IRIT
 !----------------------------------------------------------------------
+
 module type_tree
 
 use atlas_module, only: atlas_geometry,atlas_indexkdtree
-use tools_const, only: half,two,pi,rad2deg
+use tools_const, only: zero,half,two,pi,rad2deg
 use tools_func, only: sphere_dist
 use tools_kinds, only: kind_real
 use tools_qsort, only: qsort
 use tools_repro, only: repro_ops,indist
 use type_mpl, only: mpl_type
-@:use_probe()
 
 implicit none
 
@@ -23,17 +23,21 @@ real(kind_real),parameter :: nn_inc = 1.5_kind_real !< Increase factor for the n
 
 ! Tree derived type
 type tree_type
-    integer :: n                              !< Data size
-    integer :: neff                           !< Effective tree size
-    logical,allocatable :: mask(:)            !< Mask
-    integer,allocatable :: from_eff(:)        !< Effective index conversion
-    real(kind_real),allocatable :: lon(:)     !< Longitudes
-    real(kind_real),allocatable :: lat(:)     !< Latitudes
-    type(atlas_indexkdtree) :: kd             !< KDTree from ATLAS
+    integer :: n                          !< Data size
+    integer :: neff                       !< Effective tree size
+    logical,allocatable :: mask(:)        !< Mask
+    integer,allocatable :: from_eff(:)    !< Effective index to index conversion
+    integer,allocatable :: to_eff(:)      !< Index to effective index conversion
+    real(kind_real),allocatable :: lon(:) !< Longitudes
+    real(kind_real),allocatable :: lat(:) !< Latitudes
+    type(atlas_indexkdtree) :: kd         !< KDTree from ATLAS
 contains
     procedure :: init => tree_init
+    procedure :: build => tree_build
     procedure :: dealloc => tree_dealloc
-    procedure :: find_nearest_neighbors => tree_find_nearest_neighbors
+    procedure :: tree_find_nearest_neighbors_from_nn
+    procedure :: tree_find_nearest_neighbors_from_rad
+    generic :: find_nearest_neighbors => tree_find_nearest_neighbors_from_nn,tree_find_nearest_neighbors_from_rad
     procedure :: count_nearest_neighbors => tree_count_nearest_neighbors
 end type tree_type
 
@@ -46,12 +50,13 @@ contains
 ! Subroutine: tree_init
 !> Initialization
 !----------------------------------------------------------------------
-subroutine tree_init(tree,n,lon,lat,mask)
+subroutine tree_init(tree,mpl,n,lon,lat,mask)
 
 implicit none
 
 ! Passed variables
 class(tree_type),intent(inout) :: tree !< Tree
+type(mpl_type),intent(inout) :: mpl    !< MPI data
 integer,intent(in) :: n                !< Number of points
 real(kind_real),intent(in) :: lon(n)   !< Points longitudes [in radians]
 real(kind_real),intent(in) :: lat(n)   !< Points latitudes [in radians]
@@ -59,14 +64,10 @@ logical,intent(in),optional :: mask(n) !< Mask
 
 ! Local variables
 integer :: i,ieff
-real(kind_real),allocatable :: lon_deg(:),lat_deg(:)
 type(atlas_geometry) :: ageometry
 
 ! Set name
 @:set_name(tree_init)
-
-! Probe in
-@:probe_in()
 
 ! Allocation
 tree%n = n
@@ -86,8 +87,10 @@ tree%neff = count(tree%mask)
 allocate(tree%lon(tree%neff))
 allocate(tree%lat(tree%neff))
 allocate(tree%from_eff(tree%neff))
-allocate(lon_deg(tree%neff))
-allocate(lat_deg(tree%neff))
+allocate(tree%to_eff(tree%n))
+
+! Initialization
+tree%to_eff = mpl%msv%vali
 
 ! Loop over points
 ieff = 0
@@ -98,6 +101,7 @@ do i=1,tree%n
 
       ! Conversion
       tree%from_eff(ieff) = i
+      tree%to_eff(i) = ieff
 
       ! Copy lon/lat
       tree%lon(ieff) = lon(i)
@@ -109,21 +113,39 @@ end do
 ageometry = atlas_geometry('UnitSphere')
 
 ! Create KDTree
-lon_deg = tree%lon*rad2deg
-lat_deg = tree%lat*rad2deg
 tree%kd = atlas_indexkdtree(ageometry)
 call tree%kd%reserve(tree%neff)
-call tree%kd%build(tree%neff,lon_deg,lat_deg)
+do i=1,tree%neff
+  call tree%kd%insert(tree%lon(i)*rad2deg, tree%lat(i)*rad2deg, i)
+end do
+
+! Build KDTree
+! TODO(Benjamin): should not be necessary, but seems required for Intel compiler
+call tree%kd%build()
 
 ! Release memory
-deallocate(lon_deg)
-deallocate(lat_deg)
 call ageometry%final()
 
-! Probe out
-@:probe_out()
-
 end subroutine tree_init
+
+!----------------------------------------------------------------------
+! Subroutine: tree_build
+!> Build
+!----------------------------------------------------------------------
+subroutine tree_build(tree)
+
+implicit none
+
+! Passed variables
+class(tree_type),intent(in) :: tree !< Tree
+
+! Set name
+@:set_name(tree_build)
+
+! Build KDTree
+if (tree%kd%empty()) call tree%kd%build()
+
+end subroutine tree_build
 
 !----------------------------------------------------------------------
 ! Subroutine: tree_dealloc
@@ -139,13 +161,11 @@ class(tree_type),intent(inout) :: tree !< Tree
 ! Set name
 @:set_name(tree_dealloc)
 
-! Probe in
-@:probe_in()
-
 if (allocated(tree%from_eff)) then
    ! Release memory
    deallocate(tree%mask)
    deallocate(tree%from_eff)
+   deallocate(tree%to_eff)
    deallocate(tree%lon)
    deallocate(tree%lat)
 end if
@@ -153,16 +173,13 @@ end if
 ! Destroy KDTree
 call tree%kd%final()
 
-! Probe out
-@:probe_out()
-
 end subroutine tree_dealloc
 
 !----------------------------------------------------------------------
-! Subroutine: tree_find_nearest_neighbors
+! Subroutine: tree_find_nearest_neighbors_from_nn
 !> Find nearest neighbors using a KDTree
 !----------------------------------------------------------------------
-subroutine tree_find_nearest_neighbors(tree,mpl,lon,lat,nn,nn_index,nn_dist)
+subroutine tree_find_nearest_neighbors_from_nn(tree,mpl,lon,lat,nn,nn_index,nn_dist)
 
 implicit none
 
@@ -183,13 +200,13 @@ real(kind_real),allocatable :: lontmp(:),lattmp(:),nn_dist_tmp(:)
 logical :: separate
 
 ! Set name
-@:set_name(tree_find_nearest_neighbors)
-
-! Probe in
-@:probe_in()
+@:set_name(tree_find_nearest_neighbors_from_nn)
 
 ! Check nn
 if (nn<=0) call mpl%abort('${subr}$','number of nearest neighbors should be positive')
+
+! Build tree if needed
+call tree%build()
 
 ! Initialization
 separate = .false.
@@ -279,21 +296,82 @@ if (tree%neff>0) then
    deallocate(nn_dist_tmp)
 end if
 
-! Probe out
-@:probe_out()
+end subroutine tree_find_nearest_neighbors_from_nn
 
-end subroutine tree_find_nearest_neighbors
+!----------------------------------------------------------------------
+! Subroutine: tree_find_nearest_neighbors_from_rad
+!> Find nearest neighbors using a KDTree
+!----------------------------------------------------------------------
+subroutine tree_find_nearest_neighbors_from_rad(tree,mpl,lon,lat,sr,nn,nn_index,nn_dist)
+
+implicit none
+
+! Passed variables
+class(tree_type),intent(in) :: tree                              !< Tree
+type(mpl_type),intent(inout) :: mpl                              !< MPI data
+real(kind_real),intent(in) :: lon                                !< Point longitude [in radians]
+real(kind_real),intent(in) :: lat                                !< Point latitude [in radians]
+real(kind_real),intent(in) :: sr                                 !< Spherical radius [in radians]
+integer,intent(out) :: nn                                        !< Number of nearest neighbors found
+integer,allocatable,intent(inout) :: nn_index(:)                 !< Nearest neighbors index
+real(kind_real),allocatable,intent(inout),optional :: nn_dist(:) !< Nearest neighbors distance
+
+! Local variables
+integer :: i
+real(kind_real) :: ch
+
+! Set name
+@:set_name(tree_find_nearest_neighbors_from_rad)
+
+! Check sr
+if (sr<zero) call mpl%abort('${subr}$','search radius should not be negative')
+
+! Build tree if needed
+call tree%build()
+
+! Spherical radius to chord
+ch = two*sin(half*min(sr,pi))
+
+if (tree%neff>0) then
+   ! Release memory
+   if (allocated(nn_index)) deallocate(nn_index)
+
+   ! Find neighbors
+   call tree%kd%closestPointsWithinRadius(lon*rad2deg,lat*rad2deg,ch,nn,indices=nn_index)
+
+   if (nn>0) then
+      if (present(nn_dist)) then
+         ! Allocation
+         if (allocated(nn_dist)) deallocate(nn_dist)
+         allocate(nn_dist(nn))
+
+         ! Compute distance
+         do i=1,nn
+            call sphere_dist(lon,lat,tree%lon(nn_index(i)),tree%lat(nn_index(i)),nn_dist(i))
+         end do
+      end if
+
+      ! Transform indices
+      nn_index = tree%from_eff(nn_index)
+   else
+      ! Release memory
+      deallocate(nn_index)
+   end if
+end if
+
+end subroutine tree_find_nearest_neighbors_from_rad
 
 !----------------------------------------------------------------------
 ! Subroutine: tree_count_nearest_neighbors
 !> Count nearest neighbors using a tree
 !----------------------------------------------------------------------
-subroutine tree_count_nearest_neighbors(tree,lon,lat,sr,nn)
+subroutine tree_count_nearest_neighbors(tree,mpl,lon,lat,sr,nn)
 
 implicit none
 
 ! Passed variables
 class(tree_type),intent(in) :: tree !< Tree
+type(mpl_type),intent(inout) :: mpl !< MPI data
 real(kind_real),intent(in) :: lon   !< Point longitude [in radians]
 real(kind_real),intent(in) :: lat   !< Point latitude [in radians]
 real(kind_real),intent(in) :: sr    !< Spherical radius [in radians]
@@ -305,17 +383,17 @@ real(kind_real) :: ch
 ! Set name
 @:set_name(tree_count_nearest_neighbors)
 
-! Probe in
-@:probe_in()
+! Check sr
+if (sr<zero) call mpl%abort('${subr}$','search radius should not be negative')
+
+! Build tree if needed
+call tree%build()
 
 ! Spherical radius to chord
 ch = two*sin(half*min(sr,pi))
 
 ! Count nearest neighbors
 call tree%kd%closestPointsWithinRadius(lon*rad2deg,lat*rad2deg,ch,nn)
-
-! Probe out
-@:probe_out()
 
 end subroutine tree_count_nearest_neighbors
 

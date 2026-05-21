@@ -1,5 +1,4 @@
 #:include 'generics.fypp'
-#:include 'instrumentation.fypp'
 !----------------------------------------------------------------------
 ! Module: type_mpl
 !> MPI parameters derived type
@@ -13,22 +12,22 @@ use fckit_log_module, only: fckit_logchannel
 use fckit_mpi_module, only: fckit_mpi_comm,fckit_mpi_sum,fckit_mpi_status
 use iso_fortran_env, only: output_unit
 !$ use omp_lib
-use tools_const, only: zero,hundred
+use tools_const, only: zero,half,hundred,thousand
 use tools_kinds, only: kind_int,kind_real
 use tools_log, only: write_log
 use tools_qsort, only: qsort
 use type_msv, only: msv_type
-#:if getvar('ENABLE_BUMP_INSTRUMENTATION', 0)
-use type_probe, only: iinst,cinst,probe
-#:endif
 
 implicit none
 
-integer,parameter :: ddis = 5                !< Progression display step
-#:if getvar('ENABLE_BUMP_INSTRUMENTATION', 0)
-   real(kind_real) :: min_total_timing = one !< Minimum total timing to print
-   integer :: max_calls = 10                 !< Number of timing to print with maximum calls
-#:endif
+integer,parameter :: ddis = 5 !< Progression display step
+
+type timer_type
+   character(len=1024) :: name               !< Timer name
+   integer :: clock_start                    !< Timer start
+   integer :: ncall                          !< Number of calls
+   real(kind_real),allocatable :: elapsed(:) !< Elapsed time
+end type timer_type
 
 type mpl_type
    ! MPI communicator
@@ -57,6 +56,7 @@ type mpl_type
 
    ! Display parameters
    logical :: verbose = .true.            !< Verbosity for this task
+   logical :: debug_verbose = .false.     !< Debug verbosity for this task
    type(fckit_logchannel) :: info_channel !< Info channel pointer
    type(fckit_logchannel) :: test_channel !< Test channel pointer
    character(len=1024) :: info            !< Info buffer
@@ -77,6 +77,15 @@ type mpl_type
    integer :: nprog                       !< Progression array size
    integer :: progint                     !< Progression integer
    logical,allocatable :: done(:)         !< Progression array
+
+   ! Timers
+   logical :: run_timers                  !< Timers flag
+   integer :: nt                          !< Number of timers
+   type(timer_type),allocatable :: t(:)   !< Timers
+
+   ! Timing common info
+   integer :: count_rate                  !< Clock count rate
+   integer :: count_max                   !< Clock count maximum
 contains
    procedure :: init => mpl_init
    procedure :: final => mpl_final
@@ -124,11 +133,24 @@ contains
    procedure :: prog_init => mpl_prog_init
    procedure :: prog_print => mpl_prog_print
    procedure :: prog_final => mpl_prog_final
-   #:if getvar('ENABLE_BUMP_INSTRUMENTATION', 0)
-      procedure :: print_instance => mpl_print_instance
-      procedure :: timings => mpl_timings
-   #:endif
+   procedure :: init_timers => mpl_init_timers
+   procedure :: start_timer => mpl_start_timer
+   procedure :: stop_timer => mpl_stop_timer
+   procedure :: print_timers => mpl_print_timers
 end type mpl_type
+
+interface
+
+subroutine c_tools_log(channel,msg,newl,flush) bind(c,name='tools_log_f')
+  use,intrinsic :: iso_c_binding
+  implicit none
+  type(c_ptr),value :: channel
+  character(kind=c_char),dimension(*) :: msg
+  integer(c_int32_t),value :: newl
+  integer(c_int32_t),value :: flush
+end subroutine c_tools_log
+
+end interface
 
 private
 public :: mpl_type
@@ -152,9 +174,6 @@ type(fckit_mpi_comm) :: world_comm
 
 ! Set name
 @:set_name(mpl_init)
-
-! Probe in
-@:probe_in()
 
 ! Get own FCKIT MPI communicator wrapper
 mpl%f_comm = f_comm
@@ -216,9 +235,6 @@ call mpl%flush
 ! Release memory
 call world_comm%final()
 
-! Probe out
-@:probe_out()
-
 end subroutine mpl_init
 
 !----------------------------------------------------------------------
@@ -235,20 +251,15 @@ class(mpl_type),intent(inout) :: mpl !< MPI data
 ! Set name
 @:set_name(mpl_final)
 
-! Probe in
-@:probe_in()
-
 ! Release memory
 if (allocated(mpl%pioproc)) deallocate(mpl%pioproc)
 if (allocated(mpl%done)) deallocate(mpl%done)
+if (allocated(mpl%t)) deallocate(mpl%t)
 call mpl%f_comm%final()
 call mpl%f_comm_io%final()
 call mpl%f_comm_iobcast%final()
 call mpl%info_channel%final()
 call mpl%test_channel%final()
-
-! Probe out
-@:probe_out()
 
 end subroutine mpl_final
 
@@ -270,9 +281,6 @@ logical :: lnewl,lflush
 
 ! Set name
 @:set_name(mpl_flush)
-
-! Probe in
-@:probe_in()
 
 if (mpl%verbose) then
    ! Set local flags
@@ -333,9 +341,6 @@ if (mpl%verbose) then
    end if
 end if
 
-! Probe out
-@:probe_out()
-
 end subroutine mpl_flush
 
 !----------------------------------------------------------------------
@@ -354,9 +359,6 @@ character(len=*),intent(in) :: message !< Message
 ! Write standard output message
 write(output_unit,'(a,i6.6,a)') '!!! ABORT in '//trim(subr)//' on task #',mpl%myproc,': '//trim(message)
 flush(output_unit)
-
-! Print traceback
-@:probe_traceback(output_unit)
 
 ! Abort with proper MPI communicator
 call mpl%f_comm%abort(1)
@@ -397,18 +399,12 @@ integer,intent(in) :: add            !< Tag update incrememnt
 ! Set name
 @:set_name(mpl_update_tag)
 
-! Probe in
-@:probe_in()
-
 ! Update tag
 mpl%tag = mpl%tag+add
 
 ! Apply bounds (between 1 and 10000)
 mpl%tag = mod(mpl%tag,10000)
 mpl%tag = max(mpl%tag,1)
-
-! Probe out
-@:probe_out()
 
 end subroutine mpl_update_tag
 
@@ -433,9 +429,6 @@ ${ftype[dtype]}$,allocatable :: rbuf(:)
 ! Set name
 @:set_name(mpl_allgather_${dtype}$_r1)
 
-! Probe in
-@:probe_in()
-
 ! Buffer size
 n = size(var)
 
@@ -455,9 +448,6 @@ call mpl%f_comm%allgather(var,rbuf,sendcount,recvcounts,displs)
 
 ! Reshape
 proc_to_var = reshape(rbuf,(/n,mpl%nproc/))
-
-! Probe out
-@:probe_out()
 
 end subroutine mpl_allgather_${dtype}$_r1
 #:endfor
@@ -483,9 +473,6 @@ real(kind_real) :: dp_loc(1)
 ! Set name
 @:set_name(mpl_dot_prod_r${rank}$)
 
-! Probe in
-@:probe_in()
-
 ! Check sizes
 if (size(fld1)/=size(fld2)) call mpl%abort('${subr}$','different sizes')
 
@@ -501,9 +488,6 @@ dp = dp_loc(1)
 
 ! Broadcast
 call mpl%f_comm%broadcast(dp,mpl%rootproc-1)
-
-! Probe out
-@:probe_out()
 
 end subroutine mpl_dot_prod_r${rank}$
 #:endfor
@@ -534,9 +518,6 @@ type(fckit_mpi_status) :: status
 
 ! Set name
 @:set_name(mpl_glb_to_loc_index)
-
-! Probe in
-@:probe_in()
 
 ! Get local rootproc and pool
 lrootproc = mpl%rootproc
@@ -600,9 +581,6 @@ else
 end if
 call mpl%update_tag(2)
 
-! Probe out
-@:probe_out()
-
 end subroutine mpl_glb_to_loc_index
 
 #:for dtype in dtypes_irl
@@ -635,9 +613,6 @@ type(fckit_mpi_status) :: status
 
 ! Set name
 @:set_name(mpl_glb_to_loc_${dtype}$_r${rank}$)
-
-! Probe in
-@:probe_in()
 
 ! Get local rootproc and pool
 lrootproc = mpl%rootproc
@@ -741,9 +716,6 @@ deallocate(rbuf)
 deallocate(glb_to_loc)
 deallocate(glb_to_proc)
 
-! Probe out
-@:probe_out()
-
 end subroutine mpl_glb_to_loc_${dtype}$_r${rank}$
    #:endfor
 #:endfor
@@ -777,9 +749,6 @@ type(fckit_mpi_status) :: status
 
 ! Set name
 @:set_name(mpl_loc_to_glb_${dtype}$_r${rank}$)
-
-! Probe in
-@:probe_in()
 
 ! Get local bcast
 lbcast = .false.
@@ -888,9 +857,6 @@ if (lbcast) call mpl%f_comm%broadcast(glb,mpl%rootproc-1)
 deallocate(glb_to_loc)
 deallocate(glb_to_proc)
 
-! Probe out
-@:probe_out()
-
 end subroutine mpl_loc_to_glb_${dtype}$_r${rank}$
    #:endfor
 #:endfor
@@ -913,9 +879,6 @@ integer :: ithread
 ! Set name
 @:set_name(mpl_prog_init)
 
-! Probe in
-@:probe_in()
-
 ! Print message
 ithread = 0
 !$ ithread = omp_get_thread_num()
@@ -931,9 +894,6 @@ allocate(mpl%done(nprog))
 mpl%nprog = nprog
 mpl%progint = ddis
 mpl%done = .false.
-
-! Probe out
-@:probe_out()
 
 end subroutine mpl_prog_init
 
@@ -956,9 +916,6 @@ real(kind_real) :: prog
 ! Set name
 @:set_name(mpl_prog_print)
 
-! Probe in
-@:probe_in()
-
 if (mpl%nprog>0) then
    ! Update progression array
    if (present(i)) mpl%done(i) = .true.
@@ -980,9 +937,6 @@ if (mpl%nprog>0) then
    end do
 end if
 
-! Probe out
-@:probe_out()
-
 end subroutine mpl_prog_print
 
 !----------------------------------------------------------------------
@@ -1003,9 +957,6 @@ logical :: lnewl
 
 ! Set name
 @:set_name(mpl_prog_final)
-
-! Probe in
-@:probe_in()
 
 ! Set new line flag
 lnewl = .true.
@@ -1032,139 +983,227 @@ end do
 ! Release memory
 deallocate(mpl%done)
 
-! Probe out
-@:probe_out()
-
 end subroutine mpl_prog_final
 
-#:if getvar('ENABLE_BUMP_INSTRUMENTATION', 0)
 !----------------------------------------------------------------------
-! Subroutine: mpl_print_instance
-!> Print instance
+! Subroutine: mpl_init_timers
+!> Initialize timers
 !----------------------------------------------------------------------
-subroutine mpl_print_instance(mpl)
-
-implicit none
-
-! Passed variable
-class(mpl_type),intent(inout) :: mpl !< MPI data
-
-! Set name
-@:set_name(mpl_print_instance)
-
-! Probe in
-@:probe_in()
-
-write(mpl%info,'(a,i6,a,a,a)') '--- This is instance #',iinst,' (',trim(cinst),')'
-call mpl%flush
-
-! Probe out
-@:probe_out()
-
-end subroutine mpl_print_instance
-
-!----------------------------------------------------------------------
-! Subroutine: mpl_timings
-!> Print execution timings
-!----------------------------------------------------------------------
-subroutine mpl_timings(mpl)
+subroutine mpl_init_timers(mpl)
 
 implicit none
 
 ! Passed variables
 class(mpl_type),intent(inout) :: mpl !< MPI data
 
-! Local variable
-integer :: probe_size,i,i_eff
-integer,allocatable :: n(:),order(:)
-real(kind_real) :: elapsed_total
-real(kind_real),allocatable :: stats(:,:)
-character(len=1024),allocatable :: subfunc(:)
+! Local variables
+integer :: it
 
-! Number of instrumented functions/subroutines called
-probe_size = count(probe%instance(iinst)%timing_associated)
+! Set name
+@:set_name(mpl_init_timers)
 
-! Print number of instrumented functions/subroutines called
-write(mpl%info,'(a7,a,i3,a,i3)') '','Instrumented function/subroutines called: ',probe_size,'/',${subr_list_size}$
-call mpl%flush
+! Number of timers
+mpl%nt = 9
 
-if (probe_size>0) then
-   ! Allocation
-   allocate(n(probe_size))
-   allocate(stats(probe_size,3))
-   allocate(subfunc(probe_size))
-   allocate(order(probe_size))
+! Allocation
+allocate(mpl%t(mpl%nt))
 
-   ! Get timings
-   i_eff = 0
-   do i=0,${subr_list_size}$-1
-      if (probe%instance(iinst)%timing_associated(i)) then
-         ! Update effective index
-         i_eff = i_eff+1
+! Initialization
+mpl%t(1)%name = 'nicas_setup_sampling'
+mpl%t(2)%name = 'nicas_setup_interp'
+mpl%t(3)%name = 'nicas_setup_convol'
+mpl%t(4)%name = 'nicas_setup_norm'
+mpl%t(5)%name = 'nicas_apply_interp_lin'
+mpl%t(6)%name = 'nicas_apply_interp_com'
+mpl%t(7)%name = 'nicas_apply_convol_sqrt_lin'
+mpl%t(8)%name = 'nicas_apply_convol_sqrt_com'
+mpl%t(9)%name = 'nicas_apply_norm'
+do it=1,mpl%nt
+   mpl%t(it)%clock_start = -1
+   mpl%t(it)%ncall = 0
+   allocate(mpl%t(it)%elapsed(1000))
+end do
 
-         ! Save number of calls
-         n(i_eff) = probe%instance(iinst)%timing(i)%n
+! System clock info
+call system_clock(count_rate=mpl%count_rate,count_max=mpl%count_max)
 
-         ! Compute stats
-         stats(i_eff,1) = probe%instance(iinst)%timing(i)%total_own
-         stats(i_eff,2) = probe%instance(iinst)%timing(i)%min_own
-         stats(i_eff,3) = probe%instance(iinst)%timing(i)%max_own
+end subroutine mpl_init_timers
 
-         ! Save subroutine/function name
-         subfunc(i_eff) = trim(probe%instance(iinst)%timing(i)%subr)
+!----------------------------------------------------------------------
+! Subroutine: mpl_start_timer
+!> Start timer
+!----------------------------------------------------------------------
+subroutine mpl_start_timer(mpl,name)
+
+implicit none
+
+! Passed variable
+class(mpl_type),intent(inout) :: mpl !< MPI data
+character(len=*),intent(in) :: name  !< Timer name
+
+! Local variables
+integer :: it
+logical :: found
+
+! Set name
+@:set_name(mpl_start_timer)
+
+if (allocated(mpl%t)) then
+   ! MPI barrier
+   call mpl%f_comm%barrier()
+
+   ! Find timer
+   found = .false.
+   it = 1
+   do while (.not.found)
+      ! Check name
+      found = (mpl%t(it)%name==name)
+
+      ! Set clock start
+      if (found) call system_clock(count=mpl%t(it)%clock_start)
+
+      ! Update index
+      it = it+1
+
+      if (it>mpl%nt) then
+         ! Check if timer has been found
+         if (.not.found) call mpl%abort('${subr}$','timer not found')
       end if
    end do
-
-   ! Get total timing
-   elapsed_total = sum(stats(:,1))
-
-   ! Print elapsed time
-   write(mpl%info,'(a7,a,e10.3,a)') '','Elapsed time: ',elapsed_total,' s'
-   call mpl%flush
-
-   if (elapsed_total>zero) then
-      ! Order timings with total time
-      call qsort(probe_size,stats(:,1),order)
-      n = n(order)
-      stats(:,2:3) = stats(order,2:3)
-      subfunc = subfunc(order)
-
-      ! Print timing in decreasing total time
-      write(mpl%info,'(a7,a,f6.2,a)') '','Decreasing total time:'
-      call mpl%flush
-      do i=probe_size,1,-1
-         if (stats(i,1)/elapsed_total*hundred>min_total_timing) then
-            write(mpl%info,'(a10,a30,a,e10.3,a,e10.3,a,f6.2,a,e10.3,a,e10.3,a,e10.3)') '',subfunc(i),': ',stats(i,1),' s in ', &
- & real(n(i),kind_real),' call(s)  - ',stats(i,1)/elapsed_total*hundred,'% - min/mean/max: ',stats(i,2),' /', &
- & stats(i,1)/real(n(i),kind_real),' /',stats(i,3)
-            call mpl%flush
-         end if
-      end do
-
-      ! Order timings with number of calls
-      call qsort(probe_size,n,order)
-      stats(:,:) = stats(order,:)
-      subfunc = subfunc(order)
-
-      ! Print timing in decreasing number of calls
-      write(mpl%info,'(a7,a,f6.2,a)') '','Decreasing number of calls:'
-      call mpl%flush
-      do i=probe_size,max(probe_size-max_calls+1,1),-1
-         write(mpl%info,'(a10,a30,a,e10.3,a,e10.3,a,f6.2,a,e10.3,a,e10.3,a,e10.3)') '',subfunc(i),': ',stats(i,1),' s in ', &
- & real(n(i),kind_real),' call(s)  - ',stats(i,1)/elapsed_total*hundred,'% - min/mean/max: ',stats(i,2),' /', &
- & stats(i,1)/real(n(i),kind_real),' /',stats(i,3)
-         call mpl%flush
-      end do
-   end if
-
-   ! Release memory
-   deallocate(n)
-   deallocate(stats)
-   deallocate(subfunc)
-   deallocate(order)
 end if
 
-end subroutine mpl_timings
-#:endif
+end subroutine mpl_start_timer
+
+!----------------------------------------------------------------------
+! Subroutine: mpl_stop_timer
+!> Stop timer
+!----------------------------------------------------------------------
+subroutine mpl_stop_timer(mpl,name)
+
+implicit none
+
+! Passed variable
+class(mpl_type),intent(inout) :: mpl !< MPI data
+character(len=*),intent(in) :: name  !< Timer name
+
+! Local variables
+integer :: it,clock_stop,nel
+real(kind_real) :: elapsed
+real(kind_real),allocatable :: tmp(:)
+logical :: found
+
+! Set name
+@:set_name(mpl_stop_timer)
+
+if (allocated(mpl%t)) then
+   ! MPI barrier
+   call mpl%f_comm%barrier()
+
+   ! Set clock stop
+   call system_clock(count=clock_stop)
+
+   ! Find timer
+   found = .false.
+   it = 1
+   do while (.not.found)
+      ! Check name
+      found = (mpl%t(it)%name==name)
+
+      if (found) then
+         ! Check clock_start
+         if (mpl%t(it)%clock_start==-1) call mpl%abort('${subr}$','timer not started')
+
+         ! Compute elapsed time
+         if (clock_stop<mpl%t(it)%clock_start) then
+            elapsed = real(clock_stop-mpl%t(it)%clock_start+mpl%count_max,kind_real)/real(mpl%count_rate,kind_real)
+         else
+            elapsed = real(clock_stop-mpl%t(it)%clock_start,kind_real)/real(mpl%count_rate,kind_real)
+         end if
+
+         ! Add a call
+         mpl%t(it)%ncall = mpl%t(it)%ncall+1
+
+         ! Reallocate elapsed if necessary
+         nel = size(mpl%t(it)%elapsed)
+         if (mpl%t(it)%ncall>nel) then
+            allocate(tmp(nel))
+            tmp = mpl%t(it)%elapsed
+            deallocate(mpl%t(it)%elapsed)
+            allocate(mpl%t(it)%elapsed(nel+1000))
+            mpl%t(it)%elapsed(1:nel) = tmp
+         end if
+
+         ! Save elapsed time (in ms)
+         mpl%t(it)%elapsed(mpl%t(it)%ncall) = thousand*elapsed
+
+         ! Reset clock start
+         mpl%t(it)%clock_start = -1
+      end if
+
+      ! Update index
+      it = it+1
+
+      if (it>mpl%nt) then
+         ! Check if timer has been found
+         if (.not.found) call mpl%abort('${subr}$','timer not found')
+      end if
+   end do
+end if
+
+end subroutine mpl_stop_timer
+
+!----------------------------------------------------------------------
+! Subroutine: mpl_print_timers
+!> Print timers
+!----------------------------------------------------------------------
+subroutine mpl_print_timers(mpl)
+
+implicit none
+
+! Passed variable
+class(mpl_type),intent(inout) :: mpl !< MPI data
+
+! Local variables
+integer :: it,ncall
+integer,allocatable :: order(:)
+real(kind_real) :: elapsed_min,elapsed_max,elapsed_mean,elapsed_median
+
+! Set name
+@:set_name(mpl_print_timers)
+
+if (allocated(mpl%t)) then
+   write(mpl%info,'(a)') '-------------------------------------------------------------------'
+   call mpl%flush
+   write(mpl%info,'(a)') '--- Internal timers (# / min / max / mean / median, in ms)'
+   call mpl%flush
+   do it=1,mpl%nt
+      ncall = mpl%t(it)%ncall
+      if (ncall > 0) then
+         ! Allocation
+         allocate(order(ncall))
+
+         ! Compute statistics
+         elapsed_min = minval(mpl%t(it)%elapsed(1:ncall))
+         elapsed_max = maxval(mpl%t(it)%elapsed(1:ncall))
+         elapsed_mean = sum(mpl%t(it)%elapsed(1:ncall))/real(ncall,kind_real)
+         call qsort(ncall,mpl%t(it)%elapsed(1:ncall),order,.true.)
+         if (mod(ncall,2)==0) then
+            elapsed_median = half*(mpl%t(it)%elapsed(ncall/2)+mpl%t(it)%elapsed(ncall/2+1))
+         else
+            elapsed_median = mpl%t(it)%elapsed((ncall+1)/2)
+         end if
+
+         ! Print results
+         write(mpl%info,'(a7,a30,a,i5,a,f12.3,a,f12.3,a,f12.3,a,f12.3)') '',mpl%t(it)%name,': ',ncall,' / ', &
+ & elapsed_min,' / ',elapsed_max,' / ',elapsed_mean,' / ',elapsed_median
+         call mpl%flush
+
+         ! Release memory
+         deallocate(order)
+      end if
+   end do
+end if
+
+end subroutine mpl_print_timers
 
 end module type_mpl

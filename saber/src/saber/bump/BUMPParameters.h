@@ -125,17 +125,15 @@ class GroupsTypeParameters : public oops::Parameters {
 
 // -----------------------------------------------------------------------------
 
-// Local weight elemental parameters
-class LocWgtParameters : public oops::Parameters {
-  OOPS_CONCRETE_PARAMETERS(LocWgtParameters, oops::Parameters)
+// Specific off-diagonal weight elemental parameters
+class SpecWgtParameters : public oops::Parameters {
+  OOPS_CONCRETE_PARAMETERS(SpecWgtParameters, oops::Parameters)
 
  public:
-  // Row variables
-  oops::RequiredParameter<std::vector<std::string>> row_variables{"row variables", this};
-  // Column variables
-  oops::RequiredParameter<std::vector<std::string>> column_variables{"column variables", this};
-  // Value
-  oops::RequiredParameter<double> value{"value", this};
+  // JediVariables pair
+  oops::RequiredParameter<std::vector<std::string>> variablesPair{"variables pair", this};
+  // Weight
+  oops::RequiredParameter<double> weight{"weight", this};
 };
 
 // -----------------------------------------------------------------------------
@@ -188,10 +186,14 @@ class GeneralSection : public oops::Parameters {
   oops::Parameter<bool> repro_ops = param(def.repro_ops, this);
   // Reproducibility threshold
   oops::Parameter<double> repro_th = param(def.repro_th, this);
+  // Timers
+  oops::Parameter<bool> timers = param(def.timers, this);
   // Universe radius [in meters]
   oops::Parameter<double> universe_radius = param(def.universe_radius, this);
-  // Sampling method
-  oops::Parameter<std::string> sampling_method = param(def.sampling_method, this);
+  // Use deprecated hull (for backward compatibility)
+  oops::Parameter<bool> deprecated_hull = param(def.deprecated_hull, this);
+  // Use deprecated work grid (for backward compatibility)
+  oops::Parameter<bool> deprecated_work_grid = param(def.deprecated_work_grid, this);
 };
 
 // -----------------------------------------------------------------------------
@@ -431,8 +433,6 @@ class SamplingSection : public oops::Parameters {
   oops::Parameter<double> local_rad = param(def.local_rad, this);
   // Local diagnostics calculation latitude band half-width [in degrees]
   oops::Parameter<double> local_dlat = param(def.local_dlat, this);
-  // Diagnostic draw type ('random' or 'octahedral')
-  oops::Parameter<std::string> draw_type = param(def.draw_type, this);
   // Maximum number of random number draws
   oops::Parameter<int> irmax = param(def.irmax, this);
   // Vertical balance C2B to C0A interpolation type ('c0': C0 mesh-based, 'c1': C1 mesh-based
@@ -588,19 +588,11 @@ class NICASSection : public oops::Parameters {
  public:
   // Resolution
   oops::Parameter<double> resol = param(def.resol, this);
-  // Maximum size of the Sc1 subset
-  oops::Parameter<int> nc1max = param(def.nc1max, this);
-  // Minimum effective resolution
-  oops::Parameter<double> resol_eff_min = param(def.resol_eff_min, this);
   // Filter mode
   oops::Parameter<bool> filter_mode = param(def.filter_mode, this);
   // Resolution for the NICAS filter
   oops::Parameter<double> filter_resol = param(def.filter_resol, this);
-  // Maximum size of the Sc1 subset for the NICAS filter
-  oops::Parameter<int> filter_nc1max = param(def.filter_nc1max, this);
-  // Minimum effective resolution for the NICAS filter
-  oops::Parameter<double> filter_resol_eff_min = param(def.filter_resol_eff_min, this);
-  // NICAS draw type ('random' or 'octahedral')
+  // NICAS draw type ('random' or 'regular')
   oops::Parameter<std::string> nicas_draw_type = param(def.nicas_draw_type, this);
   // Force specific support radii
   oops::Parameter<bool> forced_radii = param(def.forced_radii, this);
@@ -610,9 +602,14 @@ class NICASSection : public oops::Parameters {
   // Forced vertical support radius
   oops::Parameter<std::vector<GroupsValueOrProfileParameters>> rv{"vertical length-scale", {},
     this};
-  // Forced localization weights
-  oops::Parameter<std::vector<LocWgtParameters>> loc_wgt{"common localization weights", {},
+  // Default off-diagonal weight
+  oops::Parameter<double> defaultWeight = param(def.defaultWeight, this);
+  // Specific off-diagonal weights
+  oops::Parameter<std::vector<SpecWgtParameters>> specWeights{"specific off-diagonal weights", {},
     this};
+  // NICAS C1B to C0A default interpolation type ('c0': C0 mesh-based, 'c1': C1 mesh-based
+  // or 'si': smooth interpolation)
+  oops::Parameter<std::string> default_interp_type = param(def.default_interp_type, this);
   // NICAS C1B to C0A interpolation type ('c0': C0 mesh-based, 'c1': C1 mesh-based
   // or 'si': smooth interpolation)
   oops::Parameter<std::vector<GroupsTypeParameters>> interp_type{"interpolation type", {},
@@ -631,6 +628,10 @@ class NICASSection : public oops::Parameters {
   oops::Parameter<double> sim_levs_th = param(def.sim_levs_th, this);
   // Read/write interpolation in global file
   oops::Parameter<bool> interp_in_global_file = param(def.interp_in_global_file, this);
+  // Number of runs for setup timing
+  oops::Parameter<int> nicas_setup_timings = param(def.nicas_setup_timings, this);
+  // Number of runs for application timing
+  oops::Parameter<int> nicas_application_timings = param(def.nicas_application_timings, this);
 };
 
 // -----------------------------------------------------------------------------

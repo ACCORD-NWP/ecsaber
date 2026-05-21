@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2025 UCAR
+ * (C) Copyright 2026 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -30,10 +30,10 @@ class WaterVaporMixingRatioWrtMoistAir_AParameters : public RecipeParametersBase
 
 // ------------------------------------------------------------------------------------------------
 /*! \brief WaterVaporMixingRatioWrtMoistAir_A class defines a recipe for water_vapor_mixing_ratio_
- *         wrt_moist_air (specific humidity). 
+ *         wrt_moist_air (specific humidity).
  *
  *  \details This instantiation of RecipeBase produces water_vapor_mixing_ratio_wrt_moist_air (q,
- *           specific humidity) using water_vapor_mixing_ratio_wrt_dry_air (r, humidity mixing 
+ *           specific humidity) using water_vapor_mixing_ratio_wrt_dry_air (r, humidity mixing
  *           ratio).
  *
  */
@@ -50,9 +50,13 @@ class WaterVaporMixingRatioWrtMoistAir_A : public RecipeBase {
     std::string name() const override;
     oops::Variable product() const override;
     oops::JediVariables ingredients() const override;
+    oops::JediVariables trajectoryVars() const override;
     size_t productLevels(const atlas::FieldSet &) const override;
     atlas::FunctionSpace productFunctionSpace(const atlas::FieldSet &) const override;
+    bool hasTLAD() const override { return true; }
     void executeNL(atlas::FieldSet &) override;
+    void executeTL(atlas::FieldSet &, const atlas::FieldSet &) override;
+    void executeAD(atlas::FieldSet &, const atlas::FieldSet &) override;
 
  private:
     const VaderConfigVars & configVariables_;

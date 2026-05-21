@@ -9,7 +9,7 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_temperature (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 2.5987525987525989e-05
     + stddev = 5.0977961892907635e-03
@@ -19,6 +19,7 @@ Input Dirac increment:
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-ensemble) dirac test:
 - Regional grid size: 74x52
 - Cell sizes: 2.5000000000000000e+00 km x 2.5000000000000000e+00 km
 - Mean latitude: 5.6289536019444682e+01 deg
@@ -103,7 +104,7 @@ Square-root test for block BifourierCovariance passed
 Square-root test for the multivariate central block passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER) * Increment:
+Covariance(SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -132,3 +133,91 @@ Covariance(SABER) * Increment:
     + max    = 3.2275477558441650e-06
     + mean   = -6.5380755494930711e-09
     + stddev = 7.7021283237543183e-08
+Localization(SABER-ensemble_localization_wb1) dirac test:
+Adjoint test for block BifourierSpectralToGrid passed
+Inner inverse test for block BifourierSpectralToGrid passed: U Uinv (U x) == (U x)
+Outer inverse test for block BifourierSpectralToGrid passed: Uinv U (Uinv x) == (Uinv x)
+Covariance norms: 
+- allVars: 
+  + correlation square-root: 1.3916121075881960e+00
+  + standard-deviation:      3.3166247903553998e+00
+Adjoint test for block BifourierCovariance passed
+Adjoint test for the multivariate central block passed
+Square-root test for block BifourierCovariance passed
+Square-root test for the multivariate central block passed
+Localization(SABER-ensemble_localization_wb1) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: structured [3848]
+  Fields:
+  - geographical_x_wind (10 levels):
+    + min    = -2.3935114632661653e-02
+    + max    = 1.0000000000000311e+00
+    + mean   = 2.5535356901272753e-02
+    + stddev = 7.5832595778917905e-02
+  - geographical_y_wind (10 levels):
+    + min    = -2.3935114632661653e-02
+    + max    = 1.0000000000000311e+00
+    + mean   = 2.5535356901272753e-02
+    + stddev = 7.5832595778917905e-02
+  - air_temperature (10 levels):
+    + min    = -2.3935114632661653e-02
+    + max    = 1.0000000000000311e+00
+    + mean   = 2.5535356901272753e-02
+    + stddev = 7.5832595778917905e-02
+  - log_of_air_pressure_at_surface (1 levels):
+    + min    = -1.6393060282265511e-02
+    + max    = 6.8489583333335191e-01
+    + mean   = 9.1579075432292101e-02
+    + stddev = 1.0709512398927966e-01
+  - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+    + min    = -2.3935114632661653e-02
+    + max    = 1.0000000000000311e+00
+    + mean   = 2.5535356901272753e-02
+    + stddev = 7.5832595778917905e-02
+Localization(SABER-ensemble_localization_wb1) diagnostics:
+- Localization at zero separation:
+  + Value for variable air_temperature, subwindow 0, at (longitude, latitude, vertical index) point (9.88865, 56.33499, 10): 1.0000000000000311e+00
+Localization(SABER-ensemble_localization_wb1) dirac test:
+Adjoint test for block BifourierSpectralToGrid passed
+Inner inverse test for block BifourierSpectralToGrid passed: U Uinv (U x) == (U x)
+Outer inverse test for block BifourierSpectralToGrid passed: Uinv U (Uinv x) == (Uinv x)
+Covariance norms: 
+- allVars: 
+  + correlation square-root: 4.1771040073771198e-01
+  + standard-deviation:      3.3166247903553998e+00
+Adjoint test for block BifourierCovariance passed
+Adjoint test for the multivariate central block passed
+Square-root test for block BifourierCovariance passed
+Square-root test for the multivariate central block passed
+Localization(SABER-ensemble_localization_wb1) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: structured [3848]
+  Fields:
+  - geographical_x_wind (10 levels):
+    + min    = -2.2773454564376815e-02
+    + max    = 1.0000000000000098e+00
+    + mean   = 7.7767536380584452e-04
+    + stddev = 1.0988248000466039e-02
+  - geographical_y_wind (10 levels):
+    + min    = -2.2773454564376815e-02
+    + max    = 1.0000000000000098e+00
+    + mean   = 7.7767536380584452e-04
+    + stddev = 1.0988248000466039e-02
+  - air_temperature (10 levels):
+    + min    = -2.2773454564376815e-02
+    + max    = 1.0000000000000098e+00
+    + mean   = 7.7767536380584452e-04
+    + stddev = 1.0988248000466039e-02
+  - log_of_air_pressure_at_surface (1 levels):
+    + min    = -1.1089953868798376e-03
+    + max    = 4.8696844993142183e-02
+    + mean   = 3.6111805644353101e-04
+    + stddev = 1.6555999018323497e-03
+  - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+    + min    = -2.2773454564376815e-02
+    + max    = 1.0000000000000098e+00
+    + mean   = 7.7767536380584452e-04
+    + stddev = 1.0988248000466039e-02
+Localization(SABER-ensemble_localization_wb1) diagnostics:
+- Localization at zero separation:
+  + Value for variable air_temperature, subwindow 0, at (longitude, latitude, vertical index) point (9.88865, 56.33499, 10): 1.0000000000000098e+00

@@ -33,7 +33,7 @@
 #include "oops/interface/Model.h"
 #include "oops/interface/State.h"
 #include "oops/runs/Application.h"
-#include "oops/util/ECUtilities.h"
+#include "oops/util/ECConfigFunctions.h"
 #include "oops/util/Logger.h"
 
 namespace oops {

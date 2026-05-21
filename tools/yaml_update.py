@@ -109,10 +109,6 @@ parser.add_argument("inputYaml", help="Yaml file name")
 parser.add_argument("outputYaml", help="Yaml file name")
 args = parser.parse_args()
 
-# Exit for 4D files (not ready yet)
-if "_4d" in args.inputYaml:
-    exit()
-
 # Read yaml file
 print("--  - Updating yaml: " + args.inputYaml)
 with open(args.inputYaml, "r") as stream:

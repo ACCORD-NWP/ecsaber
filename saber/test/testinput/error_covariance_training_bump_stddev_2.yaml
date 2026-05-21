@@ -16,7 +16,7 @@ background:
   - air_horizontal_velocity_potential
 background error:
   covariance model: SABER
-  iterative ensemble loading: true
+  iterative ensemble loading: false
   ensemble:
     members from template:
       template:
@@ -45,20 +45,19 @@ background error:
         files prefix: error_covariance_training_bump_stddev_2/_MPI_-_OMP_
       drivers:
         compute variance: true
+        normalization test: 50
       diagnostics:
         target ensemble size: 20
-      nicas:
-        filter min effective resolution: 1.1
       variance:
         objective filtering: true
         filtering passes: 3
         initial length-scale:
         - variables:
           - air_horizontal_streamfunction
-          value: 1000.0e3
+          value: 5000.0e3
         - variables:
           - air_horizontal_velocity_potential
-          value: 1200.0e3
+          value: 4000.0e3
       output model files:
       - parameter: stddev
         file:

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/UnstructuredInterpolator.cc.tmp.bak	2026-01-14 08:16:57.003511480 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/generic/UnstructuredInterpolator.cc	2026-01-14 08:17:55.002343703 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/generic/UnstructuredInterpolator.cc.tmp.bak	2026-05-19 09:53:56.645467789 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/generic/UnstructuredInterpolator.cc	2026-05-19 09:56:16.325179898 +0200
 @@ -26,10 +26,10 @@
  #include "eckit/config/Configuration.h"
  #include "eckit/exception/Exceptions.h"
@@ -14,3 +14,11 @@
  #include "oops/base/Variables.h"
  #include "oops/util/Logger.h"
  #include "oops/util/missingValues.h"
+@@ -85,7 +85,6 @@
+   Log::trace() << "UnstructuredInterpolator::apply starting" << std::endl;
+   util::Timer timer("oops::UnstructuredInterpolator", "apply");
+ 
+-  if (nout_ == 0) { return; }
+   ASSERT(target_mask.size() == nout_);
+ 
+   size_t nflds = 0;

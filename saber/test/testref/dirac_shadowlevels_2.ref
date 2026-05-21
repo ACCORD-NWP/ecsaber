@@ -3,10 +3,11 @@ Input Dirac increment:
   Geometry: L120x61 [7320]
   Fields:
   - snow_depth (1 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 1.4120304998587970e-04
     + stddev = 1.1882888957904500e-02
+Covariance(SABER-parametric) dirac test:
 Norm of input parameter rv: 5.0492771759925468e+01
 Norm of output parameter rv: 5.0492771759925468e+01
 Norm of output parameter weight: 8.4154619599865242e+01
@@ -44,12 +45,12 @@ Norm of output parameter weight: 8.4154619599865242e+01
           Communication AC adjoint test result:            T
           Convolution / communication adjoint test result: T
           Component NICAS adjoint test result:             T
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L120x61 [7320]
   Fields:
   - snow_depth (1 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000002e+00
-    + mean   = 9.2311123890449782e-03
-    + stddev = 7.3759108450242528e-02
+    + mean   = 1.0240127619533657e-02
+    + stddev = 7.7578716954688168e-02

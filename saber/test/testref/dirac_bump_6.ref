@@ -3,13 +3,14 @@ Input Dirac increment:
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 6.5616797900262466e-04
     + stddev = 2.5615775978927613e-02
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(hybrid) dirac test:
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
 Covariance(hybrid) * Increment:
@@ -17,42 +18,44 @@ Covariance(hybrid) * Increment:
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -6.0918753181843444e-01
-    + max    = 9.0019572469053788e-01
-    + mean   = 4.9944483467209110e-02
-    + stddev = 1.9720463112584824e-01
+    + min    = -5.5766412831976830e-01
+    + max    = 9.8575162343944689e-01
+    + mean   = 2.3892447150739526e-02
+    + stddev = 2.1463412235623078e-01
   - northward_wind (2 levels):
-    + min    = -5.9337315609450869e-01
-    + max    = 5.9924954825054466e-01
-    + mean   = -1.5150635424641333e-02
-    + stddev = 1.9061663485918223e-01
+    + min    = -5.3278798698034802e-01
+    + max    = 5.9891648567560141e-01
+    + mean   = 5.0692481560258101e-02
+    + stddev = 1.9301544859392150e-01
+Covariance(hybrid-cmp1_SABER-ensemble) dirac test:
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(hybrid1_SABER) * Increment:
+Covariance(hybrid-cmp1_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -6.0918753181843444e-01
-    + max    = 9.0019572469053788e-01
-    + mean   = 4.9944483467209110e-02
-    + stddev = 1.9720463112584824e-01
+    + min    = -5.5766412831976830e-01
+    + max    = 9.8575162343944689e-01
+    + mean   = 2.3892447150739526e-02
+    + stddev = 2.1463412235623078e-01
   - northward_wind (2 levels):
-    + min    = -5.9337315609450869e-01
-    + max    = 5.9924954825054466e-01
-    + mean   = -1.5150635424641333e-02
-    + stddev = 1.9061663485918223e-01
-Covariance(hybrid2_ensemble) * Increment:
+    + min    = -5.3278798698034802e-01
+    + max    = 5.9891648567560141e-01
+    + mean   = 5.0692481560258101e-02
+    + stddev = 1.9301544859392150e-01
+Covariance(hybrid-cmp2_ensemble) dirac test:
+Covariance(hybrid-cmp2_ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -6.0918753181843444e-01
-    + max    = 9.0019572469053788e-01
-    + mean   = 4.9944483467209110e-02
-    + stddev = 1.9720463112584824e-01
+    + min    = -5.5766412831976830e-01
+    + max    = 9.8575162343944689e-01
+    + mean   = 2.3892447150739526e-02
+    + stddev = 2.1463412235623078e-01
   - northward_wind (2 levels):
-    + min    = -5.9337315609450869e-01
-    + max    = 5.9924954825054466e-01
-    + mean   = -1.5150635424641333e-02
-    + stddev = 1.9061663485918223e-01
+    + min    = -5.3278798698034802e-01
+    + max    = 5.9891648567560141e-01
+    + mean   = 5.0692481560258101e-02
+    + stddev = 1.9301544859392150e-01

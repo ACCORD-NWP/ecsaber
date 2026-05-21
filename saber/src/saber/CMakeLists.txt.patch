@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/CMakeLists.txt.tmp.bak	2026-03-24 15:28:00.718167413 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/CMakeLists.txt	2026-03-24 15:29:32.342807397 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/CMakeLists.txt.tmp.bak	2026-05-20 09:51:07.887290819 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/CMakeLists.txt	2026-05-20 09:51:43.989921481 +0200
 @@ -23,12 +23,13 @@
  endif()
  

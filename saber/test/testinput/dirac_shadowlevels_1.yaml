@@ -43,7 +43,7 @@ background error:
         write local nicas: true
         adjoints test: true
       nicas:
-        resolution: 4.0
+        resolution: 5
         explicit length-scales: true
         horizontal length-scale:
         - groups:
@@ -79,7 +79,6 @@ dirac:
   variable:
   - snow_depth
 output dirac:
-  mpi pattern: '%MPI%'
-  filepath: testdata/dirac_shadowlevels_1/%MPI%_dirac_%id%
+  filepath: testdata/dirac_shadowlevels_1/_MPI_-_OMP__dirac_%id%
 test:
   reference filename: testref/dirac_shadowlevels_1.ref

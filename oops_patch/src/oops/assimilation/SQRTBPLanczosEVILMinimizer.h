@@ -4,6 +4,9 @@
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation
+ * nor does it submit to any jurisdiction.
  */
 
 #pragma once
@@ -12,8 +15,10 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "eckit/config/LocalConfiguration.h"
 #include "oops/assimilation/ControlVector.h"
 #include "oops/assimilation/CostFunction.h"
 #include "oops/assimilation/JbMatrix.h"
@@ -28,6 +33,29 @@
 #include "util/formats.h"
 
 namespace oops {
+
+/// SQRTBPLanczos Minimizer
+/*!
+ * \brief Preconditioned Lanczos solver for the square root B-preconditioned
+ * formulation of the Hessian
+ *
+ * A must be square, symmetric, positive definite.
+
+ * On entry:
+ * -    A       = \f$ (U^T B^-1 U + U^T H^T R^{-1} U) \f$
+ * -    dv      =  starting point, \f$ dv_{0} \f$.
+ * -    rr      = \f$ (-sum dv^{b}_{i} + ) U^T H^T R^{-1} d  - A dv0 \f$
+ * - or
+ * -    rr      = \f$ U^T H^T R^{-1} [d + H (x_b - x_fg)] - A dv0 \f$
+
+ * On exit, dv will contain the solution \f$ U^{-1} dx \f$
+ *  The solution \f$ dx = U dv \f$ is recovered in the SQRTMinimizer class
+ *  The return value is the achieved reduction in preconditioned residual norm.
+ *
+ *  Iteration will stop if the maximum iteration limit "maxIter" is reached
+ *  or if the residual norm reduces by a factor of "tolerance".
+ *
+ */
 
 // -----------------------------------------------------------------------------
 
@@ -70,7 +98,7 @@ class SQRTBPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
   const CostFct_ &J_;
 
   /// LMP
-  SpectralSqrtLMP<MODEL> lmp_;
+  std::unique_ptr<SpectralSqrtLMP<MODEL>> lmp_;
 
   /// Local
   RitzPairs<CtrlVec_> ritzPairs_;
@@ -79,7 +107,7 @@ class SQRTBPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
   std::vector<double> eigvals_;
   std::vector<double> erritz_;
   std::vector<double> erritzlm_;
-  std::vector<std::vector<double> > evecs_;
+  std::vector<std::vector<double>> evecs_;
 
   std::vector<std::string> error_messages_;
 
@@ -102,14 +130,19 @@ SQRTBPLanczosEVILMinimizer<MODEL>::SQRTBPLanczosEVILMinimizer(
     : SQRTMinimizer<MODEL>(conf, J),
       conf_(conf),
       J_(J),
-      lmp_(conf, J),
       costJ0_(0),
       costJ0Jb_(0),
       costJ0JoJc_(0),
       costJ_(0),
       costJb_(0),
       costJbLocal_(0),
-      costJoJc_(0) {}
+      costJoJc_(0) {
+  eckit::LocalConfiguration precondConf;
+  if (conf.has("preconditioner")) {
+    precondConf = conf.getSubConfiguration("preconditioner");
+  }
+  lmp_ = std::move(SqrtLMPFactory<MODEL>::create(precondConf, J));
+}
 
 // -----------------------------------------------------------------------------
 
@@ -125,6 +158,7 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
   const double &costJ0Jb = SQRTMinimizer<MODEL>::costJ0Jb_;
   const double &costJ0JoJc = SQRTMinimizer<MODEL>::costJ0JoJc_;
   const CtrlVec_ &gradJb = *(SQRTMinimizer<MODEL>::gradJb_);
+  const size_t &outerIter = SQRTMinimizer<MODEL>::outerIteration_;
 
   // Auxiliary vectors
   std::vector<double> ss;
@@ -140,13 +174,13 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
   this->setupQuadCost(costJ0Jb, costJ0JoJc);
 
   // Change resolution of LMP vectors
-  lmp_.changeResolution();
+  lmp_->changeResolution();
 
   // Postprocess preconditioning vectors
-  lmp_.postprocess();
+  lmp_->postprocess(UtHtRinvHU, Jb, rr, outerIter);
 
   // P rr_{0}
-  lmp_.inverseMultiply(rr, zz);
+  lmp_->inverseMultiply(rr, zz);
 
   // beta_{0} = sqrt( rr_{0}^T zz_{0} )
   double beta = sqrt(dot_product(rr, zz));
@@ -200,7 +234,7 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
       vv.axpy(-proj, ritzPairs_.vVEC(jj));
     }
 
-    lmp_.inverseMultiply(vv, zz);  // zz = precond vv
+    lmp_->inverseMultiply(vv, zz);  // zz = precond vv
 
     // beta_{i+1} = sqrt( zz_{i+1}^t, vv_{i+1} )
     beta = sqrt(dot_product(zz, vv));
@@ -321,7 +355,7 @@ double SQRTBPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
   // Update LMP
   if (SQRTMinimizer<MODEL>::outerIteration_ <
       SQRTMinimizer<MODEL>::lastOuterIteration_)
-    lmp_.update(ritzPairs_.zVEC(), ritzPairs_.alphas(), ritzPairs_.betas());
+    lmp_->update(ritzPairs_.zVEC(), ritzPairs_.alphas(), ritzPairs_.betas());
 
   // Clean up
   releaseResources();
@@ -494,7 +528,7 @@ void SQRTBPLanczosEVILMinimizer<MODEL>::checkpointLMP(
   ASSERT(conf.has("preconditioner"));
 
   // Checkpoint lmp
-  lmp_.checkpoint(conf);
+  lmp_->checkpoint(conf);
 }
 
 // -----------------------------------------------------------------------------
@@ -505,7 +539,7 @@ void SQRTBPLanczosEVILMinimizer<MODEL>::restartLMP(
   ASSERT(conf.has("preconditioner"));
 
   // Restart lmp
-  lmp_.restart(conf);
+  lmp_->restart(conf);
 }
 
 // -----------------------------------------------------------------------------

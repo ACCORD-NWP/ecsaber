@@ -3,10 +3,11 @@ Input Dirac increment:
   Geometry: L48x25 [1200]
   Fields:
   - air_horizontal_streamfunction (5 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 1.8083182640144665e-04
     + stddev = 1.3447372472028362e-02
+Covariance(SABER-ensemble) dirac test:
        Independent levels:  1[5]
           Subset Sc0 size:             1106
           Domain area (% of Earth area): 0.100E+03%
@@ -21,18 +22,18 @@ Input Dirac increment:
              Level   4 ~>  0.400E+01 vert. coord.
              Level   5 ~>  0.500E+01 vert. coord.
              Effective levels:   1   3   5 
-                Horizontal support radius:   10000.00 km (  10000.00 km -   10000.00 km)
-                Estimated nc1 from horizontal support radius:       94
-                   Decimate full grid, at least       94 points required,     736 valid points found
-                   Subgrid hash:  -1614970791
-                Final nc1:       94
-                Effective horizontal resolution:  3.99
-             nc1(  1) =                         94
-             nc1(  2) =                         94
-             nc1(  3) =                         94
-             ns =                              282
+                   Requested distance between points (min/max/avg):  0.250E+04 km /  0.250E+04 km /  0.250E+04 km
+                   Regular sampling grid size:       88 points
+                   Nearest neighbor distance (min/max/avg):  0.101E+04 km /  0.157E+04 km /  0.132E+04 km
+                   Effective resolution (min/max/avg):  6.38 /  9.86 /  7.96
+                   Subgrid hash:  -1613954990
+                Subgrid size:       88
+             nc1(  1) =                         88
+             nc1(  2) =                         88
+             nc1(  3) =                         88
+             ns =                              264
              v%n_s =                             7
-             c%n_s[global] =                  8722
+             c%n_s[global] =                  8568
        Independent levels:  1[5]
           Subset Sc0 size:             1106
           Domain area (% of Earth area): 0.100E+03%
@@ -62,20 +63,20 @@ Square-root test for block BUMP_NICAS passed
              Level   4 ~>  0.400E+01 vert. coord.
              Level   5 ~>  0.500E+01 vert. coord.
              Effective levels:   1   2   3   4   5 
-                Horizontal support radius:    5000.00 km (   5000.00 km -    5000.00 km)
-                Estimated nc1 from horizontal support radius:      376
-                   Decimate full grid, at least      376 points required,    1082 valid points found
-                   Subgrid hash:   1574939643
-                Final nc1:      376
-                Effective horizontal resolution:  3.99
-             nc1(  1) =                        376
-             nc1(  2) =                        376
-             nc1(  3) =                        376
-             nc1(  4) =                        376
-             nc1(  5) =                        376
-             ns =                             1880
+                   Requested distance between points (min/max/avg):  0.125E+04 km /  0.125E+04 km /  0.125E+04 km
+                   Regular sampling grid size:      208 points
+                   Nearest neighbor distance (min/max/avg):  0.556E+03 km /  0.123E+04 km /  0.104E+04 km
+                   Effective resolution (min/max/avg):  4.07 /  8.99 /  5.23
+                   Subgrid hash:  -2117861176
+                Subgrid size:      208
+             nc1(  1) =                        208
+             nc1(  2) =                        208
+             nc1(  3) =                        208
+             nc1(  4) =                        208
+             nc1(  5) =                        208
+             ns =                             1040
              v%n_s =                             5
-             c%n_s[global] =                 64584
+             c%n_s[global] =                 23296
        Independent levels:  1[5]
           Subset Sc0 size:             1106
           Domain area (% of Earth area): 0.100E+03%
@@ -108,12 +109,96 @@ Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER) * Increment:
+Covariance(SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L48x25 [1200]
   Fields:
   - air_horizontal_streamfunction (5 levels):
-    + min    = -3.5067773998982550e-05
-    + max    = 5.8874455315178809e-01
-    + mean   = 1.9229013670585976e-03
-    + stddev = 1.7405895905954708e-02
+    + min    = -2.2944628577462839e-04
+    + max    = 7.6450610092397309e-01
+    + mean   = 2.3562805339315354e-03
+    + stddev = 2.0199121615192373e-02
+Localization(SABER-ensemble_localization_wb1) dirac test:
+       Independent levels:  1[5]
+          Subset Sc0 size:             1106
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   3 ~> 100.0%
+             Level   4 ~> 100.0%
+             Level   5 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+             Level   3 ~>  0.300E+01 vert. coord.
+             Level   4 ~>  0.400E+01 vert. coord.
+             Level   5 ~>  0.500E+01 vert. coord.
+Adjoint test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Localization(SABER-ensemble_localization_wb1) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L48x25 [1200]
+  Fields:
+  - air_horizontal_streamfunction (5 levels):
+    + min close to zero
+    + max    = 1.0000000000000000e+00
+    + mean   = 2.0613966612767452e-02
+    + stddev = 9.5026268645622886e-02
+Localization(SABER-ensemble_localization_wb1) diagnostics:
+- Localization at zero separation:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
+Localization(SABER-ensemble_localization_wb1) dirac test:
+       Independent levels:  1[5]
+          Subset Sc0 size:             1106
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   3 ~> 100.0%
+             Level   4 ~> 100.0%
+             Level   5 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+             Level   3 ~>  0.300E+01 vert. coord.
+             Level   4 ~>  0.400E+01 vert. coord.
+             Level   5 ~>  0.500E+01 vert. coord.
+Adjoint test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Localization(SABER-ensemble_localization_wb1) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L48x25 [1200]
+  Fields:
+  - air_horizontal_streamfunction (5 levels):
+    + min close to zero
+    + max    = 1.0000000000000000e+00
+    + mean   = 1.2249059187461149e-02
+    + stddev = 7.8364987923205773e-02
+Localization(SABER-ensemble_localization_wb1) diagnostics:
+- Localization at zero separation:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
+Localization(SABER-ensemble_localization_wb1) dirac test:
+       Independent levels:  1[5]
+          Subset Sc0 size:             1106
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   3 ~> 100.0%
+             Level   4 ~> 100.0%
+             Level   5 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+             Level   3 ~>  0.300E+01 vert. coord.
+             Level   4 ~>  0.400E+01 vert. coord.
+             Level   5 ~>  0.500E+01 vert. coord.
+Adjoint test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Localization(SABER-ensemble_localization_wb1) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L48x25 [1200]
+  Fields:
+  - air_horizontal_streamfunction (5 levels):
+    + min close to zero
+    + max    = 9.9999999999999967e-01
+    + mean   = 2.1859304824388627e-03
+    + stddev = 3.3050336913955633e-02
+Localization(SABER-ensemble_localization_wb1) diagnostics:
+- Localization at zero separation:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999967e-01

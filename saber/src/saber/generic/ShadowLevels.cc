@@ -23,6 +23,8 @@
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
 
+#include "saber/oops/Utilities.h"
+
 namespace saber {
 namespace generic {
 
@@ -409,12 +411,12 @@ eckit::LocalConfiguration ShadowLevels::getFileConf(const eckit::mpi::Comm & com
   oops::Log::trace() << classname() << "::getFileConf starting" << std::endl;
 
   // Get number of MPI tasks and OpenMP threads
-  std::string mpi(std::to_string(comm.size()));
-  std::string omp("1");
+  const size_t mpi = comm.size();
+  size_t omp = 1;
 #ifdef _OPENMP
   # pragma omp parallel
   {
-    omp = std::to_string(omp_get_num_threads());
+    omp = omp_get_num_threads();
   }
 #endif
 
@@ -422,8 +424,7 @@ eckit::LocalConfiguration ShadowLevels::getFileConf(const eckit::mpi::Comm & com
   eckit::LocalConfiguration file = conf.getSubConfiguration("file");
 
   // Replace patterns
-  util::seekAndReplace(file, "_MPI_", mpi);
-  util::seekAndReplace(file, "_OMP_", omp);
+  setMPI(file, mpi, omp);
 
   oops::Log::trace() << classname() << "::getFileConf done" << std::endl;
   return file;

@@ -45,12 +45,12 @@ BUMP::BUMP(const oops::GeometryData & geometryData,
   oops::Log::trace() << classname() << "::BUMP starting" << std::endl;
 
   // Get number of MPI tasks and OpenMP threads
-  std::string mpi(std::to_string(comm_.size()));
-  std::string omp("1");
+  const size_t mpi = comm_.size();
+  size_t omp = 1;
 #ifdef _OPENMP
   # pragma omp parallel
   {
-    omp = std::to_string(omp_get_num_threads());
+    omp = omp_get_num_threads();
   }
 #endif
   oops::Log::info() << "Info     :"
@@ -101,8 +101,7 @@ BUMP::BUMP(const oops::GeometryData & geometryData,
     grid = util::mergeConfigs(grid, bumpConf_);
 
     // Replace patterns
-    util::seekAndReplace(grid, "_MPI_", mpi);
-    util::seekAndReplace(grid, "_OMP_", omp);
+    setMPI(grid, mpi, omp);
 
     // New files
     if (jgrid > 0) {
@@ -715,12 +714,12 @@ eckit::LocalConfiguration BUMP::getFileConf(const eckit::mpi::Comm & comm,
   oops::Log::trace() << classname() << "::getFileConf starting" << std::endl;
 
   // Get number of MPI tasks and OpenMP threads
-  std::string mpi(std::to_string(comm_.size()));
-  std::string omp("1");
+  const size_t mpi = comm.size();
+  size_t omp = 1;
 #ifdef _OPENMP
   # pragma omp parallel
   {
-    omp = std::to_string(omp_get_num_threads());
+    omp = omp_get_num_threads();
   }
 #endif
 
@@ -728,8 +727,7 @@ eckit::LocalConfiguration BUMP::getFileConf(const eckit::mpi::Comm & comm,
   eckit::LocalConfiguration file = conf.getSubConfiguration("file");
 
   // Replace patterns
-  util::seekAndReplace(file, "_MPI_", mpi);
-  util::seekAndReplace(file, "_OMP_", omp);
+  setMPI(file, mpi, omp);
 
   oops::Log::trace() << classname() << "::getFileConf done" << std::endl;
   return file;

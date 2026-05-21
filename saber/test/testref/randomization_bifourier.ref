@@ -22,7 +22,7 @@ Inner inverse test for block BifourierAromeBalance passed: U Uinv (U x) == (U x)
 Outer inverse test for block BifourierAromeBalance passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block BifourierAromeCovariance passed
 Square-root test for block BifourierAromeCovariance passed
-Member 0: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -51,7 +51,7 @@ Member 0:
     + max    = 6.7158896887356111e-04
     + mean   = -1.0648538844192685e-05
     + stddev = 1.7283313826324661e-04
-Member 1: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -80,7 +80,7 @@ Member 1:
     + max    = 6.8981290973934119e-04
     + mean   = 3.6036169380430987e-06
     + stddev = 1.7192520657221297e-04
-Member 2: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -109,7 +109,7 @@ Member 2:
     + max    = 8.5602564699728838e-04
     + mean   = 8.8659426596317586e-06
     + stddev = 1.8004936346882079e-04
-Member 3: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -138,7 +138,7 @@ Member 3:
     + max    = 6.4313833276054364e-04
     + mean   = -2.4721576569829156e-06
     + stddev = 1.6824344006133570e-04
-Member 4: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -167,7 +167,7 @@ Member 4:
     + max    = 7.3132038892308974e-04
     + mean   = 9.6021818518951373e-06
     + stddev = 1.6413278873298297e-04
-Member 5: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -196,7 +196,7 @@ Member 5:
     + max    = 7.3867095015723487e-04
     + mean   = 3.6991615475894569e-07
     + stddev = 1.7267825508086661e-04
-Member 6: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -225,7 +225,7 @@ Member 6:
     + max    = 7.8020636266993746e-04
     + mean   = -9.3398016526224239e-06
     + stddev = 1.7187481484626184e-04
-Member 7: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -254,7 +254,7 @@ Member 7:
     + max    = 8.2388561400796730e-04
     + mean   = 1.5588039134369853e-06
     + stddev = 1.8235886624027637e-04
-Member 8: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -283,7 +283,7 @@ Member 8:
     + max    = 6.6612298176887150e-04
     + mean   = -1.4563078277760982e-06
     + stddev = 1.6911738960368602e-04
-Member 9: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -312,7 +312,7 @@ Member 9:
     + max    = 7.2995398085979788e-04
     + mean   = 7.9805839297659142e-06
     + stddev = 1.7462595807866710e-04
-Member 10: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -341,7 +341,7 @@ Member 10:
     + max    = 7.5724786370285312e-04
     + mean   = 6.1373462563937049e-06
     + stddev = 1.7560414297912720e-04
-Member 11: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -370,7 +370,7 @@ Member 11:
     + max    = 7.6716149564117777e-04
     + mean   = -7.2797626071960006e-06
     + stddev = 1.6547576672119139e-04
-Member 12: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -399,7 +399,7 @@ Member 12:
     + max    = 7.0826772496505343e-04
     + mean   = 3.8552512893269577e-07
     + stddev = 1.6557422085259493e-04
-Member 13: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -428,7 +428,7 @@ Member 13:
     + max    = 7.9672238909438489e-04
     + mean   = 1.6383584558925695e-06
     + stddev = 1.7639773017458763e-04
-Member 14: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -457,7 +457,7 @@ Member 14:
     + max    = 6.8620080349265672e-04
     + mean   = -1.0920615215684491e-05
     + stddev = 1.7272041389969537e-04
-Member 15: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -486,7 +486,7 @@ Member 15:
     + max    = 8.2720602320791501e-04
     + mean   = -2.2247114001039558e-05
     + stddev = 1.7319982169907290e-04
-Member 16: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -515,7 +515,7 @@ Member 16:
     + max    = 6.9587799428697005e-04
     + mean   = 5.5362716428200051e-06
     + stddev = 1.7441503312967086e-04
-Member 17: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -544,7 +544,7 @@ Member 17:
     + max    = 8.1806013811391355e-04
     + mean   = -7.0474585548969961e-07
     + stddev = 1.6851324131168303e-04
-Member 18: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -573,7 +573,7 @@ Member 18:
     + max    = 6.9870846242594197e-04
     + mean   = -3.0107838617915737e-06
     + stddev = 1.7574179960872798e-04
-Member 19: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -602,7 +602,7 @@ Member 19:
     + max    = 6.9019909992718616e-04
     + mean   = -6.0123715881473466e-06
     + stddev = 1.7180622978407094e-04
-Member 20: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -631,7 +631,7 @@ Member 20:
     + max    = 7.3110670752228732e-04
     + mean   = -6.0150976686865711e-07
     + stddev = 1.7909777289008751e-04
-Member 21: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -660,7 +660,7 @@ Member 21:
     + max    = 7.6582220761772020e-04
     + mean   = 1.0054790698316832e-05
     + stddev = 1.6682236600633181e-04
-Member 22: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -689,7 +689,7 @@ Member 22:
     + max    = 6.8453706923139713e-04
     + mean   = -1.0296656079034883e-06
     + stddev = 1.7258265405968744e-04
-Member 23: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -718,7 +718,7 @@ Member 23:
     + max    = 6.8084626198698824e-04
     + mean   = 9.1673290037648603e-06
     + stddev = 1.7686541744538927e-04
-Member 24: 
+Write state: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:

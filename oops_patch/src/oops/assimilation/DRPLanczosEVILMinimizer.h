@@ -4,6 +4,9 @@
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation
+ * nor does it submit to any jurisdiction.
  */
 
 #pragma once
@@ -26,6 +29,44 @@
 #include "util/formats.h"
 
 namespace oops {
+
+/// DRPLanczos Minimizer
+/*!
+ * \brief Derber-Rosati Preconditioned Lanczos solver.
+ *
+ * This solver is the Lanczos version of the DRPCG algorithm
+ * It solves \f$ Ax=b\f$ for the particular case \f$ A=B^{-1}+C\f$,
+ * without requiring the application of \f$ B^{-1}\f$.
+ *
+ * A must be square, symmetric, positive definite.
+ *
+ * A preconditioner must be supplied that, given a vector q, returns an
+ * approximation to \f$ (AB)^{-1} q\f$. Possible preconditioning
+ * is detailed in S. Gurol, PhD Manuscript, 2013.
+ * Note that the traditional \f$ B\f$-preconditioning corresponds to
+ * precond=\f$I\f$.
+ *
+ * On entry:
+ * -    dx      = starting point.
+ * -    dxh     = starting point, \f$ B^{-1} dx_{0}\f$.
+ * -    rr      = residual at starting point.
+ * -    B       = \f$ B \f$.
+ * -    C       = \f$ C \f$.
+ * -    precond = preconditioner \f$ F_k \approx (AB)^{-1} \f$.
+ *
+ * On exit, dxh will contain \f$ B^{-1} x\f$ where x is the solution.
+ * The return value is the achieved reduction in residual norm.
+ *
+ * Iteration will stop if the maximum iteration limit "maxiter" is reached
+ * or if the residual norm reduces by a factor of "tolerance".
+ *
+ * Each matrix must implement a method:
+ * - void multiply(const VECTOR&, VECTOR&) const
+ *
+ * which applies the matrix to the first argument, and returns the
+ * matrix-vector product in the second. (Note: the const is optional, but
+ * recommended.)
+ */
 
 // -----------------------------------------------------------------------------
 

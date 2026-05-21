@@ -1,4 +1,4 @@
-#:include 'instrumentation.fypp'
+#:include 'generics.fypp'
 !----------------------------------------------------------------------
 ! Module: type_nicas_blk
 !> NICAS data block derived type
@@ -15,14 +15,13 @@ use tools_fit, only: tensor_d2h
 use tools_func, only: zss_maxval,zss_minval
 use tools_kinds, only: kind_real
 use tools_netcdf, only: define_grp,inquire_grp,put_att,get_att,define_dim,check_dim
-use tools_repro, only: repro_th
+use tools_repro, only: sup,repro_th
 use type_cmat_blk, only: cmat_blk_type
 use type_cv_blk, only: cv_blk_type
 use type_geom, only: geom_type
 use type_mpl, only: mpl_type
 use type_nam, only: nam_type
 use type_nicas_cmp, only: nicas_cmp_type
-@:use_probe()
 use type_rng, only: rng_type
 
 implicit none
@@ -91,18 +90,12 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_partial_dealloc)
 
-! Probe in
-@:probe_in()
-
 ! Release memory
 if (allocated(nicas_blk%cmp)) then
    do icmp=1,nicas_blk%ncmp
       call nicas_blk%cmp(icmp)%partial_dealloc
    end do
 end if
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_partial_dealloc
 
@@ -123,9 +116,6 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_dealloc)
 
-! Probe in
-@:probe_in()
-
 ! Release memory
 call nicas_blk%partial_dealloc
 if (allocated(nicas_blk%cmp)) then
@@ -134,9 +124,6 @@ if (allocated(nicas_blk%cmp)) then
    end do
    deallocate(nicas_blk%cmp)
 end if
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_dealloc
 
@@ -161,9 +148,6 @@ character(len=1024) :: message
 
 ! Set name
 @:set_name(nicas_blk_read_local)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -231,9 +215,6 @@ end do
 ! End associate
 end associate
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_read_local
 
 !----------------------------------------------------------------------
@@ -256,9 +237,6 @@ character(len=1024) :: blkname,cmpname
 
 ! Set name
 @:set_name(nicas_blk_write_local_def)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -303,9 +281,6 @@ end do
 ! End associate
 end associate
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_write_local_def
 
 !----------------------------------------------------------------------
@@ -326,16 +301,10 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_write_local_data)
 
-! Probe in
-@:probe_in()
-
 do icmp=1,nicas_blk%ncmp
    ! Component work
    call nicas_blk%cmp(icmp)%write_local_data(mpl)
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_write_local_data
 
@@ -360,9 +329,6 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_buffer_size)
 
-! Probe in
-@:probe_in()
-
 ! Initialization
 nbufi = 0
 nbufr = 0
@@ -378,9 +344,6 @@ do icmp=1,nicas_blk%ncmp
    ! Component work
    call nicas_blk%cmp(icmp)%buffer_size(mpl,nbufi,nbufr,nbufl)
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_buffer_size
 
@@ -407,9 +370,6 @@ integer :: ibufi,ibufr,ibufl,icmp
 
 ! Set name
 @:set_name(nicas_blk_serialize)
-
-! Probe in
-@:probe_in()
 
 ! Initialization
 ibufi = 0
@@ -438,9 +398,6 @@ if (ibufi/=nbufi) call mpl%abort('${subr}$','inconsistent final offset/buffer si
 if (ibufr/=nbufr) call mpl%abort('${subr}$','inconsistent final offset/buffer size (real)')
 if (ibufl/=nbufl) call mpl%abort('${subr}$','inconsistent final offset/buffer size (logical)')
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_serialize
 
 !----------------------------------------------------------------------
@@ -466,9 +423,6 @@ integer :: ibufi,ibufr,ibufl,icmp
 
 ! Set name
 @:set_name(nicas_blk_deserialize)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -507,9 +461,6 @@ end do
 ! End associate
 end associate
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_deserialize
 
 !----------------------------------------------------------------------
@@ -532,9 +483,6 @@ character(len=1024) :: blkname,cmpname
 
 ! Set name
 @:set_name(nicas_blk_read_global)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -568,12 +516,8 @@ do icmp=1,nicas_blk%ncmp
    nicas_blk%cmp(icmp)%verbosity = nicas_blk%verbosity
    if (nicas_blk%cmp(icmp)%filter_mode) then
       nicas_blk%cmp(icmp)%resol = nam%filter_resol
-      nicas_blk%cmp(icmp)%nc1max = nam%filter_nc1max
-      nicas_blk%cmp(icmp)%resol_eff_min = nam%filter_resol_eff_min
    else
       nicas_blk%cmp(icmp)%resol = nam%resol
-      nicas_blk%cmp(icmp)%nc1max = nam%nc1max
-      nicas_blk%cmp(icmp)%resol_eff_min = nam%resol_eff_min
    end if
    nicas_blk%cmp(icmp)%draw_type = nam%nicas_draw_type
    nicas_blk%cmp(icmp)%interp_type = nam%nicas_interp_type(ig)
@@ -609,9 +553,6 @@ end do
 ! End associate
 end associate
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_read_global
 
 !----------------------------------------------------------------------
@@ -634,9 +575,6 @@ character(len=1024) :: blkname,cmpname
 
 ! Set name
 @:set_name(nicas_blk_write_global_def)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -682,9 +620,6 @@ end do
 ! End associate
 end associate
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_write_global_def
 
 !----------------------------------------------------------------------
@@ -706,16 +641,10 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_write_global_data)
 
-! Probe in
-@:probe_in()
-
 do icmp=1,nicas_blk%ncmp
    ! Component work
    call nicas_blk%cmp(icmp)%write_global_data(mpl,geom)
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_write_global_data
 
@@ -738,9 +667,6 @@ character(len=1024) :: blkname,cmpname
 
 ! Set name
 @:set_name(nicas_blk_write_grids_def)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -773,9 +699,6 @@ end do
 ! End associate
 end associate
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_write_grids_def
 
 !----------------------------------------------------------------------
@@ -796,16 +719,10 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_write_grids_data)
 
-! Probe in
-@:probe_in()
-
 do icmp=1,nicas_blk%ncmp
    ! Component work
    call nicas_blk%cmp(icmp)%write_grids_data(mpl)
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_write_grids_data
 
@@ -828,9 +745,6 @@ character(len=1024) :: blkname,cmpname
 
 ! Set name
 @:set_name(nicas_blk_write_steps_def)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -863,9 +777,6 @@ end do
 ! End associate
 end associate
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_write_steps_def
 
 !----------------------------------------------------------------------
@@ -886,16 +797,10 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_write_steps_data)
 
-! Probe in
-@:probe_in()
-
 do icmp=1,nicas_blk%ncmp
    ! Component work
    call nicas_blk%cmp(icmp)%write_steps_data(mpl)
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_write_steps_data
 
@@ -903,16 +808,17 @@ end subroutine nicas_blk_write_steps_data
 ! Subroutine: nicas_blk_compute_parameters
 !> Compute NICAS parameters
 !----------------------------------------------------------------------
-subroutine nicas_blk_compute_parameters(nicas_blk,mpl,rng,nam,geom)
+subroutine nicas_blk_compute_parameters(nicas_blk,mpl,rng,nam,geom,nicas_blk_ref)
 
 implicit none
 
 ! Passed variables
-class(nicas_blk_type),intent(inout) :: nicas_blk !< NICAS data block
-type(mpl_type),intent(inout) :: mpl              !< MPI data
-type(rng_type),intent(inout) :: rng              !< Random number generator
-type(nam_type),intent(in) :: nam                 !< Namelist
-type(geom_type),intent(in) :: geom               !< Geometry
+class(nicas_blk_type),intent(inout) :: nicas_blk          !< NICAS data block
+type(mpl_type),intent(inout) :: mpl                       !< MPI data
+type(rng_type),intent(inout) :: rng                       !< Random number generator
+type(nam_type),intent(in) :: nam                          !< Namelist
+type(geom_type),intent(in) :: geom                        !< Geometry
+type(nicas_blk_type),intent(in),optional :: nicas_blk_ref !< Reference NICAS data block
 
 ! Local variables
 integer :: icmp
@@ -920,19 +826,11 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_compute_parameters)
 
-! Probe in
-@:probe_in()
-
 ! Associate
 associate(ig=>nicas_blk%ig)
 
 ! Allocation
 if (.not.allocated(nicas_blk%cmp)) allocate(nicas_blk%cmp(nicas_blk%ncmp))
-
-if (.not.nam%load_nicas_global) then
-   ! Reset random numbers seed
-   if (trim(nam%strategy)=='crossed') call rng%reseed
-end if
 
 do icmp=1,nicas_blk%ncmp
    write(mpl%info,'(a7,a,i1)') '','Component: ',icmp
@@ -945,12 +843,8 @@ do icmp=1,nicas_blk%ncmp
    nicas_blk%cmp(icmp)%filter_mode = nam%filter_mode
    if (nicas_blk%cmp(icmp)%filter_mode) then
       nicas_blk%cmp(icmp)%resol = nam%filter_resol
-      nicas_blk%cmp(icmp)%nc1max = nam%filter_nc1max
-      nicas_blk%cmp(icmp)%resol_eff_min = nam%filter_resol_eff_min
    else
       nicas_blk%cmp(icmp)%resol = nam%resol
-      nicas_blk%cmp(icmp)%nc1max = nam%nc1max
-      nicas_blk%cmp(icmp)%resol_eff_min = nam%resol_eff_min
    end if
    nicas_blk%cmp(icmp)%draw_type = nam%nicas_draw_type
    nicas_blk%cmp(icmp)%interp_type = nam%nicas_interp_type(ig)
@@ -964,14 +858,15 @@ do icmp=1,nicas_blk%ncmp
    end if
 
    ! Component work
-   call nicas_blk%cmp(icmp)%compute_parameters(mpl,rng,nam,geom)
+   if (present(nicas_blk_ref)) then
+      call nicas_blk%cmp(icmp)%compute_parameters(mpl,rng,nam,geom,nicas_blk_ref%cmp(icmp))
+   else
+      call nicas_blk%cmp(icmp)%compute_parameters(mpl,rng,nam,geom)
+   end if
 end do
 
 ! End associate
 end associate
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_compute_parameters
 
@@ -999,9 +894,6 @@ type(cmat_blk_type) :: cmat_blk
 
 ! Set name
 @:set_name(nicas_blk_compute_parameters_filter)
-
-! Probe in
-@:probe_in()
 
 ! Define C matrix block
 cmat_blk%ncmp = 1
@@ -1036,9 +928,6 @@ call nicas_blk%compute_parameters(mpl,rng,nam,geom)
 nam%strategy = strategy
 nam%filter_mode = filter_mode
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_compute_parameters_filter
 
 !----------------------------------------------------------------------
@@ -1063,9 +952,6 @@ character(len=1024) :: message
 
 ! Set name
 @:set_name(nicas_blk_copy_cmat)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -1146,8 +1032,12 @@ do icmp=1,nicas_blk%ncmp
             end if
          end do
 
-         ! Apply bounds
-         nover = count((nicas_blk%cmp(icmp)%rh(:,il0)>nam%universe_radius).and.geom%gmask_c0a(:,il0))
+         ! Apply bounds for rh
+         nover = 0
+         do ic0a=1,geom%nc0a
+            if (sup(nicas_blk%cmp(icmp)%rh(ic0a,il0),nam%universe_radius).and.geom%gmask_c0a(ic0a,il0)) nover = nover+1
+         end do
+         call mpl%f_comm%allreduce(nover,fckit_mpi_sum())
          if (nover>0) then
             rover = real(nover,kind_real)/real(geom%nc0_gmask(il0),kind_real)*hundred
             write(message,'(a,f6.2,a,i3,a,a,a,i1)') 'rh over universe radius (',rover,'%) for NICAS at level ',il0,' of block ', &
@@ -1155,27 +1045,31 @@ do icmp=1,nicas_blk%ncmp
             call mpl%warning('${subr}$',message)
             do ic0a=1,geom%nc0a
                if (geom%gmask_c0a(ic0a,il0)) then
-                  nicas_blk%cmp(icmp)%rh(ic0a,il0) = min(nicas_blk%cmp(icmp)%rh(ic0a,il0),nam%universe_radius)
-                  if (nicas_blk%cmp(icmp)%anisotropic) then
-                     ratio = (nicas_blk%cmp(icmp)%rh(ic0a,il0)/nam%universe_radius)**2
-                     if (ratio>one) then
-                        nicas_blk%cmp(icmp)%H11(ic0a,il0) = nicas_blk%cmp(icmp)%H11(ic0a,il0)*ratio
-                        nicas_blk%cmp(icmp)%H22(ic0a,il0) = nicas_blk%cmp(icmp)%H22(ic0a,il0)*ratio
-                        nicas_blk%cmp(icmp)%H12(ic0a,il0) = nicas_blk%cmp(icmp)%H12(ic0a,il0)*ratio
-                     end if
+                  ratio = nicas_blk%cmp(icmp)%rh(ic0a,il0)/nam%universe_radius
+                  if (ratio>one) nicas_blk%cmp(icmp)%rh(ic0a,il0) = nicas_blk%cmp(icmp)%rh(ic0a,il0)/ratio
+                  if (nicas_blk%cmp(icmp)%anisotropic.and.(ratio>one)) then
+                     nicas_blk%cmp(icmp)%H11(ic0a,il0) = nicas_blk%cmp(icmp)%H11(ic0a,il0)*ratio**2
+                     nicas_blk%cmp(icmp)%H22(ic0a,il0) = nicas_blk%cmp(icmp)%H22(ic0a,il0)*ratio**2
+                     nicas_blk%cmp(icmp)%H12(ic0a,il0) = nicas_blk%cmp(icmp)%H12(ic0a,il0)*ratio**2
                   end if
                end if
             end do
          end if
-         nover = count((nicas_blk%cmp(icmp)%rhs(:,il0)>nam%universe_radius).and.geom%gmask_c0a(:,il0))
+
+         ! Apply bounds for rhs
+         nover = 0
+         do ic0a=1,geom%nc0a
+            if (sup(nicas_blk%cmp(icmp)%rhs(ic0a,il0),nam%universe_radius).and.geom%gmask_c0a(ic0a,il0)) nover = nover+1
+         end do
+         call mpl%f_comm%allreduce(nover,fckit_mpi_sum())
          if (nover>0) then
             rover = real(nover,kind_real)/real(geom%nc0_gmask(il0),kind_real)*hundred
             write(message,'(a,f6.2,a,i3,a,a,a,i1)') 'rhs over universe radius (',rover,'%) for NICAS at level ',il0,' of block ', &
  & trim(nam%group_names(ig)),', component ',icmp
             call mpl%warning('${subr}$',message)
             do ic0a=1,geom%nc0a
-               if (geom%gmask_c0a(ic0a,il0)) nicas_blk%cmp(icmp)%rhs(ic0a,il0) = min(nicas_blk%cmp(icmp)%rhs(ic0a,il0), &
- & nam%universe_radius)
+               ratio = nicas_blk%cmp(icmp)%rhs(ic0a,il0)/nam%universe_radius
+               if (ratio>one) nicas_blk%cmp(icmp)%rhs(ic0a,il0) = nicas_blk%cmp(icmp)%rhs(ic0a,il0)/ratio
             end do
          end if
       else
@@ -1193,7 +1087,7 @@ do icmp=1,nicas_blk%ncmp
         rhs_max = zss_maxval(nicas_blk%cmp(icmp)%rhs(:,1:nl0), &
  & mask=(geom%gmask_c0a(:,1:nl0).and.mpl%msv%isnot(nicas_blk%cmp(icmp)%rhs(:,1:nl0))))
       end if
-      if (rhs_max>nam%universe_radius) then
+      if (sup(rhs_max,nam%universe_radius)) then
          write(message,'(a,f10.2,a,f10.2,a)') 'horizontal support radius (',rhs_max*reqkm,' km) larger than universe radius (', &
  & nam%universe_radius*reqkm,' km)'
          call mpl%warning('${subr}$',message)
@@ -1206,9 +1100,6 @@ end do
 
 ! End associate
 end associate
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_copy_cmat
 
@@ -1232,16 +1123,10 @@ integer :: icmp
 ! Set name
 @:set_name(nicas_blk_apply_sqrt)
 
-! Probe in
-@:probe_in()
-
 do icmp=1,nicas_blk%ncmp
    ! Component work
    call nicas_blk%cmp(icmp)%apply_filter(mpl,geom,fld)
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_apply_filter
 
@@ -1269,9 +1154,6 @@ logical :: lsteps
 ! Set name
 @:set_name(nicas_blk_apply_sqrt)
 
-! Probe in
-@:probe_in()
-
 ! Local flag
 lsteps = .false.
 if (present(steps)) lsteps = steps
@@ -1286,9 +1168,6 @@ do icmp=1,cv_blk%ncmp
    ! Add to field
    fld = fld+fld_tmp
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_apply_sqrt
 
@@ -1315,9 +1194,6 @@ logical :: lsteps
 ! Set name
 @:set_name(nicas_blk_apply_sqrt_ad)
 
-! Probe in
-@:probe_in()
-
 ! Local flag
 lsteps = .false.
 if (present(steps)) lsteps = steps
@@ -1326,9 +1202,6 @@ do icmp=1,cv_blk%ncmp
    ! Component work
    call nicas_blk%cmp(icmp)%apply_sqrt_ad(mpl,geom,fld,cv_blk%cmp(icmp),lsteps)
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_apply_sqrt_ad
 
@@ -1356,9 +1229,6 @@ type(cv_blk_type) :: cv_blk1,cv_blk2
 
 ! Set name
 @:set_name(nicas_blk_test_adjoint)
-
-! Probe in
-@:probe_in()
 
 ! Allocation
 cv_blk1%ncmp = nicas_blk%ncmp
@@ -1410,9 +1280,6 @@ deallocate(cv_blk2%cmp)
 ! Reset random seed if necessary
 call rng%reseed
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_test_adjoint
 
 !----------------------------------------------------------------------
@@ -1439,9 +1306,6 @@ type(cv_blk_type) :: cv_blk
 ! Set name
 @:set_name(nicas_blk_test_normalization)
 
-! Probe in
-@:probe_in()
-
 ! Copy number of components
 cv_blk%ncmp = nicas_blk%ncmp
 
@@ -1461,16 +1325,8 @@ end do
 if (mpl%main) call rng%rand(1,geom%nl0,il0)
 call mpl%f_comm%broadcast(il0,mpl%rootproc-1)
 
-! Resynchronize random number generator
-call rng%resync(mpl)
-
 ! Get random points
-do itest=1,nam%check_normalization
-   call geom%rand_point(mpl,rng,il0(itest),iproc(itest),ic0a(itest))
-end do
-
-! Desynchronize random number generator
-call rng%desync(mpl)
+call geom%rand_points(mpl,rng,nam%check_normalization,il0,iproc,ic0a)
 
 ! Check normalization
 write(mpl%info,'(a10,a)') '','Check normalization'
@@ -1498,9 +1354,6 @@ if (nicas_blk%verbosity) call mpl%flush
 ! Reset random seed if necessary
 call rng%reseed
 
-! Probe out
-@:probe_out()
-
 end subroutine nicas_blk_test_normalization
 
 !----------------------------------------------------------------------
@@ -1526,9 +1379,6 @@ type(cv_blk_type) :: cv_blk
 
 ! Set name
 @:set_name(nicas_blk_test_dirac)
-
-! Probe in
-@:probe_in()
 
 ! Associate
 associate(ig=>nicas_blk%ig)
@@ -1607,9 +1457,6 @@ end do
 
 ! End associate
 end associate
-
-! Probe out
-@:probe_out()
 
 end subroutine nicas_blk_test_dirac
 

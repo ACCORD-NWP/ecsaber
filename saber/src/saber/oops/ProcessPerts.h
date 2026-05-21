@@ -20,7 +20,6 @@
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/base/FieldSets.h"
-#include "oops/base/Increment4D.h"
 #include "oops/base/State4D.h"
 #include "oops/interface/Geometry.h"
 #include "oops/interface/Increment.h"
@@ -170,7 +169,6 @@ template <typename MODEL> class ProcessPerts : public oops::Application {
   typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
   typedef oops::Geometry<MODEL>                             Geometry_;
   typedef oops::Increment<MODEL>                            Increment_;
-  typedef oops::Increment4D<MODEL>                          Increment4D_;
   typedef oops::Model<MODEL>                                Model_;
   typedef oops::State<MODEL>                                State_;
   typedef oops::State4D<MODEL>                              State4D_;
@@ -187,15 +185,12 @@ template <typename MODEL> class ProcessPerts : public oops::Application {
 // -----------------------------------------------------------------------------
 
   int execute(const eckit::Configuration & fullConfig) const {
-    // Deserialize parameters
-    ProcessPertsParameters_ params;
-    params.deserialize(fullConfig);
-
     // Define space and time communicators
     const eckit::mpi::Comm * commSpace = &eckit::mpi::comm();
 
-    // Get number of MPI tasks and OpenMP threads
-    size_t ntasks = commSpace->size();
+    // Replace patterns in full configuration and deserialize parameters
+    eckit::LocalConfiguration fullConfigUpdated(fullConfig);
+    const size_t ntasks = commSpace->size();
     size_t nthreads = 1;
 #ifdef _OPENMP
     # pragma omp parallel
@@ -203,11 +198,10 @@ template <typename MODEL> class ProcessPerts : public oops::Application {
       nthreads = omp_get_num_threads();
     }
 #endif
+    setMPI(fullConfigUpdated, ntasks, nthreads);
 
-    // Replace patterns in full configuration and deserialize parameters
-    eckit::LocalConfiguration fullConfigUpdated(fullConfig);
-    util::seekAndReplace(fullConfigUpdated, "_MPI_", std::to_string(ntasks));
-    util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
+    // Deserialize parameters
+    ProcessPertsParameters_ params;
     params.deserialize(fullConfigUpdated);
 
     // Set precision for test channel
@@ -257,12 +251,12 @@ template <typename MODEL> class ProcessPerts : public oops::Application {
     oops::FieldSets fsetEnsI = readEnsemble<MODEL>(geom,
                                                    incVars,
                                                    xx.times(), eckit::mpi::self(), eckit::mpi::self(),
-                                                   fullConfig);
+                                                   fullConfigUpdated);
     int nincrements = fsetEnsI.ens_size();
 
     const std::size_t nbands = params.bands.value().size();
     const std::vector<eckit::LocalConfiguration> bandsConfs
-      = fullConfig.getSubConfigurations("bands");
+      = fullConfigUpdated.getSubConfigurations("bands");
     const bool recursiveFilters = params.recursiveFilters.value();
 
     // need to create a vectors of saber block chains to use later
@@ -398,7 +392,7 @@ template <typename MODEL> class ProcessPerts : public oops::Application {
         if (auto it{genericWriteConfs.find(b)}; it != std::end(genericWriteConfs)) {
           eckit::LocalConfiguration gconf = it->second;
           util::setMember(gconf, jm+1);
-          setConcatenatedString(fullConfig,
+          setConcatenatedString(fullConfigUpdated,
                                 std::vector<std::string>{"geometry", "grid"},
                                 "grid pattern",
                                 gconf);

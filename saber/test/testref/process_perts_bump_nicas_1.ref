@@ -22,28 +22,28 @@
              Level   9 ~>  0.900E+01 vert. coord.
              Level  10 ~>  0.100E+02 vert. coord.
              Effective levels:   1   2   3   4   5   6   7   8   9  10 
-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
-                Estimated nc1 from horizontal support radius:      589
-                   Decimate full grid, at least      589 points required,     790 valid points found
-                   Subgrid hash:  -1358924416
-                Final nc1:      589
-                Effective horizontal resolution:  4.00
-             nc1(  1) =                        589
-             nc1(  2) =                        589
-             nc1(  3) =                        589
-             nc1(  4) =                        589
-             nc1(  5) =                        589
-             nc1(  6) =                        589
-             nc1(  7) =                        589
-             nc1(  8) =                        589
-             nc1(  9) =                        589
-             nc1( 10) =                        589
-             ns =                             5890
+                   Requested distance between points (min/max/avg):  0.100E+04 km /  0.100E+04 km /  0.100E+04 km
+                   Regular sampling grid size:      360 points
+                   Nearest neighbor distance (min/max/avg):  0.381E+03 km /  0.103E+04 km /  0.886E+03 km
+                   Effective resolution (min/max/avg):  3.87 / 10.50 /  4.97
+                   Subgrid hash:   -435093158
+                Subgrid size:      360
+             nc1(  1) =                        360
+             nc1(  2) =                        360
+             nc1(  3) =                        360
+             nc1(  4) =                        360
+             nc1(  5) =                        360
+             nc1(  6) =                        360
+             nc1(  7) =                        360
+             nc1(  8) =                        360
+             nc1(  9) =                        360
+             nc1( 10) =                        360
+             ns =                             3600
              v%n_s =                            10
-             c%n_s[global] =                207340
+             c%n_s[global] =                105504
 Norm of perturbation: member 1: 2.6620275517839023e+01
-Norm of band perturbation: member 1: band 1: 1.0547425788178170e+01
-Norm of band perturbation: member 1: band 2: 2.1009053584793985e+01
+Norm of band perturbation: member 1: band 1: 8.2134564068493763e+00
+Norm of band perturbation: member 1: band 2: 2.2720337842796940e+01
 Norm of perturbation: member 2: 2.5901045342933084e+01
-Norm of band perturbation: member 2: band 1: 1.0950391918153596e+01
-Norm of band perturbation: member 2: band 2: 1.9913703810378877e+01
+Norm of band perturbation: member 2: band 1: 8.5949252048004823e+00
+Norm of band perturbation: member 2: band 2: 2.1626496927873792e+01

@@ -1,5 +1,4 @@
 #:include 'generics.fypp'
-#:include 'instrumentation.fypp'
 !----------------------------------------------------------------------
 ! Module: type_nam
 !> Namelist derived type
@@ -14,7 +13,6 @@ use tools_const, only: zero,half,one,pi,req,deg2rad
 use tools_kinds, only: kind_real,kind_int
 use tools_func, only: cholesky,zss_minval
 use type_mpl, only: mpl_type
-@:use_probe()
 
 implicit none
 
@@ -23,8 +21,10 @@ type nam_type
    integer :: default_seed                                    !< Default seed for random numbers (0 for time-dependent seed)
    logical :: repro_ops                                       !< Reproducibility operators
    real(kind_real) :: repro_th                                !< Reproducibility threshold
+   logical :: timers                                          !< Use timers
    real(kind_real) :: universe_radius                         !< Universe radius [in meters]
-   character(len=1024) :: sampling_method                     !< Sampling method
+   logical :: deprecated_hull                                 !< Use deprecated hull (for backward compatibility)
+   logical :: deprecated_work_grid                            !< Use deprecated work grid (for backward compatibility)
 
    ! I/O section
    character(len=1024) :: datadir                             !< Data directory
@@ -123,7 +123,6 @@ type nam_type
    logical :: local_diag                                      !< Activate local diagnostics
    real(kind_real) :: local_rad                               !< Local diagnostics calculation radius [in meters]
    real(kind_real) :: local_dlat                              !< Local diagnostics calculation latitude band half-width [in degrees]
-   character(len=1024) :: samp_draw_type                      !< Diagnostic draw type ('random' or 'octahedral')
    integer :: irmax                                           !< Maximum number of random number draws
    character(len=2) :: samp_interp_type                       !< Sampling C2B to C0A interpolation type ('c0': C0 mesh-based, 'c1': C1 mesh-based or 'si': smooth interpolation)
    integer :: nmask                                           !< Number of masks
@@ -179,17 +178,14 @@ type nam_type
 
    ! NICAS section
    real(kind_real) :: resol                                   !< Resolution
-   integer :: nc1max                                          !< Maximum size of the Sc1 subset
-   real(kind_real) :: resol_eff_min                           !< Minimum effective resolution
    logical :: filter_mode                                     !< Filter mode
    real(kind_real) :: filter_resol                            !< Resolution for the NICAS filter
-   integer :: filter_nc1max                                   !< Maximum size of the Sc1 subset for the NICAS filter
-   real(kind_real) :: filter_resol_eff_min                    !< Minimum effective resolution for the NICAS filter
    character(len=1024) :: nicas_draw_type                     !< NICAS draw type ('random' or 'octahedral')
    logical :: forced_radii                                    !< Force specific support radii
    real(kind_real),allocatable :: rh(:,:)                     !< Forced horizontal support radius [in meters]
    real(kind_real),allocatable :: rv(:,:)                     !< Forced vertical support radius
-   real(kind_real),allocatable :: loc_wgt_sqrt(:,:)           !< Weights square-root for the 'block_weighted' strategy
+   real(kind_real),allocatable :: loc_wgt_sqrt(:,:)           !< Weights square-root for the 'duplicated and weighted' strategy
+   character(len=2) :: nicas_default_interp_type              !< NICAS C1B to C0A default interpolation type ('c0': C0 mesh-based, 'c1': C1 mesh-based or 'si': smooth interpolation)
    character(len=2),allocatable :: nicas_interp_type(:)       !< NICAS C1B to C0A interpolation type ('c0': C0 mesh-based, 'c1': C1 mesh-based or 'si': smooth interpolation)
    real(kind_real) :: nicas_si_factor                         !< Factor to get interpolation radius from convolution radius if nicas_interp_type = 'si'
    integer :: norm_rand_size                                  !< Normalization randomization size (default is 0, which means exact normalization)
@@ -198,6 +194,8 @@ type nam_type
    logical :: same_horizontal                                 !< Same horizontal convolution for all levels, no vertical convolution
    real(kind_real) :: sim_levs_th                             !< Similar levels threshold (relative tolerance on horizontal length-scale)
    logical :: interp_in_global_file                           !< Read/write interpolation in global file
+   integer :: nicas_setup_timings                             !< Number of runs for setup timing
+   integer :: nicas_application_timings                       !< Number of runs for application timing
 
    ! Psichitouv section
    logical :: wind_dipole_test                                !< Dipole test (bypass the adjoint)
@@ -270,9 +268,6 @@ type(fckit_configuration) :: conf
 ! Set name
 @:set_name(nam_init)
 
-! Probe in
-@:probe_in()
-
 ! Initialize empty configuration
 conf = fckit_configuration()
 
@@ -289,9 +284,6 @@ call nam%from_conf(mpl,conf,.false.)
 
 ! Release memory
 call conf%final()
-
-! Probe out
-@:probe_out()
 
 end subroutine nam_init
 
@@ -310,22 +302,19 @@ type(fckit_configuration),intent(in) :: conf !< Configuration
 logical,intent(in),optional :: verbose       !< Print configuration sections
 
 ! Local variables
-integer :: iv,jv,iconf,rank,itest,it,ivv,jvv,ig
+integer :: iv,jv,iconf,rank,itest,it,ig,jg
 integer,allocatable :: vbal_order(:)
 real(kind_real) :: real_scalar
 real(kind_real),allocatable :: loc_wgt(:,:)
 logical :: lverbose,color_log,found,valid,topdown
 character(len=1024) :: lev2d
 character(len=:),allocatable :: str,str_bal,str_unbal
-character(len=:),allocatable :: str_array(:),str_array_row(:),str_array_col(:)
+character(len=:),allocatable :: str_array(:)
 type(fckit_configuration) :: section
 type(fckit_configuration),allocatable :: confs(:)
 
 ! Set name
 @:set_name(nam_from_conf)
-
-! Probe in
-@:probe_in()
 
 ! Local flag
 lverbose = .true.
@@ -370,8 +359,10 @@ if (conf%get('general',section)) then
    call nam%get(section,'default seed',nam%default_seed)
    call nam%get(section,'reproducibility operators',nam%repro_ops)
    call nam%get(section,'reproducibility threshold',nam%repro_th)
+   call nam%get(section,'timers',nam%timers)
    call nam%get(section,'universe length-scale',nam%universe_radius)
-   call nam%get(section,'sampling method',nam%sampling_method)
+   call nam%get(section,'deprecated hull',nam%deprecated_hull)
+   call nam%get(section,'deprecated work grid',nam%deprecated_work_grid)
 end if
 
 ! I/O param
@@ -605,7 +596,6 @@ if (conf%get('sampling',section)) then
    call nam%get(section,'local diagnostic',nam%local_diag)
    call nam%get(section,'averaging length-scale',nam%local_rad)
    call nam%get(section,'averaging latitude width',nam%local_dlat)
-   call nam%get(section,'grid type',nam%samp_draw_type)
    call nam%get(section,'max number of draws',nam%irmax)
    call nam%get(section,'interpolation type',nam%samp_interp_type)
    if (section%get('masks',confs)) then
@@ -828,64 +818,72 @@ end if
 if (conf%get('nicas',section)) then
    if (lverbose) call print_section(mpl,section,'NICAS')
    call nam%get(section,'resolution',nam%resol)
-   call nam%get(section,'max horizontal grid size',nam%nc1max)
-   call nam%get(section,'min effective resolution',nam%resol_eff_min)
    call nam%get(section,'filter mode',nam%filter_mode)
    call nam%get(section,'filter resolution',nam%filter_resol)
-   call nam%get(section,'filter max horizontal grid size',nam%filter_nc1max)
-   call nam%get(section,'filter min effective resolution',nam%filter_resol_eff_min)
    call nam%get(section,'grid type',nam%nicas_draw_type)
    call nam%get(section,'explicit length-scales',nam%forced_radii)
    call nam%get(mpl,section,'horizontal length-scale',nam%rh,one/req)
    call nam%get(mpl,section,'vertical length-scale',nam%rv)
-   if (section%get('common localization weights',confs)) then
-      if ((nam%strategy=='duplicated and weighted').and.(size(confs)>0).and.(nam%nv>0)) then
-         ! Release memory
-         if (allocated(nam%loc_wgt_sqrt)) deallocate(nam%loc_wgt_sqrt)
+   if ((nam%strategy=='duplicated and weighted').and.(nam%nv>0)) then
+      ! Release memory
+      if (allocated(nam%loc_wgt_sqrt)) deallocate(nam%loc_wgt_sqrt)
 
-         ! Allocation
-         allocate(loc_wgt(nam%nv,nam%nv))
-         allocate(nam%loc_wgt_sqrt(nam%nv,nam%nv))
+      ! Allocation
+      allocate(loc_wgt(nam%nv,nam%nv))
+      allocate(nam%loc_wgt_sqrt(nam%nv,nam%nv))
 
-         ! Initialize diagonal weights at one, others at zero
-         loc_wgt = zero
-         do iv=1,nam%nv
-            loc_wgt(iv,iv) = one
+      ! Initialize weights to zero
+      loc_wgt = zero
+
+      ! Set default weight
+      call nam%get(section,'default off-diagonal weight',real_scalar)
+      do iv=1,nam%nv
+         ig = nam%group_index(iv)
+         do jv=1,nam%nv
+            jg = nam%group_index(jv)
+            if (ig==jg) then
+               if (iv==jv) then
+                  ! Unit diagonal
+                  loc_wgt(iv,jv) = one
+               else
+                  loc_wgt(iv,jv) = real_scalar
+               end if
+            end if
          end do
+      end do
 
-         ! Copy weights
+      ! Copy weights
+      if (section%get('specific off-diagonal weights',confs)) then
          do iconf=1,size(confs)
-            ! Get row and column variables, and the value
-            call confs(iconf)%get_or_die('row variables',str_array_row)
-            call confs(iconf)%get_or_die('column variables',str_array_col)
-            call confs(iconf)%get_or_die('value',real_scalar)
+            print*, iconf,size(confs)
+            ! Get variables pair
+            call confs(iconf)%get_or_die('variables pair',str_array)
+            if (size(str_array)/=2) call mpl%abort('${subr}$','wrong variables pair')
+            call confs(iconf)%get_or_die('weight',real_scalar)
+            print*, str_array
+            ! Set specific values
+            do iv=1,nam%nv
+               ig = nam%group_index(iv)
+               do jv=1,nam%nv
+                  jg = nam%group_index(jv)
 
-            ! Loop over row and column values
-            do ivv=1,size(str_array_row)
-               do iv=1,nam%nv
-                  if (trim(str_array_row(ivv))==trim(nam%variables(iv))) exit
-               end do
-               do jvv=1,size(str_array_col)
-                  do jv=1,nam%nv
-                     if (trim(str_array_col(jvv))==trim(nam%variables(jv))) then
-                        if (iv/=jv) then
-                           loc_wgt(iv,jv) = real_scalar
-                           loc_wgt(jv,iv) = real_scalar
-                        end if
-                        exit
-                     end if
-                  end do
+                  if ((nam%variables(iv)==trim(str_array(1))).and.(nam%variables(jv)==trim(str_array(2)))) then
+                     if (ig/=jg) call mpl%abort('${subr}$','variables of a specific weight should be in the same group')
+                     loc_wgt(iv,jv) = real_scalar
+                     loc_wgt(jv,iv) = real_scalar
+                  end if
                end do
             end do
          end do
-
-         ! Cholesky decomposition
-         call cholesky(mpl,nam%nv,loc_wgt,nam%loc_wgt_sqrt)
-
-         ! Release memory
-         deallocate(loc_wgt)
       end if
+      print*, "TOTO: ",loc_wgt
+      ! Cholesky decomposition
+      call cholesky(mpl,nam%nv,loc_wgt,nam%loc_wgt_sqrt)
+      print*, "TATA: ",nam%loc_wgt_sqrt
+      ! Release memory
+      deallocate(loc_wgt)
    end if
+   call nam%get(section,'default interpolation type',nam%nicas_default_interp_type)
    if (section%get('interpolation type',confs)) then
       if ((size(confs)>0).and.(nam%ng>0)) then
          ! Release memory
@@ -895,7 +893,7 @@ if (conf%get('nicas',section)) then
          allocate(nam%nicas_interp_type(nam%ng))
 
          ! Copy
-         nam%nicas_interp_type = 'si'
+         nam%nicas_interp_type = nam%nicas_default_interp_type
          do iconf=1,size(confs)
             call confs(iconf)%get_or_die('groups',str_array)
             call confs(iconf)%get_or_die('type',str)
@@ -914,6 +912,8 @@ if (conf%get('nicas',section)) then
    call nam%get(section,'same horizontal convolution',nam%same_horizontal)
    call nam%get(section,'similar levels threshold',nam%sim_levs_th)
    call nam%get(section,'interpolation in global file',nam%interp_in_global_file)
+   call nam%get(section,'setup timings',nam%nicas_setup_timings)
+   call nam%get(section,'application timings',nam%nicas_application_timings)
 end if
 
 ! Psichitouv section
@@ -984,9 +984,6 @@ if (allocated(confs)) then
   deallocate(confs)
 endif
 
-! Probe out
-@:probe_out()
-
 end subroutine nam_from_conf
 
 !----------------------------------------------------------------------
@@ -1006,9 +1003,6 @@ integer :: ig
 
 ! Set name
 @:set_name(nam_final)
-
-! Probe in
-@:probe_in()
 
 ! Namelist parameters normalization (meters to radians and degrees to radians)
 nam%universe_radius = nam%universe_radius/req
@@ -1033,7 +1027,7 @@ end if
 if (nam%ne==0) nam%ne = nam%ens_ne
 if (.not.allocated(nam%nicas_interp_type)) then
    allocate(nam%nicas_interp_type(nam%ng))
-   nam%nicas_interp_type = 'si'
+   nam%nicas_interp_type = nam%nicas_default_interp_type
 end if
 
 ! Apply bounds
@@ -1061,18 +1055,10 @@ character(len=2) :: ildwvchar
 ! Set name
 @:set_name(nam_check)
 
-! Probe in
-@:probe_in()
-
 ! General section
 if (nam%repro_ops) then
   if (nam%repro_th<zero) call mpl%abort('${subr}$','repro_th should be non-negative')
 end if
-select case (nam%sampling_method)
-case ('potential','maxrandom')
-case default
-   call mpl%abort('${subr}$','wrong sampling method: '//trim(nam%sampling_method))
-end select
 
 ! I/O section
 if (nam%prefix/='') nam%prefix = trim(nam%prefix)//'_'
@@ -1200,13 +1186,6 @@ if (nam%new_vbal_cov.or.nam%new_vbal.or.(nam%new_hdiag.and.(.not.nam%from_gsi)).
       end if
    end if
 end if
-select case (nam%samp_draw_type)
-case ('random')
-case ('octahedral')
-   if (nam%nldwv>0) call mpl%abort('${subr}$','no local diagnostics with an octahedral draw')
-case default
-   call mpl%abort('${subr}$','wrong samp_draw_type')
-end select
 if ((nam%new_hdiag.and.(.not.nam%from_gsi)).or.nam%check_optimality) then
    if (nam%nc3<=0) call mpl%abort('${subr}$','nc3 should be positive')
    if (nam%nc4<=0) call mpl%abort('${subr}$','nc4 should be positive')
@@ -1339,12 +1318,8 @@ if (nam%new_nicas.or.nam%load_nicas_local.or.nam%load_nicas_global) then
    if (nam%new_nicas) then
       if (nam%filter_mode) then
          if (.not.(nam%filter_resol>zero)) call mpl%abort('${subr}$','filter_resol should be positive')
-         if (nam%filter_nc1max<=0) call mpl%abort('${subr}$','filter_nc1max should be positive')
-         if (.not.(nam%filter_resol_eff_min>zero)) call mpl%abort('${subr}$','filter_resol_eff_min should be positive')
       else
          if (.not.(nam%resol>zero)) call mpl%abort('${subr}$','resol should be positive')
-         if (nam%nc1max<=0) call mpl%abort('${subr}$','nc1max should be positive')
-         if (.not.(nam%resol_eff_min>zero)) call mpl%abort('${subr}$','resol_eff_min should be positive')
       end if
    end if
    if (nam%forced_radii) then
@@ -1359,13 +1334,11 @@ if (nam%new_nicas.or.nam%load_nicas_local.or.nam%load_nicas_global) then
          end do
       end do
    end if
-   if (nam%strategy=='block_weighted') then
-      if (.not.allocated(nam%loc_wgt_sqrt)) call mpl%abort('${subr}$','loc_wgt should be specified for block_weighted')
+   if (nam%strategy=='duplicated and weighted') then
+      if (.not.allocated(nam%loc_wgt_sqrt)) call mpl%abort('${subr}$','loc_wgt_sqrt should be specified for duplicated and weighted strategy')
    end if
    select case (nam%nicas_draw_type)
-   case ('random')
-   case ('octahedral')
-      if (nam%nldwv>0) call mpl%abort('${subr}$','no local diagnostics with an octahedral draw')
+   case ('regular','random')
    case default
       call mpl%abort('${subr}$','wrong nicas_draw_type')
    end select
@@ -1397,9 +1370,6 @@ end if
 if (nam%new_wind.and.(nam%load_wind_local.or.nam%load_wind_global)) &
  & call mpl%abort('${subr}$','new_wind and load_wind_local/load_wind_global are exclusive')
 
-! Probe out
-@:probe_out()
-
 end subroutine nam_check
 
 !----------------------------------------------------------------------
@@ -1421,9 +1391,6 @@ integer :: i
 ! Set name
 @:set_name(nam_alias)
 
-! Probe in
-@:probe_in()
-
 ! Loop over I/O key-value couples
 val = key
 if (allocated(nam%alias_code)) then
@@ -1434,9 +1401,6 @@ if (allocated(nam%alias_code)) then
       end if
    end do
 end if
-
-! Probe out
-@:probe_out()
 
 end subroutine nam_alias
 
@@ -1460,9 +1424,6 @@ character(len=:),allocatable :: str
 ! Set name
 @:set_name(nam_print_conf)
 
-! Probe in
-@:probe_in()
-
 ! Print title
 write(mpl%info,'(a7,a,a)') '',trim(title),':'
 call mpl%flush(.false.)
@@ -1478,9 +1439,6 @@ do while (str_size>1024)
 end do
 write(mpl%info,'(a)') str(1:str_size)
 call mpl%flush
-
-! Probe out
-@:probe_out()
 
 end subroutine nam_print_conf
 
@@ -1504,9 +1462,6 @@ character(len=:),allocatable :: str
 ! Set name
 @:set_name(nam_print_confs)
 
-! Probe in
-@:probe_in()
-
 ! Print title
 write(mpl%info,'(a7,a,a)') '',trim(title),':'
 call mpl%flush()
@@ -1524,9 +1479,6 @@ do iconf=1,size(confs)
    write(mpl%info,'(a10,a)') '',str(1:str_size)
    call mpl%flush
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine nam_print_confs
 
@@ -1551,9 +1503,6 @@ ${ftype[dtype]}$,intent(out) :: val          !< Value
 ! Set name
 @:set_name(nam_get_${dtype}$)
 
-! Probe in
-@:probe_in()
-
 if (conf%has(key)) then
    #:if dtype == "string"
       call conf%get_or_die(key, str)
@@ -1562,9 +1511,6 @@ if (conf%has(key)) then
       call conf%get_or_die(key, val)
    #:endif
 end if
-
-! Probe out
-@:probe_out()
 
 end subroutine nam_get_${dtype}$
 #:endfor
@@ -1592,9 +1538,6 @@ type(fckit_configuration),allocatable :: confs(:)
 
 ! Set name
 @:set_name(nam_get_int_value)
-
-! Probe in
-@:probe_in()
 
 if (conf%has(key).and.(nam%ng>0)) then
    ! Release memory
@@ -1635,9 +1578,6 @@ if (allocated(confs)) then
   deallocate(confs)
 endif
 
-! Probe out
-@:probe_out()
-
 end subroutine nam_get_int_value
 
 !----------------------------------------------------------------------
@@ -1665,9 +1605,6 @@ type(fckit_configuration),allocatable :: confs(:)
 
 ! Set name
 @:set_name(nam_get_real_value_or_profile)
-
-! Probe in
-@:probe_in()
 
 ! Local normalization factor
 lnorm = one
@@ -1723,9 +1660,6 @@ if (allocated(confs)) then
   deallocate(confs)
 endif
 
-! Probe out
-@:probe_out()
-
 end subroutine nam_get_real_value_or_profile
 
 !----------------------------------------------------------------------
@@ -1748,9 +1682,6 @@ character(len=1024) :: variable
 
 ! Set name
 @:set_name(nam_read_universe_radius)
-
-! Probe in
-@:probe_in()
 
 ! Initialization
 variable_found = .false.
@@ -1794,9 +1725,6 @@ end if
 
 ! Broadcast universe radius
 call mpl%f_comm%broadcast(nam%universe_radius,mpl%rootproc-1)
-
-! Probe out
-@:probe_out()
 
 end subroutine nam_read_universe_radius
 

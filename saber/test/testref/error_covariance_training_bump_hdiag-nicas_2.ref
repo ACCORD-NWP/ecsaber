@@ -1,17 +1,16 @@
        Independent levels:  1[2]
           Subset Sc0 size:              762
-          Domain area (% of Earth area): 0.659E+02%
-             Level   1 ~>  65.9%
-             Level   2 ~>  65.9%
+          Domain area (% of Earth area): 0.765E+02%
+             Level   1 ~>  76.5%
+             Level   2 ~>  76.5%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
           Level   1 ~> 100.0%
           Level   2 ~> 100.0%
-          Decimate full grid, at least      500 points required,     502 valid points found
-          Subgrid hash:   2060370530
-             -90.00 deg.  ~>100-99-98-93-90-87-82-71-74-64 
-             -90.00 deg.  ~>100-99-98-93-90-87-82-71-74-64 
-          nc1 =      500
+          Subgrid hash:    924525096
+             -90.00 deg.  ~>100-91-88-84-80-79-76-76-73-73 
+             -90.00 deg.  ~>100-91-88-84-80-79-76-76-73-73 
+          nc1 =      398
           Independent levels:  1[2]
           Independent levels for angular sector   1 / class   1:  1[2]
           Independent levels for angular sector   1 / class   2:  1[2]
@@ -24,41 +23,41 @@
           Independent levels for angular sector   1 / class   9:  1[2]
           Independent levels for angular sector   1 / class  10:  1[2]
                 Level:   1 ~> cov. at class zero:  0.10E+01
-                Level:   2 ~> cov. at class zero:  0.97E+00
-             Block common:  0.14430598E+00 for       40 diagnostic points
+                Level:   2 ~> cov. at class zero:  0.96E+00
+             Block common:  0.15526702E+00 for       40 diagnostic points
                    Level:   1 ~> amplitude:        1.00
-                                 cor. hor. support:      3752.43 km
-                                 cor. ver. support:         3.16 vertical units
+                                 cor. hor. support:      4361.30 km
+                                 cor. ver. support:         3.19 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 cor. hor. support:      3799.61 km
-                                 cor. ver. support:         3.16 vertical units
-             Block common:  0.28730984E+00 for       25 diagnostic points
-                Level:   1 ~> loc. at class zero:       0.92
+                                 cor. hor. support:      4490.19 km
+                                 cor. ver. support:         3.19 vertical units
+             Block common:  0.30362032E+00 for       33 diagnostic points
+                Level:   1 ~> loc. at class zero:       0.93
                 Level:   2 ~> loc. at class zero:       0.92
                    Level:   1 ~> amplitude:        1.00
-                                 loc. hor. support:      5256.27 km
-                                 loc. ver. support:         5.84 vertical units
+                                 loc. hor. support:      6743.54 km
+                                 loc. ver. support:         6.05 vertical units
                    Level:   2 ~> amplitude:        1.00
-                                 loc. hor. support:      5595.96 km
-                                 loc. ver. support:         5.84 vertical units
+                                 loc. hor. support:      6429.44 km
+                                 loc. ver. support:         6.05 vertical units
              Effective levels:   1   2 
-                Horizontal support radius:    5256.27 km (   5256.27 km -    5256.27 km)
-                Estimated nc1 from horizontal support radius:      224
-                   Decimate full grid, at least      224 points required,     502 valid points found
-                   Subgrid hash:    420041756
-                Final nc1:      224
-                Effective horizontal resolution:  3.99
-                Horizontal support radius:    5595.96 km (   5595.96 km -    5595.96 km)
-                Estimated nc1 from horizontal support radius:      198
-                   Decimate full grid, at least      198 points required,     502 valid points found
-                   Subgrid hash:    958963916
-                Final nc1:      198
-                Effective horizontal resolution:  4.00
-             nc1(  1) =                        224
-             nc1(  2) =                        198
-             ns =                              422
+                   Requested distance between points (min/max/avg):  0.135E+04 km /  0.135E+04 km /  0.135E+04 km
+                   Regular sampling grid size:      144 points
+                   Nearest neighbor distance (min/max/avg):  0.720E+03 km /  0.278E+04 km /  0.122E+04 km
+                   Effective resolution (min/max/avg):  2.43 /  9.36 /  6.01
+                   Subgrid hash:    813625607
+                Subgrid size:      107
+                   Requested distance between points (min/max/avg):  0.129E+04 km /  0.129E+04 km /  0.129E+04 km
+                   Regular sampling grid size:      144 points
+                   Nearest neighbor distance (min/max/avg):  0.720E+03 km /  0.278E+04 km /  0.122E+04 km
+                   Effective resolution (min/max/avg):  2.32 /  8.92 /  5.73
+                   Subgrid hash:    813625607
+                Subgrid size:      107
+             nc1(  1) =                        107
+             nc1(  2) =                        107
+             ns =                              214
              v%n_s =                             2
-             c%n_s[global] =                  7774
+             c%n_s[global] =                  3306
     Full NICAS adjoint test result:                        T
        Block NICAS adjoint test result:                    T
           Interpolation adjoint test (horizontal) result:  T
@@ -72,11 +71,11 @@
              Min / max: 1.0000000 /  1.0000000 over     10 tests
              0.0 /    0.0:  1.0000000
           Level   1:  0.0000000 -  1.0000000
-          Level   2:  0.0000000 -  0.9169472
-Norm of output parameter dirac_mom - 1: 7.6865615586900731e+00
-Norm of output parameter dirac_diag_loc - 1: 2.7347034974796007e+00
-Norm of output parameter cor_rh - 1: 1.4684457511178359e+08
-Norm of output parameter cor_rv - 1: 1.2280268111721099e+02
-Norm of output parameter loc_rh - 1: 2.1286036558021423e+08
-Norm of output parameter loc_rv - 1: 2.2672861634787111e+02
-Norm of output parameter nicas_norm - 1: 4.0770349152697641e+01
+          Level   2:  0.0000000 -  0.9222817
+Norm of output parameter dirac_mom - 1: 9.2792390542355143e+00
+Norm of output parameter dirac_diag_loc - 1: 3.6966566079588299e+00
+Norm of output parameter cor_rh - 1: 1.8600497660805982e+08
+Norm of output parameter cor_rv - 1: 1.3324461948763718e+02
+Norm of output parameter loc_rh - 1: 2.7333466455023217e+08
+Norm of output parameter loc_rv - 1: 2.5285418359179502e+02
+Norm of output parameter nicas_norm - 1: 5.2024635027751408e+01

@@ -6,28 +6,22 @@
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
              Effective levels:   1   2 
-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
-                Estimated nc1 from horizontal support radius:     1325
-                   Decimate full grid, at least     1325 points required,    5938 valid points found
-                   Subgrid hash:    214050586
-                Final nc1:     1325
-                Effective horizontal resolution:  6.00
-             nc1(  1) =                       1325
-             nc1(  2) =                       1325
-             ns =                             2650
+                   Requested distance between points (min/max/avg):  0.800E+03 km /  0.800E+03 km /  0.800E+03 km
+                   Regular sampling grid size:      544 points
+                   Nearest neighbor distance (min/max/avg):  0.289E+03 km /  0.889E+03 km /  0.774E+03 km
+                   Effective resolution (min/max/avg):  4.50 / 13.82 /  5.67
+                   Subgrid hash:   -474283508
+                Subgrid size:      544
+             nc1(  1) =                        544
+             nc1(  2) =                        544
+             ns =                             1088
              v%n_s =                             2
-             c%n_s[global] =                162524
-             Effective levels:   2 
-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
-                Estimated nc1 from horizontal support radius:     1325
-                   Decimate full grid, at least     1325 points required,    5938 valid points found
-                   Subgrid hash:    214050586
-                Final nc1:     1325
-                Effective horizontal resolution:  6.00
-             nc1(  1) =                       1325
-             ns =                             1325
-             v%n_s =                             1
-             c%n_s[global] =                251067
+             c%n_s[global] =                 30688
+             nc1(  1) =                        544
+             nc1(  2) =                        544
+             ns =                             1088
+             v%n_s =                             2
+             c%n_s[global] =                 86272
     Full NICAS adjoint test result:                        T
        Block NICAS adjoint test result:                    T
           Interpolation adjoint test (horizontal) result:  T
@@ -48,11 +42,11 @@
              Min / max: 1.0000000 /  1.0000000 over     50 tests
              Min / max: 1.0000000 /  1.0000000 over     50 tests
              Min / max: 1.0000000 /  1.0000000 over     50 tests
-             Min / max: 0.0000000 /  1.0000000 over     50 tests
+             Min / max: 1.0000000 /  1.0000000 over     50 tests
              0.0 /    0.0:  0.0000000
           Level   1:  0.0000000 -  0.0000000
           Level   2:  0.0000000 -  0.0000000
              0.0 /    0.0:  1.0000000
           Level   1:  0.0000000 -  0.0000000
           Level   2:  0.0000000 -  1.0000000
-Norm of output parameter dirac_nicas - 1: 1.8305834916379052e+01
+Norm of output parameter dirac_nicas - 1: 1.8595064210107619e+01

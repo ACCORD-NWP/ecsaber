@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/ModelData.h.tmp	2025-11-05 12:49:56.384719886 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/oops_patch/src/oops/interface/ModelData.h	2024-10-16 14:40:03.730345327 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/interface/ModelData.h.tmp.bak	2026-05-19 11:57:47.172146532 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/oops_patch/src/oops/interface/ModelData.h	2026-05-19 11:45:51.954236164 +0200
 @@ -11,8 +11,8 @@
  #include <memory>
  #include <string>
@@ -20,7 +20,7 @@
  
   public:
    static const std::string classname() {return "oops::ModelData";}
--  static const JediVariables defaultVariables() {return ModelData_::defaultVariables();}
+-  JediVariables defaultVariables() const;
 +  static const JediVariables defaultVariables() {return JediVariables();}
  
    explicit ModelData(const Geometry_ &);
@@ -42,7 +42,7 @@
    Log::trace() << "ModelData<MODEL>::ModelData done" << std::endl;
  }
  
-@@ -66,7 +62,6 @@
+@@ -66,28 +62,20 @@
  ModelData<MODEL>::~ModelData() {
    Log::trace() << "ModelData<MODEL>::~ModelData starting" << std::endl;
    util::Timer timer(classname(), "~ModelData");
@@ -50,7 +50,19 @@
    Log::trace() << "ModelData<MODEL>::~ModelData done" << std::endl;
  }
  
-@@ -76,8 +71,11 @@
+ // -----------------------------------------------------------------------------
+ 
+ template<typename MODEL>
+-JediVariables ModelData<MODEL>::defaultVariables() const {
+-  Log::trace() << "ModelData<MODEL>::defaultVariables starting" << std::endl;
+-  util::Timer timer(classname(), "defaultVariables");
+-  Log::trace() << "ModelData<MODEL>::defaultVariables done" << std::endl;
+-  return modeldata_->defaultVariables();
+-}
+-
+-// -----------------------------------------------------------------------------
+-
+-template<typename MODEL>
  const eckit::LocalConfiguration ModelData<MODEL>::modelData() const {
    Log::trace() << "ModelData<MODEL>::modelData starting" << std::endl;
    util::Timer timer(classname(), "modelData");
@@ -63,7 +75,7 @@
  }
  
  // -----------------------------------------------------------------------------
-@@ -86,7 +84,6 @@
+@@ -96,7 +84,6 @@
  void ModelData<MODEL>::print(std::ostream & os) const {
    Log::trace() << "ModelData<MODEL>::print starting" << std::endl;
    util::Timer timer(classname(), "print");

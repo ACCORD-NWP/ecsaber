@@ -1,5 +1,4 @@
 #:include 'generics.fypp'
-#:include 'instrumentation.fypp'
 !----------------------------------------------------------------------
 ! Module: type_com
 !> Communications derived type
@@ -15,7 +14,6 @@ use tools_kinds, only: kind_int,kind_real
 use tools_netcdf, only: define_grp,inquire_grp,put_att,get_att,define_dim,inquire_dim_size,define_var,inquire_var,put_var,get_var
 use tools_qsort, only: qsort
 use type_mpl, only: mpl_type
-@:use_probe()
 
 implicit none
 
@@ -101,9 +99,6 @@ class(com_type),intent(inout) :: com !< Communication data
 ! Set name
 @:set_name(com_dealloc)
 
-! Probe in
-@:probe_in()
-
 ! Release memory
 if (allocated(com%ext_to_proc)) deallocate(com%ext_to_proc)
 if (allocated(com%ext_to_red)) deallocate(com%ext_to_red)
@@ -115,9 +110,6 @@ if (allocated(com%jhalodispls)) deallocate(com%jhalodispls)
 if (allocated(com%jexcldispls)) deallocate(com%jexcldispls)
 if (allocated(com%halo)) deallocate(com%halo)
 if (allocated(com%excl)) deallocate(com%excl)
-
-! Probe out
-@:probe_out()
 
 end subroutine com_dealloc
 
@@ -136,9 +128,6 @@ integer,intent(in) :: ncid            !< NetCDF file
 
 ! Set name
 @:set_name(com_read)
-
-! Probe in
-@:probe_in()
 
 ! Get group
 com%grpid = inquire_grp(mpl,ncid,com%prefix)
@@ -180,9 +169,6 @@ call get_var(mpl,com%grpid,com%jexcldispls_id,com%jexcldispls)
 if (com%nhalo>0) call get_var(mpl,com%grpid,com%halo_id,com%halo)
 if (com%nexcl>0) call get_var(mpl,com%grpid,com%excl_id,com%excl)
 
-! Probe out
-@:probe_out()
-
 end subroutine com_read
 
 !----------------------------------------------------------------------
@@ -203,9 +189,6 @@ integer :: nproc_id,nown_id,nhalo_id,nexcl_id
 
 ! Set name
 @:set_name(com_write_def)
-
-! Probe in
-@:probe_in()
 
 ! Define group
 com%grpid = define_grp(mpl,ncid,com%prefix)
@@ -228,9 +211,6 @@ com%jexcldispls_id = define_var(mpl,com%grpid,'jexcldispls','int',(/nproc_id/))
 if (com%nhalo>0) com%halo_id = define_var(mpl,com%grpid,'halo','int',(/nhalo_id/))
 if (com%nexcl>0) com%excl_id = define_var(mpl,com%grpid,'excl','int',(/nexcl_id/))
 
-! Probe out
-@:probe_out()
-
 end subroutine com_write_def
 
 !----------------------------------------------------------------------
@@ -248,9 +228,6 @@ type(mpl_type),intent(inout) :: mpl !< MPI data
 ! Set name
 @:set_name(com_write_data)
 
-! Probe in
-@:probe_in()
-
 ! Write variables
 if (com%nown>0) call put_var(mpl,com%grpid,com%own_to_ext_id,com%own_to_ext)
 if (com%nown>0) call put_var(mpl,com%grpid,com%own_to_red_id,com%own_to_red)
@@ -260,9 +237,6 @@ call put_var(mpl,com%grpid,com%jhalodispls_id,com%jhalodispls)
 call put_var(mpl,com%grpid,com%jexcldispls_id,com%jexcldispls)
 if (com%nhalo>0) call put_var(mpl,com%grpid,com%halo_id,com%halo)
 if (com%nexcl>0) call put_var(mpl,com%grpid,com%excl_id,com%excl)
-
-! Probe out
-@:probe_out()
 
 end subroutine com_write_data
 
@@ -282,14 +256,8 @@ integer,intent(out) :: nbufi        !< Buffer size (integer)
 ! Set name
 @:set_name(com_buffer_size)
 
-! Probe in
-@:probe_in()
-
 ! Define buffer size
 nbufi = 6+2*com%nown+4*mpl%nproc+com%nhalo+com%nexcl
-
-! Probe out
-@:probe_out()
 
 end subroutine com_buffer_size
 
@@ -312,9 +280,6 @@ integer :: ibufi
 
 ! Set name
 @:set_name(com_serialize)
-
-! Probe in
-@:probe_in()
 
 ! Initialization
 ibufi = 0
@@ -354,9 +319,6 @@ ibufi = ibufi+com%nexcl
 ! Check
 if (ibufi/=nbufi) call mpl%abort('${subr}$','inconsistent final offset/buffer size (integer)')
 
-! Probe out
-@:probe_out()
-
 end subroutine com_serialize
 
 !----------------------------------------------------------------------
@@ -378,9 +340,6 @@ integer :: ibufi
 
 ! Set name
 @:set_name(com_deserialize)
-
-! Probe in
-@:probe_in()
 
 ! Initialization
 ibufi = 0
@@ -432,9 +391,6 @@ ibufi = ibufi+com%nexcl
 ! Check
 if (ibufi/=nbufi) call mpl%abort('${subr}$','inconsistent final offset/buffer size (integer)')
 
-! Probe out
-@:probe_out()
-
 end subroutine com_deserialize
 
 !----------------------------------------------------------------------
@@ -466,9 +422,6 @@ type(fckit_mpi_status) :: status
 
 ! Set name
 @:set_name(com_setup)
-
-! Probe in
-@:probe_in()
 
 if (mpl%main) then
    ! Get dimensions
@@ -767,9 +720,6 @@ call mpl%update_tag(6)
 ! Set prefix
 com_out%prefix = prefix
 
-! Probe out
-@:probe_out()
-
 end subroutine com_setup
 
 #:for dtype in dtypes_irl
@@ -797,9 +747,6 @@ ${ftype[dtype]}$,allocatable :: sbuf(:),rbuf(:)
 
 ! Set name
 @:set_name(com_ext_${dtype}$_r${rank}$)
-
-! Probe in
-@:probe_in()
 
 ! Check dimensions
 if (size(vec_red,1)/=com%nred) call mpl%abort('${subr}$','wrong dimension for vec_red')
@@ -882,9 +829,6 @@ end do
 deallocate(sbuf)
 deallocate(rbuf)
 
-! Probe out
-@:probe_out()
-
 end subroutine com_ext_${dtype}$_r${rank}$
    #:endfor
 #:endfor
@@ -917,9 +861,6 @@ character(len=3) :: lop
 
 ! Set name
 @:set_name(com_red_${dtype}$_r${rank}$)
-
-! Probe in
-@:probe_in()
 
 ! Check dimensions
 if (size(vec_ext,1)/=com%next) call mpl%abort('${subr}$','wrong dimension for vec_ext')
@@ -1045,9 +986,6 @@ end do
 deallocate(sbuf)
 deallocate(rbuf)
 #{if rank > 1}# deallocate(valid) #{endif}#
-
-! Probe out
-@:probe_out()
 
 end subroutine com_red_${dtype}$_r${rank}$
    #:endfor

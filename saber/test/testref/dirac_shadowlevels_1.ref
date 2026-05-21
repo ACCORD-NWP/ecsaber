@@ -3,10 +3,11 @@ Input Dirac increment:
   Geometry: L120x61 [7320]
   Fields:
   - snow_depth (1 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 1.4120304998587970e-04
     + stddev = 1.1882888957904500e-02
+Covariance(SABER-parametric) dirac test:
 Norm of output parameter rv: 5.0492771759925468e+01
 Norm of output parameter weight: 8.4154619599865256e+01
        Independent levels:  1[11]
@@ -35,26 +36,26 @@ Norm of output parameter weight: 8.4154619599865256e+01
              Level  10 ~>  0.100E+02 vert. coord.
              Level  11 ~>  0.110E+02 vert. coord.
              Effective levels:   1   2   3   4   5   6   7   8   9  10  11 
-                Horizontal support radius:    6000.00 km (   6000.00 km -    6000.00 km)
-                Estimated nc1 from horizontal support radius:      261
-                   Decimate full grid, at least      261 points required,    2128 valid points found
-                   Subgrid hash:   1106927872
-                Final nc1:      261
-                Effective horizontal resolution:  3.99
-             nc1(  1) =                        261
-             nc1(  2) =                        261
-             nc1(  3) =                        261
-             nc1(  4) =                        261
-             nc1(  5) =                        261
-             nc1(  6) =                        261
-             nc1(  7) =                        261
-             nc1(  8) =                        261
-             nc1(  9) =                        261
-             nc1( 10) =                        261
-             nc1( 11) =                        261
-             ns =                             2871
+                   Requested distance between points (min/max/avg):  0.120E+04 km /  0.120E+04 km /  0.120E+04 km
+                   Regular sampling grid size:      208 points
+                   Nearest neighbor distance (min/max/avg):  0.556E+03 km /  0.123E+04 km /  0.104E+04 km
+                   Effective resolution (min/max/avg):  4.88 / 10.78 /  6.28
+                   Subgrid hash:  -2117861176
+                Subgrid size:      208
+             nc1(  1) =                        208
+             nc1(  2) =                        208
+             nc1(  3) =                        208
+             nc1(  4) =                        208
+             nc1(  5) =                        208
+             nc1(  6) =                        208
+             nc1(  7) =                        208
+             nc1(  8) =                        208
+             nc1(  9) =                        208
+             nc1( 10) =                        208
+             nc1( 11) =                        208
+             ns =                             2288
              v%n_s =                            11
-             c%n_s[global] =                 39259
+             c%n_s[global] =                 29216
     Full NICAS adjoint test result:                        T
        Block NICAS adjoint test result:                    T
           Interpolation adjoint test (horizontal) result:  T
@@ -64,12 +65,12 @@ Norm of output parameter weight: 8.4154619599865256e+01
           Communication AC adjoint test result:            T
           Convolution / communication adjoint test result: T
           Component NICAS adjoint test result:             T
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L120x61 [7320]
   Fields:
   - snow_depth (1 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000002e+00
-    + mean   = 9.2311123890449782e-03
-    + stddev = 7.3759108450242528e-02
+    + mean   = 1.0240127619533657e-02
+    + stddev = 7.7578716954688168e-02

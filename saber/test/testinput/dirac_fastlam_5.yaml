@@ -31,6 +31,7 @@ background error:
   covariance model: SABER
   adjoint test: true
   square-root test: true
+  square-root tolerance: 3.0e-12
   saber central block:
     saber block name: FastLAM
     read:
@@ -94,10 +95,8 @@ dirac:
   - air_horizontal_streamfunction
   - air_horizontal_streamfunction
 output dirac:
-  mpi pattern: '%MPI%'
-  filepath: testdata/dirac_fastlam_5/%MPI%_dirac_%id%
+  filepath: testdata/dirac_fastlam_5/_MPI_-_OMP__dirac_%id%
 output variance:
-  mpi pattern: '%MPI%'
-  filepath: testdata/dirac_fastlam_5/%MPI%_variance
+  filepath: testdata/dirac_fastlam_5/_MPI_-_OMP__variance
 test:
   reference filename: testref/dirac_fastlam_5.ref

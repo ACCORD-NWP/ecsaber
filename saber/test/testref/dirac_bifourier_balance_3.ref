@@ -3,12 +3,12 @@ Input Dirac increment:
   Geometry: structured [3264]
   Fields:
   - air_upward_absolute_vorticity (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 3.0637254901960784e-05
     + stddev = 5.5350930346255494e-03
   - air_horizontal_divergence (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 3.0637254901960784e-05
     + stddev = 5.5350930346255494e-03
@@ -16,15 +16,16 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - log_of_air_pressure_at_surface (1 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 3.0637254901960784e-04
     + stddev = 1.7503501050350149e-02
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 3.0637254901960784e-05
     + stddev = 5.5350930346255494e-03
+Covariance(SABER-parametric) dirac test:
 - xspace: LocalConfiguration[root={type => linear , start => 5.2495971254055749e+05 , end => 6.9245971254055749e+05 , N => 68 , endpoint => true}]
 - yspace: LocalConfiguration[root={type => linear , start => -1.4923080099392682e+04 , end => 1.0257691990060732e+05 , N => 48 , endpoint => true}]
 Outer grid size: 3264
@@ -55,7 +56,7 @@ Inner inverse test for block BifourierAromeBalance passed: U Uinv (U x) == (U x)
 Outer inverse test for block BifourierAromeBalance passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block BifourierID passed
 Square-root test for block BifourierID passed
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3264]
   Fields:

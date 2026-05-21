@@ -4,6 +4,9 @@
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation
+ * nor does it submit to any jurisdiction.
  */
 
 #pragma once
@@ -12,23 +15,53 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "eckit/config/LocalConfiguration.h"
+#include "eckit/exception/Exceptions.h"
 #include "oops/assimilation/ControlVector.h"
 #include "oops/assimilation/CostFunction.h"
 #include "oops/assimilation/JbMatrix.h"
 #include "oops/assimilation/RitzPairs.h"
-#include "oops/assimilation/SpectralSqrtLMP.h"
 #include "oops/assimilation/SQRTMinimizer.h"
+#include "oops/assimilation/SpectralSqrtLMP.h"
 #include "oops/assimilation/TriDiagSolve.h"
+#include "oops/assimilation/TriDiagSpectrum.h"
 #include "oops/assimilation/UtHtRinvHUMatrix.h"
-#include "util/abor1_cpp.h"
 #include "util/LogbookWriter.h"
 #include "util/Logger.h"
+#include "util/abor1_cpp.h"
 #include "util/dot_product.h"
 #include "util/formats.h"
 
 namespace oops {
+
+/// SQRTPLanczosMinimizer
+/*!
+ * \brief Preconditioned Lanczos solver for the square root preconditioned
+ * formulation of the Hessian
+ *
+ * The Hessian must be square, symmetric and positive definite.
+
+ * On entry:
+ * -    A       = \f$ (U^T B^{-1} U + U^T H^T R^{-1} U) \f$
+ * -    dv      =  starting point, \f$ dv_0 \f$.
+ * -    rr      = \f$ (-\sum dv^{b}_{i} + ) U^T H^T R^{-1} d  - A dv_0 \f$
+ * - or
+ * -    rr      = \f$ U^T H^T R^{-1} [d + H (x_b - x_{fg})] - A dv_0 \f$
+
+ * On exit, dv will contain the solution such that \f$ dx = U dv \f$ or
+ * \f$ dx = U dv + x_{b} - x_{fg} \f$
+ *  The solution is recovered in the SQRTMinimizer class
+ *  The return value is the achieved reduction in preconditioned residual
+ *  norm/information content gain.
+ *
+ *  Iteration will stop if the maximum iteration limit "maxIter" is reached
+ *  or if the residual norm reduces by a factor of "tolerance"/information
+ *  content based convergence criterion is reached.
+ *
+ */
 
 // -----------------------------------------------------------------------------
 
@@ -71,7 +104,7 @@ class SQRTPLanczosEVILMinimizer : public SQRTMinimizer<MODEL> {
   const CostFct_ &J_;
 
   /// LMP
-  SpectralSqrtLMP<MODEL> lmp_;
+  std::unique_ptr<SpectralSqrtLMP<MODEL>> lmp_;
 
   /// Local
   size_t itheta1_{0};
@@ -106,7 +139,7 @@ SQRTPLanczosEVILMinimizer<MODEL>::SQRTPLanczosEVILMinimizer(
     : SQRTMinimizer<MODEL>(conf, J),
       conf_(conf),
       J_(J),
-      lmp_(conf, J),
+      lmp_(),
       eig_(),
       erreig_(),
       erreiglm_(),
@@ -119,7 +152,16 @@ SQRTPLanczosEVILMinimizer<MODEL>::SQRTPLanczosEVILMinimizer(
       costJb_(0),
       costJbCurrentMin_(0),
       costJbCurrentMinPrecSpace_(0),
-      costJoJc_(0) {}
+      costJoJc_(0) {
+  Log::trace() << classname() << "::SQRTPLanczosMinimizer() starting"
+               << std::endl;
+  eckit::LocalConfiguration precondConf;
+  if (conf.has("preconditioner")) {
+    precondConf = conf.getSubConfiguration("preconditioner");
+  }
+  lmp_ = std::move(SqrtLMPFactory<MODEL>::create(precondConf, J));
+  Log::trace() << classname() << "::SQRTPLanczosMinimizer() done" << std::endl;
+}
 
 // -----------------------------------------------------------------------------
 
@@ -136,24 +178,28 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
   const double &costJ0Jb = SQRTMinimizer<MODEL>::costJ0Jb_;
   const double &costJ0JoJc = SQRTMinimizer<MODEL>::costJ0JoJc_;
   const CtrlVec_ &gradJb = *(SQRTMinimizer<MODEL>::gradJb_);
+  const size_t &outerIter = SQRTMinimizer<MODEL>::outerIteration_;
 
   // Auxiliary vectors
   std::vector<double> ss;
   std::vector<double> dd;
 
-  // J0
+  // Initial quadcost = J0
   this->setupQuadCost(costJ0Jb, costJ0JoJc);
   Log::info() << "Init Quadratic cost J0 = " << costJ0_ << std::endl;
 
   // Change resolution of LMP vectors
-  lmp_.changeResolution();
+  lmp_->changeResolution();
 
-  // Postprocess preconditioning vectors
-  lmp_.postprocess();
+  // Postprocess preconditioning vectors.
+  // If the LMP is based on randomization, this will generate LMP vectors.
+  // The initial residual is rr only if dv = 0
+  lmp_->postprocess(UtHtRinvHU, Jb, rr, outerIter);
 
   // v_{0} = P^-1/2 r_{0}
   std::unique_ptr<CtrlVec_> mrr(new CtrlVec_(rr, false));
-  lmp_.inverseMultiplySqrt(rr, *mrr);
+  lmp_->inverseMultiplySqrt(rr, *mrr);
+
   std::unique_ptr<CtrlVec_> vv(new CtrlVec_(*mrr));
 
   // beta_{0} = sqrt( v_{0}^T v_{0} )
@@ -183,7 +229,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
     util::LogbookWriter<size_t> log("InnerLoop", jiterp1);
 
     // v_{i+1} = P^-1/2 ( I + U^T H^T R^{-1} H U ) P^-1/2 v_{i}
-    lmp_.inverseMultiplySqrt(*vv, *mvv);
+    lmp_->inverseMultiplySqrt(*vv, *mvv);
 
     UtHtRinvHU.multiply(*mvv, *zz);
 
@@ -191,7 +237,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
 
     *zz += *jbzz;
 
-    lmp_.inverseMultiplySqrt(*zz, *vv);
+    lmp_->inverseMultiplySqrt(*zz, *vv);
 
     // v_{i+1} = v_{i+1} - beta * v_{i-1}
     if (jiter > 0) vv->axpy(-beta, ritzPairs_.vVEC(jiter - 1));
@@ -235,21 +281,20 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
 
     ritzPairs_.betas().push_back(beta);
 
-    // Reconstruct the control variable in the preconditioned space
+    // Reconstruct the control variable in the B preconditioned space
     mds->zero();
     for (size_t jj = 0; jj < ss.size(); ++jj) {
       mds->axpy(ss[jj], ritzPairs_.vVEC(jj));
     }
 
-    // Transform the control variable back to state space
-    lmp_.inverseMultiplySqrt(*mds, *ds);
+    // Transform the control variable back to B preconditioned space
+    lmp_->inverseMultiplySqrt(*mds, *ds);
 
     // Compute the quadratic cost function
-    // this->calcQuadCost(dv, *mrr, gradJb, ss);
     this->calcQuadCost(dv, *mds, *ds, rr, gradJb, lclassicChaVar);
 
     // Compute the Ritz information
-    bool ritzErrorDetected = this->calcRitzInformation();
+    const bool ritzErrorDetected = this->calcRitzInformation();
 
     // Gradient norm in precond metric --> sqrt(r'z) --> beta * s_{i}
     double gradNorm = beta * std::abs(ss[jiter]);
@@ -351,7 +396,7 @@ double SQRTPLanczosEVILMinimizer<MODEL>::solve(CtrlVec_ &dv, CtrlVec_ &rr,
   // Update LMP
   if (SQRTMinimizer<MODEL>::outerIteration_ <
       SQRTMinimizer<MODEL>::lastOuterIteration_)
-    lmp_.update(ritzPairs_.vVEC(), ritzPairs_.alphas(), ritzPairs_.betas());
+    lmp_->update(ritzPairs_.vVEC(), ritzPairs_.alphas(), ritzPairs_.betas());
 
   // Clean up
   releaseResources();
@@ -418,8 +463,8 @@ void SQRTPLanczosEVILMinimizer<MODEL>::calcQuadCost(
   //    (k)-th system. Warm start initial point. Jb[dv_{i}] = dv_{i}^T U^T Binv
   //    B dv_{i}
   //
-  // Note that for two cases J[dv_{0}] are the same which is equivalent to J[dx
-  // = 0]. Note that U^T Binv B is assumed to be an identity matrix.
+  // Note that for two cases J[dv_{0}] are the same which is equivalent to
+  // J[dx = 0]. Note that U^T Binv B is assumed to be an identity matrix.
 
   // Initialize cost function values J[dv_{0}] and Jb[dv_{0}]
   costJ_ = costJ0_;
@@ -431,6 +476,7 @@ void SQRTPLanczosEVILMinimizer<MODEL>::calcQuadCost(
   // Calculate Jb part of the quadratic cost function: Jb[dv_{i}]
   if (lclassicChaVar) {
     // dv = 0 + ds = ds (zero initial guess)
+    // SG: This diagnostics should be removed for later versions.
     costJbCurrentMinPrecSpace_ =
         dot_product(mds, gradJb) + 0.5 * dot_product(mds, mds);
     costJbCurrentMin_ = dot_product(ds, gradJb) + 0.5 * dot_product(ds, ds);
@@ -487,9 +533,9 @@ bool SQRTPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
     erreig_.clear();
     erreiglm_.clear();
     std::vector<double> ritzvals;
-    std::vector<std::vector<double> > ritzvecs;
+    std::vector<std::vector<double>> ritzvecs;
     //  Compute spectrum of tri-diagonal matrix
-    TriDiagSpectrum(ritzPairs_.alphas(), ritzPairs_.betas(), ritzvals, ritzvecs);
+    oops::TriDiagSpectrum(ritzPairs_.alphas(), ritzPairs_.betas(), ritzvals, ritzvecs);
 
     std::vector<double> erritzvals;
     std::vector<double> erritzlmvals;
@@ -502,8 +548,7 @@ bool SQRTPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
         soft_error_messages_.push_back("Negative Ritz value detected");
         break;
       }
-      double erritz =
-        std::abs(ritzvecs[jiter][nvec - 1] * ritzPairs_.betas()[nvec - 1]);
+      double erritz = std::abs(ritzvecs[jiter][nvec - 1] * ritzPairs_.betas()[nvec - 1]);
       double erritzlm = 0.0001 * lambda;
       //  Store Ritz values and their error bounds
       erritzvals.push_back(erritz);
@@ -542,6 +587,7 @@ bool SQRTPLanczosEVILMinimizer<MODEL>::calcRitzInformation() {
       }
     }
   }
+  Log::trace() << classname() << "::calcRitzInformation() done" << std::endl;
   return ritzErrorDetected;
 }
 
@@ -578,10 +624,7 @@ void SQRTPLanczosEVILMinimizer<MODEL>::printRitzInformation(
 template <typename MODEL>
 void SQRTPLanczosEVILMinimizer<MODEL>::checkpointLMP(
     eckit::LocalConfiguration &conf) const {
-  ASSERT(conf.has("preconditioner"));
-
-  // Checkpoint lmp
-  lmp_.checkpoint(conf);
+  lmp_->checkpoint(conf);
 }
 
 // -----------------------------------------------------------------------------
@@ -589,10 +632,7 @@ void SQRTPLanczosEVILMinimizer<MODEL>::checkpointLMP(
 template <typename MODEL>
 void SQRTPLanczosEVILMinimizer<MODEL>::restartLMP(
     const eckit::Configuration &conf) {
-  ASSERT(conf.has("preconditioner"));
-
-  // Restart lmp
-  lmp_.restart(conf);
+  lmp_->restart(conf);
 }
 
 // -----------------------------------------------------------------------------

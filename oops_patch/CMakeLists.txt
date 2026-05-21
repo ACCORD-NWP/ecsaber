@@ -70,6 +70,7 @@ find_package( oops REQUIRED )
 ## Sources
 add_subdirectory( src )
 add_subdirectory( tools )
+add_subdirectory( qg/mains )
 
 ## Global tests
 ecbuild_add_test( TARGET ${PROJECT_NAME}_coding_norms

@@ -15,7 +15,7 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - dry_air_density_levels_minus_one (70 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 1.2400793650793651e-05
     + stddev = 3.5214760613667046e-03
@@ -28,6 +28,7 @@ Input Dirac increment:
   - water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water (70 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-parametric) dirac test:
 Adjoint test for block mo_dry_air_density_from_exnerm1 passed
 Skipping inverse test for block mo_dry_air_density_from_exnerm1
 Adjoint test for block mo_super_mio passed
@@ -48,54 +49,54 @@ Outer inverse test for block mo_hydrostatic_pressure_levels_minus_one passed: Ui
 Adjoint test for block spectral to gauss passed
 Skipping inverse test for block spectral to gauss
 Adjoint test for block spectral covariance passed
-Covariance(SABER) diagnostics:
-- Variances at Dirac points:
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 1): 2.2031232623154436e-06
-- Covariances at diagnostic points:
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): 7.0437460947724173e-09
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -9.7257297010025786e-14
-  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): -2.4808505278048470e-08
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F12 [1152]
   Fields:
   - air_potential_temperature (70 levels):
-    + min    = -4.7671547715941539e-04
-    + max    = 1.0695178531585493e-04
-    + mean   = 2.3828868903980717e-07
-    + stddev = 1.0286896178721186e-05
+    + min    = -4.7671547715938764e-04
+    + max    = 1.0695178531585592e-04
+    + mean   = 2.3828868903980407e-07
+    + stddev = 1.0286896178721184e-05
   - cloud_ice_mixing_ratio_wrt_moist_air_and_condensed_water (70 levels):
-    + min    = -1.6790806454661107e-10
-    + max    = 1.3596227046779984e-10
-    + mean   = -8.4501292841768656e-13
-    + stddev = 7.0100605142677755e-12
+    + min    = -1.6790806454657648e-10
+    + max    = 1.3596227046780997e-10
+    + mean   = -8.4501292841768706e-13
+    + stddev = 7.0100605142677205e-12
   - cloud_liquid_water_mixing_ratio_wrt_moist_air_and_condensed_water (70 levels):
-    + min    = -1.0465487113849914e-09
-    + max    = 2.3495000598202632e-09
-    + mean   = 1.1563996885439407e-13
-    + stddev = 3.0676270740691244e-11
+    + min    = -1.0465487113848489e-09
+    + max    = 2.3495000598197309e-09
+    + mean   = 1.1563996885440127e-13
+    + stddev = 3.0676270740690294e-11
   - dimensionless_exner_function_levels_minus_one (70 levels):
-    + min    = -3.9944641331992139e-09
-    + max    = 4.3200087741724168e-08
-    + mean   = -9.9450674636300109e-11
-    + stddev = 7.9114339609922051e-10
+    + min    = -3.9944641331992354e-09
+    + max    = 4.3200087741724161e-08
+    + mean   = -9.9450674636300341e-11
+    + stddev = 7.9114339609922072e-10
   - dry_air_density_levels_minus_one (70 levels):
-    + min    = -9.3771030855788769e-08
-    + max    = 2.2031232623154436e-06
-    + mean   = -9.2831588427772091e-10
-    + stddev = 3.0138395775795946e-08
+    + min    = -9.3771030855829533e-08
+    + max    = 2.2031232623153347e-06
+    + mean   = -9.2831588427767056e-10
+    + stddev = 3.0138395775794947e-08
   - eastward_wind (70 levels):
     + min    = -5.0908963502279098e-06
     + max    = 4.7160655951891063e-06
-    + mean   = -4.9998963549060079e-08
-    + stddev = 5.6369265436735759e-07
+    + mean   = -4.9998963549060085e-08
+    + stddev = 5.6369265436735727e-07
   - northward_wind (70 levels):
-    + min    = -3.0106401181434125e-06
+    + min    = -3.0106401181434129e-06
     + max    = 2.9986222408476328e-06
-    + mean   = -8.3407591139531530e-10
-    + stddev = 5.0877770660392170e-07
+    + mean   = -8.3407591139531230e-10
+    + stddev = 5.0877770660392160e-07
   - water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water (70 levels):
-    + min    = -1.6342115464537687e-07
-    + max    = 1.0093587373743486e-08
-    + mean   = -6.3620266829470682e-11
-    + stddev = 1.6968694837369788e-09
+    + min    = -1.6342115464537409e-07
+    + max    = 1.0093587373744255e-08
+    + mean   = -6.3620266829470139e-11
+    + stddev = 1.6968694837369569e-09
+Covariance(SABER-parametric) diagnostics:
+- Variances at Dirac points:
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 1): 2.2031232623153347e-06
+- Covariances at diagnostic points:
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 84.37646, 1): 7.0437460947798834e-09
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 70): -9.7257297010022643e-14
+  + Value for variable dry_air_density_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 3.67270, 1): -2.4808505278077318e-08

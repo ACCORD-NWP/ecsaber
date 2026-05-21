@@ -22,7 +22,10 @@ option( ENABLE_JEDI_MODEL_DATA "Obtain saber/vader test data from jedi-model-dat
 option( ENABLE_QUENCH "Compile quench" ON )
 
 # Activate ECSABER
-set( ECSABER ON CACHE BOOL "Compile for ECSABER" )
+set( ECSABER ON ) # CACHE BOOL "Compile for ECSABER" )
+
+# Activate EVIL
+set( ECEVIL OFF ) # CACHE BOOL "Compile for EVIL" )
 
 # Initialize bundle
 ecbuild_bundle_initialize()
@@ -55,7 +58,9 @@ ecbuild_bundle( PROJECT jedi-model-data GIT "https://github.com/jcsda-internal/j
 # ECSABER
 ecbuild_bundle( PROJECT ecsaber SOURCE ..)
 set( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/ecsaber/oops_patch )
-set( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/ecsaber/saber )
-set( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/ecsaber/vader )
+if( ECSABER )
+    set( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/ecsaber/saber )
+    set( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/ecsaber/vader )
+endif()
 
 ecbuild_bundle_finalize()

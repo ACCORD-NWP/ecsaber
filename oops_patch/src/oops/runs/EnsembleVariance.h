@@ -25,7 +25,7 @@
 #include "oops/util/abor1_cpp.h"
 #include "oops/util/ConfigFunctions.h"
 #include "oops/util/DateTime.h"
-#include "oops/util/ECUtilities.h"
+#include "oops/util/ECConfigFunctions.h"
 #include "oops/util/Logger.h"
 
 namespace oops {

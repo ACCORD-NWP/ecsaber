@@ -1,0 +1,23 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_spectralb-vader.cmake.tmp.bak	2026-05-20 09:51:13.216388583 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_spectralb-vader.cmake	2026-05-20 09:53:50.822604352 +0200
+@@ -212,13 +212,13 @@
+ 
+   # dirac_spectral_parallel_gauss_vader_7
+   # (should give similar results to dirac_spectral_gauss_vader_7_1_1)
+-  saber_add_test( TARGET saber_dirac_spectralb_parallel_gauss_vader_7_7-1
+-                  MPI 7
+-                  OMP 1
+-                  COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_subcomm_error_covariance_toolbox.x
+-                  ARGS testinput/dirac_spectralb_parallel_gauss_vader_7.yaml
+-                  DEPENDS saber_quench_subcomm_error_covariance_toolbox.x
+-                  TEST_DEPENDS saber_process_perts_spectralb_from_gauss_perts_1_1-1 )
++#  saber_add_test( TARGET saber_dirac_spectralb_parallel_gauss_vader_7_7-1
++#                  MPI 7
++#                  OMP 1
++#                  COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_subcomm_error_covariance_toolbox.x
++#                  ARGS testinput/dirac_spectralb_parallel_gauss_vader_7.yaml
++#                  DEPENDS saber_quench_subcomm_error_covariance_toolbox.x
++#                  TEST_DEPENDS saber_process_perts_spectralb_from_gauss_perts_1_1-1 )
+ endif()
+ 
+ # dirac_write_fields

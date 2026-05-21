@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Eigen/Dense>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -114,11 +115,14 @@ class FastLAM : public SaberCentralBlockBase {
   size_t nodes0_;
   std::vector<double> cellSizeField_;
 
+  // Duplicated and weighted strategy weights
+  Eigen::MatrixXd locWgtSqrt_;
+
   // Control vector size
   size_t ctlVecSize_;
 
   // Remote index
-  std::vector<int> remoteIndex_;
+  std::vector<int> glbIndex_;
 
   // Setup length-scales
   void setupLengthScales();
@@ -139,7 +143,7 @@ class FastLAM : public SaberCentralBlockBase {
   void setupCtlVecSize();
 
   // Setup remote index
-  void setupRemoteIndex();
+  void setupGlbIndex();
 
   // Utilities
   size_t getGroupIndex(const std::string &) const;

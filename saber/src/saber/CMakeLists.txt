@@ -4,7 +4,7 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 # Build list of subdirs with files to add
-set( _subdirs bifourier blocks bump diffusion fastlam generic gsi interpolation oops spectralb torchbalance util vader )
+set( _subdirs bifourier blocks bump coupled diffusion fastlam generic gsi interpolation oops spectralb torchbalance util vader )
 foreach( _subdir IN LISTS _subdirs )
     add_subdirectory( ${_subdir} )
     list( TRANSFORM ${_subdir}_src_files PREPEND ${_subdir}/ )
@@ -50,7 +50,7 @@ if ( ENABLE_OFFLINE_CODECOV )
 endif()
 
 # Link Torch libraries if found
-if( Torch_FOUND )
+if( ENABLE_TORCH )
     target_link_libraries( ${PROJECT_NAME} PUBLIC ${TORCH_LIBRARIES} )
     # Add RPATH so the runtime linker can find Torch libraries
     get_target_property(EXISTING_RPATH ${PROJECT_NAME} BUILD_RPATH)

@@ -1,4 +1,4 @@
-#:include 'instrumentation.fypp'
+#:include 'generics.fypp'
 !----------------------------------------------------------------------
 ! Module: type_avg
 !> Average routines
@@ -21,7 +21,6 @@ use type_mom, only: mom_type
 use type_mom_blk, only: mom_blk_type
 use type_mpl, only: mpl_type
 use type_nam, only: nam_type
-@:use_probe()
 use type_samp, only: samp_type
 
 implicit none
@@ -81,9 +80,6 @@ integer :: ic2a,iv,ig
 ! Set name
 @:set_name(avg_alloc)
 
-! Probe in
-@:probe_in()
-
 ! Set attributes
 avg%prefix = prefix
 avg%ne = ne
@@ -100,9 +96,6 @@ do ic2a=0,samp%nc2a
       call avg%grp(ic2a,ig)%alloc(nam,geom,ic2a)
    end do
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine avg_alloc
 
@@ -123,9 +116,6 @@ integer :: iv,ig,ic2a
 ! Set name
 @:set_name(avg_dealloc)
 
-! Probe in
-@:probe_in()
-
 ! Allocation
 if (allocated(avg%blk)) then
    do iv=1,size(avg%blk,2)
@@ -143,9 +133,6 @@ if (allocated(avg%blk)) then
     end do
    deallocate(avg%blk)
 end if
-
-! Probe out
-@:probe_out()
 
 end subroutine avg_dealloc
 
@@ -170,9 +157,6 @@ type(avg_type) :: avg_tmp
 
 ! Set name
 @:set_name(avg_read)
-
-! Probe in
-@:probe_in()
 
 do iproc=1,mpl%nproc
    ! Reading task
@@ -209,9 +193,6 @@ end do
 ! Update tag
 call mpl%update_tag(3)
 
-! Probe out
-@:probe_out()
-
 end subroutine avg_read
 
 !----------------------------------------------------------------------
@@ -236,9 +217,6 @@ character(len=1024) :: grpname
 
 ! Set name
 @:set_name(avg_read_single)
-
-! Probe in
-@:probe_in()
 
 ! Open file
 ncid = open_file(mpl,nam%fname_avg,iproc)
@@ -275,9 +253,6 @@ end do
 ! Close file
 call close_file(mpl,ncid)
 
-! Probe out
-@:probe_out()
-
 end subroutine avg_read_single
 
 !----------------------------------------------------------------------
@@ -301,9 +276,6 @@ type(avg_type) :: avg_tmp
 
 ! Set name
 @:set_name(avg_write)
-
-! Probe in
-@:probe_in()
 
 do iproc=1,mpl%nproc
    ! Writing task
@@ -340,9 +312,6 @@ end do
 ! Update tag
 call mpl%update_tag(3)
 
-! Probe out
-@:probe_out()
-
 end subroutine avg_write
 
 !----------------------------------------------------------------------
@@ -367,9 +336,6 @@ character(len=1024) :: grpname
 
 ! Set name
 @:set_name(avg_write_single)
-
-! Probe in
-@:probe_in()
 
 ! Create file
 ncid = create_file(mpl,nam%fname_avg,iproc)
@@ -404,9 +370,6 @@ end do
 ! Close file
 call close_file(mpl,ncid)
 
-! Probe out
-@:probe_out()
-
 end subroutine avg_write_single
 
 !----------------------------------------------------------------------
@@ -431,9 +394,6 @@ real(kind_real),allocatable :: bufr(:)
 
 ! Set name
 @:set_name(avg_send)
-
-! Probe in
-@:probe_in()
 
 ! Initialization
 nbufi = 0
@@ -490,9 +450,6 @@ call mpl%f_comm%send(bufr,iproc-1,mpl%tag+2)
 deallocate(bufi)
 deallocate(bufr)
 
-! Probe out
-@:probe_out()
-
 end subroutine avg_send
 
 !----------------------------------------------------------------------
@@ -518,9 +475,6 @@ type(fckit_mpi_status) :: status
 
 ! Set name
 @:set_name(avg_receive)
-
-! Probe in
-@:probe_in()
 
 ! Receive buffer size
 call mpl%f_comm%receive(bufs,iproc-1,mpl%tag,status)
@@ -572,9 +526,6 @@ if (ibufr/=nbufr) call mpl%abort('${subr}$','wrong final index ibufr')
 ! Release memory
 deallocate(bufr)
 
-! Probe out
-@:probe_out()
-
 end subroutine avg_receive
 
 !----------------------------------------------------------------------
@@ -598,18 +549,12 @@ character(len=1024) :: filename
 ! Set name
 @:set_name(avg_write_hist)
 
-! Probe in
-@:probe_in()
-
 if (mpl%main) then
    filename = trim(nam%prefix)//trim(avg%prefix)
    do iv=1,nam%nv
       call avg%blk(0,iv)%write_hist(mpl,nam,geom,filename)
    end do
 end if
-
-! Probe out
-@:probe_out()
 
 end subroutine avg_write_hist
 
@@ -642,9 +587,6 @@ type(mom_blk_type) :: mom_blk
 
 ! Set name
 @:set_name(avg_compute)
-
-! Probe in
-@:probe_in()
 
 ! Allocation
 call avg%alloc(nam,geom,samp,mom%ne,mom%nsub,prefix)
@@ -803,9 +745,6 @@ do ig=1,nam%ng
    end do
    call mpl%prog_final
 end do
-
-! Probe out
-@:probe_out()
 
 end subroutine avg_compute
 

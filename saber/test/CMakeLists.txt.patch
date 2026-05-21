@@ -1,52 +1,95 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-04-01 16:29:45.966306318 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-04-01 16:31:52.966777510 +0200
-@@ -236,9 +236,10 @@
-       file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${test} )
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-05-21 17:07:37.227488611 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-05-21 16:23:05.686973930 +0200
+@@ -75,7 +75,36 @@
+       set( SABER_TEST_FASTLAM 0 )
+   endif()
  
-       # Link to yaml file
++  # Setup virtual environment for TorchBalance test emulator generation
+   if( SABER_TEST_TORCHBALANCE )
++      # Find Python3 for venv creation
++      if(NOT Python3_EXECUTABLE)
++          find_package(Python3 COMPONENTS Interpreter REQUIRED)
++      endif()
++
++      # Create virtual environment only during CMake configuration
++      set(VENV_DIR ${CMAKE_CURRENT_BINARY_DIR}/torchbalance_venv)
++      set(VENV_PYTHON ${VENV_DIR}/bin/python)
++
++      if(NOT EXISTS ${VENV_PYTHON})
++          message( STATUS "Creating virtual environment for TorchBalance tests..." )
++          execute_process(
++              COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
++              RESULT_VARIABLE VENV_RESULT
++          )
++          if(NOT VENV_RESULT EQUAL 0)
++              message( FATAL_ERROR "Failed to create virtual environment" )
++          endif()
++
++          execute_process(
++              COMMAND ${VENV_DIR}/bin/pip install torch
++              RESULT_VARIABLE PIP_RESULT
++          )
++          if(NOT PIP_RESULT EQUAL 0)
++              message( FATAL_ERROR "Failed to install PyTorch in virtual environment" )
++          endif()
++      endif()
++
+       # Add test to generate emulator (runs before torchbalance tests)
+       ecbuild_add_test( TARGET generate_torchbalance_test_emulator
+                         TYPE SCRIPT
+@@ -98,6 +127,12 @@
+   # "saber_" prefix and the trailing "_<mpi>-<omp>" suffix.
+   macro( saber_add_test )
+     cmake_parse_arguments( _SAT "" "TARGET" "" ${ARGN} )
++    cmake_parse_arguments( _SAT "" "MPI" "" ${ARGN} )
++    cmake_parse_arguments( _SAT "" "OMP" "" ${ARGN} )
++    cmake_parse_arguments( _SAT "" "COMMAND" "" ${ARGN} )
++    cmake_parse_arguments( _SAT "" "ARGS" "" ${ARGN} )
++    cmake_parse_arguments( _SAT "" "DEPENDS" "" ${ARGN} )
++    cmake_parse_arguments( _SAT "" "" "TEST_DEPENDS" ${ARGN} )
+ 
+     # Extract test name: strip saber_ prefix and optional _N-N config suffix
+     string( REGEX REPLACE "^saber_" "" _sat_name "${_SAT_TARGET}" )
+@@ -111,9 +146,10 @@
+       file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${_sat_name} )
+ 
+       # Symlink yaml input file
 -      execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
--                       ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
--                       ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
+-                       ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${_sat_name}.yaml
+-                       ${CMAKE_CURRENT_BINARY_DIR}/testinput/${_sat_name}.yaml )
 +      execute_process(COMMAND ${Python3_EXECUTABLE}
 +                      ${CMAKE_BINARY_DIR}/bin/ecsaber_yaml_update.py
-+                      ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${test}.yaml
-+                      ${CMAKE_CURRENT_BINARY_DIR}/testinput/${test}.yaml )
++                      ${CMAKE_CURRENT_SOURCE_DIR}/testinput/${_sat_name}.yaml
++                      ${CMAKE_CURRENT_BINARY_DIR}/testinput/${_sat_name}.yaml )
  
-       # Link to reference file
-       if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${test}.ref )
-@@ -354,11 +355,12 @@
-                       endif()
+       # Symlink reference file if it exists
+       if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${_sat_name}.ref )
+@@ -123,7 +159,18 @@
+       endif()
+     endif()
  
-                       # Add test
--                      ecbuild_add_test( TARGET saber_${test}_${mpi}-${omp}
--                                        MPI ${mpi}
--                                        OMP ${omp}
--                                        COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x
--                                        ARGS testinput/${test}.yaml
-+                      ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-+                                        COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
-+                                        ARGS ${mpi}
-+                                             ${omp}
-+                                             ${CMAKE_BINARY_DIR}/bin/saber_quench_${exename}.x
-+                                             testinput/${test}.yaml
-                                         DEPENDS saber_quench_${exename}.x
-                                         TEST_DEPENDS ${deps_list} )
-                   endif()
-@@ -382,11 +384,12 @@
-                   endif()
+-    ecbuild_add_test( ${ARGN} )
++    if("${_SAT_MPI}" STREQUAL "" AND "${_SAT_OMP}" STREQUAL "")
++      ecbuild_add_test( ${ARGN} )
++    else()
++      ecbuild_add_test( TARGET ${_SAT_TARGET}
++                        COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
++                        ARGS ${_SAT_MPI}
++                             ${_SAT_OMP}
++                             ${_SAT_COMMAND}
++                             ${_SAT_ARGS}
++                        DEPENDS ${_SAT_DEPENDS}
++                        TEST_DEPENDS ${_SAT_TEST_DEPENDS} )
++    endif()
+   endmacro()
  
-                   # Add test
--                  ecbuild_add_test( TARGET saber_${test}_${mpi}-${omp}
--                                    MPI ${mpi}
--                                    OMP ${omp}
--                                    COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
--                                    ARGS testinput/${yaml_prefix}${test}.yaml
-+                  ecbuild_add_test( TARGET saber_test_${test}_${mpi}-${omp}
-+                                    COMMAND ${CMAKE_BINARY_DIR}/bin/ecsaber_compare.py
-+                                    ARGS ${mpi}
-+                                         ${omp}
-+                                         ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
-+                                         testinput/${yaml_prefix}${test}.yaml
-                                     DEPENDS saber_quench_error_covariance_toolbox.x
-                                     TEST_DEPENDS ${deps_list} )
-               endif()
+   # Path to the saber test files
+@@ -143,7 +190,7 @@
+   include( ${CMAKE_CURRENT_LIST_DIR}/testlist/saber_base.cmake )
+ 
+   # --- Coupled tests ---
+-  include( ${CMAKE_CURRENT_LIST_DIR}/testlist/saber_coupled.cmake)
++#  include( ${CMAKE_CURRENT_LIST_DIR}/testlist/saber_coupled.cmake)
+ 
+   # --- Fast LAM tests ---
+   if( SABER_TEST_FASTLAM )

@@ -1,8 +1,0 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_csdual_sqrtspectralb.yaml.tmp	2025-11-06 12:17:17.132896397 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_csdual_sqrtspectralb.yaml	2025-11-06 12:05:21.688812510 +0100
-@@ -41,4 +41,5 @@
-   member pattern: '%MEM%'
-   filepath: testdata/randomization_csdual_sqrtspectralb/_MPI__randomized_csdual_mb%MEM%
- test:
-+  float relative tolerance: 2.0e-11
-   reference filename: testref/randomization_csdual_sqrtspectralb.ref

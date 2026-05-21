@@ -133,7 +133,14 @@ if( NOT EXISTS ${fullpath} )
 endif()
 
 # ECSABER compile definition required for OOPS
-add_compile_definitions( ECSABER )
+if( ECSABER )
+  add_compile_definitions( ECSABER )
+endif()
+
+# ENABLE_EVIL compile definition required for OOPS
+if( ECEVIL )
+  add_compile_definitions( ECEVIL )
+endif()
 
 # Do not compile quench if the environment variable is not set
 if( NOT DEFINED ENABLE_QUENCH )
@@ -142,5 +149,7 @@ endif()
 
 # Add subdirectories
 add_subdirectory( oops_patch )
-add_subdirectory( vader )
-add_subdirectory( saber )
+if( ECSABER )
+    add_subdirectory( vader )
+    add_subdirectory( saber )
+endif()

@@ -1,4 +1,4 @@
-#:include 'instrumentation.fypp'
+#:include 'generics.fypp'
 !----------------------------------------------------------------------
 ! Module: type_mesh
 !> Mesh derived type
@@ -14,14 +14,14 @@ use tools_func, only: fletcher32,lonlatmod,rad2short,lonlat2xyz
 use tools_kinds, only: kind_short,kind_long,kind_real
 use tools_qsort, only: qsort
 use tools_ssrfpack, only: fval,fval_op,gradl
-use tools_stripack, only: trfind,trmesh
+use tools_stripack, only: bnodes,trfind,trmesh
 use type_mpl, only: mpl_type
-@:use_probe()
 use type_rng, only: rng_type
 use type_tree, only: tree_type
 
 implicit none
 
+logical,parameter :: perturb_coordinates = .true.        !< Perturb mesh coordinate to avoid colinear points
 integer,parameter :: nnmax = 20                          !< Maximum number of nearest neighbors in the triangle search
 real(kind_real),parameter :: pfactor = 1.0e-10_kind_real !< Perturbation factor
 
@@ -34,23 +34,27 @@ end type row_type
 ! Mesh derived type
 type mesh_type
    ! Mesh structure
-   integer :: n                            !< Number of points
-   type(row_type),allocatable :: rows(:)   !< Connectivity table rows
-   integer,allocatable :: order(:)         !< Order of shuffled points
-   integer,allocatable :: order_inv(:)     !< Inverse order of shuffled points
+   integer :: n                           !< Number of points
+   type(row_type),allocatable :: rows(:)  !< Connectivity table rows
+   integer,allocatable :: order(:)        !< Order of shuffled points
+   integer,allocatable :: order_inv(:)    !< Inverse order of shuffled points
 
    ! Mesh coordinates
-   real(kind_real),allocatable :: lon(:)   !< Points longitudes
-   real(kind_real),allocatable :: lat(:)   !< Points latitudes
-   real(kind_real),allocatable :: x(:)     !< x-coordinate
-   real(kind_real),allocatable :: y(:)     !< y-coordinate
-   real(kind_real),allocatable :: z(:)     !< z-coordinate
+   real(kind_real),allocatable :: lon(:)  !< Points longitudes
+   real(kind_real),allocatable :: lat(:)  !< Points latitudes
+   real(kind_real),allocatable :: x(:)    !< x-coordinate
+   real(kind_real),allocatable :: y(:)    !< y-coordinate
+   real(kind_real),allocatable :: z(:)    !< z-coordinate
+
+   ! Mesh boundary nodes
+   integer :: nb                          !< Number of boundary nodes
+   integer,allocatable :: bnodes(:)       !< Boundary nodes
 
    ! STRIPACK
-   integer,allocatable :: list(:)          !< STRIPACK list
-   integer,allocatable :: lptr(:)          !< STRIPACK list pointer
-   integer,allocatable :: lend(:)          !< STRIPACK list end
-   integer :: lnew                         !< STRIPACK pointer to the first empty location in list
+   integer,allocatable :: list(:)         !< STRIPACK list
+   integer,allocatable :: lptr(:)         !< STRIPACK list pointer
+   integer,allocatable :: lend(:)         !< STRIPACK list end
+   integer :: lnew                        !< STRIPACK pointer to the first empty location in list
 contains
    procedure :: init => mesh_init
    procedure :: dealloc => mesh_dealloc
@@ -74,16 +78,16 @@ subroutine mesh_init(mesh,mpl,rng,n,lon,lat)
 implicit none
 
 ! Passed variables
-class(mesh_type),intent(inout) :: mesh !< Mesh
-type(mpl_type),intent(inout) :: mpl    !< MPI data
-type(rng_type),intent(inout) :: rng    !< Random number generator
-integer,intent(in) :: n                !< Mesh size
-real(kind_real),intent(in) :: lon(n)   !< Longitudes
-real(kind_real),intent(in) :: lat(n)   !< Latitudes
+class(mesh_type),intent(inout) :: mesh    !< Mesh
+type(mpl_type),intent(inout) :: mpl       !< MPI data
+type(rng_type),intent(inout) :: rng       !< Random number generator
+integer,intent(in) :: n                   !< Mesh size
+real(kind_real),intent(in) :: lon(n)      !< Longitudes
+real(kind_real),intent(in) :: lat(n)      !< Latitudes
 
 ! Local variables
-integer :: i,j,k,hash
-integer,allocatable :: jtab(:),near(:),next(:)
+integer :: i,j,hash
+integer,allocatable :: shuffle(:),near(:),next(:),nodes(:)
 integer(kind_short) :: lon_short,lat_short
 integer(kind_long) :: hash_long
 real(kind_real),allocatable :: lon_pert(:),lat_pert(:),dist(:)
@@ -92,14 +96,11 @@ logical :: init
 ! Set name
 @:set_name(mesh_init)
 
-! Probe in
-@:probe_in()
-
 ! Initialization
 mesh%n = n
 
 ! Allocation
-allocate(jtab(mesh%n))
+allocate(shuffle(mesh%n))
 allocate(lon_pert(mesh%n))
 allocate(lat_pert(mesh%n))
 allocate(mesh%order(mesh%n))
@@ -124,15 +125,12 @@ mesh%lat = lat
 ! Reorder points
 call qsort(mesh%n,mesh%lon,mesh%lat,mesh%order,.false.)
 
-! Shuffle order (more efficient to compute the Delaunay triangulation)
+! Resynchronize random number generator
 call rng%resync(mpl)
-call rng%rand(1,mesh%n,jtab)
-call rng%desync(mpl)
-do i=mesh%n,2,-1
-   k = mesh%order(jtab(i))
-   mesh%order(jtab(i)) = mesh%order(i)
-   mesh%order(i) = k
-end do
+
+! Genereate shuffled order (more efficient to compute the Delaunay triangulation)
+call rng%shuffle(mesh%n,shuffle)
+mesh%order = mesh%order(shuffle)
 
 ! Inverse order
 do i=1,mesh%n
@@ -143,31 +141,33 @@ end do
 mesh%lon = mesh%lon(mesh%order)
 mesh%lat = mesh%lat(mesh%order)
 
+if (perturb_coordinates) then
+   ! Perturb grid coordinates to avoid colinear points
+   do i=1,mesh%n
+      ! Compute hash
+      call rad2short(mesh%lon(i),lon_short)
+      call rad2short(mesh%lat(i),lat_short)
+      hash = fletcher32((/lon_short,lat_short/))
+      hash_long = int(hash,kind_long)
+
+      ! Generate pseudo-random numbers between -1e-10 and 1e-10 from the hash
+      call rng%lcg(lon_pert(i),hash_long)
+      call rng%lcg(lat_pert(i),hash_long)
+      lon_pert(i) = pfactor*(two*lon_pert(i)-one)
+      lat_pert(i) = pfactor*(two*lat_pert(i)-one)
+
+      ! Perturb grid coordinates
+      mesh%lon(i) = mesh%lon(i)+lon_pert(i)
+      mesh%lat(i) = mesh%lat(i)+lat_pert(i)
+
+      ! Apply bounds
+      call lonlatmod(mesh%lon(i),mesh%lat(i))
+   end do
+end if
+
 ! Transform to cartesian coordinates
 do i=1,mesh%n
    call lonlat2xyz(mpl,mesh%lon(i),mesh%lat(i),mesh%x(i),mesh%y(i),mesh%z(i))
-end do
-
-! Perturb grid coordinates to avoid colinear points
-do i=1,mesh%n
-   ! Compute hash
-   call rad2short(mesh%lon(i),lon_short)
-   call rad2short(mesh%lat(i),lat_short)
-   hash = fletcher32((/lon_short,lat_short/))
-   hash_long = int(hash,kind_long)
-
-   ! Generate pseudo-random numbers between -1e-10 and 1e-10 from the hash
-   call rng%lcg(lon_pert(i),hash_long)
-   call rng%lcg(lat_pert(i),hash_long)
-   lon_pert(i) = pfactor*(two*lon_pert(i)-one)
-   lat_pert(i) = pfactor*(two*lat_pert(i)-one)
-
-   ! Perturb grid coordinates
-   mesh%lon(i) = mesh%lon(i)+lon_pert(i)
-   mesh%lat(i) = mesh%lat(i)+lat_pert(i)
-
-   ! Apply bounds
-   call lonlatmod(mesh%lon(i),mesh%lat(i))
 end do
 
 ! Create mesh
@@ -202,28 +202,45 @@ do i=1,mesh%n
    end do
 end do
 
-do i=1,mesh%n
-   ! Unperturb grid coordinates
-   mesh%lon(i) = mesh%lon(i)-lon_pert(i)
-   mesh%lat(i) = mesh%lat(i)-lat_pert(i)
+if (perturb_coordinates) then
+   do i=1,mesh%n
+      ! Unperturb grid coordinates
+      mesh%lon(i) = mesh%lon(i)-lon_pert(i)
+      mesh%lat(i) = mesh%lat(i)-lat_pert(i)
 
-   ! Apply bounds
-   call lonlatmod(mesh%lon(i),mesh%lat(i))
+      ! Apply bounds
+      call lonlatmod(mesh%lon(i),mesh%lat(i))
 
-   ! Transform to cartesian coordinates
-   call lonlat2xyz(mpl,mesh%lon(i),mesh%lat(i),mesh%x(i),mesh%y(i),mesh%z(i))
-end do
+      ! Transform to cartesian coordinates
+      call lonlat2xyz(mpl,mesh%lon(i),mesh%lat(i),mesh%x(i),mesh%y(i),mesh%z(i))
+   end do
+end if
+
+! Allocation
+allocate(nodes(mesh%n))
+
+! Compute boundaries
+call bnodes(mesh%n,mesh%list,mesh%lptr,mesh%lend,nodes,mesh%nb)
+
+if (mesh%nb>0) then
+   ! Allocation
+   allocate(mesh%bnodes(mesh%nb))
+
+   ! Copy boundaries
+   mesh%bnodes = nodes(1:mesh%nb)
+end if
+
+! Desynchronize random number generator
+call rng%desync(mpl)
 
 ! Release memory
-deallocate(jtab)
+deallocate(shuffle)
 deallocate(lon_pert)
 deallocate(lat_pert)
 deallocate(near)
 deallocate(next)
 deallocate(dist)
-
-! Probe out
-@:probe_out()
+deallocate(nodes)
 
 end subroutine mesh_init
 
@@ -244,9 +261,6 @@ integer :: i
 ! Set name
 @:set_name(mesh_dealloc)
 
-! Probe in
-@:probe_in()
-
 ! Release memory
 if (allocated(mesh%order)) deallocate(mesh%order)
 if (allocated(mesh%order_inv)) deallocate(mesh%order_inv)
@@ -264,9 +278,6 @@ end if
 if (allocated(mesh%list)) deallocate(mesh%list)
 if (allocated(mesh%lptr)) deallocate(mesh%lptr)
 if (allocated(mesh%lend)) deallocate(mesh%lend)
-
-! Probe out
-@:probe_out()
 
 end subroutine mesh_dealloc
 
@@ -294,9 +305,6 @@ real(kind_real) :: xyz(3)
 
 ! Set name
 @:set_name(mesh_barycentric)
-
-! Probe in
-@:probe_in()
 
 ! Transform to cartesian coordinates
 call lonlat2xyz(mpl,lon,lat,xyz(1),xyz(2),xyz(3))
@@ -328,9 +336,6 @@ if (mpl%msv%isallnot(ib)) then
    b = b(order)
 end if
 
-! Probe out
-@:probe_out()
-
 end subroutine mesh_barycentric
 
 !----------------------------------------------------------------------
@@ -355,9 +360,6 @@ real(kind_real) :: field_eff(mesh%n)
 ! Set name
 @:set_name(mesh_compute_grad)
 
-! Probe in
-@:probe_in()
-
 ! Inverse order
 ieff = mesh%order_inv(i)
 
@@ -366,9 +368,6 @@ field_eff = field(mesh%order)
 
 ! Compute gradient
 call gradl(mpl,mesh%n,ieff,mesh%x,mesh%y,mesh%z,field_eff,mesh%list,mesh%lptr,mesh%lend,g)
-
-! Probe out
-@:probe_out()
 
 end subroutine mesh_compute_grad
 
@@ -397,9 +396,6 @@ real(kind_real) :: field_eff(mesh%n),xyz(3),b(3),p1(3),p2(3),p3(3),g1(3),g2(3),g
 
 ! Set name
 @:set_name(mesh_compute_c1_interp)
-
-! Probe in
-@:probe_in()
 
 ! Transform field
 field_eff = field_src(mesh%order)
@@ -440,9 +436,6 @@ do i_dst=1,n_dst
    field_dst(i_dst) = fval(mpl,b(1),b(2),b(3),p1,p2,p3,field_eff(ib(1)),field_eff(ib(2)),field_eff(ib(3)),g1,g2,g3)
 end do
 
-! Probe out
-@:probe_out()
-
 end subroutine mesh_compute_c1_interp
 
 !----------------------------------------------------------------------
@@ -467,9 +460,6 @@ real(kind_real) :: p1(3),p2(3),p3(3),v_mat(12)
 ! Set name
 @:set_name(mesh_compute_c1_interp_op)
 
-! Probe in
-@:probe_in()
-
 ! Vertices coordinates
 p1 = (/mesh%x(mesh%order_inv(ib(1))),mesh%y(mesh%order_inv(ib(1))),mesh%z(mesh%order_inv(ib(1)))/)
 p2 = (/mesh%x(mesh%order_inv(ib(2))),mesh%y(mesh%order_inv(ib(2))),mesh%z(mesh%order_inv(ib(2)))/)
@@ -481,9 +471,6 @@ af = v_mat(1:3)
 ag(:,1) = v_mat(4:6)
 ag(:,2) = v_mat(7:9)
 ag(:,3) = v_mat(10:12)
-
-! Probe out
-@:probe_out()
 
 end subroutine mesh_compute_c1_interp_op
 

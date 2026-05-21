@@ -1,5 +1,4 @@
 #:include 'generics.fypp'
-#:include 'instrumentation.fypp'
 !----------------------------------------------------------------------
 ! Module: type_rng
 !> Random numbers generator derived type
@@ -11,9 +10,9 @@ module type_rng
 
 use tools_const, only: zero,one,two
 use tools_kinds, only: kind_int,kind_long,kind_real
+use tools_qsort, only: qsort
 use type_mpl, only: mpl_type
 use type_nam, only: nam_type
-@:use_probe()
 
 implicit none
 
@@ -59,6 +58,7 @@ contains
    #:for rank in ranks_123456
 @:add_procedure(rng_rand_gau_r${rank}$)
    #:endfor
+   procedure :: shuffle => rng_shuffle
 end type rng_type
 
 private
@@ -85,9 +85,6 @@ integer :: seed
 ! Set name
 @:set_name(rng_init)
 
-! Probe in
-@:probe_in()
-
 ! Set seed
 if (nam%default_seed > 0) then
    ! Reseed with default seed
@@ -112,16 +109,13 @@ rng%initial_seed = rng%seed
 rng%seed = rng%seed+1
 
 ! Print result
-if (nam%default_seed > 0) then
+if (nam%default_seed>0) then
    write(mpl%info,'(a7,a)') '','Linear congruential generator initialized with a default seed'
    call mpl%flush
 else
    write(mpl%info,'(a7,a)') '','Linear congruential generator initialized'
    call mpl%flush
 end if
-
-! Probe out
-@:probe_out()
 
 end subroutine rng_init
 
@@ -139,13 +133,7 @@ class(rng_type),intent(inout) :: rng !< Random number generator
 ! Set name
 @:set_name(rng_reseed)
 
-! Probe in
-@:probe_in()
-
 if (rng%reset_seed) rng%seed = rng%initial_seed
-
-! Probe out
-@:probe_out()
 
 end subroutine rng_reseed
 
@@ -164,17 +152,11 @@ type(mpl_type),intent(inout) :: mpl  !< MPI data
 ! Set name
 @:set_name(rng_resync)
 
-! Probe in
-@:probe_in()
-
 ! Wait
 call mpl%f_comm%barrier()
 
 ! Broadcast root seed
 call mpl%f_comm%broadcast(rng%seed,mpl%rootproc-1)
-
-! Probe out
-@:probe_out()
 
 end subroutine rng_resync
 
@@ -193,17 +175,11 @@ type(mpl_type),intent(inout) :: mpl  !< MPI data
 ! Set name
 @:set_name(rng_desync)
 
-! Probe in
-@:probe_in()
-
 ! Wait
 call mpl%f_comm%barrier()
 
 ! Different seed for each MPI task (based on world communicator)
 rng%seed = rng%seed+int(mpl%myrank-1,kind_long)
-
-! Probe out
-@:probe_out()
 
 end subroutine rng_desync
 
@@ -226,9 +202,6 @@ integer(kind_long) :: lseed
 ! Set name
 @:set_name(rng_lcg)
 
-! Probe in
-@:probe_in()
-
 ! Local seed
 if (present(seed)) then
    lseed = mod(seed,m)
@@ -247,9 +220,6 @@ end if
 
 ! Random number
 x = real(lseed,kind_real)/real(m-1,kind_real)
-
-! Probe out
-@:probe_out()
 
 end subroutine rng_lcg
 
@@ -274,9 +244,6 @@ real(kind_real) :: x
 ! Set name
 @:set_name(rng_rand_${dtype}$_r0)
 
-! Probe in
-@:probe_in()
-
 ! Generate random number between 0 and 1
 call rng%lcg(x)
 
@@ -294,9 +261,6 @@ call rng%lcg(x)
    ! Add offset
    value = binf+x
 #:endif
-
-! Probe out
-@:probe_out()
 
 end subroutine rng_rand_${dtype}$_r0
 #:endfor
@@ -323,9 +287,6 @@ integer :: #{for arg_dim in range(1,rank+1)}# i${arg_dim}$${delim[arg_dim == ran
 ! Set name
 @:set_name(rng_rand_${dtype}$_r${rank}$)
 
-! Probe in
-@:probe_in()
-
 ! Call r0 generator
 #:for arg_dim in range(1,rank+1)
 do i${arg_dim}$=size(array,${arg_dim}$),1,-1
@@ -338,9 +299,6 @@ do i${arg_dim}$=size(array,${arg_dim}$),1,-1
 #:for arg_dim in range(1,rank+1)
 end do
 #:endfor
-
-! Probe out
-@:probe_out()
 
 end subroutine rng_rand_${dtype}$_r${rank}$
    #:endfor
@@ -364,9 +322,6 @@ real(kind_real) :: fac,rsq,v1,v2
 ! Set name
 @:set_name(rng_rand_gau_r0)
 
-! Probe in
-@:probe_in()
-
 ! Gaussian distribution
 if (rng%lset) then
    rsq = zero
@@ -385,9 +340,6 @@ else
    value = rng%gset
    rng%lset = .true.
 end if
-
-! Probe out
-@:probe_out()
 
 end subroutine rng_rand_gau_r0
 
@@ -410,9 +362,6 @@ integer :: #{for arg_dim in range(1,rank+1)}# i${arg_dim}$${delim[arg_dim == ran
 ! Set name
 @:set_name(rng_rand_gau_r${rank}$)
 
-! Probe in
-@:probe_in()
-
 ! Call r0 generator
 #:for arg_dim in range(1,rank+1)
 do i${arg_dim}$=size(array,${arg_dim}$),1,-1
@@ -426,10 +375,34 @@ do i${arg_dim}$=size(array,${arg_dim}$),1,-1
 end do
 #:endfor
 
-! Probe out
-@:probe_out()
-
 end subroutine rng_rand_gau_r${rank}$
 #:endfor
+
+!----------------------------------------------------------------------
+! Subroutine: rng_shuffle
+!> Generate a shuffling array
+!----------------------------------------------------------------------
+subroutine rng_shuffle(rng,n,array)
+
+implicit none
+
+! Passed variables
+class(rng_type),intent(inout) :: rng !< Random number generator
+integer,intent(in) :: n              !< Vector size
+integer,intent(out) :: array(n)      !< Shuffling array
+
+! Local variables
+real(kind_real) :: x(n)
+
+! Set name
+@:set_name(rng_shuffle)
+
+! Generate random vector
+call rng%rand(zero,one,x)
+
+! Reorder array
+call qsort(n,x,array)
+
+end subroutine rng_shuffle
 
 end module type_rng

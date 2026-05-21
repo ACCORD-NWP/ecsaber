@@ -58,6 +58,7 @@ class MoistIncrOp : public SaberOuterBlockBase {
  private:
   void print(std::ostream &) const override;
   const oops::GeometryData & innerGeometryData_;
+  const atlas::FunctionSpace fspace_;
   const oops::JediVariables innerVars_;
   const oops::JediVariables activeOuterVars_;
   const oops::JediVariables innerOnlyVars_;

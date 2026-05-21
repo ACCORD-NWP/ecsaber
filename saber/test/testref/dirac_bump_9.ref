@@ -3,7 +3,7 @@ Input Dirac increment:
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 6.5616797900262466e-04
     + stddev = 2.5615775978927613e-02
@@ -19,6 +19,7 @@ Input Dirac increment:
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-parametric) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -28,7 +29,7 @@ Input Dirac increment:
              Level   2 ~>  0.200E+01 vert. coord.
        Accuracy tests:
           Wavenumber:  1
-             - psi/chi to u:  89.76376%
+             - psi/chi to u:  89.76377%
              - psi/chi to v:  89.76376%
           Wavenumber:  2
              - psi/chi to u:  75.59054%
@@ -42,30 +43,30 @@ Input Dirac increment:
           Wavenumber:  5
              - psi/chi to u:  39.37007%
              - psi/chi to v:  39.37007%
-Covariance(SABER) * Increment:
+Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -3.1269741016308245e-07
-    + max    = 3.1482951073975203e-07
-    + mean   = -8.3015256289252426e-12
-    + stddev = 2.8419512658076549e-08
+    + min    = -3.8952223712493405e-07
+    + max    = 3.8232491337182743e-07
+    + mean   = 4.8044912848785723e-12
+    + stddev = 2.3713172272498212e-08
   - northward_wind (2 levels):
-    + min    = -3.1559019478626723e-07
-    + max    = 3.0648834604559019e-07
-    + mean   = -1.1591015245263414e-11
-    + stddev = 2.8534297936445445e-08
+    + min    = -3.9374117417695672e-07
+    + max    = 4.0680731348134063e-07
+    + mean   = 4.1960143233685071e-11
+    + stddev = 2.4469116440321537e-08
 - Valid time: 2010-01-01T18:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -3.1269741016308245e-07
-    + max    = 3.1482951073975203e-07
-    + mean   = -8.3015256289252426e-12
-    + stddev = 2.8419512658076549e-08
+    + min    = -3.8952223712493405e-07
+    + max    = 3.8232491337182743e-07
+    + mean   = 4.8044912848785723e-12
+    + stddev = 2.3713172272498212e-08
   - northward_wind (2 levels):
-    + min    = -3.1559019478626723e-07
-    + max    = 3.0648834604559019e-07
-    + mean   = -1.1591015245263414e-11
-    + stddev = 2.8534297936445445e-08
+    + min    = -3.9374117417695672e-07
+    + max    = 4.0680731348134063e-07
+    + mean   = 4.1960143233685071e-11
+    + stddev = 2.4469116440321537e-08

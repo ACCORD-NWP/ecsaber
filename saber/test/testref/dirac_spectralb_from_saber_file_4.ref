@@ -3,25 +3,26 @@ Input Dirac increment:
   Geometry: F15 [1800]
   Fields:
   - air_horizontal_streamfunction (70 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 7.9365079365079362e-06
     + stddev = 2.8171808490961210e-03
   - air_horizontal_velocity_potential (70 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 7.9365079365079362e-06
     + stddev = 2.8171808490961210e-03
   - unbalanced_pressure_levels_minus_one (70 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 7.9365079365079362e-06
     + stddev = 2.8171808490961210e-03
   - mu (70 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 7.9365079365079362e-06
     + stddev = 2.8171808490961210e-03
+Covariance(SABER-parametric) dirac test:
 Adjoint test for block spectral to gauss passed
 Inner inverse test for block spectral to gauss passed: U Uinv (U x) == (U x)
 Outer inverse test for block spectral to gauss passed: Uinv U (Uinv x) == (Uinv x)
@@ -29,7 +30,31 @@ Adjoint test for block spectral to spectral passed
 Inner inverse test for block spectral to spectral passed: U Uinv (U x) == (U x)
 Outer inverse test for block spectral to spectral passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block spectral covariance passed
-Covariance(SABER) diagnostics:
+Covariance(SABER-parametric) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: F15 [1800]
+  Fields:
+  - air_horizontal_streamfunction (70 levels):
+    + min    = -1.1007376744029003e+10
+    + max    = 4.8244713729021034e+10
+    + mean   = -1.2764430868134038e+08
+    + stddev = 2.8510835680703521e+09
+  - air_horizontal_velocity_potential (70 levels):
+    + min    = -2.6234494529674881e+10
+    + max    = 4.7519915286816719e+10
+    + mean   = -1.6066609831327480e+08
+    + stddev = 3.3395811713594527e+09
+  - unbalanced_pressure_levels_minus_one (70 levels):
+    + min    = -2.2405792685746370e+01
+    + max    = 4.7870081526585398e+02
+    + mean   = -1.3556238725503960e+00
+    + stddev = 1.5323494997723117e+01
+  - mu (70 levels):
+    + min    = -2.0966093407467660e-03
+    + max    = 1.5138305151450943e-01
+    + mean   = 8.8156805764564629e-04
+    + stddev = 1.9888753035292158e-03
+Covariance(SABER-parametric) diagnostics:
 - Variances at Dirac points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 3.8864245999168976e+10
   + Value for variable air_horizontal_velocity_potential, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, -2.95042, 1): 4.0471358165996567e+10
@@ -38,29 +63,5 @@ Covariance(SABER) diagnostics:
 - Covariances at diagnostic points:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 1.0238082632187469e+10
   + Value for variable air_horizontal_velocity_potential, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 1.1885452348609774e+10
-  + Value for variable unbalanced_pressure_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 5.2508736740731933e+01
+  + Value for variable unbalanced_pressure_levels_minus_one, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 5.2508736740731926e+01
   + Value for variable mu, subwindow 0, at (longitude, latitude, vertical index) point (18.00000, 20.65284, 2): 1.3818763433446680e-03
-Covariance(SABER) * Increment:
-- Valid time: 2010-01-01T12:00:00Z
-  Geometry: F15 [1800]
-  Fields:
-  - air_horizontal_streamfunction (70 levels):
-    + min    = -1.1007376744029003e+10
-    + max    = 4.8244713729021034e+10
-    + mean   = -1.2764430868134034e+08
-    + stddev = 2.8510835680703526e+09
-  - air_horizontal_velocity_potential (70 levels):
-    + min    = -2.6234494529674885e+10
-    + max    = 4.7519915286816719e+10
-    + mean   = -1.6066609831327489e+08
-    + stddev = 3.3395811713594532e+09
-  - unbalanced_pressure_levels_minus_one (70 levels):
-    + min    = -2.2405792685746370e+01
-    + max    = 4.7870081526585398e+02
-    + mean   = -1.3556238725503957e+00
-    + stddev = 1.5323494997723117e+01
-  - mu (70 levels):
-    + min    = -2.0966093407467660e-03
-    + max    = 1.5138305151450943e-01
-    + mean   = 8.8156805764564629e-04
-    + stddev = 1.9888753035292158e-03

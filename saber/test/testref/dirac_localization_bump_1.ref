@@ -3,7 +3,7 @@ Input Dirac increment:
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 6.5616797900262466e-04
     + stddev = 2.5615775978927613e-02
@@ -11,10 +11,11 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_horizontal_streamfunction (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 6.5616797900262466e-04
     + stddev = 2.5615775978927613e-02
+Covariance(hybrid) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -23,29 +24,29 @@ Input Dirac increment:
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
              Effective levels:   1   2 
-                Horizontal support radius:    6000.00 km (   6000.00 km -    6000.00 km)
-                Estimated nc1 from horizontal support radius:      261
-                   Decimate full grid, at least      261 points required,     762 valid points found
-                   Subgrid hash:   -216098172
-                Final nc1:      261
-                Effective horizontal resolution:  3.99
-             nc1(  1) =                        261
-             nc1(  2) =                        261
-             ns =                              522
+                   Requested distance between points (min/max/avg):  0.150E+04 km /  0.150E+04 km /  0.150E+04 km
+                   Regular sampling grid size:       88 points
+                   Nearest neighbor distance (min/max/avg):  0.101E+04 km /  0.157E+04 km /  0.132E+04 km
+                   Effective resolution (min/max/avg):  3.83 /  5.91 /  4.78
+                   Subgrid hash:  -1613954990
+                Subgrid size:       88
+             nc1(  1) =                         88
+             nc1(  2) =                         88
+             ns =                              176
              v%n_s =                             2
-             c%n_s[global] =                 13688
+             c%n_s[global] =                  1536
              Effective levels:   1   2 
-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
-                Estimated nc1 from horizontal support radius:      589
-                   Decimate full grid, at least      589 points required,     762 valid points found
-                   Subgrid hash:   1676590011
-                Final nc1:      589
-                Effective horizontal resolution:  4.00
-             nc1(  1) =                        589
-             nc1(  2) =                        589
-             ns =                             1178
+                   Requested distance between points (min/max/avg):  0.100E+04 km /  0.100E+04 km /  0.100E+04 km
+                   Regular sampling grid size:      360 points
+                   Nearest neighbor distance (min/max/avg):  0.381E+03 km /  0.103E+04 km /  0.886E+03 km
+                   Effective resolution (min/max/avg):  3.87 / 10.50 /  4.97
+                   Subgrid hash:   -435093158
+                Subgrid size:      360
+             nc1(  1) =                        360
+             nc1(  2) =                        360
+             ns =                              720
              v%n_s =                             2
-             c%n_s[global] =                 28436
+             c%n_s[global] =                 13760
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -98,18 +99,19 @@ Covariance(hybrid) * Increment:
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -9.7228078292052600e-02
-    + max    = 9.0019572469053744e-01
-    + mean   = 4.4010331747801907e-03
-    + stddev = 4.3130606527148806e-02
+    + min    = -9.2876894505469987e-02
+    + max    = 9.8575162343944689e-01
+    + mean   = 1.0323209283066268e-02
+    + stddev = 6.3494742053584158e-02
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_horizontal_streamfunction (2 levels):
-    + min    = -2.2009024159418078e-02
-    + max    = 1.2673127220262930e+00
-    + mean   = 4.1361283797479581e-03
-    + stddev = 4.8405861487388492e-02
+    + min    = -4.9213707622171698e-02
+    + max    = 8.6592677824788034e-01
+    + mean   = 4.2756468419989360e-03
+    + stddev = 4.1020266802258926e-02
+Covariance(hybrid-cmp1_ensemble) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -118,46 +120,47 @@ Covariance(hybrid) * Increment:
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
              Effective levels:   1   2 
-                Horizontal support radius:    6000.00 km (   6000.00 km -    6000.00 km)
-                Estimated nc1 from horizontal support radius:      261
-                   Decimate full grid, at least      261 points required,     762 valid points found
-                   Subgrid hash:   -216098172
-                Final nc1:      261
-                Effective horizontal resolution:  3.99
-             nc1(  1) =                        261
-             nc1(  2) =                        261
-             ns =                              522
+                   Requested distance between points (min/max/avg):  0.150E+04 km /  0.150E+04 km /  0.150E+04 km
+                   Regular sampling grid size:       88 points
+                   Nearest neighbor distance (min/max/avg):  0.101E+04 km /  0.157E+04 km /  0.132E+04 km
+                   Effective resolution (min/max/avg):  3.83 /  5.91 /  4.78
+                   Subgrid hash:  -1613954990
+                Subgrid size:       88
+             nc1(  1) =                         88
+             nc1(  2) =                         88
+             ns =                              176
              v%n_s =                             2
-             c%n_s[global] =                 13688
+             c%n_s[global] =                  1536
              Effective levels:   1   2 
-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
-                Estimated nc1 from horizontal support radius:      589
-                   Decimate full grid, at least      589 points required,     762 valid points found
-                   Subgrid hash:   1676590011
-                Final nc1:      589
-                Effective horizontal resolution:  4.00
-             nc1(  1) =                        589
-             nc1(  2) =                        589
-             ns =                             1178
+                   Requested distance between points (min/max/avg):  0.100E+04 km /  0.100E+04 km /  0.100E+04 km
+                   Regular sampling grid size:      360 points
+                   Nearest neighbor distance (min/max/avg):  0.381E+03 km /  0.103E+04 km /  0.886E+03 km
+                   Effective resolution (min/max/avg):  3.87 / 10.50 /  4.97
+                   Subgrid hash:   -435093158
+                Subgrid size:      360
+             nc1(  1) =                        360
+             nc1(  2) =                        360
+             ns =                              720
              v%n_s =                             2
-             c%n_s[global] =                 28436
-Covariance(hybrid1_ensemble) * Increment:
+             c%n_s[global] =                 13760
+Covariance(hybrid-cmp1_ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -9.7228078292052600e-02
-    + max    = 9.0019572469053744e-01
-    + mean   = 4.4010331747801907e-03
-    + stddev = 4.3130606527148806e-02
+    + min    = -9.2876894505469987e-02
+    + max    = 9.8575162343944689e-01
+    + mean   = 1.0323209283066268e-02
+    + stddev = 6.3494742053584158e-02
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_horizontal_streamfunction (2 levels):
-    + min    = -2.2009024159418078e-02
-    + max    = 1.2673127220262930e+00
-    + mean   = 4.1361283797479581e-03
-    + stddev = 4.8405861487388492e-02
+    + min    = -4.9213707622171698e-02
+    + max    = 8.6592677824788034e-01
+    + mean   = 4.2756468419989360e-03
+    + stddev = 4.1020266802258926e-02
+Localization(hybrid-cmp1_ensemble_localization) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -166,116 +169,119 @@ Covariance(hybrid1_ensemble) * Increment:
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
              Effective levels:   1   2 
-                Horizontal support radius:    6000.00 km (   6000.00 km -    6000.00 km)
-                Estimated nc1 from horizontal support radius:      261
-                   Decimate full grid, at least      261 points required,     762 valid points found
-                   Subgrid hash:   -216098172
-                Final nc1:      261
-                Effective horizontal resolution:  3.99
-             nc1(  1) =                        261
-             nc1(  2) =                        261
-             ns =                              522
+                   Requested distance between points (min/max/avg):  0.150E+04 km /  0.150E+04 km /  0.150E+04 km
+                   Regular sampling grid size:       88 points
+                   Nearest neighbor distance (min/max/avg):  0.101E+04 km /  0.157E+04 km /  0.132E+04 km
+                   Effective resolution (min/max/avg):  3.83 /  5.91 /  4.78
+                   Subgrid hash:  -1613954990
+                Subgrid size:       88
+             nc1(  1) =                         88
+             nc1(  2) =                         88
+             ns =                              176
              v%n_s =                             2
-             c%n_s[global] =                 13688
+             c%n_s[global] =                  1536
              Effective levels:   1   2 
-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
-                Estimated nc1 from horizontal support radius:      589
-                   Decimate full grid, at least      589 points required,     762 valid points found
-                   Subgrid hash:   1676590011
-                Final nc1:      589
-                Effective horizontal resolution:  4.00
-             nc1(  1) =                        589
-             nc1(  2) =                        589
-             ns =                             1178
+                   Requested distance between points (min/max/avg):  0.100E+04 km /  0.100E+04 km /  0.100E+04 km
+                   Regular sampling grid size:      360 points
+                   Nearest neighbor distance (min/max/avg):  0.381E+03 km /  0.103E+04 km /  0.886E+03 km
+                   Effective resolution (min/max/avg):  3.87 / 10.50 /  4.97
+                   Subgrid hash:   -435093158
+                Subgrid size:      360
+             nc1(  1) =                        360
+             nc1(  2) =                        360
+             ns =                              720
              v%n_s =                             2
-             c%n_s[global] =                 28436
-Localization(hybrid1_ensemble_localization) diagnostics:
-- Localization at zero separation:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999956e-01
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
-Localization(hybrid1_ensemble) * Increment:
+             c%n_s[global] =                 13760
+Localization(hybrid-cmp1_ensemble_localization) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
-    + max    = 9.9999999999999956e-01
-    + mean   = 2.3360110528429061e-02
-    + stddev = 9.8541774629410106e-02
-  - northward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
-    + max    = 0.0000000000000000e+00
-  - air_horizontal_streamfunction (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000002e+00
-    + mean   = 6.7588404393921202e-03
-    + stddev = 5.4149030644156722e-02
-       Independent levels:  1[2]
-          Subset Sc0 size:              762
-          Domain area (% of Earth area): 0.100E+03%
-             Level   1 ~> 100.0%
-             Level   2 ~> 100.0%
-             Level   1 ~>  0.100E+01 vert. coord.
-             Level   2 ~>  0.200E+01 vert. coord.
-       Independent levels:  1[2]
-          Subset Sc0 size:              762
-          Domain area (% of Earth area): 0.100E+03%
-             Level   1 ~> 100.0%
-             Level   2 ~> 100.0%
-             Level   1 ~>  0.100E+01 vert. coord.
-             Level   2 ~>  0.200E+01 vert. coord.
-Covariance(hybrid2_ensemble) * Increment:
-- Valid time: 2010-01-01T12:00:00Z
-  Geometry: L40x21 [840]
-  Fields:
-  - eastward_wind (2 levels):
-    + min    = -9.7228078292052600e-02
-    + max    = 9.0019572469053744e-01
-    + mean   = 4.4010331747801907e-03
-    + stddev = 4.3130606527148806e-02
+    + mean   = 3.6461020445617533e-02
+    + stddev = 1.2173790634987158e-01
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_horizontal_streamfunction (2 levels):
-    + min    = -2.2009024159418078e-02
-    + max    = 1.2673127220262930e+00
-    + mean   = 4.1361283797479581e-03
-    + stddev = 4.8405861487388492e-02
-       Independent levels:  1[2]
-          Subset Sc0 size:              762
-          Domain area (% of Earth area): 0.100E+03%
-             Level   1 ~> 100.0%
-             Level   2 ~> 100.0%
-             Level   1 ~>  0.100E+01 vert. coord.
-             Level   2 ~>  0.200E+01 vert. coord.
-       Independent levels:  1[2]
-          Subset Sc0 size:              762
-          Domain area (% of Earth area): 0.100E+03%
-             Level   1 ~> 100.0%
-             Level   2 ~> 100.0%
-             Level   1 ~>  0.100E+01 vert. coord.
-             Level   2 ~>  0.200E+01 vert. coord.
-Localization(hybrid2_ensemble_localization) diagnostics:
+    + min close to zero
+    + max    = 9.9999999999999989e-01
+    + mean   = 8.8009035815887378e-03
+    + stddev = 6.0903997636905780e-02
+Localization(hybrid-cmp1_ensemble_localization) diagnostics:
 - Localization at zero separation:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999956e-01
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
-Localization(hybrid2_ensemble) * Increment:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999989e-01
+Covariance(hybrid-cmp2_ensemble) dirac test:
+       Independent levels:  1[2]
+          Subset Sc0 size:              762
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+       Independent levels:  1[2]
+          Subset Sc0 size:              762
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+Covariance(hybrid-cmp2_ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
-    + max    = 9.9999999999999956e-01
-    + mean   = 2.3360110528429061e-02
-    + stddev = 9.8541774629410106e-02
+    + min    = -9.2876894505469987e-02
+    + max    = 9.8575162343944689e-01
+    + mean   = 1.0323209283066268e-02
+    + stddev = 6.3494742053584158e-02
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_horizontal_streamfunction (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min    = -4.9213707622171698e-02
+    + max    = 8.6592677824788034e-01
+    + mean   = 4.2756468419989360e-03
+    + stddev = 4.1020266802258926e-02
+Localization(hybrid-cmp2_ensemble_localization) dirac test:
+       Independent levels:  1[2]
+          Subset Sc0 size:              762
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+       Independent levels:  1[2]
+          Subset Sc0 size:              762
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+Localization(hybrid-cmp2_ensemble_localization) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+  - eastward_wind (2 levels):
+    + min close to zero
     + max    = 1.0000000000000002e+00
-    + mean   = 6.7588404393921202e-03
-    + stddev = 5.4149030644156722e-02
+    + mean   = 3.6461020445617533e-02
+    + stddev = 1.2173790634987158e-01
+  - northward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 0.0000000000000000e+00
+  - air_horizontal_streamfunction (2 levels):
+    + min close to zero
+    + max    = 9.9999999999999989e-01
+    + mean   = 8.8009035815887378e-03
+    + stddev = 6.0903997636905780e-02
+Localization(hybrid-cmp2_ensemble_localization) diagnostics:
+- Localization at zero separation:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999989e-01
+Covariance(hybrid-cmp3_SABER-ensemble) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -287,23 +293,55 @@ Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(hybrid3_SABER) * Increment:
+Covariance(hybrid-cmp3_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -9.7228078292052600e-02
-    + max    = 9.0019572469053744e-01
-    + mean   = 4.4010331747801907e-03
-    + stddev = 4.3130606527148806e-02
+    + min    = -9.2876894505469987e-02
+    + max    = 9.8575162343944689e-01
+    + mean   = 1.0323209283066268e-02
+    + stddev = 6.3494742053584158e-02
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_horizontal_streamfunction (2 levels):
-    + min    = -2.2009024159418078e-02
-    + max    = 1.2673127220262930e+00
-    + mean   = 4.1361283797479581e-03
-    + stddev = 4.8405861487388492e-02
+    + min    = -4.9213707622171698e-02
+    + max    = 8.6592677824788034e-01
+    + mean   = 4.2756468419989360e-03
+    + stddev = 4.1020266802258926e-02
+Localization(hybrid-cmp3_SABER-ensemble_localization) dirac test:
+       Independent levels:  1[2]
+          Subset Sc0 size:              762
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+Adjoint test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Localization(hybrid-cmp3_SABER-ensemble_localization) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+  - eastward_wind (2 levels):
+    + min close to zero
+    + max    = 1.0000000000000002e+00
+    + mean   = 3.6461020445617533e-02
+    + stddev = 1.2173790634987158e-01
+  - northward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 0.0000000000000000e+00
+  - air_horizontal_streamfunction (2 levels):
+    + min close to zero
+    + max    = 9.9999999999999989e-01
+    + mean   = 8.8009035815887378e-03
+    + stddev = 6.0903997636905780e-02
+Localization(hybrid-cmp3_SABER-ensemble_localization) diagnostics:
+- Localization at zero separation:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999989e-01
+Covariance(hybrid-cmp4_SABER-ensemble) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -326,20 +364,62 @@ Square-root test for block BUMP_NICAS passed
 Square-root test for the multivariate central block passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(hybrid4_SABER) * Increment:
+Covariance(hybrid-cmp4_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -9.7228078292052600e-02
-    + max    = 9.0019572469053744e-01
-    + mean   = 4.4010331747801907e-03
-    + stddev = 4.3130606527148806e-02
+    + min    = -9.2876894505469987e-02
+    + max    = 9.8575162343944689e-01
+    + mean   = 1.0323209283066268e-02
+    + stddev = 6.3494742053584158e-02
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_horizontal_streamfunction (2 levels):
-    + min    = -2.2009024159418078e-02
-    + max    = 1.2673127220262930e+00
-    + mean   = 4.1361283797479581e-03
-    + stddev = 4.8405861487388492e-02
+    + min    = -4.9213707622171698e-02
+    + max    = 8.6592677824788034e-01
+    + mean   = 4.2756468419989360e-03
+    + stddev = 4.1020266802258926e-02
+Localization(hybrid-cmp4_SABER-ensemble_localization) dirac test:
+       Independent levels:  1[2]
+          Subset Sc0 size:              762
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+       Independent levels:  1[2]
+          Subset Sc0 size:              762
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+Adjoint test for block BUMP_NICAS passed
+Adjoint test for block BUMP_NICAS passed
+Adjoint test for the multivariate central block passed
+Square-root test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Square-root test for the multivariate central block passed
+Localization(hybrid-cmp4_SABER-ensemble_localization) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+  - eastward_wind (2 levels):
+    + min close to zero
+    + max    = 1.0000000000000002e+00
+    + mean   = 3.6461020445617533e-02
+    + stddev = 1.2173790634987158e-01
+  - northward_wind (2 levels):
+    + min    = 0.0000000000000000e+00
+    + max    = 0.0000000000000000e+00
+  - air_horizontal_streamfunction (2 levels):
+    + min close to zero
+    + max    = 9.9999999999999989e-01
+    + mean   = 8.8009035815887378e-03
+    + stddev = 6.0903997636905780e-02
+Localization(hybrid-cmp4_SABER-ensemble_localization) diagnostics:
+- Localization at zero separation:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000002e+00
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999989e-01

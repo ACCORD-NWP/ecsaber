@@ -3,7 +3,7 @@ Input Dirac increment:
   Geometry: F12 [1152]
   Fields:
   - eastward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 4.3402777777777775e-04
     + stddev = 2.0833333333332815e-02
@@ -11,13 +11,14 @@ Input Dirac increment:
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
   - air_horizontal_streamfunction (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 4.3402777777777775e-04
     + stddev = 2.0833333333332399e-02
   - air_pressure_at_surface (1 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(ensemble) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:             1152
           Domain area (% of Earth area): 0.100E+03%
@@ -26,41 +27,42 @@ Input Dirac increment:
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
              Effective levels:   1   2 
-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
-                Estimated nc1 from horizontal support radius:      589
-                   Decimate full grid, at least      589 points required,    1136 valid points found
-                   Subgrid hash:   -711840099
-                Final nc1:      589
-                Effective horizontal resolution:  4.00
-             nc1(  1) =                        589
-             nc1(  2) =                        589
-             ns =                             1178
+                   Requested distance between points (min/max/avg):  0.100E+04 km /  0.100E+04 km /  0.100E+04 km
+                   Regular sampling grid size:      360 points
+                   Nearest neighbor distance (min/max/avg):  0.381E+03 km /  0.103E+04 km /  0.886E+03 km
+                   Effective resolution (min/max/avg):  3.87 / 10.50 /  4.97
+                   Subgrid hash:   -435093158
+                Subgrid size:      360
+             nc1(  1) =                        360
+             nc1(  2) =                        360
+             ns =                              720
              v%n_s =                             2
-             c%n_s[global] =                 35280
+             c%n_s[global] =                 13952
 Covariance(ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F12 [1152]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -1.5957230453953700e-02
-    + max    = 9.5770988051433870e-01
-    + mean   = 4.7766328306906771e-03
-    + stddev = 4.3008937241827139e-02
+    + min    = -2.9578303211104332e-02
+    + max    = 1.3792620178790396e+00
+    + mean   = 5.3321052599360451e-03
+    + stddev = 5.5834895384729001e-02
   - northward_wind (2 levels):
-    + min    = -7.8659360472970674e-02
-    + max    = 2.0775582380795354e-01
-    + mean   = 8.5735657424411708e-04
-    + stddev = 1.0100534858859998e-02
+    + min    = -9.5299373107580188e-02
+    + max    = 1.4700187365150857e-01
+    + mean   = 1.5996729316865654e-04
+    + stddev = 7.7036851129689684e-03
   - air_horizontal_streamfunction (2 levels):
-    + min    = 0.0000000000000000e+00
-    + max    = 8.5515247964879315e-01
-    + mean   = 3.7115993040312203e-04
-    + stddev = 1.7815676659351194e-02
+    + min close to zero
+    + max    = 8.8181197914204801e-01
+    + mean   = 3.8273089372484724e-04
+    + stddev = 1.8371082898792426e-02
   - air_pressure_at_surface (1 levels):
-    + min    = 0.0000000000000000e+00
-    + max    = 2.5520989808562905e-01
-    + mean   = 2.2153636986599744e-04
-    + stddev = 7.5191937317618650e-03
+    + min close to zero
+    + max    = 1.1214175857620776e-01
+    + mean   = 9.7345276541847009e-05
+    + stddev = 3.3040082476424289e-03
+Localization(ensemble_localization) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:             1152
           Domain area (% of Earth area): 0.100E+03%
@@ -69,42 +71,42 @@ Covariance(ensemble) * Increment:
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
              Effective levels:   1   2 
-                Horizontal support radius:    4000.00 km (   4000.00 km -    4000.00 km)
-                Estimated nc1 from horizontal support radius:      589
-                   Decimate full grid, at least      589 points required,    1136 valid points found
-                   Subgrid hash:   -711840099
-                Final nc1:      589
-                Effective horizontal resolution:  4.00
-             nc1(  1) =                        589
-             nc1(  2) =                        589
-             ns =                             1178
+                   Requested distance between points (min/max/avg):  0.100E+04 km /  0.100E+04 km /  0.100E+04 km
+                   Regular sampling grid size:      360 points
+                   Nearest neighbor distance (min/max/avg):  0.381E+03 km /  0.103E+04 km /  0.886E+03 km
+                   Effective resolution (min/max/avg):  3.87 / 10.50 /  4.97
+                   Subgrid hash:   -435093158
+                Subgrid size:      360
+             nc1(  1) =                        360
+             nc1(  2) =                        360
+             ns =                              720
              v%n_s =                             2
-             c%n_s[global] =                 35280
-Localization(ensemble_localization) diagnostics:
-- Localization at zero separation:
-  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 1): 1.0000000000000004e+00
-  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 84.37646, 2): 1.0000000000000000e+00
-Localization(ensemble) * Increment:
+             c%n_s[global] =                 13952
+Localization(ensemble_localization) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: F12 [1152]
   Fields:
   - eastward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
-    + max    = 1.0000000000000004e+00
-    + mean   = 9.0763929663664096e-03
-    + stddev = 6.2652525077124821e-02
+    + min close to zero
+    + max    = 1.0000000000000002e+00
+    + mean   = 9.5101533422931976e-03
+    + stddev = 6.2783545529679477e-02
   - northward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
-    + max    = 1.0000000000000004e+00
-    + mean   = 9.0763929663664096e-03
-    + stddev = 6.2652525077124821e-02
+    + min close to zero
+    + max    = 1.0000000000000002e+00
+    + mean   = 9.5101533422931976e-03
+    + stddev = 6.2783545529679477e-02
   - air_horizontal_streamfunction (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 4.3402777777777775e-04
     + stddev = 2.0833333333332399e-02
   - air_pressure_at_surface (1 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 8.6805555555555551e-04
     + stddev = 2.9462782549438682e-02
+Localization(ensemble_localization) diagnostics:
+- Localization at zero separation:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 3.67270, 1): 1.0000000000000002e+00
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (180.00000, 84.37646, 2): 1.0000000000000000e+00

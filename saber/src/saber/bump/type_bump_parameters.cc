@@ -44,10 +44,14 @@ void bump_config_init_f90(eckit::LocalConfiguration * config) {
   param(generalDef.repro_ops, generalConf);
   // Reproducibility threshold
   param(generalDef.repro_th, generalConf);
+  // Timers
+  param(generalDef.timers, generalConf);
   // Universe radius [in meters]
   param(generalDef.universe_radius, generalConf);
-  // Sampling method
-  param(generalDef.sampling_method, generalConf);
+  // Use deprecated hull (for backward compatibility)
+  param(generalDef.deprecated_hull, generalConf);
+  // Use deprecated work grid (for backward compatibility)
+  param(generalDef.deprecated_work_grid, generalConf);
 
   // I/O section
   IODef ioDef;
@@ -212,8 +216,6 @@ void bump_config_init_f90(eckit::LocalConfiguration * config) {
   param(samplingDef.local_rad, samplingConf);
   // Local diagnostics calculation latitude band half-width [in degrees]
   param(samplingDef.local_dlat, samplingConf);
-  // Diagnostic draw type ('random' or 'octahedral')
-  param(samplingDef.draw_type, samplingConf);
   // Maximum number of random number draws
   param(samplingDef.irmax, samplingConf);
   // Vertical balance C2B to C0A interpolation type ('c0': C0 mesh-based, 'c1': C1 mesh-based
@@ -292,22 +294,19 @@ void bump_config_init_f90(eckit::LocalConfiguration * config) {
   eckit::LocalConfiguration nicasConf;
   // Resolution
   param(nicasDef.resol, nicasConf);
-  // Maximum size of the Sc1 subset
-  param(nicasDef.nc1max, nicasConf);
-  // Minimum effective resolution
-  param(nicasDef.resol_eff_min, nicasConf);
   // Filter mode
   param(nicasDef.filter_mode, nicasConf);
   // Resolution for the NICAS filter
   param(nicasDef.filter_resol, nicasConf);
-  // Maximum size of the Sc1 subset for the NICAS filter
-  param(nicasDef.filter_nc1max, nicasConf);
-  // Minimum effective resolution for the NICAS filter
-  param(nicasDef.filter_resol_eff_min, nicasConf);
-  // NICAS draw type ('random' or 'octahedral')
+  // NICAS draw type ('random' or 'regular')
   param(nicasDef.nicas_draw_type, nicasConf);
   // Force specific support radii
   param(nicasDef.forced_radii, nicasConf);
+  // Default off-diagonal weight
+  param(nicasDef.defaultWeight, nicasConf);
+  // NICAS C1B to C0A default interpolation type ('c0': C0 mesh-based, 'c1': C1 mesh-based
+  // or 'si': smooth interpolation)
+  param(nicasDef.default_interp_type, nicasConf);
   // Factor to get interpolation radius from convolution radius if nicas_interp_type = 'si'
   param(nicasDef.nicas_si_factor, nicasConf);
   // Normalization randomization size
@@ -322,6 +321,10 @@ void bump_config_init_f90(eckit::LocalConfiguration * config) {
   param(nicasDef.sim_levs_th, nicasConf);
   // Read/write interpolation in global file
   param(nicasDef.interp_in_global_file, nicasConf);
+  // Number of runs for setup timing
+  param(nicasDef.nicas_setup_timings, nicasConf);
+  // Number of runs for application timing
+  param(nicasDef.nicas_application_timings, nicasConf);
 
   // Psichitouv section
   PsichitouvDef psichitouvDef;

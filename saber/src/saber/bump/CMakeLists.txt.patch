@@ -1,0 +1,15 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/bump/CMakeLists.txt.tmp	2026-05-21 14:02:50.677410408 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/bump/CMakeLists.txt	2026-01-29 15:48:22.186695635 +0100
+@@ -77,6 +77,12 @@
+     VerticalBalance.cc
+     VerticalBalance.h
+     )
++    
++    if( ENABLE_BUMP_INSTRUMENTATION )
++        list(APPEND bump_src_files_list
++        type_probe.fypp
++        )
++    endif()
+ endif()
+ 
+ set( bump_src_files ${bump_src_files_list} PARENT_SCOPE )

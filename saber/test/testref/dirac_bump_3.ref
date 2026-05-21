@@ -3,13 +3,14 @@ Input Dirac increment:
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = 0.0000000000000000e+00
+    + min close to zero
     + max    = 1.0000000000000000e+00
     + mean   = 6.5616797900262466e-04
     + stddev = 2.5615775978927613e-02
   - northward_wind (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+Covariance(SABER-hybrid) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -19,7 +20,7 @@ Input Dirac increment:
              Level   2 ~>  0.200E+01 vert. coord.
        Accuracy tests:
           Wavenumber:  1
-             - psi/chi to u:  89.76376%
+             - psi/chi to u:  89.76377%
              - psi/chi to v:  89.76376%
           Wavenumber:  2
              - psi/chi to u:  75.59054%
@@ -41,11 +42,11 @@ Adjoint test for block BUMP_PsiChiToUV passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-          nc1 =      500
-          nc2 =      250
+          nc1 =      520
+          nc2 =      280
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7680980822377037e+01
+Norm of input parameter StdDev: 5.8030999898443227e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -62,7 +63,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.4937700734311314e+01
+Norm of input parameter stddev - 1: 5.5271073069144208e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -88,20 +89,21 @@ Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER) * Increment:
+Covariance(SABER-hybrid) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -4.9205422200514701e-02
-    + max    = 9.3332292735982358e-01
-    + mean   = 2.9695236734859414e-03
-    + stddev = 3.4553445696327595e-02
+    + min    = -1.9001693665413995e-02
+    + max    = 1.0220272831826811e+00
+    + mean   = 5.7057919834451534e-03
+    + stddev = 4.9523857282463092e-02
   - northward_wind (2 levels):
-    + min    = -1.6996745503541394e-01
-    + max    = 1.2139154453781746e-01
-    + mean   = -3.9872033861290110e-04
-    + stddev = 8.4299716138385768e-03
+    + min    = -1.2559752888816542e-01
+    + max    = 1.9108155081116437e-01
+    + mean   = 7.1964150034413421e-04
+    + stddev = 1.1657751917652791e-02
+Covariance(SABER-hybrid-cmp1_SABER-parametric) dirac test:
        Independent levels:  1[2]
           Subset Sc0 size:              762
           Domain area (% of Earth area): 0.100E+03%
@@ -111,7 +113,7 @@ Covariance(SABER) * Increment:
              Level   2 ~>  0.200E+01 vert. coord.
        Accuracy tests:
           Wavenumber:  1
-             - psi/chi to u:  89.76376%
+             - psi/chi to u:  89.76377%
              - psi/chi to v:  89.76376%
           Wavenumber:  2
              - psi/chi to u:  75.59054%
@@ -133,11 +135,11 @@ Adjoint test for block BUMP_PsiChiToUV passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-          nc1 =      500
-          nc2 =      250
+          nc1 =      520
+          nc2 =      280
           Independent levels:  1[2]
 Adjoint test for block BUMP_VerticalBalance passed
-Norm of input parameter StdDev: 5.7680980822377037e+01
+Norm of input parameter StdDev: 5.8030999898443227e+01
 Adjoint test for block StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -154,7 +156,7 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~> 100.0%
              Level   1 ~>  0.100E+01 vert. coord.
              Level   2 ~>  0.200E+01 vert. coord.
-Norm of input parameter stddev - 1: 5.4937700734311314e+01
+Norm of input parameter stddev - 1: 5.5271073069144208e+01
 Adjoint test for block BUMP_StdDev passed
        Independent levels:  1[2]
           Subset Sc0 size:              762
@@ -165,20 +167,21 @@ Adjoint test for block BUMP_StdDev passed
              Level   2 ~>  0.200E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Covariance(SABER1_SABER) * Increment:
+Covariance(SABER-hybrid-cmp1_SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -3.5362039973425105e-13
-    + max    = 1.3478032211140141e-12
-    + mean   = -5.0611716390096536e-17
-    + stddev = 8.2153148121769046e-14
+    + min    = -4.2272882413303675e-13
+    + max    = 1.3245077672571633e-12
+    + mean   = -2.6547474822106584e-16
+    + stddev = 8.7991326244855622e-14
   - northward_wind (2 levels):
-    + min    = -3.2889066103205936e-13
-    + max    = 3.2622646484939685e-13
-    + mean   = -1.8065427102790403e-17
-    + stddev = 3.2868334756832761e-14
+    + min    = -2.6850642577848529e-13
+    + max    = 2.4184293562979440e-13
+    + mean   = -5.3724378546260834e-17
+    + stddev = 3.2362097461740333e-14
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) dirac test:
 Norm of input parameter inflation: 6.9558608381710329e+01
 Norm of input parameter StdDev: 1.6562608490210712e+02
 Adjoint test for block StdDev passed
@@ -194,17 +197,44 @@ Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
 Adjoint test for block Ensemble passed
 Square-root test for block Ensemble passed
-Covariance(SABER2_SABER) * Increment:
+Covariance(SABER-hybrid-cmp2_SABER-ensemble) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
-    + min    = -9.8410844401244119e-02
-    + max    = 1.8666458547182987e+00
-    + mean   = 5.9390473469719271e-03
-    + stddev = 6.9106891392590200e-02
+    + min    = -3.8003387330691689e-02
+    + max    = 2.0440545663640366e+00
+    + mean   = 1.1411583966890586e-02
+    + stddev = 9.9047714564857031e-02
   - northward_wind (2 levels):
-    + min    = -3.3993491007083354e-01
-    + max    = 2.4278308907565277e-01
-    + mean   = -7.9744067722578474e-04
-    + stddev = 1.6859943227676515e-02
+    + min    = -2.5119505777613782e-01
+    + max    = 3.8216310162246558e-01
+    + mean   = 1.4392830006883222e-03
+    + stddev = 2.3315503835310784e-02
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) dirac test:
+       Independent levels:  1[2]
+          Subset Sc0 size:              762
+          Domain area (% of Earth area): 0.100E+03%
+             Level   1 ~> 100.0%
+             Level   2 ~> 100.0%
+             Level   1 ~>  0.100E+01 vert. coord.
+             Level   2 ~>  0.200E+01 vert. coord.
+Adjoint test for block BUMP_NICAS passed
+Square-root test for block BUMP_NICAS passed
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) * Increment:
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+  - eastward_wind (2 levels):
+    + min close to zero
+    + max    = 1.0000000000000000e+00
+    + mean   = 1.2011782306452006e-02
+    + stddev = 7.0574857117575135e-02
+  - northward_wind (2 levels):
+    + min close to zero
+    + max    = 1.0000000000000000e+00
+    + mean   = 1.2011782306452006e-02
+    + stddev = 7.0574857117575135e-02
+Localization(SABER-hybrid-cmp2_SABER-ensemble_localization) diagnostics:
+- Localization at zero separation:
+  + Value for variable eastward_wind, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00

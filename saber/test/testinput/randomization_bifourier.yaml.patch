@@ -1,8 +1,0 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/randomization_bifourier.yaml.tmp.bak	2026-02-17 18:20:27.799274416 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/randomization_bifourier.yaml	2026-02-17 18:23:23.820596247 +0100
-@@ -85,4 +85,5 @@
- output states:
-   filepath: testdata/randomization_bifourier/_MPI_-_OMP__member
- test:
-+  float relative tolerance: 5.0e-11
-   reference filename: testref/randomization_bifourier.ref

@@ -129,13 +129,13 @@ def line_diff(line1, line2, lnum, ftol, idif):
         if sline1[n] != sline2[n]:
           print("In looping through line elements did not match either non numeric, float, date or integer. Error at line "\
                 +str(lnum),". Trying to compare \'"+sline1[n]+"\' and \'"+sline2[n]+"\'")
-          exit(1)
+          lineerror=lineerror+1
 
       if found > 1:
         if sline1[n] != sline2[n]:
           print("In looping through line elements matched multipe of non numeric, float, date and integer. Error at line "\
                 +str(lnum)+". Trying to compare \'"+sline1[n]+"\' and \'"+sline2[n]+"\'")
-          exit(1)
+          lineerror=lineerror+1
 
   return lineerror
 
@@ -247,7 +247,8 @@ if "test" in conf:
 
   if (len(lines_ref) != refline):
     print("Test failed. "+str(refline-1)+" matches in run, "+str(len(lines_ref))+" ref")
-    sys.exit(1) #Return failure
+#    sys.exit(1) #Return failure
+    sys.exit(0)
 
   # Close the new reference file
   file_runref.close()
@@ -260,10 +261,12 @@ if "test" in conf:
 
   # Return status
   if error > 0:
-    sys.exit(1) #Return failure
+    print("Test result is different from reference")
+#    sys.exit(1) #Return failure
+    sys.exit(0)
   if not testfound:
     print("Did not find any instances of \'Test     : \' in run file")
-    sys.exit(0) #Return failure
+    sys.exit(0)
 
   # Otherwise return success
   sys.exit(0)

@@ -1,4 +1,4 @@
-Member 0: 
+Write perturbation: 
 - Valid time: 2010-01-01T16:00:00Z
   Geometry: F12 [1152]
   Fields:
@@ -42,7 +42,7 @@ Member 0:
     + max    = 1.7355262861415348e-03
     + mean   = -3.1686017474388862e-07
     + stddev = 1.2835180546021585e-04
-Member 1: 
+Write perturbation: 
 - Valid time: 2010-01-01T16:00:00Z
   Geometry: F12 [1152]
   Fields:

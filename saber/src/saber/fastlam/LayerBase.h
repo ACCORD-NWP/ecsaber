@@ -32,7 +32,7 @@ namespace fastlam {
 class LayerBase : public util::Printable,
                   private eckit::NonCopyable {
  public:
-  static const std::string classname() {return "saber::fastlam::Layer";}
+  static const std::string classname() {return "saber::fastlam::LayerBase";}
 
   // Constructor
   LayerBase(const FastLAMParametersBase & params,
@@ -66,7 +66,7 @@ class LayerBase : public util::Printable,
 
   // Multiply square-root and adjoint
   virtual size_t ctlVecSize() const = 0;
-  virtual std::vector<int> ctlVecRemoteIndex() const = 0;
+  virtual std::vector<int> ctlVecGlbIndex() const = 0;
   virtual void multiplySqrt(const atlas::Field &,
                             atlas::Field &,
                             const size_t &) const = 0;

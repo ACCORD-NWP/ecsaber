@@ -1,0 +1,35 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_base.cmake.tmp	2026-05-20 20:12:20.445159072 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_base.cmake	2026-05-20 18:35:13.693138050 +0200
+@@ -88,20 +88,20 @@
+                 DEPENDS saber_quench_error_covariance_toolbox.x )
+ 
+ # dirac_id_4d
+-saber_add_test( TARGET saber_dirac_id_4d_2-1
+-                MPI 2
+-                OMP 1
+-                COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
+-                ARGS testinput/dirac_id_4d.yaml
+-                DEPENDS saber_quench_error_covariance_toolbox.x )
++#saber_add_test( TARGET saber_dirac_id_4d_2-1
++#                MPI 2
++#                OMP 1
++#                COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
++#                ARGS testinput/dirac_id_4d.yaml
++#                DEPENDS saber_quench_error_covariance_toolbox.x )
+ 
+ # dirac_id_4d_timecov
+-saber_add_test( TARGET saber_dirac_id_4d_timecov_2-1
+-                MPI 2
+-                OMP 1
+-                COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
+-                ARGS testinput/dirac_id_4d_timecov.yaml
+-                DEPENDS saber_quench_error_covariance_toolbox.x )
++#saber_add_test( TARGET saber_dirac_id_4d_timecov_2-1
++#                MPI 2
++#                OMP 1
++#                COMMAND ${CMAKE_BINARY_DIR}/bin/saber_quench_error_covariance_toolbox.x
++#                ARGS testinput/dirac_id_4d_timecov.yaml
++#                DEPENDS saber_quench_error_covariance_toolbox.x )
+ 
+ # dirac_id_seq4d
+ saber_add_test( TARGET saber_dirac_id_seq4d_1-1

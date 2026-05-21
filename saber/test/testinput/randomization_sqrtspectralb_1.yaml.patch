@@ -1,8 +1,0 @@
---- /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_sqrtspectralb_1.yaml.tmp	2025-11-06 12:17:17.099896230 +0100
-+++ /home/benjaminm/code/oops-bundle/ecsaber/saber/test/testinput/randomization_sqrtspectralb_1.yaml	2025-11-06 12:06:55.707073066 +0100
-@@ -56,4 +56,5 @@
-   member pattern: '%MEM%'
-   filepath: testdata/randomization_sqrtspectralb_1/randomized_gauss_mb%MEM%
- test:
-+  float relative tolerance: 2.0e-12
-   reference filename: testref/randomization_sqrtspectralb_1.ref

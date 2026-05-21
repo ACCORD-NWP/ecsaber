@@ -1,11 +1,11 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_9.yaml.tmp.bak	2026-02-11 15:00:24.960655862 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_9.yaml	2026-02-11 15:12:13.765674704 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_9.yaml.tmp.bak	2026-05-21 14:02:51.264414639 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_9.yaml	2026-05-21 14:11:15.218121201 +0200
 @@ -73,7 +73,7 @@
    - eastward_wind
  - {}
  output dirac:
 -  states:
 +  increment:
-   - mpi pattern: '%MPI%'
-     filepath: testdata/dirac_bump_9/%MPI%_dirac_%id%_12
-   - mpi pattern: '%MPI%'
+   - filepath: testdata/dirac_bump_9/_MPI_-_OMP__dirac_%id%_12
+   - filepath: testdata/dirac_bump_9/_MPI_-_OMP__dirac_%id%_18
+ test:

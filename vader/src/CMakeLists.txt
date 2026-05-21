@@ -2,11 +2,8 @@ ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/vader )
 
 list( APPEND vader_src_files
 vader/DefaultCookbook.h
-vader/vader.h
-vader/RecipeBase.h
 vader/RecipeBase.cc
-vader/vader.cc
-vader/VaderParameters.h
+vader/RecipeBase.h
 vader/recipes/AirPotentialTemperature_A.cc
 vader/recipes/AirPotentialTemperature_B.cc
 vader/recipes/AirPotentialTemperature.h
@@ -46,14 +43,30 @@ vader/recipes/DryAirDensity.h
 vader/recipes/DryAirDensity_A.cc
 vader/recipes/DryAirDensityLevelsMinusOne.h
 vader/recipes/DryAirDensityLevelsMinusOne_A.cc
+mo/recipes/DustBin1MassConcentration.h
+mo/recipes/DustBin1MassConcentration_A.cc
+mo/recipes/DustBin2MassConcentration.h
+mo/recipes/DustBin2MassConcentration_A.cc
+vader/recipes/GeopotentialAtInterface_A.cc
+vader/recipes/GeopotentialAtInterface.h
+vader/recipes/GeopotentialHeight_A.cc
+vader/recipes/GeopotentialHeight.h
+vader/recipes/GeopotentialHeightAtInterface_A.cc
+vader/recipes/GeopotentialHeightAtInterface.h
+vader/recipes/GeopotentialHeightAtSurface_A.cc
+vader/recipes/GeopotentialHeightAtSurface.h
+vader/recipes/HeightAboveMeanSeaLevelAtSurface_A.cc
+vader/recipes/HeightAboveMeanSeaLevelAtSurface.h
 vader/recipes/HydrostaticExnerLevels.h
 vader/recipes/HydrostaticExnerLevels_A.cc
 vader/recipes/HydrostaticPressureLevels.h
 vader/recipes/HydrostaticPressureLevels_A.cc
+vader/recipes/LnAirPressure_A.cc
+vader/recipes/LnAirPressure.h
 vader/recipes/LnAirPressureAtInterface_A.cc
 vader/recipes/LnAirPressureAtInterface.h
-vader/recipes/LogDerivativeSaturationVaporPressure.h
 vader/recipes/LogDerivativeSaturationVaporPressure_A.cc
+vader/recipes/LogDerivativeSaturationVaporPressure.h
 vader/recipes/ParticulateMatter2p5.h
 vader/recipes/ParticulateMatter2p5_A.cc
 vader/recipes/ParticulateMatter2p5_B.cc
@@ -96,8 +109,11 @@ vader/recipes/WaterVaporMixingRatioWrtWetAir.h
 vader/recipes/WaterVaporMixingRatioWrtWetAir_A.cc
 vader/recipes/WaterVaporMixingRatioWrtWetAir2m.h
 vader/recipes/WaterVaporMixingRatioWrtWetAir2m_A.cc
-mo/common_varchange.h
+vader/vader.cc
+vader/vader.h
+vader/VaderParameters.h
 mo/common_varchange.cc
+mo/common_varchange.h
 mo/constants.h
 mo/functions.h
 mo/functions.cc
@@ -119,6 +135,8 @@ mo/eval_air_density.h
 mo/eval_air_density.cc
 mo/eval_dry_air_density.h
 mo/eval_dry_air_density.cc
+mo/eval_dust_2bin_mass_concentration.h
+mo/eval_dust_2bin_mass_concentration.cc
 mo/eval_exner.h
 mo/eval_exner.cc
 mo/eval_geostrophic_to_hydrostatic_pressure.h
@@ -159,12 +177,12 @@ mo/svpW_lookup.h
 
 if( gsw_FOUND )
   list( APPEND vader_src_files
-  vader/recipes/SeaWaterPotentialTemperature.h
-  vader/recipes/SeaWaterPotentialTemperature_A.cc
-  vader/recipes/SeaWaterTemperature.h
-  vader/recipes/SeaWaterTemperature_A.cc
   OceanConversions/OceanConversions.interface.F90
   OceanConversions/OceanConversions.interface.h
+  vader/recipes/SeaWaterPotentialTemperature_A.cc
+  vader/recipes/SeaWaterPotentialTemperature.h
+  vader/recipes/SeaWaterTemperature_A.cc
+  vader/recipes/SeaWaterTemperature.h
   )
 endif( gsw_FOUND )
 
@@ -182,7 +200,7 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} ) #TODO: Change 
 target_link_libraries( ${PROJECT_NAME} PUBLIC oops_patch )
 
 if( gsw_FOUND )
-  target_link_libraries( ${PROJECT_NAME} PUBLIC gsw )
+  target_link_libraries( ${PROJECT_NAME} PUBLIC gsw ${gsw_LIBRARIES} )
   target_compile_definitions( ${PROJECT_NAME} PUBLIC GSW_FOUND )
 endif( gsw_FOUND )
 

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-03-24 15:27:59.655159979 +0100
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-03-24 15:29:12.142666423 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-05-21 14:02:47.548387919 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-05-21 14:05:48.427852620 +0200
 @@ -8,6 +8,7 @@
  #pragma once
  
@@ -8,7 +8,7 @@
  #include <map>
  #include <memory>
  #include <sstream>
-@@ -19,12 +20,13 @@
+@@ -19,12 +20,12 @@
  #include "eckit/exception/Exceptions.h"
  
  #include "oops/base/FieldSets.h"
@@ -18,7 +18,6 @@
 -#include "oops/base/ModelSpaceCovarianceBase.h"
 -#include "oops/base/State.h"
 -#include "oops/base/Variables.h"
-+#include "oops/base/Increment4D.h"
 +#include "oops/base/State4D.h"
 +#include "oops/interface/Geometry.h"
 +#include "oops/interface/Increment.h"
@@ -28,7 +27,7 @@
  #include "oops/mpi/mpi.h"
  #include "oops/runs/Application.h"
  #include "oops/util/ConfigFunctions.h"
-@@ -38,6 +40,9 @@
+@@ -38,6 +39,9 @@
  
  #include "saber/blocks/SaberParametricBlockChain.h"
  #include "saber/oops/ErrorCovarianceParameters.h"
@@ -38,7 +37,7 @@
  #include "saber/oops/Utilities.h"
  
  namespace saber {
-@@ -147,7 +152,7 @@
+@@ -147,7 +151,7 @@
    /// Background parameters.
    oops::RequiredParameter<eckit::LocalConfiguration> background{"background", this};
  
@@ -47,11 +46,10 @@
  
    oops::RequiredParameter<std::vector<BandParameters_>> bands{"bands", this};
  
-@@ -165,44 +170,73 @@
+@@ -165,24 +169,24 @@
    typedef oops::CovarianceFactory<MODEL>                    CovarianceFactory_;
    typedef oops::Geometry<MODEL>                             Geometry_;
    typedef oops::Increment<MODEL>                            Increment_;
-+  typedef oops::Increment4D<MODEL>                          Increment4D_;
 +  typedef oops::Model<MODEL>                                Model_;
    typedef oops::State<MODEL>                                State_;
    typedef oops::State4D<MODEL>                              State4D_;
@@ -71,35 +69,21 @@
  
 -  int execute(const eckit::Configuration & fullConfig) const override {
 +  int execute(const eckit::Configuration & fullConfig) const {
-     // Deserialize parameters
-     ProcessPertsParameters_ params;
-     params.deserialize(fullConfig);
- 
      // Define space and time communicators
 -    const eckit::mpi::Comm * commSpace = &this->getComm();
 -    const eckit::mpi::Comm * commTime = &oops::mpi::myself();
 +    const eckit::mpi::Comm * commSpace = &eckit::mpi::comm();
-+
-+    // Get number of MPI tasks and OpenMP threads
-+    size_t ntasks = commSpace->size();
-+    size_t nthreads = 1;
-+#ifdef _OPENMP
-+    # pragma omp parallel
-+    {
-+      nthreads = omp_get_num_threads();
-+    }
-+#endif
-+
-+    // Replace patterns in full configuration and deserialize parameters
-+    eckit::LocalConfiguration fullConfigUpdated(fullConfig);
-+    util::seekAndReplace(fullConfigUpdated, "_MPI_", std::to_string(ntasks));
-+    util::seekAndReplace(fullConfigUpdated, "_OMP_", std::to_string(nthreads));
-+    params.deserialize(fullConfigUpdated);
-+
+ 
+     // Replace patterns in full configuration and deserialize parameters
+     eckit::LocalConfiguration fullConfigUpdated(fullConfig);
+@@ -200,21 +204,33 @@
+     ProcessPertsParameters_ params;
+     params.deserialize(fullConfigUpdated);
+ 
 +    // Set precision for test channel
 +    oops::Log::test() << std::scientific
 +                      << std::setprecision(std::numeric_limits<double>::digits10+1);
- 
++
      // Setup geometry
 -    const Geometry_ geom(params.geometry, *commSpace, *commTime);
 +    const Geometry_ geom(params.geometry);
@@ -130,16 +114,16 @@
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars[i].setLevels(vlevs[i]);
      }
-@@ -222,7 +256,7 @@
+@@ -234,7 +250,7 @@
      // Read input ensemble
      oops::FieldSets fsetEnsI = readEnsemble<MODEL>(geom,
                                                     incVars,
 -                                                   xx.times(), xx.commTime(), xx.commEns(),
 +                                                   xx.times(), eckit::mpi::self(), eckit::mpi::self(),
-                                                    fullConfig);
+                                                    fullConfigUpdated);
      int nincrements = fsetEnsI.ens_size();
  
-@@ -368,7 +402,7 @@
+@@ -380,7 +396,7 @@
                                  std::vector<std::string>{"geometry", "grid"},
                                  "grid pattern",
                                  gconf);
@@ -148,7 +132,7 @@
          }
  
          if (auto it{modelWriteConfs.find(b)}; it != std::end(modelWriteConfs)) {
-@@ -376,10 +410,10 @@
+@@ -388,10 +404,10 @@
  
            // Should be on the model geometry!
            auto pert = Increment_(geom,
