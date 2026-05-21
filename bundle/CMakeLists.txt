@@ -22,10 +22,10 @@ option( ENABLE_JEDI_MODEL_DATA "Obtain saber/vader test data from jedi-model-dat
 option( ENABLE_QUENCH "Compile quench" ON )
 
 # Activate ECSABER
-set( ECSABER ON ) # CACHE BOOL "Compile for ECSABER" )
+set( ECSABER ON CACHE BOOL "Compile for ECSABER" )
 
 # Activate EVIL
-set( ECEVIL OFF ) # CACHE BOOL "Compile for EVIL" )
+set( ECEVIL ON CACHE BOOL "Compile for EVIL" )
 
 # Initialize bundle
 ecbuild_bundle_initialize()
