@@ -676,6 +676,9 @@ template <typename MODEL> class ErrorCovarianceToolbox : public oops::Applicatio
             oops::Log::test() << "- Localization at diagnostic points:" << std::endl;
             print_value_at_positions(testConf.getSubConfiguration("diagnostic points"), geom, dxo);
           }
+
+          // Increment scale index
+          ++iscale;
         }
       }
     }

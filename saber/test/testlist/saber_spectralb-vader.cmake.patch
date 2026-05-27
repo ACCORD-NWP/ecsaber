@@ -1,6 +1,6 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_spectralb-vader.cmake.tmp.bak	2026-05-20 09:51:13.216388583 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_spectralb-vader.cmake	2026-05-20 09:53:50.822604352 +0200
-@@ -212,13 +212,13 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_spectralb-vader.cmake.tmp.bak	2026-05-27 15:05:10.254776250 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_spectralb-vader.cmake	2026-05-27 15:07:46.534903379 +0200
+@@ -238,13 +238,13 @@
  
    # dirac_spectral_parallel_gauss_vader_7
    # (should give similar results to dirac_spectral_gauss_vader_7_1_1)

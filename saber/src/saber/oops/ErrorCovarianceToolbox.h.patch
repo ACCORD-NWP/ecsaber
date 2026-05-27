@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-05-21 14:02:47.672388808 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-05-21 14:09:07.715772399 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h.tmp.bak	2026-05-27 15:05:05.004737491 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ErrorCovarianceToolbox.h	2026-05-27 15:06:08.624202992 +0200
 @@ -26,17 +26,16 @@
  #include "eckit/exception/Exceptions.h"
  #include "eckit/mpi/Comm.h"
@@ -343,7 +343,7 @@
            // Copy configuration
            eckit::LocalConfiguration outputLConf(testConf.getSubConfiguration("output dirac"));
  
-@@ -694,13 +698,14 @@
+@@ -697,13 +701,14 @@
  
      // Build covariance
      oops::Log::info() << "Info     : Build covariance" << std::endl;
@@ -363,7 +363,7 @@
  
      // Initialize variance
      variance.zero();
-@@ -738,7 +743,9 @@
+@@ -741,7 +746,9 @@
  
          // Add background state to perturbation
          State4D_ xp(xx);
@@ -374,7 +374,7 @@
  
          // Write state
          oops::Log::test() << "Write state: " << xp;
-@@ -747,7 +754,9 @@
+@@ -750,7 +757,9 @@
  
        // Square perturbation
        dxsq = dx;

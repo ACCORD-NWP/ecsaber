@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-05-21 14:02:47.581388156 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-05-21 14:06:07.385023208 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-05-27 15:05:04.917736848 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-05-27 15:05:54.514100509 +0200
 @@ -21,13 +21,12 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -83,7 +83,7 @@
  
          return fsetEns;
        } else {
-@@ -278,13 +279,13 @@
+@@ -308,13 +309,13 @@
    eckit::LocalConfiguration localConf(conf);
  
    // Create Increment
@@ -99,7 +99,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -305,13 +306,14 @@
+@@ -335,13 +336,14 @@
    size_t ensembleFound = 0;
  
    if (conf.has("ensemble")) {
@@ -117,7 +117,7 @@
  
      ++ensembleFound;
    }
-@@ -322,33 +324,18 @@
+@@ -352,33 +354,18 @@
        conf.getSubConfiguration("ensemble pert"), ie);
  
      // Read Increment
