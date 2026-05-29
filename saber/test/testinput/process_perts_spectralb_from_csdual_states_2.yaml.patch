@@ -1,4 +1,4 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_spectralb_from_csdual_states_2.yaml.tmp.bak	2026-05-19 13:40:48.044212824 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_spectralb_from_csdual_states_2.yaml.tmp	2026-05-29 09:26:21.344509953 +0200
 +++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/process_perts_spectralb_from_csdual_states_2.yaml	2026-05-19 13:39:09.837728331 +0200
 @@ -59,9 +59,7 @@
        filepath: testdata/process_perts_spectralb_from_csdual_states_2/_MPI_-_OMP__wb1_CS-LFR-14_mb%MEM%_inc

@@ -1,4 +1,4 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_9.yaml.tmp.bak	2026-05-21 14:02:51.264414639 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_9.yaml.tmp	2026-05-29 09:26:21.196508707 +0200
 +++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testinput/dirac_bump_9.yaml	2026-05-21 14:11:15.218121201 +0200
 @@ -73,7 +73,7 @@
    - eastward_wind
