@@ -205,10 +205,7 @@ void LayerBase::setupInterpolation() {
   // Ghost points
   const auto ghostView = atlas::array::make_view<int, 1>(gdata_.functionSpace().ghost());
 
-  // Reduced grid size
-  nx_ = std::min(nx0_, static_cast<size_t>(static_cast<double>(nx0_-1)/rfh_)+2);
-  ny_ = std::min(ny0_, static_cast<size_t>(static_cast<double>(ny0_-1)/rfh_)+2);
-  nz_ = std::min(nz0_, static_cast<size_t>(static_cast<double>(nz0_-1)/rfv_)+2);
+  // Reduction factors
   xRedFac_ = static_cast<double>(nx0_-1)/static_cast<double>(nx_-1);
   yRedFac_ = static_cast<double>(ny0_-1)/static_cast<double>(ny_-1);
   if (nz_ > 1) {
@@ -216,11 +213,7 @@ void LayerBase::setupInterpolation() {
   } else {
     zRedFac_ = 1.0;
   }
-
-  oops::Log::info() << "Info     :     Target reduction factors: " << std::endl;
-  oops::Log::info() << "Info     :     - horizontal: " << rfh_ << std::endl;
-  oops::Log::info() << "Info     :     - vertical: " << rfv_ << std::endl;
-  oops::Log::info() << "Info     :     Real reduction factors: " << std::endl;
+  oops::Log::info() << "Info     :     Reduction factors: " << std::endl;
   oops::Log::info() << "Info     :     - along x: " << xRedFac_ << std::endl;
   oops::Log::info() << "Info     :     - along y: " << yRedFac_ << std::endl;
   oops::Log::info() << "Info     :     - along z: " << zRedFac_ << std::endl;

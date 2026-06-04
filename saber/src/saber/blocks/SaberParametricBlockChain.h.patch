@@ -1,4 +1,4 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2026-02-12 15:56:23.132305584 +0100
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h.tmp.bak	2026-06-04 13:55:03.759203854 +0200
 +++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberParametricBlockChain.h	2026-02-12 15:57:35.990011381 +0100
 @@ -21,6 +21,7 @@
  #include "oops/base/FieldSets.h"
@@ -8,16 +8,20 @@
  
  #include "saber/blocks/SaberBlockChainBase.h"
  #include "saber/blocks/SaberBlockParametersBase.h"
-@@ -130,7 +131,7 @@
+@@ -130,10 +131,8 @@
                         oops::FieldSet4D & fset4dXb,
                         oops::FieldSet4D & fset4dFg,
                         const eckit::Configuration & conf)
--  : outerFunctionSpace_(geom.functionSpace()), outerVariables_(outerVars),
+-  : outerFunctionSpace_(geom.functionSpace()),
+-    outerVariables_(outerVars),
+-    timeComm_(fset4dXb.commTime()),
+-    size4D_(fset4dXb.size()) {
 +  : outerFunctionSpace_(geom.geometry().functionSpace()), outerVariables_(outerVars),
-   timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
++  timeComm_(fset4dXb.commTime()), size4D_(fset4dXb.size()) {
    oops::Log::trace() << "SaberParametricBlockChain ctor starting" << std::endl;
  
-@@ -163,7 +164,7 @@
+   // Deserialize parameters and fill configuration with missing values
+@@ -165,7 +164,7 @@
  
    // Set outer geometry data for central block
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?

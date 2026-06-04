@@ -69,7 +69,7 @@ BiperiodizationImpl::BiperiodizationImpl(const oops::GeometryData & outerGeometr
 
   if (innerExtNx == outerExtNx && innerExtNy == outerExtNy) {
     // Same function space
-    oops::Log::info() << "Info     : Inner grid = outer grid" << std::endl;
+    oops::Log::info() << "Info     : Inner grid resolution = outer grid resolution" << std::endl;
     sameFs_ = true;
 
     // Copy grid

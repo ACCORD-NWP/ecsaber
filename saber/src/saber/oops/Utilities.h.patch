@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-05-27 15:05:04.917736848 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-05-27 15:05:54.514100509 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-06-04 13:55:04.466207637 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-06-04 13:57:41.773071488 +0200
 @@ -21,13 +21,12 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -99,7 +99,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -335,13 +336,14 @@
+@@ -343,13 +344,14 @@
    size_t ensembleFound = 0;
  
    if (conf.has("ensemble")) {
@@ -117,7 +117,7 @@
  
      ++ensembleFound;
    }
-@@ -352,33 +354,18 @@
+@@ -360,34 +362,18 @@
        conf.getSubConfiguration("ensemble pert"), ie);
  
      // Read Increment
@@ -142,6 +142,7 @@
 -    // Read states
 -    oops::State<MODEL> xxBase(geom, memConfBase);
 -    oops::State<MODEL> xxPairs(geom, memConfPairs);
+-
 -    // Compute difference
 -    oops::Increment<MODEL> dx(geom, vars, fset.validTime());
 -    dx.diff(xxPairs, xxBase);

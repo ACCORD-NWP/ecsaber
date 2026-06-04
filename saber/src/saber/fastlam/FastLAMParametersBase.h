@@ -89,6 +89,10 @@ class FastLAMParametersBase : public oops::Parameters {
   // Sampling vertical length-scale
   oops::OptionalParameter<double> srvFromYaml{"sampling vertical length-scale", this};
 
+  // Background variable used to define the inner grid-poind function space
+  oops::OptionalParameter<std::string> fspaceFromBkgVar{
+    "inner grid-point function space from background variable", this};
+
   // Number of layers
   oops::OptionalParameter<size_t> nLayers{"number of layers", this};
 

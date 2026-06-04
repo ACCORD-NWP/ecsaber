@@ -320,6 +320,14 @@ void readHybridWeight(const oops::Geometry<MODEL> & geom,
   oops::Log::trace() << "readHybridWeight done" << std::endl;
 }
 
+// -----------------------------------------------------------------------------
+
+void readEnsembleMember(const oops::GeometryData & geomData,
+                        const oops::JediVariables & vars,
+                        const eckit::Configuration & conf,
+                        const size_t & ie,
+                        oops::FieldSet3D & fset);
+
 // -------------------------------------------------------------------------------------------------
 
 template<typename MODEL>

@@ -44,7 +44,7 @@ FastLAM::FastLAM(const oops::GeometryData & geometryData,
                  const oops::FieldSet3D & fg) :
     SaberCentralBlockBase(params, xb.validTime(), geometryData, centralVars),
     comm_(geometryData.comm()),
-    params_(params.calibration.value() != boost::none ? *params.calibration.value()
+    params_(params.calibration.value() ? *params.calibration.value()
       : *params.read.value()),
     fieldsMetaData_(params.fieldsMetaData.value())
 {
@@ -73,6 +73,42 @@ FastLAM::FastLAM(const oops::GeometryData & geometryData,
   comm_.allReduceInPlace(nx0_, eckit::mpi::max());
   comm_.allReduceInPlace(ny0_, eckit::mpi::max());
   oops::Log::info() << "Info     : Regional grid size: " << nx0_ << "x" << ny0_ << std::endl;
+
+  if (params_.fspaceFromBkgVar.value()) {
+    // Use the function space of a field of the background
+
+    // Check function space type
+    ASSERT(xb[*params_.fspaceFromBkgVar.value()].functionspace().type() == "StructuredColumns");
+
+    // Ghost points
+    const auto ghostBkgView = atlas::array::make_view<int, 1>(
+      xb[*params_.fspaceFromBkgVar.value()].functionspace().ghost());
+
+    // Index fields
+    const atlas::functionspace::StructuredColumns fsBkg(
+      xb[*params_.fspaceFromBkgVar.value()].functionspace());
+    const auto indexX0BkgView = atlas::array::make_indexview<int, 1>(fsBkg.index_i());
+    const auto indexY0BkgView = atlas::array::make_indexview<int, 1>(fsBkg.index_j());
+
+    // Get grid size
+    nx0Bkg_ = 0;
+    ny0Bkg_ = 0;
+    const size_t nodes0Bkg = fsBkg.size();
+    for (size_t jnode0Bkg = 0; jnode0Bkg < nodes0Bkg; ++jnode0Bkg) {
+      if (ghostBkgView(jnode0Bkg) == 0) {
+        nx0Bkg_ = std::max(nx0Bkg_, static_cast<size_t>(indexX0BkgView(jnode0Bkg))+1);
+        ny0Bkg_ = std::max(ny0Bkg_, static_cast<size_t>(indexY0BkgView(jnode0Bkg))+1);
+      }
+    }
+    comm_.allReduceInPlace(nx0Bkg_, eckit::mpi::max());
+    comm_.allReduceInPlace(ny0Bkg_, eckit::mpi::max());
+    oops::Log::info() << "Info     : Background regional grid size: " << nx0Bkg_ << "x" << ny0Bkg_
+      << std::endl;
+  } else {
+    // Use geometry data function space
+    nx0Bkg_ = nx0_;
+    ny0Bkg_ = ny0_;
+  }
 
   // Define 2d active variables
   active2dVars_ = oops::JediVariables();
@@ -653,7 +689,7 @@ std::vector<std::pair<std::string, eckit::LocalConfiguration>> FastLAM::getReadC
   oops::Log::trace() << classname() << "::getReadConfs starting" << std::endl;
 
   std::vector<std::pair<std::string, eckit::LocalConfiguration>> inputs;
-  if (params_.inputModelFilesConf.value() != boost::none) {
+  if (params_.inputModelFilesConf.value()) {
     for (const auto & conf : *params_.inputModelFilesConf.value()) {
       // Get parameter
       const std::string param = conf.getString("parameter");
@@ -853,7 +889,7 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
   oops::Log::trace() << classname() << "::calibration starting" << std::endl;
 
   // Get number of layers
-  ASSERT(params_.nLayers.value() != boost::none);
+  ASSERT(params_.nLayers.value());
   size_t nLayers = *params_.nLayers.value();
 
   // Allocate data
@@ -885,7 +921,7 @@ void FastLAM::directCalibration(const oops::FieldSets &) {
   setupResolution();
 
   // Setup reduction factors
-  setupReductionFactors();
+  setupReducedGrids();
 
   for (size_t jg = 0; jg < groups_.size(); ++jg) {
     oops::Log::info() << "Info     : Setup of group " << groups_[jg].name_ << ":" << std::endl;
@@ -947,7 +983,7 @@ void FastLAM::read() {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
 
   if (comm_.rank() == 0) {
-    ASSERT(params_.dataFile.value() != boost::none);
+    ASSERT(params_.dataFile.value());
 
     // NetCDF ids
     int retval, ncid, grpGrpId, layerGrpId;
@@ -986,7 +1022,7 @@ void FastLAM::read() {
   }
 
   // Setup reduction factors
-  setupReductionFactors();
+  setupReducedGrids();
 
   for (size_t jg = 0; jg < groups_.size(); ++jg) {
     oops::Log::info() << "Info     : Setup of group " << groups_[jg].name_ << ":" << std::endl;
@@ -1037,7 +1073,7 @@ void FastLAM::read() {
 void FastLAM::write() const {
   oops::Log::trace() << classname() << "::write starting" << std::endl;
 
-  if (comm_.rank() == 0 && (params_.dataFile.value() != boost::none)) {
+  if (comm_.rank() == 0 && (params_.dataFile.value())) {
     // NetCDF ids
     int retval, ncid, grpGrpId, layerGrpId;
     std::vector<std::array<int, 8>> grpIdsVec;
@@ -1255,7 +1291,7 @@ void FastLAM::setupLengthScales() {
 
   // Get rh and rv from yaml
   if (!rh_) {
-    ASSERT(params_.rhFromYaml.value() != boost::none);
+    ASSERT(params_.rhFromYaml.value());
     rh_.reset(new oops::FieldSet3D(validTime_, comm_));
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
       // Get yaml value/profile
@@ -1267,14 +1303,14 @@ void FastLAM::setupLengthScales() {
             throw eckit::UserError("group" + groups_[jg].name_ + " present more that once", Here());
           }
           profile.resize(groups_[jg].nz0_);
-          if (vParams.value.value() != boost::none
-            && vParams.profile.value() != boost::none) {
+          if (vParams.value.value()
+            && vParams.profile.value()) {
             throw eckit::UserError("both value and profile present in the same item", Here());
           }
-          if (vParams.value.value() != boost::none) {
+          if (vParams.value.value()) {
             // Copy value
             std::fill(profile.begin(), profile.end(), *vParams.value.value());
-          } else if (vParams.profile.value() != boost::none) {
+          } else if (vParams.profile.value()) {
             // Copy profile
             ASSERT(vParams.profile.value()->size() == groups_[jg].nz0_);
             profile = *vParams.profile.value();
@@ -1302,7 +1338,7 @@ void FastLAM::setupLengthScales() {
   }
 
   if (!rv_) {
-    ASSERT(params_.rvFromYaml.value() != boost::none);
+    ASSERT(params_.rvFromYaml.value());
     rv_.reset(new oops::FieldSet3D(validTime_, comm_));
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
       // Get yaml value/profile
@@ -1314,14 +1350,14 @@ void FastLAM::setupLengthScales() {
             throw eckit::UserError("group" + groups_[jg].name_ + " present more that once", Here());
           }
           profile.resize(groups_[jg].nz0_);
-          if (vParams.value.value() != boost::none
-            && vParams.profile.value() != boost::none) {
+          if (vParams.value.value()
+            && vParams.profile.value()) {
             throw eckit::UserError("both value and profile present in the same item", Here());
           }
-          if (vParams.value.value() != boost::none) {
+          if (vParams.value.value()) {
             // Copy value
             std::fill(profile.begin(), profile.end(), *vParams.value.value());
-          } else if (vParams.profile.value() != boost::none) {
+          } else if (vParams.profile.value()) {
             // Copy profile
             ASSERT(vParams.profile.value()->size() == groups_[jg].nz0_);
             profile = *vParams.profile.value();
@@ -1556,7 +1592,7 @@ void FastLAM::setupResolution() {
   // Copy resolution
   for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
-      ASSERT(params_.resol.value() != boost::none);
+      ASSERT(params_.resol.value());
       data_[jg][jBin]->resol() = *params_.resol.value();
     }
   }
@@ -1566,11 +1602,11 @@ void FastLAM::setupResolution() {
 
 // -----------------------------------------------------------------------------
 
-void FastLAM::setupReductionFactors() {
-  oops::Log::trace() << classname() << "::setupReductionFactors starting" << std::endl;
+void FastLAM::setupReducedGrids() {
+  oops::Log::trace() << classname() << "::setupReducedGrids starting" << std::endl;
 
   // Initialize sampling length-scales
-  if (params_.srhFromYaml.value() != boost::none) {
+  if (params_.srhFromYaml.value()) {
     // Ghost points
     const auto ghostView = atlas::array::make_view<int, 1>(geometryData().functionSpace().ghost());
 
@@ -1604,7 +1640,7 @@ void FastLAM::setupReductionFactors() {
       }
     }
   }
-  if (params_.srvFromYaml.value() != boost::none) {
+  if (params_.srvFromYaml.value()) {
     // Copy input value to srv_
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
       for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
@@ -1622,9 +1658,11 @@ void FastLAM::setupReductionFactors() {
 
   for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
     // Define reduction factors from sampling length-scales
+    std::vector<double> rfh(groups_.size());
+    std::vector<double> rfv(groups_.size());
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
-      data_[jg][jBin]->rfh() = std::max(data_[jg][jBin]->srh()/data_[jg][jBin]->resol(), 1.0);
-      data_[jg][jBin]->rfv() = std::max(data_[jg][jBin]->srv()/data_[jg][jBin]->resol(), 1.0);
+      rfh[jg] = std::max(data_[jg][jBin]->srh()/data_[jg][jBin]->resol(), 1.0);
+      rfv[jg] = std::max(data_[jg][jBin]->srv()/data_[jg][jBin]->resol(), 1.0);
     }
 
     if (params_.strategy.value() == "crossed") {
@@ -1632,17 +1670,27 @@ void FastLAM::setupReductionFactors() {
       double rfhMin = 1.0;
       double rfvMin = 1.0;
       for (size_t jg = 0; jg < groups_.size(); ++jg) {
-        rfhMin = std::min(data_[jg][jBin]->rfh(), rfhMin);
-        rfvMin = std::min(data_[jg][jBin]->rfv(), rfvMin);
+        rfhMin = std::min(rfh[jg], rfhMin);
+        rfvMin = std::min(rfv[jg], rfvMin);
       }
       for (size_t jg = 0; jg < groups_.size(); ++jg) {
-        data_[jg][jBin]->rfh() = rfhMin;
-        data_[jg][jBin]->rfv() = rfvMin;
+        rfh[jg] = rfhMin;
+        rfv[jg] = rfvMin;
       }
+    }
+
+    // Define reduced grid sizes
+    for (size_t jg = 0; jg < groups_.size(); ++jg) {
+      data_[jg][jBin]->nx() = std::min(nx0Bkg_,
+        static_cast<size_t>(static_cast<double>(nx0Bkg_-1)/rfh[jg])+2);
+      data_[jg][jBin]->ny() = std::min(ny0Bkg_,
+        static_cast<size_t>(static_cast<double>(ny0Bkg_-1)/rfh[jg])+2);
+      data_[jg][jBin]->nz() = std::min(groups_[jg].nz0_,
+        static_cast<size_t>(static_cast<double>(groups_[jg].nz0_-1)/rfv[jg])+2);
     }
   }
 
-  oops::Log::trace() << classname() << "::setupReductionFactors done" << std::endl;
+  oops::Log::trace() << classname() << "::setupReducedGrids done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
