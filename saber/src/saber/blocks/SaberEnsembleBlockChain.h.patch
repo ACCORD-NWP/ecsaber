@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-06-04 13:55:03.945204849 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-06-04 13:56:58.492829758 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-06-05 11:08:35.804555575 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-06-05 11:10:28.415168995 +0200
 @@ -18,9 +18,10 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -13,7 +13,7 @@
  #include "oops/util/FieldSetHelpers.h"
  #include "oops/util/Logger.h"
  #include "oops/util/Random.h"
-@@ -228,8 +229,8 @@
+@@ -242,8 +243,8 @@
                                                   oops::FieldSet4D & fset4dXb,
                                                   oops::FieldSet4D & fset4dFg,
                                                   const eckit::Configuration & conf)
@@ -24,7 +24,7 @@
      outerVariables_(outerVars),
      ctlVecSize_(0) {
    oops::Log::trace() << "SaberEnsembleBlockChain ctor starting" << std::endl;
-@@ -304,7 +305,7 @@
+@@ -318,7 +319,7 @@
    oops::JediVariables currentOuterVars = outerBlockChain_ ?
                                       outerBlockChain_->innerVars() : outerVars;
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
@@ -33,7 +33,7 @@
  
    // Get active variables
    const oops::JediVariables activeVars = currentOuterVars;
-@@ -332,7 +333,7 @@
+@@ -346,7 +347,7 @@
    // Read inflation field
    const double inflationValue = params.inflationValue;
    oops::Log::info() << "Info     : Read inflation field" << std::endl;
@@ -42,7 +42,7 @@
    if (params.inflationField.value()) {
      const auto & inflationParams = *params.inflationField.value();
      // Read ATLAS inflation file
-@@ -355,11 +356,11 @@
+@@ -369,11 +370,11 @@
        // Copy file
        // Read fieldsets as increments
        // Create increment
@@ -56,7 +56,7 @@
      }
    }
  
-@@ -476,7 +477,7 @@
+@@ -490,7 +491,7 @@
  
      // Get interpolator outer geometry data
      const oops::GeometryData & interpolatorOuterGeomData = outerBlockChain_ ?
@@ -65,16 +65,16 @@
  
      // Interpolator outer block chain
      if (scaleParams.interpolatorParams.value()) {
-@@ -538,7 +539,7 @@
+@@ -556,7 +557,7 @@
  
        // Check consistency of `geom` and the current geometry
-       const auto & currentFspace = filterOuterGeomData.functionSpace();
+       const auto & currentFspace = localizationGeomData.functionSpace();
 -      if (util::getGridUid(geom.functionSpace()) != util::getGridUid(currentFspace)) {
 +      if (util::getGridUid(geom.geometry().functionSpace()) != util::getGridUid(currentFspace)) {
          oops::Log::info() << "Info     : Localization and ensemble are on different "
                               "functionSpaces, building localization with generic "
                               "constructor" << std::endl;
-@@ -679,7 +680,7 @@
+@@ -697,7 +698,7 @@
            // Get current geometry
            const oops::GeometryData & ensGeom = scaleData.interpolator() ?
              scaleData.interpolator()->innerGeometryData() : outerBlockChain_ ?
@@ -83,7 +83,7 @@
  
            // Read ensemble using generic reader
            scaleData.ensemble() = std::make_unique<oops::FieldSets>(readEnsemble(
-@@ -691,7 +692,7 @@
+@@ -709,7 +710,7 @@
            // Check geometry consistency
            if (outerBlockChain_) {
              ASSERT(util::getGridUid(outerBlockChain_->innerGeometryData().functionSpace())
@@ -92,7 +92,7 @@
            }
  
            // No interpolator allowed
-@@ -735,10 +736,10 @@
+@@ -753,10 +754,10 @@
          for (size_t ie = 0; ie < ne; ++ie) {
            // Should be on the model geometry!
            auto pert = oops::Increment<MODEL>(geom,
