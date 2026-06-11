@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-06-11 09:34:50.872375467 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-06-11 09:36:40.435267172 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h.tmp.bak	2026-06-11 10:53:37.318378684 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberEnsembleBlockChain.h	2026-06-11 10:54:51.381963041 +0200
 @@ -18,9 +18,10 @@
  
  #include "oops/base/FieldSet4D.h"
@@ -13,7 +13,16 @@
  #include "oops/util/FieldSetHelpers.h"
  #include "oops/util/Logger.h"
  #include "oops/util/Random.h"
-@@ -244,8 +245,8 @@
+@@ -59,6 +60,8 @@
+   // Ensemble perturbations to read on other geometry (optional)
+   oops::OptionalParameter<eckit::LocalConfiguration> ensemblePertOtherGeom{
+                         "ensemble pert on other geometry", this};
++  oops::OptionalParameter<eckit::LocalConfiguration> ensembleGeom{
++                        "ensemble geometry", this};
+ 
+   // Output filtered perturbations (optional)
+   oops::OptionalParameter<eckit::LocalConfiguration> output{
+@@ -242,8 +245,8 @@
                                                   oops::FieldSet4D & fset4dXb,
                                                   oops::FieldSet4D & fset4dFg,
                                                   const eckit::Configuration & conf)
@@ -24,7 +33,7 @@
      outerVariables_(outerVars),
      ctlVecSize_(0) {
    oops::Log::trace() << "SaberEnsembleBlockChain ctor starting" << std::endl;
-@@ -320,7 +321,7 @@
+@@ -318,7 +321,7 @@
    oops::JediVariables currentOuterVars = outerBlockChain_ ?
                                       outerBlockChain_->innerVars() : outerVars;
    const oops::GeometryData & currentOuterGeom = outerBlockChain_ ?
@@ -33,7 +42,7 @@
  
    // Get active variables
    const oops::JediVariables activeVars = currentOuterVars;
-@@ -348,7 +349,7 @@
+@@ -346,7 +349,7 @@
    // Read inflation field
    const double inflationValue = params.inflationValue;
    oops::Log::info() << "Info     : Read inflation field" << std::endl;
@@ -42,7 +51,7 @@
    if (params.inflationField.value()) {
      const auto & inflationParams = *params.inflationField.value();
      // Read ATLAS inflation file
-@@ -371,11 +372,11 @@
+@@ -369,11 +372,11 @@
        // Copy file
        // Read fieldsets as increments
        // Create increment
@@ -56,7 +65,7 @@
      }
    }
  
-@@ -492,7 +493,7 @@
+@@ -490,7 +493,7 @@
  
      // Get interpolator outer geometry data
      const oops::GeometryData & interpolatorOuterGeomData = outerBlockChain_ ?
@@ -65,7 +74,7 @@
  
      // Interpolator outer block chain
      if (scaleParams.interpolatorParams.value()) {
-@@ -558,7 +559,7 @@
+@@ -556,7 +559,7 @@
  
        // Check consistency of `geom` and the current geometry
        const auto & currentFspace = localizationGeomData.functionSpace();
@@ -74,7 +83,7 @@
          oops::Log::info() << "Info     : Localization and ensemble are on different "
                               "functionSpaces, building localization with generic "
                               "constructor" << std::endl;
-@@ -699,7 +700,7 @@
+@@ -697,7 +700,7 @@
            // Check geometry consistency
            if (outerBlockChain_) {
              ASSERT(util::getGridUid(outerBlockChain_->innerGeometryData().functionSpace())
@@ -83,7 +92,16 @@
            }
  
            // No interpolator allowed
-@@ -743,10 +744,10 @@
+@@ -713,7 +716,7 @@
+           // Get current geometry
+           const oops::GeometryData & ensGeom = scaleData.interpolator() ?
+             scaleData.interpolator()->innerGeometryData() : outerBlockChain_ ?
+-            outerBlockChain_->innerGeometryData() : geom.generic();
++            outerBlockChain_->innerGeometryData() : util::geomData(geom);
+ 
+           // Read ensemble
+           scaleData.ensemble() = std::make_unique<oops::FieldSets>(ensGeom.functionSpace(),
+@@ -752,10 +755,10 @@
          for (size_t ie = 0; ie < ne; ++ie) {
            // Should be on the model geometry!
            auto pert = oops::Increment<MODEL>(geom,
