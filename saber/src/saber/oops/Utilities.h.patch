@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-06-04 13:55:04.466207637 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-06-04 13:57:41.773071488 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h.tmp.bak	2026-06-11 09:34:51.401398129 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/Utilities.h	2026-06-11 09:37:11.219701659 +0200
 @@ -21,13 +21,12 @@
  #include "eckit/exception/Exceptions.h"
  
@@ -25,7 +25,7 @@
  
  namespace oops {
    class FieldSet3D;
-@@ -163,19 +163,26 @@
+@@ -154,19 +154,26 @@
      if (!ensembleConf.empty()) {
        oops::Log::info() << "Info     : Ensemble of states, perturbation using the mean"
                          << std::endl;
@@ -59,7 +59,7 @@
        return fsetEns;
      }
  
-@@ -183,13 +190,7 @@
+@@ -174,13 +181,7 @@
      if (!ensembleBaseConf.empty() && !ensemblePairsConf.empty()) {
        oops::Log::info() << "Info     : Increment ensemble from difference of two states"
                          << std::endl;
@@ -74,7 +74,7 @@
      }
  
      // Increment ensemble from increments on disk on other geometry
-@@ -243,7 +244,7 @@
+@@ -234,7 +235,7 @@
          // Read perturbations into oops::FieldSets
          oops::FieldSets fsetEns(fspace, vars, io, times,
                                  ensemblePertOtherGeomConf,
@@ -83,7 +83,7 @@
  
          return fsetEns;
        } else {
-@@ -308,13 +309,13 @@
+@@ -299,13 +300,13 @@
    eckit::LocalConfiguration localConf(conf);
  
    // Create Increment
@@ -99,7 +99,7 @@
  
    oops::Log::trace() << "readHybridWeight done" << std::endl;
  }
-@@ -343,13 +344,14 @@
+@@ -326,13 +327,14 @@
    size_t ensembleFound = 0;
  
    if (conf.has("ensemble")) {
@@ -117,7 +117,7 @@
  
      ++ensembleFound;
    }
-@@ -360,34 +362,18 @@
+@@ -343,34 +345,18 @@
        conf.getSubConfiguration("ensemble pert"), ie);
  
      // Read Increment
