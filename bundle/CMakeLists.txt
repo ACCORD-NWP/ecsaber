@@ -25,7 +25,7 @@ option( ENABLE_QUENCH "Compile quench" ON )
 set( ECSABER ON CACHE BOOL "Compile for ECSABER" )
 
 # Activate EVIL
-set( ECEVIL ON CACHE BOOL "Compile for EVIL" )
+set( ECEVIL OFF CACHE BOOL "Compile for EVIL" )
 
 # Initialize bundle
 ecbuild_bundle_initialize()

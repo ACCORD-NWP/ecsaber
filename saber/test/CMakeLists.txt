@@ -75,41 +75,12 @@ if( ENABLE_QUENCH )
       set( SABER_TEST_FASTLAM 0 )
   endif()
 
-  # Setup virtual environment for TorchBalance test emulator generation
   if( SABER_TEST_TORCHBALANCE )
-      # Find Python3 for venv creation
-      if(NOT Python3_EXECUTABLE)
-          find_package(Python3 COMPONENTS Interpreter REQUIRED)
-      endif()
-
-      # Create virtual environment only during CMake configuration
-      set(VENV_DIR ${CMAKE_CURRENT_BINARY_DIR}/torchbalance_venv)
-      set(VENV_PYTHON ${VENV_DIR}/bin/python)
-
-      if(NOT EXISTS ${VENV_PYTHON})
-          message( STATUS "Creating virtual environment for TorchBalance tests..." )
-          execute_process(
-              COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
-              RESULT_VARIABLE VENV_RESULT
-          )
-          if(NOT VENV_RESULT EQUAL 0)
-              message( FATAL_ERROR "Failed to create virtual environment" )
-          endif()
-
-          execute_process(
-              COMMAND ${VENV_DIR}/bin/pip install torch
-              RESULT_VARIABLE PIP_RESULT
-          )
-          if(NOT PIP_RESULT EQUAL 0)
-              message( FATAL_ERROR "Failed to install PyTorch in virtual environment" )
-          endif()
-      endif()
-
       # Add test to generate emulator (runs before torchbalance tests)
       ecbuild_add_test( TARGET generate_torchbalance_test_emulator
                         TYPE SCRIPT
                         COMMAND ${VENV_PYTHON}
-                        ARGS ${CMAKE_SOURCE_DIR}/saber/src/saber/torchbalance/create_test_emulator.py
+                        ARGS ${CMAKE_SOURCE_DIR}/../saber/src/saber/torchbalance/create_test_emulator.py
                              ${CMAKE_CURRENT_BINARY_DIR}/testdata/air_temperature_emulator.ts )
   endif()
 

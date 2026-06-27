@@ -1,43 +1,15 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-05-21 17:07:37.227488611 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-05-21 16:23:05.686973930 +0200
-@@ -75,7 +75,36 @@
-       set( SABER_TEST_FASTLAM 0 )
-   endif()
- 
-+  # Setup virtual environment for TorchBalance test emulator generation
-   if( SABER_TEST_TORCHBALANCE )
-+      # Find Python3 for venv creation
-+      if(NOT Python3_EXECUTABLE)
-+          find_package(Python3 COMPONENTS Interpreter REQUIRED)
-+      endif()
-+
-+      # Create virtual environment only during CMake configuration
-+      set(VENV_DIR ${CMAKE_CURRENT_BINARY_DIR}/torchbalance_venv)
-+      set(VENV_PYTHON ${VENV_DIR}/bin/python)
-+
-+      if(NOT EXISTS ${VENV_PYTHON})
-+          message( STATUS "Creating virtual environment for TorchBalance tests..." )
-+          execute_process(
-+              COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
-+              RESULT_VARIABLE VENV_RESULT
-+          )
-+          if(NOT VENV_RESULT EQUAL 0)
-+              message( FATAL_ERROR "Failed to create virtual environment" )
-+          endif()
-+
-+          execute_process(
-+              COMMAND ${VENV_DIR}/bin/pip install torch
-+              RESULT_VARIABLE PIP_RESULT
-+          )
-+          if(NOT PIP_RESULT EQUAL 0)
-+              message( FATAL_ERROR "Failed to install PyTorch in virtual environment" )
-+          endif()
-+      endif()
-+
-       # Add test to generate emulator (runs before torchbalance tests)
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-06-27 20:23:17.682567812 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-06-27 20:22:37.072316855 +0200
+@@ -80,7 +80,7 @@
        ecbuild_add_test( TARGET generate_torchbalance_test_emulator
                          TYPE SCRIPT
-@@ -98,6 +127,12 @@
+                         COMMAND ${VENV_PYTHON}
+-                        ARGS ${CMAKE_SOURCE_DIR}/saber/src/saber/torchbalance/create_test_emulator.py
++                        ARGS ${CMAKE_SOURCE_DIR}/../saber/src/saber/torchbalance/create_test_emulator.py
+                              ${CMAKE_CURRENT_BINARY_DIR}/testdata/air_temperature_emulator.ts )
+   endif()
+ 
+@@ -98,6 +98,12 @@
    # "saber_" prefix and the trailing "_<mpi>-<omp>" suffix.
    macro( saber_add_test )
      cmake_parse_arguments( _SAT "" "TARGET" "" ${ARGN} )
@@ -50,7 +22,7 @@
  
      # Extract test name: strip saber_ prefix and optional _N-N config suffix
      string( REGEX REPLACE "^saber_" "" _sat_name "${_SAT_TARGET}" )
-@@ -111,9 +146,10 @@
+@@ -111,9 +117,10 @@
        file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata/${_sat_name} )
  
        # Symlink yaml input file
@@ -64,7 +36,7 @@
  
        # Symlink reference file if it exists
        if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/testref/${_sat_name}.ref )
-@@ -123,7 +159,18 @@
+@@ -123,7 +130,18 @@
        endif()
      endif()
  
@@ -84,7 +56,7 @@
    endmacro()
  
    # Path to the saber test files
-@@ -143,7 +190,7 @@
+@@ -143,7 +161,7 @@
    include( ${CMAKE_CURRENT_LIST_DIR}/testlist/saber_base.cmake )
  
    # --- Coupled tests ---

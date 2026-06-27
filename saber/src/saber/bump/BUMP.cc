@@ -138,11 +138,6 @@ BUMP::BUMP(const oops::GeometryData & geometryData,
       }
     }
     grid.set("model.nl0", nl0);
-
-    // 2D variables are meaningful if 3D variables are present only
-    if (nl0 == 1) {
-      var2d.clear();
-    }
     grid.set("model.2d variables", var2d);
 
     // Add nearest 3D level for 2D fields

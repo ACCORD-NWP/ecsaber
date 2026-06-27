@@ -1718,6 +1718,9 @@ void FastLAM::setupReducedGrids() {
         static_cast<size_t>(static_cast<double>(ny0Bkg_-1)/rfh[jg])+2);
       data_[jg][jBin]->nz() = std::min(groups_[jg].nz0_,
         static_cast<size_t>(static_cast<double>(groups_[jg].nz0_-1)/rfv[jg])+2);
+      oops::Log::info() << "Info     : Subgrid for group " << groups_[jg].name_
+        << ", layer #" << (jBin+1) << ": " << data_[jg][jBin]->nx() << " x "
+        << data_[jg][jBin]->ny() << " x " << data_[jg][jBin]->nz() << std::endl;
     }
   }
 

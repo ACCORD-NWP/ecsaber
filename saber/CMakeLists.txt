@@ -33,12 +33,22 @@ ecbuild_declare_project()
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 set( CMAKE_DIRECTORY_LABELS ${PROJECT_NAME} )
 
+## RPATH settings - ensure executables can find shared libraries during build and install
+set( CMAKE_SKIP_BUILD_RPATH FALSE )
+set( CMAKE_BUILD_WITH_INSTALL_RPATH FALSE )
+set( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
+# Add build lib directory to RPATH
+set( CMAKE_BUILD_RPATH "${CMAKE_BINARY_DIR}/lib" )
+list( APPEND CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
+
 ## Configuration options
 option( ENABLE_OFFLINE_CODECOV "Enable SABER offline code coverage" OFF )
 option( ENABLE_SABER_DOC "Enable SABER documentation" OFF )
 option( ENABLE_MKL "Use MKL for LAPACK implementation (if available)" ON )
 option( ENABLE_BUMP "Compile BUMP and run BUMP-based tests" ON )
 option( ENABLE_BUMP_INSTRUMENTATION "Enable BUMP instrumentation" OFF )
+option( ENABLE_TORCH "Use Torch" OFF )
+option( VENV_DIR "Virtual environment directory" ${CMAKE_CURRENT_BINARY_DIR}/torch_env )
 option( ENABLE_QUENCH "Compile QUENCH and run QUENCH-based tests" ON )
 include( ${PROJECT_NAME}_compiler_flags )
 
@@ -54,19 +64,31 @@ find_package( MPI REQUIRED COMPONENTS Fortran )
 find_package( NetCDF REQUIRED COMPONENTS C Fortran )
 find_package( eckit 1.17.1 REQUIRED COMPONENTS MPI )
 find_package( fckit 0.9.5 REQUIRED )
-find_package( atlas 0.35.0 REQUIRED COMPONENTS OMP_Fortran TESSELATION)
-# TODO(Benjamin): check when ATLAS PR #215 is merged into a tagged version to update the version number
-if( atlas_VERSION VERSION_GREATER "0.38.1" )
-    set( ATLAS_REGIONAL_INTERP ON )
+if(OpenMP_FOUND)
+    find_package( atlas 0.35.0 REQUIRED COMPONENTS OMP_Fortran TESSELATION)
 else()
-    set( ATLAS_REGIONAL_INTERP OFF )
-endif()
-if( DEFINED ENV{ATLAS_REGIONAL_INTERP} )
-    set( ATLAS_REGIONAL_INTERP $ENV{ATLAS_REGIONAL_INTERP} )
+    find_package( atlas 0.35.0 REQUIRED COMPONENTS TESSELATION)
 endif()
 
 if( atlas_VERSION VERSION_GREATER "0.41" )
-    add_definitions(-DATLAS_MAKE_SPARSE)
+    add_compile_definitions( ATLAS_MAKE_SPARSE )
+endif()
+
+# Flag to signify Atlas supports spherical vector interpolation.
+if( atlas_VERSION VERSION_GREATER_EQUAL "0.44.0" )
+    add_compile_definitions( ATLAS_SUPPORTS_SPHERICAL_VECTOR_INTERP_META )
+endif()
+
+# Flag to set if version of Atlas currently in use is 0.46.0 or newer.
+# This version resolves an issue regarding the use of atlas::mpi::scope 
+# which previously required extra calls to `eckit::mpi::setCommDefault`,
+# see Atlas issue #186. Note this version also provides spherical
+# mean value interpolator and heterogeneous redistribution functionality.
+if ( atlas_VERSION VERSION_GREATER_EQUAL "0.46.0" )
+  add_compile_definitions( ATLAS_VERSION_46_OR_GREATER )
+  set( ATLAS_TEST_46_OR_GREATER ON )
+else()
+  set( ATLAS_TEST_46_OR_GREATER OFF )
 endif()
 
 if( ENABLE_MKL )
@@ -74,13 +96,8 @@ if( ENABLE_MKL )
 endif()
 if( ENABLE_MKL AND MKL_FOUND )
     set( LAPACK_LIBRARIES ${MKL_LIBRARIES} )
-    set( LAPACK_FOUND ON )
 else()
     find_package( LAPACK REQUIRED )
-    if( TARGET lapack )
-        ecbuild_debug( "LAPACK found as CMake target lapack" )
-        set( LAPACK_LIBRARIES lapack )
-    endif()
 endif()
 
 # Required
@@ -89,25 +106,99 @@ find_package( oops_patch REQUIRED )
 find_package( vader 1.7.0 REQUIRED )
 
 # Optionals
+find_package( ECTRANS 1.6.0 COMPONENTS transi double QUIET ) # TODO(Benjamin): update tag once the ectrans PR is merged and a new tag is created
 find_package( FFTW 3.3.8 QUIET )
-find_package( gsibec 1.2.1 QUIET )
+find_package( ip 5 QUIET )
+find_package( gsibec 1.4.2 QUIET )
+
+# Torch
+if( DEFINED Torch_ROOT AND NOT Torch_ROOT STREQUAL "")
+    # Torch root defined by the user at configure time, enable Torch
+    set( ENABLE_TORCH ON )
+endif()
+if( ENABLE_TORCH )
+    # Create virtual environment
+    message( STATUS "Virtual environment for Python/Torch: " ${VENV_DIR} )
+
+    # Find Python3 for venv creation
+    if( NOT Python3_EXECUTABLE )
+        find_package( Python3 COMPONENTS Interpreter REQUIRED )
+    endif()
+
+    # Create virtual environment only during CMake configuration
+    set( VENV_PYTHON ${VENV_DIR}/bin/python )
+
+    if( NOT EXISTS ${VENV_PYTHON} )
+        message( STATUS "Creating virtual environment for Torch in: " ${VENV_DIR} )
+        execute_process(
+            COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
+            RESULT_VARIABLE VENV_RESULT
+        )
+        if( NOT VENV_RESULT EQUAL 0 )
+            message( FATAL_ERROR "Failed to create virtual environment" )
+        endif()
+
+        execute_process(
+            COMMAND ${VENV_DIR}/bin/pip install torch
+            RESULT_VARIABLE PIP_RESULT
+        )
+        if( NOT PIP_RESULT EQUAL 0 )
+            message( FATAL_ERROR "Failed to install PyTorch in virtual environment" )
+        endif()
+    endif()
+
+    if( DEFINED Torch_ROOT AND NOT Torch_ROOT STREQUAL "")
+        # Torch root defined by the user at configure time
+        message( STATUS "Torch root defined by user: " ${Torch_ROOT} )
+    else()
+        # Find Python version to define Torch root directory
+        file( READ_SYMLINK ${VENV_PYTHON} PYTHON_VERSION )
+        set( Torch_ROOT ${VENV_DIR}/lib/${PYTHON_VERSION}/site-packages/torch )
+        message( STATUS "Torch root in the virtual environment: " ${Torch_ROOT} )
+    endif()
+
+    # Temporary fix until Torch is properly installed as a cmake package
+    include_directories( ${Torch_ROOT}/include )
+    include_directories( ${Torch_ROOT}/include/torch/csrc/api/include )
+
+    # Use full paths to libraries instead of link_directories
+    set( TORCH_LIBRARIES
+           ${Torch_ROOT}/lib/libtorch.so
+           ${Torch_ROOT}/lib/libtorch_cpu.so
+           ${Torch_ROOT}/lib/libc10.so )
+endif()
 
 # Optional SABER blocks
-if( gsibec_FOUND )
-    find_package( sp QUIET )
-    message( STATUS "SABER block GSI is enabled" )
+if( FFTW_FOUND OR ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS AND ectrans_HAVE_TRANSI ) )
+    message( STATUS "SABER block Bifourier is enabled" )
 else()
-    message( STATUS "SABER block GSI is NOT enabled" )
+    message( STATUS "SABER block Bifourier is NOT enabled" )
 endif()
 if( FFTW_FOUND )
     message( STATUS "SABER block FastLAM spectral layer is enabled" )
 else()
     message( STATUS "SABER block FastLAM spectral layer is NOT enabled" )
 endif()
+if( gsibec_FOUND )
+    message( STATUS "SABER block GSI is enabled" )
+else()
+    message( STATUS "SABER block GSI is NOT enabled" )
+endif()
 if( atlas_TRANS_FOUND OR atlas_ECTRANS_FOUND )
     message( STATUS "SABER block SPECTRALB is enabled" )
 else()
     message( STATUS "SABER block SPECTRALB is NOT enabled" )
+endif()
+
+if( BUILD_TESTING AND ENABLE_OFFLINE_CODECOV )
+    ## Code coverage
+    message( STATUS "Offline code coverage is enabled" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+    set( CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -fprofile-arcs -ftest-coverage")
+    set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fprofile-arcs -ftest-coverage")
+    set( CMAKE_Fortran_LINK_FLAGS "${CMAKE_Fortran_LINK_FLAGS} -fprofile-arcs -ftest-coverage")
+else()
+    message( STATUS "Offline code coverage is not enabled" )
 endif()
 
 ## Sources
@@ -118,10 +209,10 @@ add_subdirectory( tools )
 if( ENABLE_BUMP )
     if( ENABLE_BUMP_INSTRUMENTATION )
         message( STATUS "BUMP instrumentation is enabled" )
-        add_definitions(-DENABLE_BUMP_INSTRUMENTATION=1)
+        add_compile_definitions( ENABLE_BUMP_INSTRUMENTATION=1 )
     else()
         message( STATUS "BUMP instrumentation is not enabled" )
-        add_definitions(-DENABLE_BUMP_INSTRUMENTATION=0)
+        add_compile_definitions( ENABLE_BUMP_INSTRUMENTATION=0 )
     endif()
 endif()
 
@@ -133,37 +224,27 @@ else()
 endif()
 
 if( BUILD_TESTING )
-  # Test data
-  find_package( jedi-model-data 1.0.0 QUIET )
+    # Test data
+    find_package( jedi-model-data 1.0.0 QUIET )
 
-  ## Code coverage
-  if ( ENABLE_OFFLINE_CODECOV )
-      message( STATUS "Offline code coverage is enabled" )
-      set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-      set( CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -fprofile-arcs -ftest-coverage")
-      set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fprofile-arcs -ftest-coverage")
-      set( CMAKE_Fortran_LINK_FLAGS "${CMAKE_Fortran_LINK_FLAGS} -fprofile-arcs -ftest-coverage")
-  else()
-      message( STATUS "Offline code coverage is not enabled" )
-  endif()
+    # If test data repo found build the tests
+    if( jedi-model-data_FOUND )
+        message( STATUS "jedi-model-data found; building saber tests" )
+        add_subdirectory( test )
+    else()
+        message( STATUS "jedi-model-data not found; skipping saber tests" )
+    endif()
 
-  # If test data repo found build the tests
-  if( jedi-model-data_FOUND )
-      message( STATUS "jedi-model-data found; building saber tests" )
-      add_subdirectory( test )
-  else()
-      message( STATUS "jedi-model-data not found; skipping saber tests" )
-  endif()
-
-  ## Global tests
-  ecbuild_add_test( TARGET ${PROJECT_NAME}_coding_norms_src
-                    TYPE SCRIPT
-                    COMMAND ${PROJECT_NAME}_cpplint.py
-                    ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR}/src
-                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+    ## Global tests
+    ecbuild_add_test( TARGET saber_coding_norms_src
+                      TYPE SCRIPT
+                      LABELS tier2
+                      COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py
+                      ARGS --quiet --recursive ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/src )
 endif()
+
 if( ENABLE_QUENCH )
-  add_subdirectory( quench )
+    add_subdirectory( quench )
 endif()
 
 ## Package Config
