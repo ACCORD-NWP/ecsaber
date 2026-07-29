@@ -46,10 +46,10 @@ ecbuild_bundle( PROJECT eckit    GIT "https://github.com/ecmwf/eckit.git" TAG 1.
 ecbuild_bundle( PROJECT fckit    GIT "https://github.com/ecmwf/fckit.git" TAG 0.11.2 )
 ecbuild_bundle( PROJECT fiat     GIT "https://github.com/hirlam/fiat.git " BRANCH fiat-CY49T2h_oops )
 ecbuild_bundle( PROJECT ectrans  GIT "https://github.com/accord-nwp/ectrans.git" BRANCH for-CY49T1 )
-ecbuild_bundle( PROJECT atlas    GIT "https://github.com/benjaminmenetrier/atlas.git" BRANCH atlas-CY49T2h_oops )
+ecbuild_bundle( PROJECT atlas    GIT "https://github.com/benjaminmenetrier/atlas.git" BRANCH feature/oops_saber_cy49 )
 
 # OOPS
-#ecbuild_bundle( PROJECT oops GIT "https://github.com/benjaminmenetrier/oops.git" BRANCH feature/CY49T2h_ecsaber_to_CY50_4dvar UPDATE )
+#ecbuild_bundle( PROJECT oops GIT "https://github.com/benjaminmenetrier/oops.git" BRANCH feature/oops_saber_cy49 UPDATE )
 ecbuild_bundle( PROJECT oops )
 
 # jedi-data

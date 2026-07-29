@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-05-21 14:02:47.548387919 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-05-21 14:05:48.427852620 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h.tmp.bak	2026-07-29 11:20:13.027185243 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/oops/ProcessPerts.h	2026-07-29 11:21:18.607995217 +0200
 @@ -8,6 +8,7 @@
  #pragma once
  
@@ -114,7 +114,7 @@
      for (std::size_t i = 0; i < vlevs.size() ; ++i) {
        incVars[i].setLevels(vlevs[i]);
      }
-@@ -234,7 +250,7 @@
+@@ -222,7 +238,7 @@
      // Read input ensemble
      oops::FieldSets fsetEnsI = readEnsemble<MODEL>(geom,
                                                     incVars,
@@ -123,7 +123,7 @@
                                                     fullConfigUpdated);
      int nincrements = fsetEnsI.ens_size();
  
-@@ -380,7 +396,7 @@
+@@ -368,7 +384,7 @@
                                  std::vector<std::string>{"geometry", "grid"},
                                  "grid pattern",
                                  gconf);
@@ -132,7 +132,7 @@
          }
  
          if (auto it{modelWriteConfs.find(b)}; it != std::end(modelWriteConfs)) {
-@@ -388,10 +404,10 @@
+@@ -376,10 +392,10 @@
  
            // Should be on the model geometry!
            auto pert = Increment_(geom,

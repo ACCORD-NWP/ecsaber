@@ -1739,8 +1739,9 @@ void FastLAM::setupCtlVecSize() {
   for (size_t jBin = 0; jBin < weight_.size(); ++jBin) {
     // Loop over groups
     for (size_t jg = 0; jg < groups_.size(); ++jg) {
-      if (params_.strategy.value() == "univariate") {
-        // Univariate strategy
+      if ((params_.strategy.value() == "univariate")
+        || (params_.strategy.value() == "duplicated and weighted")) {
+        // Univariate or duplicated and weighted strategy
         ctlVecSize_ += data_[jg][jBin]->ctlVecSize()*groups_[jg].variables_.size();
       } else if (params_.strategy.value() == "duplicated") {
         // Duplicated strategy
@@ -1782,8 +1783,8 @@ void FastLAM::setupGlbIndex() {
       comm_.allReduce(static_cast<int>(data_[jg][jBin]->ctlVecSize()), ctlVecGlbSize,
         eckit::mpi::sum());
 
-      if (params_.strategy.value() == "univariate") {
-        // Univariate strategy
+      if ((params_.strategy.value() == "univariate")
+        || (params_.strategy.value() == "duplicated and weighted")) {
         for (size_t jvar = 0; jvar < groups_[jg].variables_.size(); ++jvar) {
           for (size_t jcv = 0; jcv < data_[jg][jBin]->ctlVecSize(); ++jcv) {
             glbIndex_.push_back(partialGlbIndex[jcv]+offset);

@@ -12,7 +12,7 @@ Covariance(SABER-parametric) dirac test:
           Subset Sc0 size:             7082
           Domain area (% of Earth area): 0.100E+03%
              Level   1 ~> 100.0%
-             Level   1 ~>  0.100E+01 vert. coord.
+             Level   1 ~>  0.444E-01 vert. coord.
              Effective levels:   1 
                    Requested distance between points (min/max/avg):  0.120E+04 km /  0.120E+04 km /  0.120E+04 km
                    Regular sampling grid size:      208 points
@@ -23,7 +23,7 @@ Covariance(SABER-parametric) dirac test:
              nc1(  1) =                        208
              ns =                              208
              v%n_s =                             1
-             c%n_s[global] =                  2656
+             c%n_s[global] =                  2536
     Full NICAS adjoint test result:                        T
        Block NICAS adjoint test result:                    T
           Interpolation adjoint test (horizontal) result:  T
@@ -33,13 +33,13 @@ Covariance(SABER-parametric) dirac test:
           Communication AC adjoint test result:            T
           Convolution / communication adjoint test result: T
           Component NICAS adjoint test result:             T
-Norm of output parameter vert_coord - 1: 8.4154619599876980e+01
+Norm of output parameter vert_coord - 1: 1.2831019118921313e+01
 Covariance(SABER-parametric) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L120x61 [7320]
   Fields:
   - snow_depth (1 levels):
     + min close to zero
-    + max    = 1.0000000000000002e+00
-    + mean   = 3.2535910320789410e-02
-    + stddev = 1.2290222284287994e-01
+    + max    = 9.9999999999999967e-01
+    + mean   = 1.1372355303587423e-02
+    + stddev = 7.8460196564529336e-02

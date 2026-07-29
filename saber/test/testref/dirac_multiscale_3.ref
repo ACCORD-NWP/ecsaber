@@ -60,10 +60,10 @@ Covariance(SABER-ensemble) * Increment:
   Geometry: L48x25 [1200]
   Fields:
   - air_horizontal_streamfunction (5 levels):
-    + min    = -3.0026486956697079e-05
-    + max    = 1.1290233103652674e+00
-    + mean   = 3.7109194893663513e-03
-    + stddev = 3.5176946480321478e-02
+    + min    = -3.0026486956696852e-05
+    + max    = 1.1290233103652672e+00
+    + mean   = 3.7109194893663526e-03
+    + stddev = 3.5176946480321471e-02
 Localization(SABER-ensemble_localization_wb1) dirac test:
        Independent levels:  1[5]
           Subset Sc0 size:             1106
@@ -92,7 +92,7 @@ Localization(SABER-ensemble_localization_wb1) * Increment:
 Localization(SABER-ensemble_localization_wb1) diagnostics:
 - Localization at zero separation:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000007e+00
-Localization(SABER-ensemble_localization_wb1) dirac test:
+Localization(SABER-ensemble_localization_wb2) dirac test:
        Independent levels:  1[5]
           Subset Sc0 size:             1106
           Domain area (% of Earth area): 0.100E+03%
@@ -108,7 +108,7 @@ Localization(SABER-ensemble_localization_wb1) dirac test:
              Level   5 ~>  0.500E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Localization(SABER-ensemble_localization_wb1) * Increment:
+Localization(SABER-ensemble_localization_wb2) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L48x25 [1200]
   Fields:
@@ -117,10 +117,10 @@ Localization(SABER-ensemble_localization_wb1) * Increment:
     + max    = 1.0000000000000000e+00
     + mean   = 8.7283785178497442e-03
     + stddev = 6.6479832060074642e-02
-Localization(SABER-ensemble_localization_wb1) diagnostics:
+Localization(SABER-ensemble_localization_wb2) diagnostics:
 - Localization at zero separation:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0000000000000000e+00
-Localization(SABER-ensemble_localization_wb1) dirac test:
+Localization(SABER-ensemble_localization_wb3) dirac test:
        Independent levels:  1[5]
           Subset Sc0 size:             1106
           Domain area (% of Earth area): 0.100E+03%
@@ -136,7 +136,7 @@ Localization(SABER-ensemble_localization_wb1) dirac test:
              Level   5 ~>  0.500E+01 vert. coord.
 Adjoint test for block BUMP_NICAS passed
 Square-root test for block BUMP_NICAS passed
-Localization(SABER-ensemble_localization_wb1) * Increment:
+Localization(SABER-ensemble_localization_wb3) * Increment:
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L48x25 [1200]
   Fields:
@@ -145,6 +145,6 @@ Localization(SABER-ensemble_localization_wb1) * Increment:
     + max    = 9.9999999999999967e-01
     + mean   = 2.1859304824388627e-03
     + stddev = 3.3050336913955633e-02
-Localization(SABER-ensemble_localization_wb1) diagnostics:
+Localization(SABER-ensemble_localization_wb3) diagnostics:
 - Localization at zero separation:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 9.9999999999999967e-01

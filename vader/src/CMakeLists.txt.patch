@@ -1,6 +1,6 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/vader/src/CMakeLists.txt.tmp.bak	2026-06-27 19:35:21.364241057 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/vader/src/CMakeLists.txt	2026-06-27 19:36:11.012746041 +0200
-@@ -272,6 +272,7 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/vader/src/CMakeLists.txt.tmp.bak	2026-07-29 11:19:21.814394499 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/vader/src/CMakeLists.txt	2026-07-29 11:20:07.169206349 +0200
+@@ -322,6 +322,7 @@
  target_include_directories( ${PROJECT_NAME} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS} )
  
  target_link_libraries( ${PROJECT_NAME} PUBLIC ${oops_LIBRARIES} ) #TODO: Change to "oops::oops" once oops adds namespace support

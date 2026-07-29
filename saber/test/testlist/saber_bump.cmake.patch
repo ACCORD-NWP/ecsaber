@@ -1,5 +1,5 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_bump.cmake.tmp.bak	2026-05-27 15:05:10.208775911 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_bump.cmake	2026-05-27 15:07:31.389796194 +0200
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_bump.cmake.tmp.bak	2026-07-29 11:20:19.124164025 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/testlist/saber_bump.cmake	2026-07-29 11:22:29.692876735 +0200
 @@ -9,10 +9,10 @@
                  DEPENDS saber_quench_convertstate.x )
  
@@ -213,9 +213,9 @@
 +#                TEST_DEPENDS saber_randomization_bump_nicas_L10L2_2-1
 +#                             saber_randomization_bump_nicas_L10L2T18_2-1 )
  
- # dirac_localization_bump_1
- saber_add_test( TARGET saber_dirac_localization_bump_1_1-1
-@@ -612,14 +612,14 @@
+ # dirac_geographical_mask_1
+ saber_add_test( TARGET saber_dirac_geographical_mask_1_1-1
+@@ -661,14 +661,14 @@
                               saber_error_covariance_training_multiscale_2_1-2 )
  
  # dirac_oops_ens_noloc_4d
@@ -236,5 +236,5 @@
 +#                TEST_DEPENDS saber_randomization_bump_nicas_L10L2_2-1
 +#                             saber_randomization_bump_nicas_L10L2T18_2-1 )
  
- # dirac_shadowlevels_1
- saber_add_test( TARGET saber_dirac_shadowlevels_1_1-1
+ # dirac_shadow_levels_1
+ saber_add_test( TARGET saber_dirac_shadow_levels_1_1-1

@@ -8,134 +8,134 @@ oops/util/ConfigFunctions.h
 )
 
 if( ECSABER )
-# List source files from OOPS-JEDI
-list( APPEND oops_jedi_src_files
-oops/atlas/Interpolator.cc
-oops/atlas/Interpolator.h
-oops/base/DataSetBase.h
-oops/base/FieldSet3D.cc
-oops/base/FieldSet3D.h
-oops/base/FieldSet4D.cc
-oops/base/FieldSet4D.h
-oops/base/FieldSets.cc
-oops/base/FieldSets.h
-oops/base/GeometryData.cc
-oops/base/GeometryData.h
-oops/base/ParameterTraitsVariables.cc
-oops/base/ParameterTraitsVariables.h
-oops/base/Variable.cc
-oops/base/Variable.h
-oops/base/Variables.cc
-oops/base/Variables.h
-oops/generic/AtlasInterpolator.cc
-oops/generic/AtlasInterpolator.h
-oops/generic/Diffusion.cc
-oops/generic/Diffusion.h
-oops/generic/gc99.cc
-oops/generic/gc99.h
-oops/generic/GlobalInterpolator.cc
-oops/generic/GlobalInterpolator.h
-oops/generic/UnstructuredInterpolator.cc
-oops/generic/UnstructuredInterpolator.h
-oops/interface/LinearVariableChange.h
-oops/interface/ModelData.h
-oops/interface/VariableChange.h
-oops/mpi/ColorInfo.cc
-oops/mpi/ColorInfo.h
-oops/mpi/mpi.cc
-oops/mpi/mpi.h
-oops/mpi/Scope.cc
-oops/mpi/Scope.h
-oops/runs/ConvertState.h
-oops/util/AnyOf.h
-oops/util/AssociativeContainers.h
-oops/util/AtlasArrayUtil.cc
-oops/util/AtlasArrayUtil.h
-oops/util/CompositePath.cc
-oops/util/CompositePath.h
-oops/util/ConfigHelpers.cc
-oops/util/ConfigHelpers.h
-oops/util/dateFunctions.cc
-oops/util/dateFunctions.h
-oops/util/defines.h
-oops/util/Factory.h
-oops/util/FieldSetHelpers.cc
-oops/util/FieldSetHelpers.h
-oops/util/FieldSetOperations.cc
-oops/util/FieldSetOperations.h
-oops/util/FieldSetSubCommunicators.cc
-oops/util/FieldSetSubCommunicators.h
-oops/util/FloatCompare.h
-oops/util/for_each.cc
-oops/util/for_each.h
-oops/util/FunctionSpaceHelpers.cc
-oops/util/FunctionSpaceHelpers.h
-oops/util/gatherPrint.cc
-oops/util/gatherPrint.h
-oops/util/IntSetParser.cc
-oops/util/IntSetParser.h
-oops/util/missingValues.cc
-oops/util/missingValues.h
-oops/util/NamedEnumerator.h
-oops/util/ParallelFieldSetIO.cc
-oops/util/ParallelFieldSetIO.h
-oops/util/parameters/ConfigurationParameter.cc
-oops/util/parameters/ConfigurationParameter.h
-oops/util/parameters/EmptyParameters.h
-oops/util/parameters/GenericParameters.h
-oops/util/parameters/HasParameters_.h
-oops/util/parameters/IgnoreOtherParameters.cc
-oops/util/parameters/IgnoreOtherParameters.h
-oops/util/parameters/NumericConstraints.h
-oops/util/parameters/ObjectJsonSchema.cc
-oops/util/parameters/ObjectJsonSchema.h
-oops/util/parameters/OptionalParameter.cc
-oops/util/parameters/OptionalParameter.h
-oops/util/parameters/OptionalPolymorphicParameter.h
-oops/util/parameters/ParameterBase.cc
-oops/util/parameters/ParameterBase.h
-oops/util/parameters/ParameterConstraint.h
-oops/util/parameters/Parameter.h
-oops/util/parameters/Parameters.cc
-oops/util/parameters/Parameters.h
-oops/util/parameters/ParametersOrConfiguration.h
-oops/util/parameters/ParameterTraitsAnyOf.h
-oops/util/parameters/ParameterTraits.cc
-oops/util/parameters/ParameterTraits.h
-oops/util/parameters/ParameterTraitsScalarOrMap.h
-oops/util/parameters/PolymorphicParameter.h
-oops/util/parameters/PolymorphicParameterTraits.h
-oops/util/parameters/PropertyJsonSchema.cc
-oops/util/parameters/PropertyJsonSchema.h
-oops/util/parameters/RequiredParameter.h
-oops/util/parameters/RequiredPolymorphicParameter.h
-oops/util/PartialDateTime.cc
-oops/util/PartialDateTime.h
-oops/util/printRunStats.cc
-oops/util/printRunStats.h
-oops/util/RandomField.h
-oops/util/Random.h
-oops/util/redistribution/CommGatherScatterRedistribution.cc 
-oops/util/redistribution/CommGatherScatterRedistribution.h
-oops/util/redistribution/CommRedistributionCompatChecker.cc
-oops/util/redistribution/CommRedistributionCompatChecker.h
-oops/util/redistribution/CommRedistribution.h
-oops/util/redistribution/CommRedistributionRepository.cc
-oops/util/redistribution/CommRedistributionRepository.h
-oops/util/redistribution/CommStraightRedistribution.cc
-oops/util/redistribution/CommStraightRedistribution.h
-oops/util/redistribution/detail/AllToAllRouting.cc
-oops/util/redistribution/detail/AllToAllRouting.h
-oops/util/reduction.cc
-oops/util/reduction.h
-oops/util/ScalarOrMap.h
-oops/util/Serializable.h
-oops/util/stringFunctions.cc
-oops/util/stringFunctions.h
-oops/util/TimeWindow.cc
-oops/util/TimeWindow.h
-oops/util/TypeTraits.h
-)
+    # List source files from OOPS-JEDI
+    list( APPEND oops_jedi_src_files
+    oops/atlas/Interpolator.cc
+    oops/atlas/Interpolator.h
+    oops/base/DataSetBase.h
+    oops/base/FieldSet3D.cc
+    oops/base/FieldSet3D.h
+    oops/base/FieldSet4D.cc
+    oops/base/FieldSet4D.h
+    oops/base/FieldSets.cc
+    oops/base/FieldSets.h
+    oops/base/GeometryData.cc
+    oops/base/GeometryData.h
+    oops/base/ParameterTraitsVariables.cc
+    oops/base/ParameterTraitsVariables.h
+    oops/base/Variable.cc
+    oops/base/Variable.h
+    oops/base/Variables.cc
+    oops/base/Variables.h
+    oops/generic/AtlasInterpolator.cc
+    oops/generic/AtlasInterpolator.h
+    oops/generic/Diffusion.cc
+    oops/generic/Diffusion.h
+    oops/generic/gc99.cc
+    oops/generic/gc99.h
+    oops/generic/GlobalInterpolator.cc
+    oops/generic/GlobalInterpolator.h
+    oops/generic/UnstructuredInterpolator.cc
+    oops/generic/UnstructuredInterpolator.h
+    oops/interface/LinearVariableChange.h
+    oops/interface/ModelData.h
+    oops/interface/VariableChange.h
+    oops/mpi/ColorInfo.cc
+    oops/mpi/ColorInfo.h
+    oops/mpi/mpi.cc
+    oops/mpi/mpi.h
+    oops/mpi/Scope.cc
+    oops/mpi/Scope.h
+    oops/runs/ConvertState.h
+    oops/util/AnyOf.h
+    oops/util/AssociativeContainers.h
+    oops/util/AtlasArrayUtil.cc
+    oops/util/AtlasArrayUtil.h
+    oops/util/CompositePath.cc
+    oops/util/CompositePath.h
+    oops/util/ConfigHelpers.cc
+    oops/util/ConfigHelpers.h
+    oops/util/dateFunctions.cc
+    oops/util/dateFunctions.h
+    oops/util/defines.h
+    oops/util/Factory.h
+    oops/util/FieldSetHelpers.cc
+    oops/util/FieldSetHelpers.h
+    oops/util/FieldSetOperations.cc
+    oops/util/FieldSetOperations.h
+    oops/util/FieldSetSubCommunicators.cc
+    oops/util/FieldSetSubCommunicators.h
+    oops/util/FloatCompare.h
+    oops/util/for_each.cc
+    oops/util/for_each.h
+    oops/util/FunctionSpaceHelpers.cc
+    oops/util/FunctionSpaceHelpers.h
+    oops/util/gatherPrint.cc
+    oops/util/gatherPrint.h
+    oops/util/IntSetParser.cc
+    oops/util/IntSetParser.h
+    oops/util/missingValues.cc
+    oops/util/missingValues.h
+    oops/util/NamedEnumerator.h
+    oops/util/ParallelFieldSetIO.cc
+    oops/util/ParallelFieldSetIO.h
+    oops/util/parameters/ConfigurationParameter.cc
+    oops/util/parameters/ConfigurationParameter.h
+    oops/util/parameters/EmptyParameters.h
+    oops/util/parameters/GenericParameters.h
+    oops/util/parameters/HasParameters_.h
+    oops/util/parameters/IgnoreOtherParameters.cc
+    oops/util/parameters/IgnoreOtherParameters.h
+    oops/util/parameters/NumericConstraints.h
+    oops/util/parameters/ObjectJsonSchema.cc
+    oops/util/parameters/ObjectJsonSchema.h
+    oops/util/parameters/OptionalParameter.cc
+    oops/util/parameters/OptionalParameter.h
+    oops/util/parameters/OptionalPolymorphicParameter.h
+    oops/util/parameters/ParameterBase.cc
+    oops/util/parameters/ParameterBase.h
+    oops/util/parameters/ParameterConstraint.h
+    oops/util/parameters/Parameter.h
+    oops/util/parameters/Parameters.cc
+    oops/util/parameters/Parameters.h
+    oops/util/parameters/ParametersOrConfiguration.h
+    oops/util/parameters/ParameterTraitsAnyOf.h
+    oops/util/parameters/ParameterTraits.cc
+    oops/util/parameters/ParameterTraits.h
+    oops/util/parameters/ParameterTraitsScalarOrMap.h
+    oops/util/parameters/PolymorphicParameter.h
+    oops/util/parameters/PolymorphicParameterTraits.h
+    oops/util/parameters/PropertyJsonSchema.cc
+    oops/util/parameters/PropertyJsonSchema.h
+    oops/util/parameters/RequiredParameter.h
+    oops/util/parameters/RequiredPolymorphicParameter.h
+    oops/util/PartialDateTime.cc
+    oops/util/PartialDateTime.h
+    oops/util/printRunStats.cc
+    oops/util/printRunStats.h
+    oops/util/RandomField.h
+    oops/util/Random.h
+    oops/util/redistribution/CommGatherScatterRedistribution.cc 
+    oops/util/redistribution/CommGatherScatterRedistribution.h
+    oops/util/redistribution/CommRedistributionCompatChecker.cc
+    oops/util/redistribution/CommRedistributionCompatChecker.h
+    oops/util/redistribution/CommRedistribution.h
+    oops/util/redistribution/CommRedistributionRepository.cc
+    oops/util/redistribution/CommRedistributionRepository.h
+    oops/util/redistribution/CommStraightRedistribution.cc
+    oops/util/redistribution/CommStraightRedistribution.h
+    oops/util/redistribution/detail/AllToAllRouting.cc
+    oops/util/redistribution/detail/AllToAllRouting.h
+    oops/util/reduction.cc
+    oops/util/reduction.h
+    oops/util/ScalarOrMap.h
+    oops/util/Serializable.h
+    oops/util/stringFunctions.cc
+    oops/util/stringFunctions.h
+    oops/util/TimeWindow.cc
+    oops/util/TimeWindow.h
+    oops/util/TypeTraits.h
+    )
 endif()
 
 # Copy and update source files from OOPS-JEDI
@@ -172,7 +172,7 @@ util/Timer.h
 
 # Set OOPS source directory
 if( NOT DEFINED OOPS_SOURCE_DIR )
-  set( OOPS_SOURCE_DIR ${oops_SOURCE_DIR} )
+    set( OOPS_SOURCE_DIR ${oops_SOURCE_DIR} )
 endif()
 
 # Link oops source files from OOPS-ECMWF
@@ -209,25 +209,25 @@ oops/runs/SyntheticData.h
 )
 
 if( ECEVIL )
-# List ECEVIL-specific oops_patch source files
-list( APPEND oops_patch_src_files
-oops/assimilation/DRPLanczosEVILMinimizer.h
-oops/assimilation/instantiateEvilMinFactory.h
-oops/assimilation/PLanczosEVILMinimizer.h
-oops/assimilation/RitzPairs.h
-oops/assimilation/RPLanczosEVILMinimizer.h
-oops/assimilation/SQRTBPLanczosEVILMinimizer.h
-oops/assimilation/SQRTPLanczosEVILMinimizer.h
-oops/runs/EvilUpdate.h
-)
+    # List ECEVIL-specific oops_patch source files
+    list( APPEND oops_patch_src_files
+    oops/assimilation/DRPLanczosEVILMinimizer.h
+    oops/assimilation/instantiateEvilMinFactory.h
+    oops/assimilation/PLanczosEVILMinimizer.h
+    oops/assimilation/RitzPairs.h
+    oops/assimilation/RPLanczosEVILMinimizer.h
+    oops/assimilation/SQRTBPLanczosEVILMinimizer.h
+    oops/assimilation/SQRTPLanczosEVILMinimizer.h
+    oops/runs/EvilUpdate.h
+    )
 endif()
 
 if( ECSABER )
-# List ECSABER-specific oops_patch source files
-list( APPEND oops_patch_src_files
-oops/util/ECUtilities.cc
-oops/util/ECUtilities.h
-)
+    # List ECSABER-specific oops_patch source files
+    list( APPEND oops_patch_src_files
+    oops/util/ECUtilities.cc
+    oops/util/ECUtilities.h
+    )
 endif()
 
 ecbuild_add_library( TARGET          oops_patch
@@ -243,6 +243,14 @@ ecbuild_add_library( TARGET          oops_patch
                      INSTALL_HEADERS LISTED
                      LINKER_LANGUAGE ${OOPS_LINKER_LANGUAGE}
                    )
+
+if( ECSABER )
+    install( FILES
+             ${CMAKE_CURRENT_SOURCE_DIR}/oops/util/linkedList_i.f
+             ${CMAKE_CURRENT_SOURCE_DIR}/oops/util/linkedList_c.f
+             DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/oops/util
+    )
+endif()
 
 if( NOT OOPS_LINK_LAPACK )
   # Only here to allow CY47R2.DP to be bitreproducible with operational CY47R1.DP; It can be removed for CY48R1.

@@ -15,6 +15,6 @@ Covariance(SABER-parametric) * Increment:
   Fields:
   - air_horizontal_streamfunction (10 levels):
     + min close to zero
-    + max    = 9.6934780872382531e-01
-    + mean   = 2.0777410779509214e-02
-    + stddev = 7.8294912061942334e-02
+    + max    = 9.6945329449308359e-01
+    + mean   = 2.1084531814315011e-02
+    + stddev = 7.8838003672026730e-02
