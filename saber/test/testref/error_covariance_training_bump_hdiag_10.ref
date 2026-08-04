@@ -93,12 +93,21 @@ Norm of input parameter sampling_mask_field - 1: 8.9728039154758349e+01
                 Level:   8 ~> cov. at class zero:  0.86E+00
                 Level:   9 ~> cov. at class zero:  0.11E+01
                 Level:  10 ~> cov. at class zero:  0.11E+01
+<<<<<<< HEAD
              Block air_horizontal_streamfunction:  0.34152189E+00 for    15699 diagnostic points
                    Level:   1 ~> amplitude:        1.00
                                  cor. hor. support:      4999.73 km
                                  cor. ver. support:         5.65 vertical units
                    Level:   2 ~> amplitude:        1.00
                                  cor. hor. support:      6038.92 km
+=======
+             Block air_horizontal_streamfunction:  0.34153559E+00 for    15699 diagnostic points
+                   Level:   1 ~> amplitude:        1.00
+                                 cor. hor. support:      4999.18 km
+                                 cor. ver. support:         5.65 vertical units
+                   Level:   2 ~> amplitude:        1.00
+                                 cor. hor. support:      6033.55 km
+>>>>>>> feature/nicas_article
                                  cor. ver. support:         6.73 vertical units
                    Level:   3 ~> amplitude:        1.00
                                  cor. hor. support:      4895.14 km
@@ -110,12 +119,17 @@ Norm of input parameter sampling_mask_field - 1: 8.9728039154758349e+01
                                  cor. hor. support:      4223.86 km
                                  cor. ver. support:         5.48 vertical units
                    Level:   6 ~> amplitude:        1.00
+<<<<<<< HEAD
                                  cor. hor. support:      4796.23 km
+=======
+                                 cor. hor. support:      4797.03 km
+>>>>>>> feature/nicas_article
                                  cor. ver. support:         6.10 vertical units
                    Level:   7 ~> amplitude:        1.00
                                  cor. hor. support:      5234.42 km
                                  cor. ver. support:         5.09 vertical units
                    Level:   8 ~> amplitude:        1.00
+<<<<<<< HEAD
                                  cor. hor. support:      5691.33 km
                                  cor. ver. support:         6.46 vertical units
                    Level:   9 ~> amplitude:        1.00
@@ -125,6 +139,17 @@ Norm of input parameter sampling_mask_field - 1: 8.9728039154758349e+01
                                  cor. hor. support:      4161.03 km
                                  cor. ver. support:         6.99 vertical units
              Block air_horizontal_streamfunction:  0.25475139E+00 for    35000 diagnostic points
+=======
+                                 cor. hor. support:      5693.45 km
+                                 cor. ver. support:         6.46 vertical units
+                   Level:   9 ~> amplitude:        1.00
+                                 cor. hor. support:      4376.67 km
+                                 cor. ver. support:         5.38 vertical units
+                   Level:  10 ~> amplitude:        1.00
+                                 cor. hor. support:      4156.69 km
+                                 cor. ver. support:         6.99 vertical units
+             Block air_horizontal_streamfunction:  0.25514138E+00 for    35000 diagnostic points
+>>>>>>> feature/nicas_article
                 Level:   1 ~> loc. at class zero:       0.92
                 Level:   2 ~> loc. at class zero:       0.92
                 Level:   3 ~> loc. at class zero:       0.92
@@ -136,10 +161,17 @@ Norm of input parameter sampling_mask_field - 1: 8.9728039154758349e+01
                 Level:   9 ~> loc. at class zero:       0.92
                 Level:  10 ~> loc. at class zero:       0.92
                    Level:   1 ~> amplitude:        1.00
+<<<<<<< HEAD
                                  loc. hor. support:      6589.65 km
                                  loc. ver. support:         8.20 vertical units
                    Level:   2 ~> amplitude:        1.00
                                  loc. hor. support:      7993.96 km
+=======
+                                 loc. hor. support:      6589.11 km
+                                 loc. ver. support:         8.20 vertical units
+                   Level:   2 ~> amplitude:        1.00
+                                 loc. hor. support:      7986.86 km
+>>>>>>> feature/nicas_article
                                  loc. ver. support:         7.96 vertical units
                    Level:   3 ~> amplitude:        1.00
                                  loc. hor. support:      6446.18 km
@@ -151,12 +183,17 @@ Norm of input parameter sampling_mask_field - 1: 8.9728039154758349e+01
                                  loc. hor. support:      5555.85 km
                                  loc. ver. support:         9.22 vertical units
                    Level:   6 ~> amplitude:        1.00
+<<<<<<< HEAD
                                  loc. hor. support:      6341.21 km
+=======
+                                 loc. hor. support:      6342.03 km
+>>>>>>> feature/nicas_article
                                  loc. ver. support:         8.79 vertical units
                    Level:   7 ~> amplitude:        1.00
                                  loc. hor. support:      6899.02 km
                                  loc. ver. support:         9.85 vertical units
                    Level:   8 ~> amplitude:        1.00
+<<<<<<< HEAD
                                  loc. hor. support:      7490.61 km
                                  loc. ver. support:         8.09 vertical units
                    Level:   9 ~> amplitude:        1.00
@@ -167,3 +204,15 @@ Norm of input parameter sampling_mask_field - 1: 8.9728039154758349e+01
                                  loc. ver. support:         8.34 vertical units
 Norm of output parameter cor_rh - 1: 4.8766563926710957e+08
 Norm of output parameter cor_rv - 1: 5.3943048161258105e+02
+=======
+                                 loc. hor. support:      7493.84 km
+                                 loc. ver. support:         8.09 vertical units
+                   Level:   9 ~> amplitude:        1.00
+                                 loc. hor. support:      5765.38 km
+                                 loc. ver. support:         7.44 vertical units
+                   Level:  10 ~> amplitude:        1.00
+                                 loc. hor. support:      5496.95 km
+                                 loc. ver. support:         8.34 vertical units
+Norm of output parameter cor_rh - 1: 4.8762013515186220e+08
+Norm of output parameter cor_rv - 1: 5.3943858722125958e+02
+>>>>>>> feature/nicas_article

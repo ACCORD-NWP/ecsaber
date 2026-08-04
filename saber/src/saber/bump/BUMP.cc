@@ -25,7 +25,6 @@
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/Logger.h"
 
-#include "saber/bump/type_bump_parameters.h"
 #include "saber/oops/Utilities.h"
 
 namespace saber {

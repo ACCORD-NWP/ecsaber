@@ -1,40 +1,71 @@
-Write perturbation: 
+Member 0: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
   - air_horizontal_streamfunction (10 levels):
+<<<<<<< HEAD
     + min    = -2.5194390686310864e-01
     + max    = 2.9152681617627629e-01
     + mean   = 7.6890022029406655e-03
     + stddev = 7.6912084460756411e-02
 Write perturbation: 
+=======
+    + min    = -2.5194390686310858e-01
+    + max    = 2.9152681617627629e-01
+    + mean   = 7.6890022029406689e-03
+    + stddev = 7.6912084460756425e-02
+Member 1: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
   - air_horizontal_streamfunction (10 levels):
+<<<<<<< HEAD
     + min    = -2.3551627999429323e-01
     + max    = 2.2205255335867896e-01
     + mean   = -1.2842857960562896e-02
     + stddev = 7.1086413024974413e-02
 Write perturbation: 
+=======
+    + min    = -2.3551627999429320e-01
+    + max    = 2.2205255335867899e-01
+    + mean   = -1.2842857960562898e-02
+    + stddev = 7.1086413024974426e-02
+Member 2: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
   - air_horizontal_streamfunction (10 levels):
+<<<<<<< HEAD
     + min    = -2.2301699663019509e-01
     + max    = 2.5325933677467377e-01
     + mean   = 6.1717406045204513e-03
     + stddev = 6.9826757088237323e-02
 Write perturbation: 
+=======
+    + min    = -2.2301699663019500e-01
+    + max    = 2.5325933677467383e-01
+    + mean   = 6.1717406045204409e-03
+    + stddev = 6.9826757088237310e-02
+Member 3: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
   - air_horizontal_streamfunction (10 levels):
     + min    = -2.6833838600654025e-01
+<<<<<<< HEAD
     + max    = 2.3124716740925377e-01
     + mean   = 2.0520811939596230e-03
     + stddev = 6.9791354457325205e-02
 Write perturbation: 
+=======
+    + max    = 2.3124716740925383e-01
+    + mean   = 2.0520811939596260e-03
+    + stddev = 6.9791354457325233e-02
+Member 4: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
@@ -43,43 +74,78 @@ Write perturbation:
     + max    = 3.0589781420863588e-01
     + mean   = 3.1523181756592227e-03
     + stddev = 7.5543005434326932e-02
+<<<<<<< HEAD
 Write perturbation: 
+=======
+Member 5: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
   - air_horizontal_streamfunction (10 levels):
+<<<<<<< HEAD
     + min    = -2.4117955387354073e-01
     + max    = 2.2286687272956607e-01
     + mean   = -1.8922625416178347e-02
     + stddev = 6.9461778396752480e-02
 Write perturbation: 
+=======
+    + min    = -2.4117955387354068e-01
+    + max    = 2.2286687272956612e-01
+    + mean   = -1.8922625416178323e-02
+    + stddev = 6.9461778396752466e-02
+Member 6: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
   - air_horizontal_streamfunction (10 levels):
+<<<<<<< HEAD
     + min    = -2.3052103985426914e-01
     + max    = 2.5920875263099957e-01
     + mean   = 9.0462490940832439e-03
     + stddev = 7.1101407107345693e-02
 Write perturbation: 
+=======
+    + min    = -2.3052103985426922e-01
+    + max    = 2.5920875263099957e-01
+    + mean   = 9.0462490940832491e-03
+    + stddev = 7.1101407107345679e-02
+Member 7: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
   - air_horizontal_streamfunction (10 levels):
+<<<<<<< HEAD
     + min    = -2.3038663884418054e-01
     + max    = 2.4000115369412658e-01
     + mean   = 7.0569950810947689e-03
     + stddev = 6.7543461213438294e-02
 Write perturbation: 
+=======
+    + min    = -2.3038663884418048e-01
+    + max    = 2.4000115369412656e-01
+    + mean   = 7.0569950810947671e-03
+    + stddev = 6.7543461213438308e-02
+Member 8: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:
   - air_horizontal_streamfunction (10 levels):
     + min    = -2.9764150091775071e-01
+<<<<<<< HEAD
     + max    = 2.5856214341510120e-01
     + mean   = -1.1190115275655882e-02
     + stddev = 8.0730240546050561e-02
 Write perturbation: 
+=======
+    + max    = 2.5856214341510131e-01
+    + mean   = -1.1190115275655881e-02
+    + stddev = 8.0730240546050547e-02
+Member 9: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: CS-LFR-12 [864]
   Fields:

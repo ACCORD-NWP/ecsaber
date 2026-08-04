@@ -13,20 +13,39 @@ Input Dirac increment:
   - air_horizontal_streamfunction (2 levels):
     + min    = 0.0000000000000000e+00
     + max    = 0.0000000000000000e+00
+<<<<<<< HEAD
 Covariance(SABER-ensemble) dirac test:
 Covariance(SABER-ensemble) * Increment:
+=======
+Covariance(SABER) diagnostics:
+- Variances at Dirac points:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 8.6592677824788111e-01
+- Covariances at diagnostic points:
+  + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (9.00000, 0.00000, 1): 9.1649976495362040e-01
+  + Value for variable air_horizontal_streamfunction, subwindow 1, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 3.8376853858137033e-01
+  + Value for variable air_horizontal_streamfunction, subwindow 1, at (longitude, latitude, vertical index) point (9.00000, 0.00000, 1): 2.2614730468857105e-01
+Covariance(SABER) * Increment:
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - air_horizontal_streamfunction (2 levels):
+<<<<<<< HEAD
     + min    = -6.6831516446118999e-01
     + max    = 9.3955317886609635e-01
     + mean   = -4.0716201967943538e-02
     + stddev = 2.1617964535080506e-01
+=======
+    + min    = -6.6831516446119021e-01
+    + max    = 9.3955317886609679e-01
+    + mean   = -4.0716201967943559e-02
+    + stddev = 2.1617964535080511e-01
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T18:00:00Z
   Geometry: L40x21 [840]
   Fields:
   - air_horizontal_streamfunction (2 levels):
+<<<<<<< HEAD
     + min    = -7.4109500454829225e-01
     + max    = 5.7283393698040785e-01
     + mean   = -2.0364968825224344e-02
@@ -38,3 +57,9 @@ Covariance(SABER-ensemble) diagnostics:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (9.00000, 0.00000, 1): 9.1649976495362007e-01
   + Value for variable air_horizontal_streamfunction, subwindow 1, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 3.8376853858137017e-01
   + Value for variable air_horizontal_streamfunction, subwindow 1, at (longitude, latitude, vertical index) point (9.00000, 0.00000, 1): 2.2614730468857094e-01
+=======
+    + min    = -7.4109500454829269e-01
+    + max    = 5.7283393698040808e-01
+    + mean   = -2.0364968825224358e-02
+    + stddev = 1.9873884679433798e-01
+>>>>>>> feature/nicas_article

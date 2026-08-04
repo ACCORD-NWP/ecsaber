@@ -73,6 +73,7 @@ Covariance(SABER-hybrid) * Increment:
   Geometry: L40x21 [840]
   Fields:
   - eastward_wind (2 levels):
+<<<<<<< HEAD
     + min    = -1.9145290197488744e-13
     + max    = 6.1848422343002445e-13
     + mean   = -1.5603653387265806e-16
@@ -82,3 +83,14 @@ Covariance(SABER-hybrid) * Increment:
     + max    = 9.0317294642091701e-14
     + mean   = 2.9627561259655066e-18
     + stddev = 7.9530814531816488e-15
+=======
+    + min    = -1.9145290197488752e-13
+    + max    = 6.1848422343002455e-13
+    + mean   = -1.5603653387265813e-16
+    + stddev = 3.0386575921288849e-14
+  - northward_wind (2 levels):
+    + min    = -1.1818197959397426e-13
+    + max    = 9.0317294642091802e-14
+    + mean   = 2.9627561259652678e-18
+    + stddev = 7.9530814531816519e-15
+>>>>>>> feature/nicas_article

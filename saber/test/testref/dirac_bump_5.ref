@@ -26,6 +26,7 @@ Covariance(SABER-ensemble) * Increment:
   Geometry: L40x21 [840]
   Fields:
   - air_horizontal_streamfunction (2 levels):
+<<<<<<< HEAD
     + min    = -9.5765984619854638e-02
     + max    = 8.9708233737976006e-01
     + mean   = 5.2696477212157752e-03
@@ -54,3 +55,9 @@ Localization(SABER-ensemble_localization) * Increment:
 Localization(SABER-ensemble_localization) diagnostics:
 - Localization at zero separation:
   + Value for variable air_horizontal_streamfunction, subwindow 0, at (longitude, latitude, vertical index) point (0.00000, 0.00000, 1): 1.0359794383480323e+00
+=======
+    + min    = -9.5765984619854652e-02
+    + max    = 8.9708233737976018e-01
+    + mean   = 5.2696477212157769e-03
+    + stddev = 4.5672950975694279e-02
+>>>>>>> feature/nicas_article

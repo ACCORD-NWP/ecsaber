@@ -22,7 +22,7 @@ Inner inverse test for block BifourierAromeBalance passed: U Uinv (U x) == (U x)
 Outer inverse test for block BifourierAromeBalance passed: Uinv U (Uinv x) == (Uinv x)
 Adjoint test for block BifourierAromeCovariance passed
 Square-root test for block BifourierAromeCovariance passed
-Write state: 
+Member 0: 
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -47,11 +47,19 @@ Write state:
     + mean   = 2.5978174136935595e-07
     + stddev = 1.8360361133230738e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.6668150381274040e-04
     + max    = 6.7158896887356111e-04
     + mean   = -1.0648538844192685e-05
     + stddev = 1.7283313826324661e-04
 Write state: 
+=======
+    + min    = -7.0517957836909416e-04
+    + max    = 6.9466204174261628e-04
+    + mean   = -2.3945722153313237e-06
+    + stddev = 1.6958098146912896e-04
+Member 1: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -76,11 +84,19 @@ Write state:
     + mean   = 6.2014651123251984e-08
     + stddev = 1.8622423555592196e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -6.6726910230737845e-04
     + max    = 6.8981290973934119e-04
     + mean   = 3.6036169380430987e-06
     + stddev = 1.7192520657221297e-04
 Write state: 
+=======
+    + min    = -6.3272934717419744e-04
+    + max    = 7.1918272706631087e-04
+    + mean   = 8.7754585982149008e-06
+    + stddev = 1.7009445676209690e-04
+Member 2: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -105,11 +121,19 @@ Write state:
     + mean   = 3.3520444132627327e-05
     + stddev = 1.7921369283699736e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.3615768432474908e-04
     + max    = 8.5602564699728838e-04
     + mean   = 8.8659426596317586e-06
     + stddev = 1.8004936346882079e-04
 Write state: 
+=======
+    + min    = -8.1205308254689139e-04
+    + max    = 7.2184827132996585e-04
+    + mean   = 9.6709412420165861e-06
+    + stddev = 1.7449538839509526e-04
+Member 3: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -134,11 +158,19 @@ Write state:
     + mean   = -2.9594620304624328e-05
     + stddev = 2.1530562040208086e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -6.9241855922282949e-04
     + max    = 6.4313833276054364e-04
     + mean   = -2.4721576569829156e-06
     + stddev = 1.6824344006133570e-04
 Write state: 
+=======
+    + min    = -6.6304856720497403e-04
+    + max    = 7.7556409193057553e-04
+    + mean   = 5.2154444219611445e-06
+    + stddev = 1.7292749528245984e-04
+Member 4: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -163,11 +195,19 @@ Write state:
     + mean   = -1.5179805736807913e-05
     + stddev = 1.8590570745702397e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -6.9720354388583413e-04
     + max    = 7.3132038892308974e-04
     + mean   = 9.6021818518951373e-06
     + stddev = 1.6413278873298297e-04
 Write state: 
+=======
+    + min    = -7.1334901622015982e-04
+    + max    = 8.8872240564937519e-04
+    + mean   = -8.1159223049614782e-06
+    + stddev = 1.7302454597780697e-04
+Member 5: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -192,11 +232,19 @@ Write state:
     + mean   = 4.0386927533099327e-05
     + stddev = 2.0425647436694808e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.3451860874446182e-04
     + max    = 7.3867095015723487e-04
     + mean   = 3.6991615475894569e-07
     + stddev = 1.7267825508086661e-04
 Write state: 
+=======
+    + min    = -6.6177435609824340e-04
+    + max    = 7.9056247382906742e-04
+    + mean   = -4.9707134550705446e-07
+    + stddev = 1.6723627453192936e-04
+Member 6: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -221,11 +269,19 @@ Write state:
     + mean   = 3.4906923898889381e-05
     + stddev = 1.8007490843474226e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -9.1701090106727180e-04
     + max    = 7.8020636266993746e-04
     + mean   = -9.3398016526224239e-06
     + stddev = 1.7187481484626184e-04
 Write state: 
+=======
+    + min    = -6.7037662502561382e-04
+    + max    = 8.2272507130686076e-04
+    + mean   = 1.8286219704601474e-05
+    + stddev = 1.7737056188831042e-04
+Member 7: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -250,11 +306,19 @@ Write state:
     + mean   = -2.2874597453008963e-05
     + stddev = 1.6806536531692809e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.6331696408898355e-04
     + max    = 8.2388561400796730e-04
     + mean   = 1.5588039134369853e-06
     + stddev = 1.8235886624027637e-04
 Write state: 
+=======
+    + min    = -8.3092103079679294e-04
+    + max    = 7.9126132087152848e-04
+    + mean   = -3.0824921946158370e-06
+    + stddev = 1.7131101634810733e-04
+Member 8: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -279,11 +343,19 @@ Write state:
     + mean   = 2.1679138470862676e-05
     + stddev = 1.6281260212026359e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -6.9019181679203434e-04
     + max    = 6.6612298176887150e-04
     + mean   = -1.4563078277760982e-06
     + stddev = 1.6911738960368602e-04
 Write state: 
+=======
+    + min    = -8.2710672076298421e-04
+    + max    = 9.2987898705156633e-04
+    + mean   = -1.8305195174504657e-06
+    + stddev = 1.7656058909242990e-04
+Member 9: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -308,11 +380,19 @@ Write state:
     + mean   = 2.6439457342210918e-05
     + stddev = 1.6707602083784292e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -8.3556002729327848e-04
     + max    = 7.2995398085979788e-04
     + mean   = 7.9805839297659142e-06
     + stddev = 1.7462595807866710e-04
 Write state: 
+=======
+    + min    = -7.8381982937771933e-04
+    + max    = 7.2602515106875553e-04
+    + mean   = -1.1573637985075016e-06
+    + stddev = 1.6740655231217702e-04
+Member 10: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -337,11 +417,19 @@ Write state:
     + mean   = 1.0363083404862764e-05
     + stddev = 1.7602600587402278e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -6.6470883176039859e-04
     + max    = 7.5724786370285312e-04
     + mean   = 6.1373462563937049e-06
     + stddev = 1.7560414297912720e-04
 Write state: 
+=======
+    + min    = -7.2345722801423970e-04
+    + max    = 8.2462183634847506e-04
+    + mean   = 9.7344548889740082e-07
+    + stddev = 1.7013090230179521e-04
+Member 11: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -366,11 +454,19 @@ Write state:
     + mean   = 5.9241033321232903e-06
     + stddev = 1.6543112577808492e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.7487958950958082e-04
     + max    = 7.6716149564117777e-04
     + mean   = -7.2797626071960006e-06
     + stddev = 1.6547576672119139e-04
 Write state: 
+=======
+    + min    = -8.4089844935115717e-04
+    + max    = 6.5408071010344048e-04
+    + mean   = -9.4183359339277093e-06
+    + stddev = 1.7292997920156082e-04
+Member 12: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -395,11 +491,19 @@ Write state:
     + mean   = -5.5413028189376444e-05
     + stddev = 1.8834628553464624e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.0255956566543610e-04
     + max    = 7.0826772496505343e-04
     + mean   = 3.8552512893269577e-07
     + stddev = 1.6557422085259493e-04
 Write state: 
+=======
+    + min    = -7.0280132125464232e-04
+    + max    = 6.8035605065102918e-04
+    + mean   = 1.1368968417604856e-06
+    + stddev = 1.6852127915759760e-04
+Member 13: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -424,11 +528,19 @@ Write state:
     + mean   = 4.4232875746566511e-05
     + stddev = 1.7674818196768119e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.1067747031315002e-04
     + max    = 7.9672238909438489e-04
     + mean   = 1.6383584558925695e-06
     + stddev = 1.7639773017458763e-04
 Write state: 
+=======
+    + min    = -6.4021829426718453e-04
+    + max    = 7.2023964923592296e-04
+    + mean   = 4.9923445715092367e-06
+    + stddev = 1.7119629119894799e-04
+Member 14: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -453,11 +565,19 @@ Write state:
     + mean   = 1.8001543070319741e-05
     + stddev = 1.8553539119979423e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.0668679743633093e-04
     + max    = 6.8620080349265672e-04
     + mean   = -1.0920615215684491e-05
     + stddev = 1.7272041389969537e-04
 Write state: 
+=======
+    + min    = -8.2502764293154523e-04
+    + max    = 7.2616620954259452e-04
+    + mean   = -1.1919029628064308e-05
+    + stddev = 1.8117692556074227e-04
+Member 15: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -482,11 +602,19 @@ Write state:
     + mean   = -3.0662190184791302e-05
     + stddev = 1.5816084385366909e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.0159628364454022e-04
     + max    = 8.2720602320791501e-04
     + mean   = -2.2247114001039558e-05
     + stddev = 1.7319982169907290e-04
 Write state: 
+=======
+    + min    = -7.7007544359361340e-04
+    + max    = 7.2883995697167324e-04
+    + mean   = -1.7059507382054246e-06
+    + stddev = 1.7394268281959799e-04
+Member 16: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -511,11 +639,19 @@ Write state:
     + mean   = -4.8081220414108564e-05
     + stddev = 1.6596910264181722e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.4977386253784607e-04
     + max    = 6.9587799428697005e-04
     + mean   = 5.5362716428200051e-06
     + stddev = 1.7441503312967086e-04
 Write state: 
+=======
+    + min    = -7.0325602033672035e-04
+    + max    = 7.5138987904556614e-04
+    + mean   = 4.7929100380018140e-06
+    + stddev = 1.7656565332882165e-04
+Member 17: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -540,11 +676,19 @@ Write state:
     + mean   = -3.3633689861344142e-06
     + stddev = 1.8685582956930516e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -6.8411462290433954e-04
     + max    = 8.1806013811391355e-04
     + mean   = -7.0474585548969961e-07
     + stddev = 1.6851324131168303e-04
 Write state: 
+=======
+    + min    = -7.1499482648865729e-04
+    + max    = 6.8322494317461118e-04
+    + mean   = -8.0899109397732761e-06
+    + stddev = 1.6878056893917509e-04
+Member 18: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -569,11 +713,19 @@ Write state:
     + mean   = -1.5207599241002527e-07
     + stddev = 2.0503176327196874e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.9169196409272164e-04
     + max    = 6.9870846242594197e-04
     + mean   = -3.0107838617915737e-06
     + stddev = 1.7574179960872798e-04
 Write state: 
+=======
+    + min    = -7.7585512226590399e-04
+    + max    = 7.0283408632953169e-04
+    + mean   = -2.8377175972046632e-06
+    + stddev = 1.7637030979346022e-04
+Member 19: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -598,11 +750,19 @@ Write state:
     + mean   = -4.5287697130342990e-05
     + stddev = 1.9779980290163921e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.1584855788972156e-04
     + max    = 6.9019909992718616e-04
     + mean   = -6.0123715881473466e-06
     + stddev = 1.7180622978407094e-04
 Write state: 
+=======
+    + min    = -7.3443886985854047e-04
+    + max    = 8.1968603900103615e-04
+    + mean   = -1.0161211957080866e-05
+    + stddev = 1.7085929091778461e-04
+Member 20: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -627,11 +787,19 @@ Write state:
     + mean   = -3.0703234702134200e-05
     + stddev = 1.7270943707267257e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.6626638401876800e-04
     + max    = 7.3110670752228732e-04
     + mean   = -6.0150976686865711e-07
     + stddev = 1.7909777289008751e-04
 Write state: 
+=======
+    + min    = -7.4954852322240524e-04
+    + max    = 6.7297340270993170e-04
+    + mean   = 1.2277997543188240e-05
+    + stddev = 1.7072329884265249e-04
+Member 21: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -656,11 +824,19 @@ Write state:
     + mean   = 5.3818007533069775e-05
     + stddev = 1.8562709067173361e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -6.3840022368661297e-04
     + max    = 7.6582220761772020e-04
     + mean   = 1.0054790698316832e-05
     + stddev = 1.6682236600633181e-04
 Write state: 
+=======
+    + min    = -8.1846252683390294e-04
+    + max    = 7.5244260228942090e-04
+    + mean   = -1.5185799489716820e-06
+    + stddev = 1.7299204575670177e-04
+Member 22: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -685,11 +861,19 @@ Write state:
     + mean   = -5.4562193811577176e-05
     + stddev = 1.9528220620312314e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -8.0018460071880739e-04
     + max    = 6.8453706923139713e-04
     + mean   = -1.0296656079034883e-06
     + stddev = 1.7258265405968744e-04
 Write state: 
+=======
+    + min    = -7.5328036122725725e-04
+    + max    = 8.0238589368271081e-04
+    + mean   = -5.4747888484323545e-08
+    + stddev = 1.6642567551401592e-04
+Member 23: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:
@@ -714,11 +898,19 @@ Write state:
     + mean   = 2.5696857580755642e-05
     + stddev = 1.7745884517877779e-04
   - water_vapor_mixing_ratio_wrt_moist_air (10 levels):
+<<<<<<< HEAD
     + min    = -7.5577998452108731e-04
     + max    = 6.8084626198698824e-04
     + mean   = 9.1673290037648603e-06
     + stddev = 1.7686541744538927e-04
 Write state: 
+=======
+    + min    = -6.1613054638958451e-04
+    + max    = 7.0875862536923955e-04
+    + mean   = 4.6189605031523403e-06
+    + stddev = 1.7101519773795110e-04
+Member 24: 
+>>>>>>> feature/nicas_article
 - Valid time: 2010-01-01T12:00:00Z
   Geometry: structured [3848]
   Fields:

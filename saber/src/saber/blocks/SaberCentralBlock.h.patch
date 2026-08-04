@@ -1,6 +1,6 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlock.h.tmp.bak	2026-06-11 09:34:50.814372984 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlock.h	2026-06-11 09:35:50.261981186 +0200
-@@ -274,7 +274,7 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlock.h.tmp.bak	2026-08-04 11:50:12.253633128 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/src/saber/blocks/SaberCentralBlock.h	2026-08-04 11:58:10.457872654 +0200
+@@ -289,7 +289,7 @@
  
      for (size_t ie = 0; ie < nens; ++ie) {
        // Read ensemble member

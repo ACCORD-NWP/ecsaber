@@ -1,16 +1,14 @@
---- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-07-29 13:02:35.479786722 +0200
-+++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-07-29 13:01:45.540899673 +0200
-@@ -80,8 +80,8 @@
+--- /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt.tmp.bak	2026-08-04 11:50:17.264666714 +0200
++++ /home/benjaminm/code/ecsaber/bundle/ecsaber/saber/test/CMakeLists.txt	2026-07-29 13:55:51.791471258 +0200
+@@ -80,7 +80,7 @@
        ecbuild_add_test( TARGET generate_torchbalance_test_emulator
                          TYPE SCRIPT
                          COMMAND ${VENV_PYTHON}
 -                        ARGS ${CMAKE_SOURCE_DIR}/saber/src/saber/torchbalance/create_test_emulator.py
--                             ${CMAKE_CURRENT_BINARY_DIR}/testdata/dirac_torchbalance )
 +                        ARGS ${CMAKE_SOURCE_DIR}/../saber/src/saber/torchbalance/create_test_emulator.py
-+                             ${CMAKE_CURRENT_BINARY_DIR}/testdata/air_temperature_emulator.ts )
+                              ${CMAKE_CURRENT_BINARY_DIR}/testdata/dirac_torchbalance )
    endif()
  
-   # Setup SABER top-level directories
 @@ -98,6 +98,12 @@
    # "saber_" prefix and the trailing "_<mpi>-<omp>" suffix.
    macro( saber_add_test )
